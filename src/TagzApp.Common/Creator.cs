@@ -9,9 +9,14 @@ public class Creator
   public string ProviderId { get; set; }
 
 	/// <summary>
-	/// Name of the creator
+	/// The screenname for the user
 	/// </summary>
-	public string DisplayName { get; set; }
+  public string UserName { get; set; }
+
+  /// <summary>
+  /// Name of the creator
+  /// </summary>
+  public string DisplayName { get; set; }
 
 	/// <summary>
 	/// Uri to the profile of the creator
