@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.33808.371
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagzApp.Web", "TagzApp.Web\TagzApp.Web.csproj", "{3549FBCD-2FB2-422F-A857-0FDEE2D75DF1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Web", "TagzApp.Web\TagzApp.Web.csproj", "{3549FBCD-2FB2-422F-A857-0FDEE2D75DF1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagzApp.Common", "TagzApp.Common\TagzApp.Common.csproj", "{90CDC906-A7E9-486F-96AD-CB44B0E8F15A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Common", "TagzApp.Common\TagzApp.Common.csproj", "{90CDC906-A7E9-486F-96AD-CB44B0E8F15A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Z. Test", "Z. Test", "{12511540-4D0B-451D-81B0-2FB2C8C5975F}"
 EndProject
@@ -18,9 +18,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0. Solution Items", "0. Sol
 		..\..\README.md = ..\..\README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagzApp.UnitTest", "TagzApp.UnitTest\TagzApp.UnitTest.csproj", "{0BE17D5A-6ED0-451D-9753-2C23887B508D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.UnitTest", "TagzApp.UnitTest\TagzApp.UnitTest.csproj", "{0BE17D5A-6ED0-451D-9753-2C23887B508D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagzApp.WebTest", "TagzApp.WebTest\TagzApp.WebTest.csproj", "{18E485F4-F735-4665-96E0-E4E993F8AA88}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.WebTest", "TagzApp.WebTest\TagzApp.WebTest.csproj", "{18E485F4-F735-4665-96E0-E4E993F8AA88}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Providers.Mastodon", "TagzApp.Providers.Mastodon\TagzApp.Providers.Mastodon.csproj", "{CEA20BDE-380F-47C3-938E-F959CBF33233}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,6 +46,10 @@ Global
 		{18E485F4-F735-4665-96E0-E4E993F8AA88}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18E485F4-F735-4665-96E0-E4E993F8AA88}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18E485F4-F735-4665-96E0-E4E993F8AA88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEA20BDE-380F-47C3-938E-F959CBF33233}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEA20BDE-380F-47C3-938E-F959CBF33233}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEA20BDE-380F-47C3-938E-F959CBF33233}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEA20BDE-380F-47C3-938E-F959CBF33233}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,6 +59,7 @@ Global
 		{90CDC906-A7E9-486F-96AD-CB44B0E8F15A} = {370455D5-6EA6-44C1-B315-B621F7B6A954}
 		{0BE17D5A-6ED0-451D-9753-2C23887B508D} = {12511540-4D0B-451D-81B0-2FB2C8C5975F}
 		{18E485F4-F735-4665-96E0-E4E993F8AA88} = {12511540-4D0B-451D-81B0-2FB2C8C5975F}
+		{CEA20BDE-380F-47C3-938E-F959CBF33233} = {370455D5-6EA6-44C1-B315-B621F7B6A954}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F2AD77A5-5B2D-41FC-AD37-8EF8A4E54410}
