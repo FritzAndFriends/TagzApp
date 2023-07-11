@@ -1,0 +1,7 @@
+<Project>
+
+	<ItemGroup>
+		<Using Include="TagzApp.Common" />
+	</ItemGroup>
+
+</Project>
