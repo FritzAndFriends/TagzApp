@@ -11,7 +11,7 @@ public class Content
 	/// <summary>
 	/// Provider that the content came from
 	/// </summary>
-  public string ProviderId { get; set; }
+	public required string ProviderId { get; set; }
 
 	/// <summary>
 	/// Type of the content identifier
@@ -21,7 +21,7 @@ public class Content
 	/// <summary>
 	/// Original source of this content
 	/// </summary>
-	public Uri SourceUri { get; set; }
+	public required Uri SourceUri { get; set; }
 
 	/// <summary>
 	/// Date and time when the content was created
@@ -31,11 +31,11 @@ public class Content
 	/// <summary>
 	/// The account who created the content
 	/// </summary>
-  public Creator Author { get; set; }
+  public required Creator Author { get; set; }
 
 	/// <summary>
 	/// Text associated with this content
 	/// </summary>
-  public string Text { get; set; }
+  public string Text { get; set; } = string.Empty;
 
 }
