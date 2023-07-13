@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
     <ProjectReference Include="..\TagzApp.Providers.Mastodon\TagzApp.Providers.Mastodon.csproj" />
+    <ProjectReference Include="..\TagzApp.Providers.Youtube\TagzApp.Providers.Youtube.csproj" />
   </ItemGroup>
 
 </Project>
