@@ -35,7 +35,7 @@ internal class MastodonProvider : ISocialMediaProvider
 			Timestamp = m.created_at,
 			SourceUri = new Uri(m.uri),
 			Author = new Creator {
-				DisplayName = m.account.display_name,
+				DisplayName = m.account!.display_name,
 				UserName = m.account.acct,
 				ProviderId = Id,
 				ProfileImageUri = new Uri(m.account.avatar_static),
