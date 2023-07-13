@@ -1,7 +1,12 @@
+using System.Runtime.CompilerServices;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+builder.Services.AddTagzAppHostedServices();
+
 
 var app = builder.Build();
 
