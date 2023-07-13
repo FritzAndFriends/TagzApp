@@ -32,4 +32,4 @@ If you find a bug, please open an issue on the repository and include as much de
 
 ## Contact
 
-If you have any questions or concerns, please contact us at tagzapp@example.com.
+If you have any questions or concerns, please contact us at TBD.
