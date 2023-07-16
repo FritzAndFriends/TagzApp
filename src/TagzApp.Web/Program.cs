@@ -9,13 +9,30 @@ public class Program
 
 	public static WebApplication BuildServer(string[] args)
 	{
+
+		return BuildServer(args, null);
+
+	}
+
+	public static WebApplication BuildServer(string[] args, Action<IServiceCollection> serviceConfig)
+	{
 		var builder = WebApplication.CreateBuilder(args);
 
 		// Add services to the container.
 		builder.Services.AddRazorPages();
 
-		builder.Services.AddTagzAppHostedServices();
+		if (serviceConfig is null)
+		{
 
+			builder.Services.AddTagzAppHostedServices();
+
+		}
+		else
+		{
+
+			serviceConfig(builder.Services);
+
+		}
 
 		var app = builder.Build();
 
