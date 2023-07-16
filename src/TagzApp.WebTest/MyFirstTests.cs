@@ -23,7 +23,7 @@ public class MyFirstTests : PageTest
 			Title = "Can Add Hashtags"
 		});
 
-		await Page.GotoAsync("http://localhost:5038/");
+		await Page.GotoAsync(AssemblyStart.App.Urls.First());
 
 		await Page.GetByPlaceholder("New Hashtag").FillAsync("dotnet");
 
