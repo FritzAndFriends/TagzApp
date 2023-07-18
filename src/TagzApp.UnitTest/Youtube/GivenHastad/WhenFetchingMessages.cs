@@ -1,8 +1,9 @@
 ﻿// Ignore Spelling: Sut
 
-using TagzApp.Providers.Mastodon;
+using Microsoft.Extensions.Options;
+using TagzApp.Providers.Youtube;
 
-namespace TagzApp.UnitTest.Mastodon.GivenHashtag;
+namespace TagzApp.UnitTest.Youtube.GivenHashtag;
 
 public class WhenFetchingMessages
 {
@@ -12,16 +13,14 @@ public class WhenFetchingMessages
 		Text = "dotnet"
 	};
 
-	private MastodonProvider _Sut;
+	private YoutubeProvider _Sut;
 
   public WhenFetchingMessages()
   {
-		var client = new HttpClient();
-		StartMastodon.ConfigureHttpClient(client);
-		_Sut = new MastodonProvider(client);
+		_Sut = new YoutubeProvider(Options.Create(new YoutubeConfiguration() { ApiKey="foo"}));
   }
 
-	[Fact]
+	[Fact(Skip = "YouTube API Key required")]
 	public async Task ShouldReceiveMessages()
 	{
 
@@ -33,7 +32,7 @@ public class WhenFetchingMessages
 
 	}
 
-	[Fact]
+	[Fact(Skip = "YouTube API Key required")]
 	public async Task ShouldPopulateAuthorInformation()
 	{
 

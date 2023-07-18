@@ -1,4 +1,6 @@
+using TagzApp.Providers.Mastodon;
 namespace TagzApp.Web;
+
 
 public class Program
 {
@@ -9,6 +11,8 @@ public class Program
 
 	public static WebApplication BuildServer(string[] args)
 	{
+
+		var app = builder.Build();
 
 		return BuildServer(args, null);
 

@@ -16,7 +16,7 @@ To get started, follow these steps:
 
 ## Code Style
 
-We follow the [Microsoft C# Coding Conventions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions) for our C# code. Please make sure your code adheres to this style guide before submitting a pull request.
+We follow the [Microsoft C# Coding Conventions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions) for our C# code. Please make sure your code adheres to this style guide before submitting a pull request.  Pull requests will not be accepted without a passing build with our GitHub actions.
 
 ## Unit Tests
 
