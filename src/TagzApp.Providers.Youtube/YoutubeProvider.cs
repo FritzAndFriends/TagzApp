@@ -1,16 +1,23 @@
 ﻿using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
+using Microsoft.Extensions.Options;
 
 namespace TagzApp.Providers.Youtube;
 
 internal class YoutubeProvider : ISocialMediaProvider {
+	private readonly YoutubeConfiguration _Configuration;
 
-  public string Id => "YOUTUBE";
+	public string Id => "YOUTUBE";
   public string DisplayName => "Youtube";
+
+  public YoutubeProvider(IOptions<YoutubeConfiguration> options)
+  {
+		_Configuration = options.Value;
+  }
 
   public async Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since) {
     var youtubeService = new YouTubeService(new BaseClientService.Initializer() {
-      ApiKey = "<MYTAGG_API_KEY>",
+      ApiKey = _Configuration.ApiKey,
       ApplicationName = "MyTagg"
     });
 
