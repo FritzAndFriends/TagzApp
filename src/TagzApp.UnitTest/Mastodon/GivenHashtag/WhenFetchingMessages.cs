@@ -17,7 +17,7 @@ public class WhenFetchingMessages
   public WhenFetchingMessages()
   {
 		var client = new HttpClient();
-		ConfigurationExtensions.ConfigureHttpClient(client);
+		StartMastodon.ConfigureHttpClient(client);
 		_Sut = new MastodonProvider(client);
   }
 
