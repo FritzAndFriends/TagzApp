@@ -1,7 +1,11 @@
+using TagzApp.Providers.Mastodon;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+builder.Services.ConfigureProvider<StartMastodon>(builder.Configuration);
 
 var app = builder.Build();
 
