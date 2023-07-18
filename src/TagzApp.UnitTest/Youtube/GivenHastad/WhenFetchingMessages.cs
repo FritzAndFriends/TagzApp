@@ -1,5 +1,6 @@
 ﻿// Ignore Spelling: Sut
 
+using Microsoft.Extensions.Options;
 using TagzApp.Providers.Youtube;
 
 namespace TagzApp.UnitTest.Youtube.GivenHashtag;
@@ -16,10 +17,10 @@ public class WhenFetchingMessages
 
   public WhenFetchingMessages()
   {
-		_Sut = new YoutubeProvider();
+		_Sut = new YoutubeProvider(Options.Create(new YoutubeConfiguration() { ApiKey="foo"}));
   }
 
-	[Fact]
+	[Fact(Skip = "YouTube API Key required")]
 	public async Task ShouldReceiveMessages()
 	{
 
@@ -31,7 +32,7 @@ public class WhenFetchingMessages
 
 	}
 
-	[Fact]
+	[Fact(Skip = "YouTube API Key required")]
 	public async Task ShouldPopulateAuthorInformation()
 	{
 
