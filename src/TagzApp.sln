@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.WebTest", "TagzApp.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Providers.Mastodon", "TagzApp.Providers.Mastodon\TagzApp.Providers.Mastodon.csproj", "{CEA20BDE-380F-47C3-938E-F959CBF33233}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagzApp.Providers.Youtube", "TagzApp.Providers.Youtube\TagzApp.Providers.Youtube.csproj", "{3A082F6E-1EE8-4D59-9FAC-70874EB482D5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{CEA20BDE-380F-47C3-938E-F959CBF33233}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CEA20BDE-380F-47C3-938E-F959CBF33233}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CEA20BDE-380F-47C3-938E-F959CBF33233}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A082F6E-1EE8-4D59-9FAC-70874EB482D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A082F6E-1EE8-4D59-9FAC-70874EB482D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A082F6E-1EE8-4D59-9FAC-70874EB482D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A082F6E-1EE8-4D59-9FAC-70874EB482D5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -61,6 +67,7 @@ Global
 		{0BE17D5A-6ED0-451D-9753-2C23887B508D} = {12511540-4D0B-451D-81B0-2FB2C8C5975F}
 		{18E485F4-F735-4665-96E0-E4E993F8AA88} = {12511540-4D0B-451D-81B0-2FB2C8C5975F}
 		{CEA20BDE-380F-47C3-938E-F959CBF33233} = {370455D5-6EA6-44C1-B315-B621F7B6A954}
+		{3A082F6E-1EE8-4D59-9FAC-70874EB482D5} = {370455D5-6EA6-44C1-B315-B621F7B6A954}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F2AD77A5-5B2D-41FC-AD37-8EF8A4E54410}
