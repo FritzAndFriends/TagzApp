@@ -3,7 +3,15 @@
 public class InvalidConfigurationException : ApplicationException
 {
 
-	public InvalidConfigurationException(string message, string configKey) : base(message) {
+	public InvalidConfigurationException(string message, string configKey) : base(message)
+	{
+
+		Key = configKey;
+
+	}
+
+	public InvalidConfigurationException(string configKey) : base($"Missing configuration with key {configKey}")
+	{
 
 		Key = configKey;
 
@@ -12,6 +20,6 @@ public class InvalidConfigurationException : ApplicationException
 	/// <summary>
 	/// The missing configuration key
 	/// </summary>
-  public string Key { get; }
+	public string Key { get; }
 
 }
