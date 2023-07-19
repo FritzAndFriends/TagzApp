@@ -11,4 +11,8 @@
     <ProjectReference Include="..\TagzApp.Providers.Mastodon\TagzApp.Providers.Mastodon.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Serilog.AspNetCore" Version="7.0.0" />
+  </ItemGroup>
+
 </Project>

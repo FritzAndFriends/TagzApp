@@ -5,25 +5,25 @@ using NUnit.Framework;
 namespace TagzApp.WebTest;
 
 
-[Parallelizable(ParallelScope.Self)]
+//[Parallelizable(ParallelScope.Self)]
 [TestFixture]
-public class MyFirstTests : PageTest
+public class MyFirstTests : MyBaseFixture
 {
 
 	[Test]
 	public async Task CanAddHashtags()
 	{
 
-		await Page.Context.Tracing.StartAsync(new()
-		{
-			Screenshots = true,
-			Snapshots = true,
-			Sources = true,
-			Name = $"{nameof(CanAddHashtags)}.zip",
-			Title = "Can Add Hashtags"
-		});
+		//await Page.Context.Tracing.StartAsync(new()
+		//{
+		//	Screenshots = true,
+		//	Snapshots = true,
+		//	Sources = true,
+		//	Name = $"{nameof(CanAddHashtags)}.zip",
+		//	Title = "Can Add Hashtags"
+		//});
 
-		await Page.GotoAsync("http://localhost:5038"); // AssemblyStart.App.Urls.First());
+		await Page.GotoAsync(RootUri.ToString()); // "http://localhost:5038"AssemblyStart.App.Urls.First());
 
 		await Page.GetByPlaceholder("New Hashtag").FillAsync("dotnet");
 

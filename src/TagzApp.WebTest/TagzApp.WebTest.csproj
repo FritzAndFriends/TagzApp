@@ -19,4 +19,8 @@
     <ProjectReference Include="..\TagzApp.Web\TagzApp.Web.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
 </Project>

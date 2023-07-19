@@ -1,3 +1,4 @@
+using Serilog;
 using TagzApp.Providers.Mastodon;
 namespace TagzApp.Web;
 
@@ -12,14 +13,13 @@ public class Program
 	public static WebApplication BuildServer(string[] args)
 	{
 
-		var app = builder.Build();
-
 		return BuildServer(args, null);
 
 	}
 
 	public static WebApplication BuildServer(string[] args, Action<IServiceCollection> serviceConfig)
 	{
+
 		var builder = WebApplication.CreateBuilder(args);
 
 		// Add services to the container.
@@ -40,6 +40,8 @@ public class Program
 
 		var app = builder.Build();
 
+		//app.UseSerilogRequestLogging();
+
 		// Configure the HTTP request pipeline.
 		if (!app.Environment.IsDevelopment())
 		{
@@ -48,7 +50,7 @@ public class Program
 			app.UseHsts();
 		}
 
-		app.UseHttpsRedirection();
+		//app.UseHttpsRedirection();
 		app.UseStaticFiles();
 
 		app.UseRouting();
