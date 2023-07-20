@@ -28,7 +28,7 @@ public class Program
 		if (serviceConfig is null)
 		{
 
-			builder.Services.AddTagzAppHostedServices();
+			builder.Services.AddTagzAppHostedServices(builder.Configuration);
 
 		}
 		else

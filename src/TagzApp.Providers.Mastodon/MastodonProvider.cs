@@ -48,7 +48,7 @@ internal class MastodonProvider : ISocialMediaProvider
 
 	private Uri FormatUri(Hashtag tag)
 	{
-		return new Uri($"/api/v1/timelines/tag/{tag.Text}?limit=2", UriKind.Relative);
+		return new Uri($"/api/v1/timelines/tag/{tag.Text}?limit=20", UriKind.Relative);
 	}
 }
 

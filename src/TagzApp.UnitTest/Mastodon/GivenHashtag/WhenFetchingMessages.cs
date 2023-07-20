@@ -1,5 +1,6 @@
 ﻿// Ignore Spelling: Sut
 
+using Google.Apis.Http;
 using TagzApp.Providers.Mastodon;
 
 namespace TagzApp.UnitTest.Mastodon.GivenHashtag;
@@ -18,7 +19,7 @@ public class WhenFetchingMessages
   {
 		var client = new HttpClient();
 		StartMastodon.ConfigureHttpClient(client);
-		_Sut = new MastodonProvider(client);
+		_Sut = new MastodonProvider();
   }
 
 	[Fact]

@@ -9,12 +9,21 @@ public class InMemoryMessagingService : IHostedService
 	private InMemoryContentMessaging _Service = default;
 
 	public readonly Dictionary<string, ConcurrentBag<Content>> Content = new Dictionary<string, ConcurrentBag<Content>>();
+	private readonly IEnumerable<ISocialMediaProvider> _Providers;
 
-	#region Hosted Service Implementation
+	public InMemoryMessagingService(IServiceProvider services)
+  {
+		_Providers = services.GetServices<ISocialMediaProvider>();
+  }
 
-	public Task StartAsync(CancellationToken cancellationToken)
+  #region Hosted Service Implementation
+
+  public Task StartAsync(CancellationToken cancellationToken)
 	{
+
 		_Service = new InMemoryContentMessaging();
+		_Service.StartProviders(_Providers, cancellationToken);
+
 		return Task.CompletedTask;
 	}
 
