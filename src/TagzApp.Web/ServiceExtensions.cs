@@ -1,5 +1,4 @@
-﻿using TagzApp.Providers.Mastodon;
-using TagzApp.Web.Services;
+﻿using TagzApp.Web.Services;
 
 public static class ServiceExtensions
 {

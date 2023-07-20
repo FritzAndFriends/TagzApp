@@ -1,23 +1,12 @@
-using Serilog;
+using Microsoft.AspNetCore.Http.Extensions;
 using TagzApp.Providers.Mastodon;
-namespace TagzApp.Web;
+using System.Runtime.CompilerServices;
 
+namespace TagzApp.Web;
 
 public class Program
 {
 	private static void Main(string[] args)
-	{
-		BuildServer(args).Run();
-	}
-
-	public static WebApplication BuildServer(string[] args)
-	{
-
-		return BuildServer(args, null);
-
-	}
-
-	public static WebApplication BuildServer(string[] args, Action<IServiceCollection> serviceConfig)
 	{
 
 		var builder = WebApplication.CreateBuilder(args);
@@ -25,22 +14,9 @@ public class Program
 		// Add services to the container.
 		builder.Services.AddRazorPages();
 
-		if (serviceConfig is null)
-		{
-
-			builder.Services.AddTagzAppHostedServices(builder.Configuration);
-
-		}
-		else
-		{
-
-			serviceConfig(builder.Services);
-
-		}
+		builder.Services.AddTagzAppHostedServices();
 
 		var app = builder.Build();
-
-		//app.UseSerilogRequestLogging();
 
 		// Configure the HTTP request pipeline.
 		if (!app.Environment.IsDevelopment())
@@ -59,7 +35,19 @@ public class Program
 
 		app.MapRazorPages();
 
-		return app;
+		if (app.Environment.IsDevelopment())
+		{
+
+			var logger = app.Services.GetRequiredService<ILogger<Program>>();
+			app.Use(async (ctx, next) =>
+			{
+				logger.LogInformation("HttpRequest: {Url}", ctx.Request.GetDisplayUrl());
+				await next();
+			});
+
+		}
+
+		app.Run();
 
 	}
 }
