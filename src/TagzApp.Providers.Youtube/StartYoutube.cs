@@ -1,33 +1,21 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TagzApp.Common.Exceptions;
+using TagzApp.Providers.Youtube.Configuration;
 
 namespace TagzApp.Providers.Youtube;
 
-public class StartYoutube : IConfigureProvider {
-
-	public const string ConfigurationKey = "providers:youtube";
+public class StartYoutube : IConfigureProvider
+{
 
 	public IServiceCollection RegisterServices(IServiceCollection services, IConfiguration configuration)
 	{
 
-		var config = configuration.GetSection(ConfigurationKey)!;
-		if (config is null) throw new InvalidConfigurationException(ConfigurationKey);
+		var config = configuration.GetSection(YoutubeConfiguration.AppSettingsSection)!;
+		if (config is null) throw new InvalidConfigurationException(YoutubeConfiguration.AppSettingsSection);
 		services.Configure<YoutubeConfiguration>(config);
 
-    services.AddTransient<ISocialMediaProvider, YoutubeProvider>();
-    return services;
+		services.AddTransient<ISocialMediaProvider, YoutubeProvider>();
+		return services;
 	}
-
-
-}
-
-public class YoutubeConfiguration
-{
-
-	/// <summary>
-	/// YouTube assigned API key
-	/// </summary>
-	public required string ApiKey { get; set; }
-
 }

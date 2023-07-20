@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http.Extensions;
+using TagzApp.Communication.Extensions;
 using TagzApp.Providers.Mastodon;
-using System.Runtime.CompilerServices;
 
 namespace TagzApp.Web;
 
@@ -14,7 +14,12 @@ public class Program
 		// Add services to the container.
 		builder.Services.AddRazorPages();
 
+		builder.Services.ConfigureProvider<StartMastodon>(builder.Configuration);
+
 		builder.Services.AddTagzAppHostedServices();
+
+		// Add the Polly policies
+		builder.Services.AddPolicies(builder.Configuration);
 
 		var app = builder.Build();
 
