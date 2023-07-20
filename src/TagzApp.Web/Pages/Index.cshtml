@@ -1,10 +1,36 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+	ViewData["Title"] = "Home page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="row">
+	<div class="col-md-12">
+		<h1 class="text-center">Welcome to TagzApp</h1>
+	</div>
+
+	<div id="tagListPanel" class="col-md-3">
+
+		<form method="post">
+			<input name="NewTag" placeholder="New Hashtag" value="@Model.NewTag" />
+			<input type="submit" aria-role="button" name="Add" value="Add" />
+		</form>
+
+		<ul>
+			@foreach (var tag in Model.Tags)
+			{
+				<li>
+					<a href="#" class="hashtags" onclick="tagClicked('@tag')">@tag</a>
+				</li>
+			}
+		</ul>
+
+	</div>
+
+	<div id="taggedContent" class="col-md-9">
+
+
+
+	</div>
+
 </div>
