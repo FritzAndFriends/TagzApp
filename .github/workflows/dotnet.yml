@@ -40,7 +40,7 @@ jobs:
       run:
         working-directory: ./src/TagzApp.WebTest
     container:
-      image: mcr.microsoft.com/playwright/dotnet:v1.36.0-jammy
+      image: mcr.microsoft.com/playwright/dotnet:v1.35.0-jammy
     steps:
       - uses: actions/checkout@v3
       - name: Setup dotnet
