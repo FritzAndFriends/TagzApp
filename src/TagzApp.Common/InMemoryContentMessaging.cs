@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Concurrent;
+using System.Web;
 
 namespace TagzApp.Common;
 
@@ -19,10 +20,10 @@ public class InMemoryContentMessaging : IContentPublisher, IContentSubscriber, I
 	public InMemoryContentMessaging()
 	{
 		_CancellationTokenSource = new CancellationTokenSource();
-		_QueueWatcher = Task.Run(WatchQueue);
+		_QueueWatcher = Task.Run(DispatchFromQueue);
 	}
 
-	private async Task WatchQueue()
+	private async Task DispatchFromQueue()
 	{
 
 		var token = _CancellationTokenSource.Token;
