@@ -24,7 +24,7 @@ We use Xunit for our unit tests. Please make sure your changes include appropria
 
 ## End-to-End Testing
 
-We use NUnit and Playwright for our end-to-end tests. Please make sure your changes include appropriate end-to-end tests in the `TagzApp.WebTest` project.
+We use xUnit and Playwright for our end-to-end tests. Please make sure your changes include appropriate end-to-end tests in the `TagzApp.WebTest` project.
 
 ## Reporting Bugs
 

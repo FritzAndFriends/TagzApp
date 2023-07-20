@@ -27,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.WebTest", "TagzApp.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Providers.Mastodon", "TagzApp.Providers.Mastodon\TagzApp.Providers.Mastodon.csproj", "{CEA20BDE-380F-47C3-938E-F959CBF33233}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagzApp.Providers.Youtube", "TagzApp.Providers.Youtube\TagzApp.Providers.Youtube.csproj", "{3A082F6E-1EE8-4D59-9FAC-70874EB482D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Providers.Youtube", "TagzApp.Providers.Youtube\TagzApp.Providers.Youtube.csproj", "{3A082F6E-1EE8-4D59-9FAC-70874EB482D5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

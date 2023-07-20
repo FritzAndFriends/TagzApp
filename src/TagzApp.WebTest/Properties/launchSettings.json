@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "TagzApp.WebTest": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:49250;http://localhost:49251"
+    }
+  }
+}

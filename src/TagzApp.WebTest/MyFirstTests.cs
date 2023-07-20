@@ -1,39 +1,45 @@
-﻿using Microsoft.Playwright;
-using Microsoft.Playwright.NUnit;
-using NUnit.Framework;
-
-namespace TagzApp.WebTest;
+﻿namespace TagzApp.WebTest;
 
 
-[Parallelizable(ParallelScope.Self)]
-[TestFixture]
-public class MyFirstTests : PageTest
+public class MyFirstTests : IClassFixture<PlaywrightWebApplicationFactory>
 {
+	private readonly PlaywrightWebApplicationFactory _WebApp;
+	private readonly ITestOutputHelper _OutputHelper;
 
-	[Test]
+	public MyFirstTests(PlaywrightWebApplicationFactory webapp, ITestOutputHelper outputHelper)
+  {
+		_WebApp = webapp;
+		_OutputHelper = outputHelper;
+	}
+
+  [Fact]
 	public async Task CanAddHashtags()
 	{
 
-		await Page.Context.Tracing.StartAsync(new()
-		{
-			Screenshots = true,
-			Snapshots = true,
-			Sources = true,
-			Name = $"{nameof(CanAddHashtags)}.zip",
-			Title = "Can Add Hashtags"
-		});
+		var page = await _WebApp.CreatePlaywrightPageAsync();
 
-		await Page.GotoAsync("http://localhost:5038/");
+		//await page.Context.Tracing.StartAsync(new()
+		//{
+		//	Screenshots = true,
+		//	Snapshots = true,
+		//	Sources = true,
+		//	Name = $"{nameof(CanAddHashtags)}.zip",
+		//	Title = "Can Add Hashtags"
+		//});
 
-		await Page.GetByPlaceholder("New Hashtag").FillAsync("dotnet");
+		await page.GotoAsync("/"); 
 
-		await Page.GetByRole(AriaRole.Button, new() { Name = "Add" }).ClickAsync();
+		await page.GetByPlaceholder("New Hashtag").FillAsync("dotnet");
 
-		await Expect(Page.Locator(".hashtags").First).ToHaveTextAsync("dotnet");
+		await page.GetByRole(AriaRole.Button, new() { Name = "Add" }).ClickAsync();
 
-		await Page.Context.Tracing.StopAsync(new () {
-			Path= $"{nameof(CanAddHashtags)}.zip"
-		});
+		string? firstHashtagContent = await page.Locator(".hashtags").First.TextContentAsync();
+		Assert.Equal("dotnet", firstHashtagContent);
+
+		//await page.Context.Tracing.StopAsync(new()
+		//{
+		//	Path = $"{nameof(CanAddHashtags)}.zip"
+		//});
 
 
 	}
