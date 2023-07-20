@@ -13,6 +13,8 @@ public class Content
 	/// </summary>
 	public required string ProviderId { get; set; }
 
+	public string HashtagSought { get; set; } = string.Empty;
+
 	/// <summary>
 	/// Type of the content identifier
 	/// </summary>
