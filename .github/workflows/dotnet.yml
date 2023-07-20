@@ -48,5 +48,5 @@ jobs:
         with:
           dotnet-version: 7.0.x
       - run: dotnet build
-      - name: Run your tests
-        run: dotnet test
+      - name: Execute Playwright tests
+        run: dotnet test --no-build
