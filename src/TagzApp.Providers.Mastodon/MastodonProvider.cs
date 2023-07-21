@@ -44,7 +44,8 @@ internal class MastodonProvider : ISocialMediaProvider
 
 		return messages!.Select(m => new Content
 		{
-			ProviderId = Id,
+			Provider = Id,
+			ProviderId = m.id,
 			Type = ContentType.Message,
 			Timestamp = m.created_at,
 			SourceUri = new Uri(m.uri),

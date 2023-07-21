@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using TagzApp.Web.Data;
 
 namespace TagzApp.Web.Services;
 
@@ -54,11 +55,22 @@ public class InMemoryMessagingService : IHostedService
 		_Service.SubscribeToContent(new Hashtag() { Text = tag }, 
 			c => {
 				Content[c.HashtagSought.TrimStart('#')].Add(c);
-				_HubContext.Clients.All.SendAsync("NewMessage", c);
+				_HubContext.Clients
+					.Group(c.HashtagSought.TrimStart('#').ToLowerInvariant()) 
+					.SendAsync("NewMessage", (ContentModel)c);
 				//_Logger.LogInformation($"Message found for tag '{c.HashtagSought}': {c.Text}");
 			});
 
 		return Task.CompletedTask;
+
+	}
+
+	public IEnumerable<Content> GetExistingContentForTag(string tag)
+	{
+
+		if (!_Service._LoadedContent.ContainsKey(tag.TrimStart('#').ToLowerInvariant())) return Enumerable.Empty<Content>();
+
+		return _Service._LoadedContent[tag.TrimStart('#').ToLowerInvariant()];
 
 	}
 

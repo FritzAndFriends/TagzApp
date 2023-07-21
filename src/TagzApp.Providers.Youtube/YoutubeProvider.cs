@@ -34,7 +34,7 @@ internal class YoutubeProvider : ISocialMediaProvider {
     }
 
     return searchListResponse.Items!.Select(m => new Content {
-      ProviderId = Id,
+      Provider = Id,
       Type = ContentType.Message,
       Timestamp = m.Snippet.PublishedAtDateTimeOffset ?? DateTimeOffset.Now,
       SourceUri = new Uri($"https://www.youtube.com/watch?v={m.Id.VideoId}"),

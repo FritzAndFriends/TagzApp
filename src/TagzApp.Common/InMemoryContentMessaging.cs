@@ -10,6 +10,8 @@ public class InMemoryContentMessaging : IContentPublisher, IContentSubscriber, I
 	internal readonly Dictionary<string, ConcurrentQueue<Content>> Queue = new();
 	private readonly Dictionary<string, ConcurrentBag<Action<Content>>> _Actions = new();
 
+	public readonly Dictionary<string, ConcurrentBag<Content>> _LoadedContent = new();
+
 	private readonly Task _QueueWatcher = Task.CompletedTask;
 	private CancellationTokenSource _CancellationTokenSource;
 
@@ -105,13 +107,27 @@ public class InMemoryContentMessaging : IContentPublisher, IContentSubscriber, I
 					foreach (var tag in _Actions.Keys.Distinct<string>())
 					{
 
+            if (!_LoadedContent.ContainsKey(tag))
+            {
+							_LoadedContent.Add(tag.TrimStart('#').ToLowerInvariant(), new());
+            }
+
 						var searchTime = lastQueryTime;
 						lastQueryTime = DateTime.UtcNow;
 						Hashtag thisTag = new Hashtag() { Text = tag };
 						var contentIdentified = await provider.GetContentForHashtag(thisTag, searchTime);
 
-						foreach (var item in contentIdentified)
+						// de-dupe with in-memory collection
+						if (contentIdentified != null)
 						{
+							contentIdentified = contentIdentified
+								.DistinctBy(c => new { c.Provider, c.ProviderId })
+								.ExceptBy(_LoadedContent[tag.TrimStart('#').ToLowerInvariant()].Select(c => c.ProviderId).ToArray(), c => c.ProviderId);
+						}
+
+						foreach (var item in contentIdentified.OrderBy(c => c.Timestamp))
+						{
+							_LoadedContent[tag.TrimStart('#').ToLowerInvariant()].Add(item);
 							await PublishContentAsync(thisTag, item);
 						}
 
