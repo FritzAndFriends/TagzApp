@@ -16,9 +16,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0. Solution Items", "0. Sol
 		.editorconfig = .editorconfig
 		..\CODE_OF_CONDUCT.md = ..\CODE_OF_CONDUCT.md
 		..\CONTRIBUTING.md = ..\CONTRIBUTING.md
+		Directory.Build.props = Directory.Build.props
 		..\LICENSE = ..\LICENSE
 		..\README.md = ..\README.md
-		Directory.Build.props = Directory.Build.props
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.UnitTest", "TagzApp.UnitTest\TagzApp.UnitTest.csproj", "{0BE17D5A-6ED0-451D-9753-2C23887B508D}"
@@ -28,6 +28,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Providers.Mastodon", "TagzApp.Providers.Mastodon\TagzApp.Providers.Mastodon.csproj", "{CEA20BDE-380F-47C3-938E-F959CBF33233}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Providers.Youtube", "TagzApp.Providers.Youtube\TagzApp.Providers.Youtube.csproj", "{3A082F6E-1EE8-4D59-9FAC-70874EB482D5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. Providers", "2. Providers", "{99E0BB3F-9591-4C7A-A8EE-C54B0C3DE7A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,8 +70,8 @@ Global
 		{90CDC906-A7E9-486F-96AD-CB44B0E8F15A} = {370455D5-6EA6-44C1-B315-B621F7B6A954}
 		{0BE17D5A-6ED0-451D-9753-2C23887B508D} = {12511540-4D0B-451D-81B0-2FB2C8C5975F}
 		{18E485F4-F735-4665-96E0-E4E993F8AA88} = {12511540-4D0B-451D-81B0-2FB2C8C5975F}
-		{CEA20BDE-380F-47C3-938E-F959CBF33233} = {370455D5-6EA6-44C1-B315-B621F7B6A954}
-		{3A082F6E-1EE8-4D59-9FAC-70874EB482D5} = {370455D5-6EA6-44C1-B315-B621F7B6A954}
+		{CEA20BDE-380F-47C3-938E-F959CBF33233} = {99E0BB3F-9591-4C7A-A8EE-C54B0C3DE7A5}
+		{3A082F6E-1EE8-4D59-9FAC-70874EB482D5} = {99E0BB3F-9591-4C7A-A8EE-C54B0C3DE7A5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F2AD77A5-5B2D-41FC-AD37-8EF8A4E54410}
