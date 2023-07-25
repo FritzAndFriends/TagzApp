@@ -3,6 +3,14 @@
 public class Hashtag
 {
 
-  public string Text { get; set; } = string.Empty;
+	private string _Text = string.Empty;
+  public string Text {
+		get { return _Text; }
+		set {
+			if (!value.StartsWith("#")) value = string.Concat("#", value);
+			_Text = value;
+		}
+
+	}
 
 }

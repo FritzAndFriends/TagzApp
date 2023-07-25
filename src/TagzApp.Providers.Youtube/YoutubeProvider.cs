@@ -10,7 +10,9 @@ internal class YoutubeProvider : ISocialMediaProvider {
 	public string Id => "YOUTUBE";
   public string DisplayName => "Youtube";
 
-  public YoutubeProvider(IOptions<YoutubeConfiguration> options)
+	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(30);
+
+	public YoutubeProvider(IOptions<YoutubeConfiguration> options)
   {
 		_Configuration = options.Value;
   }
@@ -34,7 +36,7 @@ internal class YoutubeProvider : ISocialMediaProvider {
     }
 
     return searchListResponse.Items!.Select(m => new Content {
-      ProviderId = Id,
+      Provider = Id,
       Type = ContentType.Message,
       Timestamp = m.Snippet.PublishedAtDateTimeOffset ?? DateTimeOffset.Now,
       SourceUri = new Uri($"https://www.youtube.com/watch?v={m.Id.VideoId}"),

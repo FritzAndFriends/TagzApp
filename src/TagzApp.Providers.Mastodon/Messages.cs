@@ -42,7 +42,7 @@ public class Account
   public string display_name { get; set; } = string.Empty;
   public bool locked { get; set; }
 	public bool bot { get; set; }
-	public bool discoverable { get; set; }
+	public object discoverable { get; set; }
 	public bool group { get; set; }
 	public DateTime created_at { get; set; }
 	public string note { get; set; } = string.Empty;

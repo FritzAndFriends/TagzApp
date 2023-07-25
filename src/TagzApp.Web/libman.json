@@ -1,0 +1,22 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+	"libraries": [
+		{
+			"library": "microsoft-signalr@7.0.9",
+			"destination": "wwwroot/lib/microsoft-signalr/"
+		},
+		{
+			"provider": "cdnjs",
+			"library": "bootstrap-icons@1.10.5",
+			"destination": "wwwroot/lib/bootstrap-icons/",
+			"files": [
+				"font/fonts/bootstrap-icons.woff",
+				"font/fonts/bootstrap-icons.woff2",
+				"font/bootstrap-icons.css",
+				"font/bootstrap-icons.json",
+				"font/bootstrap-icons.min.css"
+			]
+		}
+	]
+}

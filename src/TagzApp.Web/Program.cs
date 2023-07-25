@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http.Extensions;
 using TagzApp.Providers.Mastodon;
 using System.Runtime.CompilerServices;
+using TagzApp.Web.Hubs;
 
 namespace TagzApp.Web;
 
@@ -14,9 +15,11 @@ public class Program
 		// Add services to the container.
 		builder.Services.AddRazorPages();
 
-		builder.Services.AddTagzAppHostedServices();
+		builder.Services.AddTagzAppHostedServices(builder.Configuration);
 
-		var app = builder.Build();
+		builder.Services.AddSignalR();
+
+    var app = builder.Build();
 
 		// Configure the HTTP request pipeline.
 		if (!app.Environment.IsDevelopment())
@@ -34,6 +37,8 @@ public class Program
 		app.UseAuthorization();
 
 		app.MapRazorPages();
+
+		app.MapHub<MessageHub>("/messages");
 
 		if (app.Environment.IsDevelopment())
 		{

@@ -17,7 +17,7 @@ public class WhenPublishingMessages : BaseFixture
 				ProfileImageUri = new Uri("http://myta.g"),
 				ProfileUri = new Uri("http://myta.gg"),
 			},
-			ProviderId = "TEST",
+			Provider = "TEST",
 			SourceUri = new Uri("http://myta.gg/1"),
 			Text = "This is a test",
 			Timestamp = DateTimeOffset.Now,

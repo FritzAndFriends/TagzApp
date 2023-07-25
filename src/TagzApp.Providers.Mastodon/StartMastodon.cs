@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using System.Runtime.CompilerServices;
 using TagzApp.Common.Exceptions;
 
@@ -15,29 +16,15 @@ public class StartMastodon : IConfigureProvider
 		IConfigurationSection config = configuration.GetSection(ConfigurationKey);
 		services.Configure<MastodonConfiguration>(config); 
 
-		services.AddHttpClient<MastodonProvider>(c => ConfigureHttpClient(c, config));
+		//services
+		//	.AddSingleton<ISocialMediaProvider, MastodonProvider>();
 
-		services
-			.AddTransient<ISocialMediaProvider, MastodonProvider>();
+		services.AddHttpClient<ISocialMediaProvider, MastodonProvider>((svc, c) => {
+			var config = svc.GetRequiredService<IOptions<MastodonConfiguration>>().Value;
+			c.BaseAddress = new Uri(config.BaseAddress);
+		});
 
 		return services;
-
-	}
-
-	internal static void ConfigureHttpClient(HttpClient client, IConfigurationSection config)
-	{
-
-		var configAddress = (Uri)config.GetValue(typeof(Uri), "BaseAddress")!;
-		if (configAddress is null) throw new InvalidConfigurationException("Missing configuration for Mastodon BaseAddress", "providers:mastodon:BaseAddress");
-
-		ConfigureHttpClient(client, configAddress.ToString());
-
-	}
-
-	internal static void ConfigureHttpClient(HttpClient client, string baseAddress = "https://mastodon.social")
-	{
-
-		client.BaseAddress = new Uri(baseAddress);
 
 	}
 

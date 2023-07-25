@@ -11,9 +11,14 @@ public class Content
 	/// <summary>
 	/// Provider that the content came from
 	/// </summary>
-	public required string ProviderId { get; set; }
+	public required string Provider { get; set; }
 
-	public string HashtagSought { get; set; } = string.Empty;
+	/// <summary>
+	/// Id provided by the provider for this content
+	/// </summary>
+  public string ProviderId { get; set; }
+
+  public string HashtagSought { get; set; } = string.Empty;
 
 	/// <summary>
 	/// Type of the content identifier

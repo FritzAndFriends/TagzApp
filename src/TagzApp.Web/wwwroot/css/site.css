@@ -20,3 +20,49 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+#taggedContent {
+	display: flex;
+	flex-wrap: wrap;
+	width: 100%;
+	background-color: #CCC;
+	gap: 0.2em;
+	padding: 0.3em;
+}
+
+#taggedContent article
+{
+
+	position: relative;
+	width: 15em;
+	font-size: 0.6em;
+	border: 1px solid black;
+	background-color: #FFF;
+	padding: 0.2em;
+	max-height: 15em;
+	overflow: hidden;
+	cursor: pointer;
+
+}
+
+#taggedContent .bi {
+	position: absolute;
+	right: 0.2em;
+	top: 0;
+}
+
+#taggedContent article span {
+	display: block;
+}
+
+#taggedContent article .author {
+	font-weight: bold;
+	font-size: 1.2em;
+	text-align: left;
+	width: calc(100% - 1.1em);
+	overflow: hidden;
+}
+
+#taggedContent article .time {
+	text-align: left;
+}
