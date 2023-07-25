@@ -23,6 +23,7 @@ public class PlaywrightWebApplicationFactory : WebApplicationFactory<Web.Program
 	private readonly IMessageSink output;
 
 	private static int nextPort = 0;
+	private bool _Headless = true;
 
 	public string? Uri => uri;
 
@@ -33,6 +34,9 @@ public class PlaywrightWebApplicationFactory : WebApplicationFactory<Web.Program
 	[MemberNotNull(nameof(uri))]
 	protected override IHost CreateHost(IHostBuilder builder)
 	{
+
+		ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
+
 		if (Environment is not null)
 		{
 			builder.UseEnvironment(Environment);
@@ -81,8 +85,11 @@ public class PlaywrightWebApplicationFactory : WebApplicationFactory<Web.Program
 		}
 	}
 
-	public async Task<IPage> CreatePlaywrightPageAsync()
+	public async Task<IPage> CreatePlaywrightPageAsync(bool headless = true)
 	{
+
+		_Headless = headless;
+
 		var server = Server;        // Ensure Server is initialized
 		await InitializeAsync();    // Ensure Playwright is initialized
 
@@ -98,7 +105,7 @@ public class PlaywrightWebApplicationFactory : WebApplicationFactory<Web.Program
 
 #pragma warning disable CS8774 // Member must have a non-null value when exiting.
 		playwright ??= (await Playwright.CreateAsync()) ?? throw new InvalidOperationException();
-		browser ??= (await playwright.Chromium.LaunchAsync(new() { Headless = true })) ?? throw new InvalidOperationException();
+		browser ??= (await playwright.Chromium.LaunchAsync(new() { Headless = _Headless, Devtools = true })) ?? throw new InvalidOperationException();
 #pragma warning restore CS8774 // Member must have a non-null value when exiting.
 
 	}

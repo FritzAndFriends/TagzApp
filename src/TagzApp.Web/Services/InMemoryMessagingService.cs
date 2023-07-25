@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using TagzApp.Web.Data;
+using TagzApp.Web.Hubs;
 
 namespace TagzApp.Web.Services;
 

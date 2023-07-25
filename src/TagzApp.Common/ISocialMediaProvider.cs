@@ -14,6 +14,11 @@ public interface ISocialMediaProvider
 	string DisplayName { get; }
 
 	/// <summary>
+	/// How frequently new content should be retrieved from the provider
+	/// </summary>
+	TimeSpan NewContentRetrievalFrequency { get; }
+
+	/// <summary>
 	/// Get a collection of content for a given hashtag
 	/// </summary>
 	/// <param name="tag">Tag to search for</param>

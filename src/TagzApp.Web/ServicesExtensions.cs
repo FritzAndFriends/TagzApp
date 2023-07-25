@@ -13,6 +13,15 @@ public static class ServicesExtensions {
 
 	}
 
+	public static IServiceCollection ConfigureProvider(this IServiceCollection services, IConfigureProvider provider, IConfiguration configuration)
+	{
+
+		provider.RegisterServices(services, configuration);
+
+		return services;
+
+	}
+
 	public static IServiceCollection AddTagzAppHostedServices(this IServiceCollection services, IConfigurationRoot configuration)
 	{
 
@@ -20,11 +29,26 @@ public static class ServicesExtensions {
 		services.AddHostedService(s => s.GetRequiredService<InMemoryMessagingService>());
 
 		// Register the providers
-		services.ConfigureProvider<StartMastodon>(configuration);
+		if (SocialMediaProviders.Any())
+		{
+			foreach (var item in SocialMediaProviders)
+			{
+				services.ConfigureProvider(item, configuration);
+			}
+		}
+		else
+		{
+			services.ConfigureProvider<StartMastodon>(configuration);
+		}
 
 		return services;
 
 	}
+
+	/// <summary>
+	/// A collection of externally configured providers
+	/// </summary>
+	public static List<IConfigureProvider> SocialMediaProviders { get; set; } = new();
 
 
 }

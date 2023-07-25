@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http.Extensions;
 using TagzApp.Providers.Mastodon;
 using System.Runtime.CompilerServices;
-using TagzApp.Web.Services;
+using TagzApp.Web.Hubs;
 
 namespace TagzApp.Web;
 

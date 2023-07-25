@@ -21,6 +21,10 @@
 
 	function FormatMessage(content) {
 
+		if (taggedContent.querySelector(".spinner-border")) {
+			taggedContent.querySelector(".spinner-border").remove();
+		}
+
 		const newMessage = document.createElement("article");
 		newMessage.innerHTML = `
 					<span class="author">${content.authorDisplayName}:  <i class="bi bi-${content.provider.toLowerCase()}"></i></span>

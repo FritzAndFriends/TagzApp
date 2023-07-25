@@ -21,6 +21,8 @@ internal class MastodonProvider : ISocialMediaProvider
 	public string Id => "MASTODON";
 	public string DisplayName => "Mastodon";
 
+	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(20);
+
 	public async Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since)
 	{
 

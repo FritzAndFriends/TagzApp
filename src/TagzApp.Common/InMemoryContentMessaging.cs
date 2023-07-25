@@ -122,7 +122,8 @@ public class InMemoryContentMessaging : IContentPublisher, IContentSubscriber, I
 						{
 							contentIdentified = contentIdentified
 								.DistinctBy(c => new { c.Provider, c.ProviderId })
-								.ExceptBy(_LoadedContent[tag.TrimStart('#').ToLowerInvariant()].Select(c => c.ProviderId).ToArray(), c => c.ProviderId);
+								.ExceptBy(_LoadedContent[tag.TrimStart('#').ToLowerInvariant()].Select(c => c.ProviderId).ToArray(), c => c.ProviderId)
+								.ToArray();
 						}
 
 						foreach (var item in contentIdentified.OrderBy(c => c.Timestamp))
@@ -131,7 +132,7 @@ public class InMemoryContentMessaging : IContentPublisher, IContentSubscriber, I
 							await PublishContentAsync(thisTag, item);
 						}
 
-						await Task.Delay(TimeSpan.FromSeconds(20));
+						await Task.Delay(provider.NewContentRetrievalFrequency);
 
 					}
 

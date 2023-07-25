@@ -10,7 +10,9 @@ internal class YoutubeProvider : ISocialMediaProvider {
 	public string Id => "YOUTUBE";
   public string DisplayName => "Youtube";
 
-  public YoutubeProvider(IOptions<YoutubeConfiguration> options)
+	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(30);
+
+	public YoutubeProvider(IOptions<YoutubeConfiguration> options)
   {
 		_Configuration = options.Value;
   }
