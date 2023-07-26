@@ -1,4 +1,9 @@
-﻿namespace TagzApp.Providers.Youtube;
+﻿using Google.Apis.Services;
+using Google.Apis.YouTube.v3;
+using Microsoft.Extensions.Options;
+using TagzApp.Providers.Youtube.Configuration;
+
+namespace TagzApp.Providers.Youtube;
 
 internal class YoutubeProvider : ISocialMediaProvider
 {
@@ -37,7 +42,8 @@ internal class YoutubeProvider : ISocialMediaProvider
 
 		return searchListResponse.Items!.Select(m => new Content
 		{
-			ProviderId = Id,
+			Provider = Id,
+			ProviderId = m.Id.VideoId, // TODO: Validate this is what we want here
 			Type = ContentType.Message,
 			Timestamp = m.Snippet.PublishedAtDateTimeOffset ?? DateTimeOffset.Now,
 			SourceUri = new Uri($"https://www.youtube.com/watch?v={m.Id.VideoId}"),

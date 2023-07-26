@@ -13,10 +13,4 @@ public class StartMastodon : IConfigureProvider
 		services.AddHttpClient<ISocialMediaProvider, MastodonProvider, MastodonConfiguration>(configuration, MastodonConfiguration.AppSettingsSection);
 		return services;
 	}
-
-	internal static void ConfigureHttpClient(HttpClient client, string baseAddress = "https://mastodon.social")
-	{
-		client.BaseAddress = new Uri(baseAddress);
-	}
-
 }

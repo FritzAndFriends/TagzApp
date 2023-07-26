@@ -1,3 +1,7 @@
+using Microsoft.AspNetCore.Http.Extensions;
+using TagzApp.Communication.Extensions;
+using TagzApp.Web.Hubs;
+
 namespace TagzApp.Web;
 
 public class Program
