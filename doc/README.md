@@ -33,3 +33,7 @@ public class StartMastodon : IConfigureProvider
 ```
 
 Please throw an `TagzApp.Common.Exceptions.InvalidConfigurationException` if any configuration for your provider is missing.
+
+## Icons
+
+We are using the MIT-licensed [Bootstrap Icon Library](https://icons.getbootstrap.com/) for icons to present on the website.  Please do not introduce a library or icons from outside this library.
