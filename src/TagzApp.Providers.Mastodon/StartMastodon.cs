@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using System.Runtime.CompilerServices;
-using TagzApp.Common.Exceptions;
 
 namespace TagzApp.Providers.Mastodon;
 

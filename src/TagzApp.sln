@@ -31,6 +31,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Providers.Youtube",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. Providers", "2. Providers", "{99E0BB3F-9591-4C7A-A8EE-C54B0C3DE7A5}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Providers.Twitter", "TagzApp.Providers.Twitter\TagzApp.Providers.Twitter.csproj", "{65459852-E2D6-47B9-911F-D3E09BD12816}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,10 @@ Global
 		{3A082F6E-1EE8-4D59-9FAC-70874EB482D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A082F6E-1EE8-4D59-9FAC-70874EB482D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A082F6E-1EE8-4D59-9FAC-70874EB482D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65459852-E2D6-47B9-911F-D3E09BD12816}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65459852-E2D6-47B9-911F-D3E09BD12816}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65459852-E2D6-47B9-911F-D3E09BD12816}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65459852-E2D6-47B9-911F-D3E09BD12816}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -72,6 +78,7 @@ Global
 		{18E485F4-F735-4665-96E0-E4E993F8AA88} = {12511540-4D0B-451D-81B0-2FB2C8C5975F}
 		{CEA20BDE-380F-47C3-938E-F959CBF33233} = {99E0BB3F-9591-4C7A-A8EE-C54B0C3DE7A5}
 		{3A082F6E-1EE8-4D59-9FAC-70874EB482D5} = {99E0BB3F-9591-4C7A-A8EE-C54B0C3DE7A5}
+		{65459852-E2D6-47B9-911F-D3E09BD12816} = {99E0BB3F-9591-4C7A-A8EE-C54B0C3DE7A5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F2AD77A5-5B2D-41FC-AD37-8EF8A4E54410}
