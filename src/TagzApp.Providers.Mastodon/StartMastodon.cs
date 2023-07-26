@@ -9,7 +9,6 @@ public class StartMastodon : IConfigureProvider
 {
 	public IServiceCollection RegisterServices(IServiceCollection services, IConfiguration configuration)
 	{
-		services.AddTransient<ISocialMediaProvider, MastodonProvider>();
 		services.AddHttpClient<ISocialMediaProvider, MastodonProvider, MastodonConfiguration>(configuration, MastodonConfiguration.AppSettingsSection);
 		return services;
 	}

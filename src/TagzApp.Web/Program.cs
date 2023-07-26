@@ -14,8 +14,6 @@ public class Program
 		// Add services to the container.
 		builder.Services.AddRazorPages();
 
-		//builder.Services.ConfigureProvider<StartMastodon>(builder.Configuration);
-
 		builder.Services.AddTagzAppHostedServices(builder.Configuration);
 
 		builder.Services.AddSignalR();
