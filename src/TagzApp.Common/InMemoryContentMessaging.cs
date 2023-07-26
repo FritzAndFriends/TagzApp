@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Concurrent;
+using System.Web;
 
 namespace TagzApp.Common;
 
@@ -9,18 +10,22 @@ public class InMemoryContentMessaging : IContentPublisher, IContentSubscriber, I
 	internal readonly Dictionary<string, ConcurrentQueue<Content>> Queue = new();
 	private readonly Dictionary<string, ConcurrentBag<Action<Content>>> _Actions = new();
 
+	public readonly Dictionary<string, ConcurrentBag<Content>> _LoadedContent = new();
+
 	private readonly Task _QueueWatcher = Task.CompletedTask;
 	private CancellationTokenSource _CancellationTokenSource;
 
+	private List<Task> _ProviderTasks = new List<Task>();
+
 	private bool _DisposedValue;
 
-  public InMemoryContentMessaging()
-  {
+	public InMemoryContentMessaging()
+	{
 		_CancellationTokenSource = new CancellationTokenSource();
-		_QueueWatcher = Task.Run(WatchQueue);
-  }
+		_QueueWatcher = Task.Run(DispatchFromQueue);
+	}
 
-	private async Task WatchQueue()
+	private async Task DispatchFromQueue()
 	{
 
 		var token = _CancellationTokenSource.Token;
@@ -28,7 +33,8 @@ public class InMemoryContentMessaging : IContentPublisher, IContentSubscriber, I
 		while (!token.IsCancellationRequested)
 		{
 
-			foreach (var queue in Queue) {
+			foreach (var queue in Queue)
+			{
 
 				if (queue.Value.TryDequeue(out var content))
 				{
@@ -69,13 +75,75 @@ public class InMemoryContentMessaging : IContentPublisher, IContentSubscriber, I
 	public void SubscribeToContent(Hashtag tag, Action<Content> onNewContent)
 	{
 
-		if (!_Actions.ContainsKey(tag.Text)) {
+		if (!_Actions.ContainsKey(tag.Text))
+		{
 			_Actions.Add(tag.Text, new ConcurrentBag<Action<Content>>());
 		}
 
 		_Actions[tag.Text].Add(onNewContent);
 
 	}
+
+	public void StartProviders(IEnumerable<ISocialMediaProvider> providers, CancellationToken cancellationToken)
+	{
+
+		_ProviderTasks.Clear();
+		foreach (var provider in providers)
+		{
+
+			_ProviderTasks.Add(Task.Run(async () =>
+			{
+
+				var lastQueryTime = DateTimeOffset.UtcNow.AddHours(-1);
+
+				while (!cancellationToken.IsCancellationRequested)
+				{
+
+					if (!_Actions.Any()) {
+						await Task.Delay(TimeSpan.FromSeconds(5));
+						continue;
+					}
+
+					foreach (var tag in _Actions.Keys.Distinct<string>())
+					{
+
+            if (!_LoadedContent.ContainsKey(tag))
+            {
+							_LoadedContent.Add(tag.TrimStart('#').ToLowerInvariant(), new());
+            }
+
+						var searchTime = lastQueryTime;
+						lastQueryTime = DateTime.UtcNow;
+						Hashtag thisTag = new Hashtag() { Text = tag };
+						var contentIdentified = await provider.GetContentForHashtag(thisTag, searchTime);
+
+						// de-dupe with in-memory collection
+						if (contentIdentified != null)
+						{
+							contentIdentified = contentIdentified
+								.DistinctBy(c => new { c.Provider, c.ProviderId })
+								.ExceptBy(_LoadedContent[tag.TrimStart('#').ToLowerInvariant()].Select(c => c.ProviderId).ToArray(), c => c.ProviderId)
+								.ToArray();
+						}
+
+						foreach (var item in contentIdentified.OrderBy(c => c.Timestamp))
+						{
+							_LoadedContent[tag.TrimStart('#').ToLowerInvariant()].Add(item);
+							await PublishContentAsync(thisTag, item);
+						}
+
+						await Task.Delay(provider.NewContentRetrievalFrequency);
+
+					}
+
+				}
+
+			}));
+
+		}
+
+	}
+
 
 	#region Dispose Pattern 
 
@@ -108,6 +176,6 @@ public class InMemoryContentMessaging : IContentPublisher, IContentSubscriber, I
 		GC.SuppressFinalize(this);
 	}
 
-	#endregion 
+	#endregion
 
 }

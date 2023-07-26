@@ -1,7 +1,3 @@
-using Microsoft.AspNetCore.Http.Extensions;
-using TagzApp.Communication.Extensions;
-using TagzApp.Providers.Mastodon;
-
 namespace TagzApp.Web;
 
 public class Program
@@ -14,9 +10,11 @@ public class Program
 		// Add services to the container.
 		builder.Services.AddRazorPages();
 
-		builder.Services.ConfigureProvider<StartMastodon>(builder.Configuration);
+		//builder.Services.ConfigureProvider<StartMastodon>(builder.Configuration);
 
-		builder.Services.AddTagzAppHostedServices();
+		builder.Services.AddTagzAppHostedServices(builder.Configuration);
+
+		builder.Services.AddSignalR();
 
 		// Add the Polly policies
 		builder.Services.AddPolicies(builder.Configuration);
@@ -39,6 +37,8 @@ public class Program
 		app.UseAuthorization();
 
 		app.MapRazorPages();
+
+		app.MapHub<MessageHub>("/messages");
 
 		if (app.Environment.IsDevelopment())
 		{

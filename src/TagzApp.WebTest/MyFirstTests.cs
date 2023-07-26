@@ -12,7 +12,7 @@ public class MyFirstTests : IClassFixture<PlaywrightWebApplicationFactory>
 		_OutputHelper = outputHelper;
 	}
 
-  [Fact]
+	[Fact]
 	public async Task CanAddHashtags()
 	{
 
@@ -27,7 +27,7 @@ public class MyFirstTests : IClassFixture<PlaywrightWebApplicationFactory>
 		//	Title = "Can Add Hashtags"
 		//});
 
-		await page.GotoAsync("/"); 
+		await page.GotoAsync("/");
 
 		await page.GetByPlaceholder("New Hashtag").FillAsync("dotnet");
 
@@ -40,6 +40,49 @@ public class MyFirstTests : IClassFixture<PlaywrightWebApplicationFactory>
 		//{
 		//	Path = $"{nameof(CanAddHashtags)}.zip"
 		//});
+
+
+	}
+
+	[Fact]
+	public async Task LoadContentFromSocialMediaProvider()
+	{
+
+		var page = await _WebApp.CreatePlaywrightPageAsync();
+
+		await page.Context.Tracing.StartAsync(new()
+		{
+			Screenshots = true,
+			Snapshots = true,
+			Sources = true, 
+			Name = $"{nameof(LoadContentFromSocialMediaProvider)}.zip",
+			Title = "Load Content From Social Media Provider"
+		});
+
+		await page.GotoAsync("/");
+
+		await page.GetByPlaceholder("New Hashtag").FillAsync("dotnet");
+
+		await page.GetByRole(AriaRole.Button, new() { Name = "Add" }).ClickAsync();
+
+		string? firstHashtagContent = await page.Locator(".hashtags").First.TextContentAsync();
+
+		try
+		{
+			await page.Locator("article").WaitForAsync(new()
+			{
+				Timeout = 5000
+			});
+		}
+		finally
+		{
+
+			await page.Context.Tracing.StopAsync(new()
+			{
+				Path = $"{nameof(LoadContentFromSocialMediaProvider)}.zip"
+			});
+
+		}
 
 
 	}

@@ -1,9 +1,4 @@
-﻿using Google.Apis.Services;
-using Google.Apis.YouTube.v3;
-using Microsoft.Extensions.Options;
-using TagzApp.Providers.Youtube.Configuration;
-
-namespace TagzApp.Providers.Youtube;
+﻿namespace TagzApp.Providers.Youtube;
 
 internal class YoutubeProvider : ISocialMediaProvider
 {
@@ -11,6 +6,8 @@ internal class YoutubeProvider : ISocialMediaProvider
 
 	public string Id => "YOUTUBE";
 	public string DisplayName => "Youtube";
+
+	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(30);
 
 	public YoutubeProvider(IOptions<YoutubeConfiguration> options)
 	{
