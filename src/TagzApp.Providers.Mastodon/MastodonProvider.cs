@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text.Json;
 using System.Web;
 
 namespace TagzApp.Providers.Mastodon;
@@ -33,7 +31,8 @@ internal class MastodonProvider : ISocialMediaProvider
 		try
 		{
 			messages = await _HttpClient.GetFromJsonAsync<Message[]>(targetUri);
-		} catch (Exception ex)
+		}
+		catch (Exception ex)
 		{
 
 			_Logger.LogError(ex, "Error getting content from Mastodon");
@@ -41,7 +40,8 @@ internal class MastodonProvider : ISocialMediaProvider
 
 		}
 
-		if (messages is null || (!messages?.Any() ?? true)) 		{
+		if (messages is null || (!messages?.Any() ?? true))
+		{
 			return Enumerable.Empty<Content>();
 		}
 
@@ -54,7 +54,8 @@ internal class MastodonProvider : ISocialMediaProvider
 			Type = ContentType.Message,
 			Timestamp = m.created_at,
 			SourceUri = new Uri(m.uri),
-			Author = new Creator {
+			Author = new Creator
+			{
 				DisplayName = m.account!.display_name,
 				UserName = m.account.acct,
 				ProviderId = Id,
@@ -75,6 +76,4 @@ internal class MastodonProvider : ISocialMediaProvider
 		return new Uri($"/api/v1/timelines/tag/{HttpUtility.UrlEncode(tag.Text)}?limit=20{sinceQuery}", UriKind.Relative);
 	}
 }
-
-
 

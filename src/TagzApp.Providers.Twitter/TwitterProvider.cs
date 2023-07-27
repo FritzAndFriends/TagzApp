@@ -1,7 +1,4 @@
-﻿using System.Diagnostics;
-using System.Linq;
-using System.Net.Http.Json;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Web;
 using TagzApp.Providers.Twitter.Models;
 
@@ -9,7 +6,11 @@ namespace TagzApp.Providers.Twitter;
 
 public class TwitterProvider : ISocialMediaProvider
 {
-	private readonly HttpClient _Client;
+	private readonly HttpClient _HttpClient;
+
+	private const string _SearchFields = "created_at,author_id,entities";
+	private const int _SearchMaxResults = 100;
+	private const string _SearchExpansions = "author_id,attachments.media_keys";
 
 	public string Id => "TWITTER";
 	public string DisplayName => "Twitter";
@@ -17,37 +18,29 @@ public class TwitterProvider : ISocialMediaProvider
 
 	private string _NewestId = string.Empty;
 
-  public TwitterProvider(HttpClient client)
-  {
-		_Client = client;
-  }
+	public TwitterProvider(HttpClient httpClient)
+	{
+		_HttpClient = httpClient;
+	}
 
-  public async Task<IEnumerable<Content>> GetContentForHashtag(Common.Hashtag tag, DateTimeOffset since)
+	public async Task<IEnumerable<Content>> GetContentForHashtag(Common.Hashtag tag, DateTimeOffset since)
 	{
 
 		var tweetQuery = "#" + tag.Text.ToLowerInvariant().TrimStart('#') + " -is:retweet";
 		var sinceTerm = string.IsNullOrEmpty(_NewestId) ? "" : $"&since_id={_NewestId}";
 
-		var tweetFields = "created_at,author_id,entities";
-
-		var query = string.Concat(
-			"https://api.twitter.com/2/tweets/search/recent?",
-			"query=", HttpUtility.UrlEncode(tweetQuery),
-			sinceTerm,
-			"&max_results=100",
-			"&tweet.fields=", tweetFields,
-			"&expansions=author_id,attachments.media_keys");
+		var targetUri = FormatUri(tweetQuery, sinceTerm);
 
 		TwitterData recentTweets = new TwitterData();
 		try
 		{
-
+			var response = await _HttpClient.GetAsync(targetUri);
 #if TWITTER_LIVE
 
-			var response = await _Client.GetAsync(query);
+			var response = await _HttpClient.GetAsync(targetUri);
 			var rawText = await response.Content.ReadAsStringAsync();
 
-			recentTweets = await _Client.GetFromJsonAsync<TwitterData>(query);
+			recentTweets = await _HttpClient.GetFromJsonAsync<TwitterData>(targetUri);
 			_NewestId = recentTweets.meta.newest_id ?? _NewestId;
 #else
 
@@ -55,7 +48,9 @@ public class TwitterProvider : ISocialMediaProvider
 
 #endif
 
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 			Console.WriteLine(ex.Message);
 		}
 
@@ -113,7 +108,9 @@ public class TwitterProvider : ISocialMediaProvider
 				};
 
 				outContent.Add(c);
-			} catch (Exception ex) {
+			}
+			catch (Exception ex)
+			{
 				Console.WriteLine(ex.Message);
 			}
 
@@ -123,4 +120,15 @@ public class TwitterProvider : ISocialMediaProvider
 
 	}
 
+	private static Uri FormatUri(string tweetQuery, string sinceTerm)
+	{
+		var query = string.Concat(
+			"query=", HttpUtility.UrlEncode(tweetQuery),
+			sinceTerm,
+			"&max_results=", _SearchMaxResults,
+			"&tweet.fields=", _SearchFields,
+			"&expansions=", _SearchExpansions);
+
+		return new Uri($"/2/tweets/search/recent?{query}", UriKind.Relative);
+	}
 }
