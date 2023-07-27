@@ -5,7 +5,7 @@
 }
 <html>
 <head>
-
+	<link rel="stylesheet" href="~/css/site.css" />
 </head>
 <body>
 
@@ -48,7 +48,13 @@
 			function FormatMessage(content) {
 
 				var overlayDisplay = document.getElementById("overlayDisplay");
-				overlayDisplay.innerHTML = content.text;
+
+				overlayDisplay.className = "begin";
+				overlayDisplay.innerHTML = `<span class="author">${content.authorDisplayName}</span>
+					<span class="time">${new Date(content.timestamp).toLocaleString(undefined, { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+					<span class="message">${content.text}</span>
+					`;
+				overlayDisplay.className = "show";
 
 			}
 

@@ -65,3 +65,20 @@ body {
 #taggedContent article .time {
 	text-align: left;
 }
+
+#overlayDisplay > span {
+	display: block;
+}
+
+
+#overlayDisplay .author {
+	font-weight: bold;
+	font-size: 1.2em;
+	text-align: left;
+	width: calc(100% - 1.1em);
+	overflow: hidden;
+}
+
+#overlayDisplay .time {
+	text-align: left;
+}

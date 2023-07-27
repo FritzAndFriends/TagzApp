@@ -42,8 +42,8 @@
 			while (el && el.tagName !== "ARTICLE") {
 				el = el.parentNode;
 			}
-			console.log(el);
-			connection.invoke("SendMessageToOverlay", window.TagzApp.Tags[0], el["data-provider"], el["data-providerid"]);
+
+			connection.invoke("SendMessageToOverlay", window.TagzApp.Tags[0], el.getAttribute("data-provider"), el.getAttribute("data-providerid"));
 
 		});
 		taggedContent.appendChild(newMessage);
@@ -57,7 +57,7 @@
 		ListenForTags: async function (tags) {
 
 			var tagCsv = encodeURI(tags);
-			Tags = tags.split(",");
+			t.Tags = tags.split(",");
 
 			connection = new signalR.HubConnectionBuilder()
 				.withUrl(`/messages?t=${tagCsv}`)
@@ -74,6 +74,7 @@
 
 			connection.invoke("GetExistingContentForTag", tags)
 				.then(function (result) {
+
 					result.forEach(function (content) {
 						FormatMessage(content);
 					});
