@@ -1,5 +1,4 @@
-﻿using TagzApp.Providers.Mastodon;
-using TagzApp.Web.Services;
+﻿using TagzApp.Web.Services;
 
 public static class ServicesExtensions {
 
@@ -38,7 +37,8 @@ public static class ServicesExtensions {
 		}
 		else
 		{
-			services.ConfigureProvider<StartMastodon>(configuration);
+			services.ConfigureProvider<TagzApp.Providers.Mastodon.StartMastodon>(configuration);
+			services.ConfigureProvider<TagzApp.Providers.Twitter.StartTwitter>(configuration);
 		}
 
 		return services;

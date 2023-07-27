@@ -10,7 +10,7 @@ public class InMemoryContentMessaging : IContentPublisher, IContentSubscriber, I
 	internal readonly Dictionary<string, ConcurrentQueue<Content>> Queue = new();
 	private readonly Dictionary<string, ConcurrentBag<Action<Content>>> _Actions = new();
 
-	public readonly Dictionary<string, ConcurrentBag<Content>> _LoadedContent = new();
+	public readonly ConcurrentDictionary<string, ConcurrentBag<Content>> _LoadedContent = new();
 
 	private readonly Task _QueueWatcher = Task.CompletedTask;
 	private CancellationTokenSource _CancellationTokenSource;
@@ -88,11 +88,13 @@ public class InMemoryContentMessaging : IContentPublisher, IContentSubscriber, I
 	{
 
 		_ProviderTasks.Clear();
-		foreach (var provider in providers)
+		foreach (var providerItem in providers)
 		{
 
-			_ProviderTasks.Add(Task.Run(async () =>
+			_ProviderTasks.Add(Task.Factory.StartNew(async (object state) =>
 			{
+
+				var provider = (ISocialMediaProvider)state;
 
 				var lastQueryTime = DateTimeOffset.UtcNow.AddHours(-1);
 
@@ -100,16 +102,18 @@ public class InMemoryContentMessaging : IContentPublisher, IContentSubscriber, I
 				{
 
 					if (!_Actions.Any()) {
-						await Task.Delay(TimeSpan.FromSeconds(5));
+						await Task.Delay(TimeSpan.FromSeconds(1));
 						continue;
 					}
 
 					foreach (var tag in _Actions.Keys.Distinct<string>())
 					{
 
-            if (!_LoadedContent.ContainsKey(tag))
+						var formattedTag = tag.TrimStart('#').ToLowerInvariant();
+
+            if (!_LoadedContent.ContainsKey(formattedTag))
             {
-							_LoadedContent.Add(tag.TrimStart('#').ToLowerInvariant(), new());
+							_LoadedContent.TryAdd(formattedTag, new());
             }
 
 						var searchTime = lastQueryTime;
@@ -118,18 +122,19 @@ public class InMemoryContentMessaging : IContentPublisher, IContentSubscriber, I
 						var contentIdentified = await provider.GetContentForHashtag(thisTag, searchTime);
 
 						// de-dupe with in-memory collection
-						if (contentIdentified != null)
+						if (contentIdentified != null && contentIdentified.Any())
 						{
 							contentIdentified = contentIdentified
 								.DistinctBy(c => new { c.Provider, c.ProviderId })
 								.ExceptBy(_LoadedContent[tag.TrimStart('#').ToLowerInvariant()].Select(c => c.ProviderId).ToArray(), c => c.ProviderId)
 								.ToArray();
-						}
 
-						foreach (var item in contentIdentified.OrderBy(c => c.Timestamp))
-						{
-							_LoadedContent[tag.TrimStart('#').ToLowerInvariant()].Add(item);
-							await PublishContentAsync(thisTag, item);
+							foreach (var item in contentIdentified.OrderBy<Content, DateTimeOffset>(c => c.Timestamp))
+							{
+								_LoadedContent[tag.TrimStart('#').ToLowerInvariant()].Add(item);
+								await PublishContentAsync(thisTag, item);
+							}
+
 						}
 
 						await Task.Delay(provider.NewContentRetrievalFrequency);
@@ -138,7 +143,7 @@ public class InMemoryContentMessaging : IContentPublisher, IContentSubscriber, I
 
 				}
 
-			}));
+			}, providerItem));
 
 		}
 

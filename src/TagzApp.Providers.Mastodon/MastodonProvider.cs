@@ -11,6 +11,7 @@ internal class MastodonProvider : ISocialMediaProvider
 
 	private readonly HttpClient _HttpClient;
 	private readonly ILogger _Logger;
+	private string _NewestId = string.Empty;
 
 	public MastodonProvider(HttpClient httpClient, ILogger<MastodonProvider> logger)
 	{
@@ -44,6 +45,8 @@ internal class MastodonProvider : ISocialMediaProvider
 			return Enumerable.Empty<Content>();
 		}
 
+		_NewestId = messages.OrderByDescending(m => m.id).First().id;
+
 		return messages!.Select(m => new Content
 		{
 			Provider = Id,
@@ -60,13 +63,16 @@ internal class MastodonProvider : ISocialMediaProvider
 			},
 			Text = m.content,
 			HashtagSought = tag.Text
-		});
+		}).ToArray();
 
 	}
 
 	private Uri FormatUri(Hashtag tag)
 	{
-		return new Uri($"/api/v1/timelines/tag/{HttpUtility.UrlEncode(tag.Text)}?limit=20", UriKind.Relative);
+
+		var sinceQuery = string.IsNullOrEmpty(_NewestId) ? "" : $"&min_id={_NewestId}";
+
+		return new Uri($"/api/v1/timelines/tag/{HttpUtility.UrlEncode(tag.Text)}?limit=20{sinceQuery}", UriKind.Relative);
 	}
 }
 
