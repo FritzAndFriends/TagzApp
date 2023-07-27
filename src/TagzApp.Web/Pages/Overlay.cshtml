@@ -1,0 +1,59 @@
+﻿@page "{tag}"
+@model TagzApp.Web.Pages.OverlayModel
+@{
+	Layout = null;
+}
+<html>
+<head>
+
+</head>
+<body>
+
+	<div id="overlayDisplay">
+
+	</div>
+
+	<script src="~/lib/microsoft-signalr/signalr.min.js"></script>
+	<script>
+		(function () {
+
+			async function start() {
+				try {
+					await connection.start();
+					console.log("SignalR Connected.");
+				} catch (err) {
+					console.log(err);
+					setTimeout(start, 5000);
+				}
+
+				connection.onclose(async () => {
+					await start();
+				});
+
+			};
+
+			var connection = new signalR.HubConnectionBuilder()
+				.withUrl(`/messages?ot=@Model.Tag`)
+				.configureLogging(signalR.LogLevel.Information)
+				.withAutomaticReconnect()
+				.build();
+
+			connection.on("DisplayOverlay", (content) => {
+				FormatMessage(content);
+			});
+
+			// Start the connection.
+			start();
+
+			function FormatMessage(content) {
+
+				var overlayDisplay = document.getElementById("overlayDisplay");
+				overlayDisplay.innerHTML = content.text;
+
+			}
+
+
+		})();
+	</script>
+</body>
+</html>

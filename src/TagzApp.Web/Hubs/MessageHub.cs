@@ -28,11 +28,24 @@ public class MessageHub : Hub
 
     }
 
-    await base.OnConnectedAsync();
+		var overlay = Context.GetHttpContext()?.Request.Query["ot"].ToString();
+		if (!string.IsNullOrEmpty(overlay))
+		{
+
+			await Groups.AddToGroupAsync(Context.ConnectionId, FormatOverlayGroupname(overlay));
+
+		}
+
+		await base.OnConnectedAsync();
 
   }
 
-  public IEnumerable<ContentModel> GetExistingContentForTag(string tag)
+	internal static string FormatOverlayGroupname(string overlayForTag)
+	{
+		return "overlay_" + overlayForTag.TrimStart('#').ToLowerInvariant();
+	}
+
+	public IEnumerable<ContentModel> GetExistingContentForTag(string tag)
   {
 
     return _Service.GetExistingContentForTag(tag)
@@ -40,5 +53,18 @@ public class MessageHub : Hub
       .ToArray();
 
   }
+
+	public void SendMessageToOverlay(string tag, string provider, string providerId)
+	{
+
+		var formattedTag = Hashtag.ClearFormatting(tag);
+		var message = _Service.Content[formattedTag].FirstOrDefault(c => c.Provider == provider && c.ProviderId == providerId);
+
+		if (message is null) return;
+
+		Clients.Group(FormatOverlayGroupname(formattedTag))
+			.SendAsync("DisplayOverlay", (ContentModel)message);
+
+	}
 
 }

@@ -13,4 +13,11 @@ public class Hashtag
 
 	}
 
+	public static string ClearFormatting(string text)
+	{
+
+		return text.TrimStart('#').ToLowerInvariant();
+
+	}
+
 }
