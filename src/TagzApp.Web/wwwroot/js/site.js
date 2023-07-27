@@ -26,14 +26,15 @@
 		}
 
 		const newMessage = document.createElement("article");
+		newMessage.setAttribute("data-url", content.sourceUri);
 		newMessage.innerHTML = `
 					<span class="author">${content.authorDisplayName}:  <i class="bi bi-${content.provider.toLowerCase()}"></i></span>
 					<span class="time">${new Date(content.timestamp).toLocaleString(undefined, { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
 					<span class="content">${content.text}</span>`;
-		taggedContent.appendChild(newMessage);
 		newMessage.addEventListener("DOMNodeInserted", function (ev) {
 			window.Masonry.resizeGridItem(newMessage);
 		}, false);
+		taggedContent.appendChild(newMessage);
 
 	}
 
