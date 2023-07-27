@@ -10,7 +10,7 @@ public class InMemoryContentMessaging : IContentPublisher, IContentSubscriber, I
 	internal readonly Dictionary<string, ConcurrentQueue<Content>> Queue = new();
 	private readonly Dictionary<string, ConcurrentBag<Action<Content>>> _Actions = new();
 
-	public readonly Dictionary<string, ConcurrentBag<Content>> _LoadedContent = new();
+	public readonly ConcurrentDictionary<string, ConcurrentBag<Content>> _LoadedContent = new();
 
 	private readonly Task _QueueWatcher = Task.CompletedTask;
 	private CancellationTokenSource _CancellationTokenSource;
@@ -113,7 +113,7 @@ public class InMemoryContentMessaging : IContentPublisher, IContentSubscriber, I
 
             if (!_LoadedContent.ContainsKey(formattedTag))
             {
-							_LoadedContent.Add(formattedTag, new());
+							_LoadedContent.TryAdd(formattedTag, new());
             }
 
 						var searchTime = lastQueryTime;

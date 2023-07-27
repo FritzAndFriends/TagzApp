@@ -101,7 +101,7 @@ public class TwitterProvider : ISocialMediaProvider
 						UserName = author.username,
 						ProviderId = "TWITTER",
 						ProfileImageUri = new("https://twitter.com"),
-						ProfileUri = new("https://twitter.com")
+						ProfileUri = new($"https://twitter.com/{author.username}")
 					},
 					SourceUri = new Uri($"https://twitter.com/{author.username}/status/{t.id}"),
 					Text = formattedText,

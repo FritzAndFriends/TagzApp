@@ -63,7 +63,7 @@ internal class MastodonProvider : ISocialMediaProvider
 			},
 			Text = m.content,
 			HashtagSought = tag.Text
-		});
+		}).ToArray();
 
 	}
 
