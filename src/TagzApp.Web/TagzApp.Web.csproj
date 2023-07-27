@@ -4,11 +4,13 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>302849a5-c22f-4299-8347-48fe818abbb1</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
     <ProjectReference Include="..\TagzApp.Providers.Mastodon\TagzApp.Providers.Mastodon.csproj" />
+    <ProjectReference Include="..\TagzApp.Providers.Twitter\TagzApp.Providers.Twitter.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -9,7 +9,7 @@
 		<h1 class="text-center">Welcome to TagzApp</h1>
 	</div>
 
-	<div id="tagListPanel" class="col-md-3">
+	<div id="tagListPanel" class="col-md-4">
 
 		<form method="post">
 			<input name="NewTag" placeholder="New Hashtag" value="@Model.NewTag" />
@@ -27,26 +27,29 @@
 
 	</div>
 
-	<div id="taggedContent" class="col-md-9">
+	<div id="taggedContent" class="col-md-8">
 
-		<div class=" d-flex justify-content-center" style="width:100%;">
+		@* 		<div class=" d-flex justify-content-center" style="width:100%;">
 
-			<div class="spinner-border" role="status">
-				<span class="visually-hidden">Loading...</span>
-			</div>
-
+		<div class="spinner-border" role="status">
+		<span class="visually-hidden">Loading...</span>
 		</div>
 
+		</div>
+		*@
 	</div>
 
 </div>
 
 @section Scripts {
 
-<script>
+	<script src="~/js/masonry.js" asp-append-version="true"></script>
+	<script>
 
-	window.TagzApp.ListenForTags("@string.Join(',', Model.Tags)");
+		window.TagzApp.ListenForTags("@string.Join(',', Model.Tags)");
+		window.onload = window.Masonry.resizeAllGridItems();
+		window.addEventListener("resize", Masonry.resizeAllGridItems);
 
-</script>
+	</script>
 
 }

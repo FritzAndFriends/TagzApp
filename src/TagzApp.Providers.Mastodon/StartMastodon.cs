@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using System.Runtime.CompilerServices;
 using TagzApp.Common.Exceptions;
 
 namespace TagzApp.Providers.Mastodon;
@@ -13,11 +12,21 @@ public class StartMastodon : IConfigureProvider
 	public IServiceCollection RegisterServices(IServiceCollection services, IConfiguration configuration)
 	{
 
-		IConfigurationSection config = configuration.GetSection(ConfigurationKey);
-		services.Configure<MastodonConfiguration>(config); 
+		try
+		{
+			IConfigurationSection config = configuration.GetSection(ConfigurationKey);
+			services.Configure<MastodonConfiguration>(config);
+		} catch (Exception ex) {
 
-		//services
-		//	.AddSingleton<ISocialMediaProvider, MastodonProvider>();
+			throw new InvalidConfigurationException(ex.Message, ConfigurationKey);
+
+		}
+
+		if (string.IsNullOrEmpty(configuration.GetValue<string>($"{ConfigurationKey}:BaseAddress")))
+		{
+			// No configuration provided, no registration to be added
+			return services;
+		}
 
 		services.AddHttpClient<ISocialMediaProvider, MastodonProvider>((svc, c) => {
 			var config = svc.GetRequiredService<IOptions<MastodonConfiguration>>().Value;

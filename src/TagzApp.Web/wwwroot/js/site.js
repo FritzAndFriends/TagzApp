@@ -26,10 +26,14 @@
 		}
 
 		const newMessage = document.createElement("article");
+		newMessage.setAttribute("data-url", content.sourceUri);
 		newMessage.innerHTML = `
 					<span class="author">${content.authorDisplayName}:  <i class="bi bi-${content.provider.toLowerCase()}"></i></span>
 					<span class="time">${new Date(content.timestamp).toLocaleString(undefined, { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-					${content.text}`;
+					<span class="content">${content.text}</span>`;
+		newMessage.addEventListener("DOMNodeInserted", function (ev) {
+			window.Masonry.resizeGridItem(newMessage);
+		}, false);
 		taggedContent.appendChild(newMessage);
 
 	}
@@ -57,6 +61,7 @@
 					result.forEach(function (content) {
 						FormatMessage(content);
 					});
+					window.Masonry.resizeAllGridItems();
 				});
 
 		},
