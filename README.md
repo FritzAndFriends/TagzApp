@@ -1,5 +1,5 @@
 # TagzApp
-A new website that searches social media for hashtags.  Soon to be hosted at https://myta.gg
+A new website that searches social media for hashtags.
 
 ## Current Status
 
