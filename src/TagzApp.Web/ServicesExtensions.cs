@@ -79,19 +79,6 @@ public static class ServicesExtensions {
 			}
 		}
 
-		//var configurationProviderAssemblies = AppDomain.CurrentDomain.GetAssemblies().ToList()
-		//	.SelectMany(a => a.GetTypes())
-		//	.Where(t => typeof(IConfigureProvider).IsAssignableFrom(t) && !t.IsInterface);
-
-		//foreach (var assembly in configurationProviderAssemblies)
-		//{
-		//	var provider = Activator.CreateInstance(assembly) as IConfigureProvider;
-		//	if (provider != null)
-		//	{
-		//		providers.Add(provider);
-		//	}
-		//}
-
 	}
 
 	/// <summary>
