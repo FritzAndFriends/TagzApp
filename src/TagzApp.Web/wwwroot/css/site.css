@@ -66,6 +66,19 @@ body {
 	text-align: left;
 }
 
+
+#overlayDisplay.show {
+	width: 40em;
+	background-color: white;
+	border: 1px solid black;
+	padding: 0.3em 0.8em 0.8em 0.8em;
+	position: relative;
+}
+
+#overlayDisplay * {
+	font-family: Arial, Helvetica, sans-serif;
+}
+
 #overlayDisplay > span {
 	display: block;
 }
@@ -81,4 +94,13 @@ body {
 
 #overlayDisplay .time {
 	text-align: left;
+	font-size: 0.8em;
+	font-weight: bold;
+	margin-bottom: 0.5em;
+}
+
+#overlayDisplay .bi {
+	position: absolute;
+	right: 0.4em;
+	top: 0.4em;
 }

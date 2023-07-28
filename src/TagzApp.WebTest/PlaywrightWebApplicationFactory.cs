@@ -110,6 +110,8 @@ public class PlaywrightWebApplicationFactory : WebApplicationFactory<Web.Program
 
 	}
 
+	public async Task<IBrowser> GetBrowser() => await playwright.Chromium.LaunchAsync();
+
 	async Task IAsyncLifetime.DisposeAsync()
 	{
 		if (browser is not null)
