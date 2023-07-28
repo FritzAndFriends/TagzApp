@@ -1,4 +1,6 @@
-﻿using TagzApp.Web.Services;
+﻿using System.Runtime.Loader;
+using System.Reflection;
+using TagzApp.Web.Services;
 
 public static class ServicesExtensions {
 
@@ -28,6 +30,8 @@ public static class ServicesExtensions {
 		services.AddHostedService(s => s.GetRequiredService<InMemoryMessagingService>());
 
 		// Register the providers
+		SocialMediaProviders.LoadExternalProviders();
+
 		if (SocialMediaProviders.Any())
 		{
 			foreach (var item in SocialMediaProviders)
@@ -42,6 +46,51 @@ public static class ServicesExtensions {
 		}
 
 		return services;
+
+	}
+
+	private static void LoadExternalProviders(this List<IConfigureProvider> providers)
+	{
+
+    var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
+
+		if (!string.IsNullOrWhiteSpace(path))
+		{
+			foreach (string dllPath in Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories))
+			{
+        var assembly = Assembly.LoadFrom(dllPath);
+				var providerAssemblies = assembly.GetTypes()
+					.Where(t => typeof(IConfigureProvider).IsAssignableFrom(t) && !t.IsInterface);
+
+				if (providerAssemblies != null && 
+					providerAssemblies.Count() > 0)
+        {
+
+					foreach(var provider in providerAssemblies)
+					{
+            var providerInstance = Activator.CreateInstance(provider) as IConfigureProvider;
+
+            if (providerInstance != null)
+            {
+              providers.Add(providerInstance);
+            }
+          }
+        }
+			}
+		}
+
+		//var configurationProviderAssemblies = AppDomain.CurrentDomain.GetAssemblies().ToList()
+		//	.SelectMany(a => a.GetTypes())
+		//	.Where(t => typeof(IConfigureProvider).IsAssignableFrom(t) && !t.IsInterface);
+
+		//foreach (var assembly in configurationProviderAssemblies)
+		//{
+		//	var provider = Activator.CreateInstance(assembly) as IConfigureProvider;
+		//	if (provider != null)
+		//	{
+		//		providers.Add(provider);
+		//	}
+		//}
 
 	}
 
