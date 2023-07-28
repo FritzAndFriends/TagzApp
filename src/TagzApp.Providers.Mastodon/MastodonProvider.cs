@@ -62,7 +62,8 @@ internal class MastodonProvider : ISocialMediaProvider
 				ProfileUri = new Uri(m.account.url)
 			},
 			Text = m.content,
-			HashtagSought = tag.Text
+			HashtagSought = tag.Text,
+			PreviewCard = m.card is null ? m.media_attachments.Any() ? new Common.Card(m.media_attachments.First()) : null : (Common.Card)m.card
 		}).ToArray();
 
 	}
