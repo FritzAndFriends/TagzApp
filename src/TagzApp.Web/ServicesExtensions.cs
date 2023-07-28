@@ -29,7 +29,7 @@ public static class ServicesExtensions {
 		services.AddSingleton<InMemoryMessagingService>();
 		services.AddHostedService(s => s.GetRequiredService<InMemoryMessagingService>());
 
-		// Register the providers
+		// Dynamically load the providers
 		SocialMediaProviders.LoadExternalProviders();
 
 		if (SocialMediaProviders.Any())
@@ -62,8 +62,7 @@ public static class ServicesExtensions {
 				var providerAssemblies = assembly.GetTypes()
 					.Where(t => typeof(IConfigureProvider).IsAssignableFrom(t) && !t.IsInterface);
 
-				if (providerAssemblies != null && 
-					providerAssemblies.Count() > 0)
+				if (providerAssemblies.Any())
         {
 
 					foreach(var provider in providerAssemblies)
