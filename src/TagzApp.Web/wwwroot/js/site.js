@@ -27,6 +27,8 @@
 
 		const newMessage = document.createElement("article");
 		newMessage.setAttribute("data-url", content.sourceUri);
+		newMessage.setAttribute("data-provider", content.provider);
+		newMessage.setAttribute("data-providerid", content.providerId);
 		newMessage.innerHTML = `
 					<span class="author">${content.authorDisplayName}:  <i class="bi bi-${content.provider.toLowerCase()}"></i></span>
 					<span class="time">${new Date(content.timestamp).toLocaleString(undefined, { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
@@ -34,18 +36,32 @@
 		newMessage.addEventListener("DOMNodeInserted", function (ev) {
 			window.Masonry.resizeGridItem(newMessage);
 		}, false);
+		newMessage.addEventListener("click", function (ev) {
+
+			var el = ev.srcElement;
+			while (el && el.tagName !== "ARTICLE") {
+				el = el.parentNode;
+			}
+
+			connection.invoke("SendMessageToOverlay", window.TagzApp.Tags[0], el.getAttribute("data-provider"), el.getAttribute("data-providerid"));
+
+		});
 		taggedContent.appendChild(newMessage);
 
 	}
 
 	const t = {
 
+		Tags: [],
+
 		ListenForTags: async function (tags) {
 
 			var tagCsv = encodeURI(tags);
+			t.Tags = tags.split(",");
 
 			connection = new signalR.HubConnectionBuilder()
 				.withUrl(`/messages?t=${tagCsv}`)
+				.withAutomaticReconnect()
 				.configureLogging(signalR.LogLevel.Information)
 				.build();
 
@@ -58,6 +74,7 @@
 
 			connection.invoke("GetExistingContentForTag", tags)
 				.then(function (result) {
+
 					result.forEach(function (content) {
 						FormatMessage(content);
 					});

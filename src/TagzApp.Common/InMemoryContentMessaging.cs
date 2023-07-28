@@ -54,7 +54,7 @@ public class InMemoryContentMessaging : IContentPublisher, IContentSubscriber, I
 
 			await Task.Delay(100);
 
-		}
+	}
 
 	}
 

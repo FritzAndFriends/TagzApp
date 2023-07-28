@@ -65,3 +65,42 @@ body {
 #taggedContent article .time {
 	text-align: left;
 }
+
+
+#overlayDisplay.show {
+	width: 40em;
+	background-color: white;
+	border: 1px solid black;
+	padding: 0.3em 0.8em 0.8em 0.8em;
+	position: relative;
+}
+
+#overlayDisplay * {
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+#overlayDisplay > span {
+	display: block;
+}
+
+
+#overlayDisplay .author {
+	font-weight: bold;
+	font-size: 1.2em;
+	text-align: left;
+	width: calc(100% - 1.1em);
+	overflow: hidden;
+}
+
+#overlayDisplay .time {
+	text-align: left;
+	font-size: 0.8em;
+	font-weight: bold;
+	margin-bottom: 0.5em;
+}
+
+#overlayDisplay .bi {
+	position: absolute;
+	right: 0.4em;
+	top: 0.4em;
+}

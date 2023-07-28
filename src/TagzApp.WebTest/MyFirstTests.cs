@@ -1,22 +1,17 @@
 ﻿namespace TagzApp.WebTest;
 
-
-public class MyFirstTests : IClassFixture<PlaywrightWebApplicationFactory>
+public class MyFirstTests : BaseFixture
 {
 	private readonly PlaywrightWebApplicationFactory _WebApp;
 	private readonly ITestOutputHelper _OutputHelper;
 
-	public MyFirstTests(PlaywrightWebApplicationFactory webapp, ITestOutputHelper outputHelper)
-  {
-		_WebApp = webapp;
-		_OutputHelper = outputHelper;
-	}
+	public MyFirstTests(PlaywrightWebApplicationFactory webapp, ITestOutputHelper outputHelper) : base(webapp, outputHelper) { }
 
 	[Fact]
 	public async Task CanAddHashtags()
 	{
 
-		var page = await _WebApp.CreatePlaywrightPageAsync();
+		var page = await WebApp.CreatePlaywrightPageAsync();
 
 		//await page.Context.Tracing.StartAsync(new()
 		//{
@@ -48,7 +43,7 @@ public class MyFirstTests : IClassFixture<PlaywrightWebApplicationFactory>
 	public async Task LoadContentFromSocialMediaProvider()
 	{
 
-		var page = await _WebApp.CreatePlaywrightPageAsync();
+		var page = await WebApp.CreatePlaywrightPageAsync();
 
 		await page.Context.Tracing.StartAsync(new()
 		{
