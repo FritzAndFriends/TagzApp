@@ -38,10 +38,7 @@
 		}, false);
 		newMessage.addEventListener("click", function (ev) {
 
-			var el = ev.srcElement;
-			while (el && el.tagName !== "ARTICLE") {
-				el = el.parentNode;
-			}
+			var el = ev.target.closest('article');
 
 			connection.invoke("SendMessageToOverlay", window.TagzApp.Tags[0], el.getAttribute("data-provider"), el.getAttribute("data-providerid"));
 
