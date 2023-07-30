@@ -46,7 +46,7 @@
 			connection.invoke("SendMessageToOverlay", window.TagzApp.Tags[0], el.getAttribute("data-provider"), el.getAttribute("data-providerid"));
 
 		});
-		taggedContent.appendChild(newMessage);
+		taggedContent.prepend(newMessage);
 
 	}
 
