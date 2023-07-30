@@ -82,4 +82,35 @@ public class MyFirstTests : BaseFixture
 
 	}
 
+	[Fact]
+	public async Task LatestContentShouldBeFirst()
+	{
+
+		var page = await WebApp.CreatePlaywrightPageAsync();
+		await page.GotoAsync("/");
+		await page.GetByPlaceholder("New Hashtag").FillAsync("dotnet");
+		await page.GetByRole(AriaRole.Button, new() { Name = "Add" }).ClickAsync();
+
+		// Stub generates 10 articles.
+    await page.WaitForSelectorAsync("article:nth-child(10)", new() { Timeout = 10000 });
+
+		DateTime? lastArticleTime = null;
+		foreach (var article in await page.Locator("article").AllAsync())
+		{
+
+      var articleTime = await article.Locator(".time").TextContentAsync();
+      Assert.NotNull(articleTime);
+			Assert.True(DateTime.TryParse(articleTime, out var currentArticleTime));
+
+      if (lastArticleTime != null)
+			{
+        Assert.True(lastArticleTime > currentArticleTime);
+      }
+
+      lastArticleTime = currentArticleTime;
+
+    }
+
+  }
+
 }
