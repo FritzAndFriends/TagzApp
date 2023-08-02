@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 namespace TagzApp.Providers.Mastodon;
 
@@ -7,6 +10,7 @@ public class Messages
 	public Message[]? ReceivedMessages { get; set; }
 }
 
+[DebuggerDisplay("{account.display_name}: {content}")]
 public class Message
 {
 	public string id { get; set; } = string.Empty;
@@ -32,6 +36,17 @@ public class Message
 	public object[]? emojis { get; set; }
 	public Card? card { get; set; }
 	public object? poll { get; set; }
+
+	public static MediaAttachment GetMediaAttachment(string mediaJson)
+	{
+
+		var rawJson = mediaJson.Substring(mediaJson.IndexOf('{'));
+		rawJson = rawJson.TrimEnd('"');
+
+		return JsonSerializer.Deserialize<MediaAttachment>(rawJson);
+
+	}
+
 }
 
 public class Account
@@ -129,6 +144,22 @@ public class MediaAttachment
 	public Meta meta { get; set; }
 	public object description { get; set; }
 	public string blurhash { get; set; }
+
+	public static implicit operator Common.Card(MediaAttachment mediaAttachment)
+	{
+
+		if (mediaAttachment is null) return null;
+
+		return new Common.Card
+		{
+			ImageUri = new Uri(mediaAttachment.url),
+			AltText = mediaAttachment.description?.ToString(),
+			Height = mediaAttachment.meta?.original?.height ?? 0,
+			Width = mediaAttachment.meta?.original?.width ?? 0
+		};
+
+	}
+
 }
 
 public class Meta

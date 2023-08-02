@@ -14,6 +14,8 @@ public class TwitterProvider : ISocialMediaProvider
 	public string Id => "TWITTER";
 	public string DisplayName => "Twitter";
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(30);
+	
+	public static int MaxContentPerHashtag { get; set; } = 100;
 
 	private string _NewestId = string.Empty;
 
@@ -34,8 +36,8 @@ public class TwitterProvider : ISocialMediaProvider
 			"https://api.twitter.com/2/tweets/search/recent?",
 			"query=", HttpUtility.UrlEncode(tweetQuery),
 			sinceTerm,
-			"&max_results=100",
-			"&tweet.fields=", tweetFields,
+			$"&max_results={MaxContentPerHashtag}",
+			$"&tweet.fields={tweetFields}",
 			"&expansions=author_id,attachments.media_keys");
 
 		TwitterData recentTweets = new TwitterData();
