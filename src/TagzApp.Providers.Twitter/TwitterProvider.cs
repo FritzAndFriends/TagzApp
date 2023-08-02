@@ -114,6 +114,27 @@ public class TwitterProvider : ISocialMediaProvider
 					Type = ContentType.Message
 				};
 
+				if (t.entities?.urls?.Any(u => u.images != null) ?? false)
+				{
+
+					var thisUrl = t.entities.urls?.FirstOrDefault(u => u.images != null);
+					var thisImage = thisUrl?.images?.FirstOrDefault();
+
+					if (thisImage is not null)
+					{
+
+						c.PreviewCard = new Card
+						{
+							AltText = thisUrl.title,
+							Height = thisImage.height,
+							Width = thisImage.width,
+							ImageUri = new Uri(thisImage.url),
+						};
+
+					}
+
+				}
+
 				outContent.Add(c);
 			} catch (Exception ex) {
 				Console.WriteLine(ex.Message);

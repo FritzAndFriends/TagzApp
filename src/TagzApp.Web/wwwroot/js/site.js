@@ -42,9 +42,15 @@
 			`
 		}
 
-		newMessage.addEventListener("DOMNodeInserted", function (ev) {
-			window.Masonry.resizeGridItem(newMessage);
-		}, false);
+		if (content.previewCard) {
+			newMessage.querySelector(".card-img-top").addEventListener("load", function (ev) {
+				window.Masonry.resizeGridItem(newMessage);
+			}, false);
+		} else {
+			newMessage.addEventListener("DOMNodeInserted", function (ev) {
+				window.Masonry.resizeGridItem(newMessage);
+			}, false);
+		}
 		newMessage.addEventListener("click", function (ev) {
 
 			var el = ev.srcElement;
