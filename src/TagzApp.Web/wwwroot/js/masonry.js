@@ -6,7 +6,8 @@
 			grid = document.getElementById("taggedContent");
 			rowHeight = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-auto-rows'));
 			rowGap = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-row-gap'));
-			rowSpan = Math.ceil((item.querySelector('.content').getBoundingClientRect().height + 36 + rowGap) / (rowHeight + rowGap));
+			var imageSize = (item.querySelector('.card')?.getBoundingClientRect().height ?? 0) + (item.querySelector('.card') ? 6 : 0);
+			rowSpan = Math.ceil((item.querySelector('.content').getBoundingClientRect().height + imageSize + 36 + rowGap) / (rowHeight + rowGap));
 			item.style.gridRowEnd = "span " + rowSpan;
 		},
 

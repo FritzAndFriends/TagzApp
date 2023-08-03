@@ -1,4 +1,6 @@
-﻿namespace TagzApp.Common;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace TagzApp.Common;
 
 public class Content
 {
@@ -44,5 +46,7 @@ public class Content
 	/// Text associated with this content
 	/// </summary>
   public string Text { get; set; } = string.Empty;
+
+	public Card? PreviewCard { get; set; }
 
 }
