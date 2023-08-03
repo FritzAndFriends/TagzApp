@@ -14,23 +14,24 @@ public class TwitterProvider : ISocialMediaProvider
 	public string Id => "TWITTER";
 	public string DisplayName => "Twitter";
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(30);
-	
+
 	public static int MaxContentPerHashtag { get; set; } = 100;
 
 	private string _NewestId = string.Empty;
 
-  public TwitterProvider(HttpClient client)
-  {
+	public TwitterProvider(HttpClient client)
+	{
 		_Client = client;
-  }
+	}
 
-  public async Task<IEnumerable<Content>> GetContentForHashtag(Common.Hashtag tag, DateTimeOffset since)
+	public async Task<IEnumerable<Content>> GetContentForHashtag(Common.Hashtag tag, DateTimeOffset since)
 	{
 
 		var tweetQuery = "#" + tag.Text.ToLowerInvariant().TrimStart('#') + " -is:retweet";
 		var sinceTerm = string.IsNullOrEmpty(_NewestId) ? "" : $"&since_id={_NewestId}";
 
 		var tweetFields = "created_at,author_id,entities";
+		var mediaFields = "height,media_key,preview_image_url,type,url,width,alt_text";
 
 		var query = string.Concat(
 			"https://api.twitter.com/2/tweets/search/recent?",
@@ -38,6 +39,7 @@ public class TwitterProvider : ISocialMediaProvider
 			sinceTerm,
 			$"&max_results={MaxContentPerHashtag}",
 			$"&tweet.fields={tweetFields}",
+			$"&media.fields={mediaFields}",
 			"&expansions=author_id,attachments.media_keys");
 
 		TwitterData recentTweets = new TwitterData();
@@ -57,7 +59,9 @@ public class TwitterProvider : ISocialMediaProvider
 
 #endif
 
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 			Console.WriteLine(ex.Message);
 		}
 
@@ -130,13 +134,33 @@ public class TwitterProvider : ISocialMediaProvider
 							Width = thisImage.width,
 							ImageUri = new Uri(thisImage.url),
 						};
+					}
+
+				}
+				else if (t.attachments?.media_keys?.Any() ?? false)
+				{
+
+					var thisMediaKey = t.attachments.media_keys.First();
+					var thisMedia = t.entities.urls?.FirstOrDefault(u => u.media_key == thisMediaKey);
+					if (thisMedia is not null)
+					{
+
+						c.PreviewCard = new Card
+						{
+							AltText = thisMedia.description ?? "",
+							//Height = thisMedia. height,
+							//Width = thisMedia.width,
+							ImageUri = new Uri(thisMedia.url),
+						};
 
 					}
 
 				}
 
 				outContent.Add(c);
-			} catch (Exception ex) {
+			}
+			catch (Exception ex)
+			{
 				Console.WriteLine(ex.Message);
 			}
 
