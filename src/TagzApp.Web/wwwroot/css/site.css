@@ -104,3 +104,8 @@ body {
 	right: 0.4em;
 	top: 0.4em;
 }
+
+#overlayDisplay img {
+	width: 40em;
+	padding: 2px;
+}
