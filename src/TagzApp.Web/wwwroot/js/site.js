@@ -34,9 +34,24 @@
 					<span class="author">${content.authorDisplayName}:  <i class="bi bi-${content.provider.toLowerCase()}"></i></span>
 					<span class="time" data-time="${newMessageTime.toISOString()}">${newMessageTime.toLocaleString(undefined, { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
 					<span class="content">${content.text}</span>`;
-		newMessage.addEventListener("DOMNodeInserted", function (ev) {
-			window.Masonry.resizeGridItem(newMessage);
-		}, false);
+
+		if (content.previewCard) {
+			newMessage.innerHTML += `
+				<div class="card">
+					<img src="${content.previewCard.imageUri}" class="card-img-top" alt="${content.previewCard.altText}" />
+				</div>
+			`
+		}
+
+		if (content.previewCard) {
+			newMessage.querySelector(".card-img-top").addEventListener("load", function (ev) {
+				window.Masonry.resizeGridItem(newMessage);
+			}, false);
+		} else {
+			newMessage.addEventListener("DOMNodeInserted", function (ev) {
+				window.Masonry.resizeGridItem(newMessage);
+			}, false);
+		}
 		newMessage.addEventListener("click", function (ev) {
 
 			var el = ev.target.closest('article');

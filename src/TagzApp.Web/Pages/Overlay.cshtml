@@ -56,6 +56,15 @@
 					<span class="time">${new Date(content.timestamp).toLocaleString(undefined, { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
 					<span class="message">${content.text}</span>
 					`;
+
+				if (content.previewCard) {
+					overlayDisplay.innerHTML += `
+						<span class="card">
+							<img src="${content.previewCard.imageUri}" class="card-img-top" alt="${content.previewCard.altText}" />
+						</span>
+					`
+				}
+
 				overlayDisplay.className = "show";
 
 			}

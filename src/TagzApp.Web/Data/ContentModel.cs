@@ -20,7 +20,8 @@ public record ContentModel(
 	string AuthorDisplayName, 
 	string AuthorProfileUri, 
 	string AuthorProfileImageUri, 
-	string Text
+	string Text,
+	Card? PreviewCard
 )
 {
 
@@ -34,7 +35,8 @@ public record ContentModel(
 			content.Author.DisplayName,
 			content.Author.ProfileUri.ToString(),
 			content.Author.ProfileImageUri.ToString(),
-			content.Text
+			content.Text,
+			content.PreviewCard
 		);
 	}
 
