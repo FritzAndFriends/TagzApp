@@ -23,8 +23,13 @@ public class User
 
 public class Medium
 {
-	public string media_key { get; set; }
+	public string url { get; set; }
 	public string type { get; set; }
+	public int width { get; set; }
+	public string media_key { get; set; }
+	public int height { get; set; }
+	public string alt_text { get; set; }
+	public string preview_image_url { get; set; }
 }
 
 public class Meta
