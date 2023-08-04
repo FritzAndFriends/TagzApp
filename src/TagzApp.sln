@@ -33,6 +33,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. Providers", "2. Provider
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Providers.Twitter", "TagzApp.Providers.Twitter\TagzApp.Providers.Twitter.csproj", "{65459852-E2D6-47B9-911F-D3E09BD12816}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagzApp.Providers.TwitchChat", "TagzApp.Providers.TwitchChat\TagzApp.Providers.TwitchChat.csproj", "{8D0F679C-307A-4861-8B78-E7BCF95A5750}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +69,10 @@ Global
 		{65459852-E2D6-47B9-911F-D3E09BD12816}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{65459852-E2D6-47B9-911F-D3E09BD12816}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65459852-E2D6-47B9-911F-D3E09BD12816}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D0F679C-307A-4861-8B78-E7BCF95A5750}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D0F679C-307A-4861-8B78-E7BCF95A5750}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D0F679C-307A-4861-8B78-E7BCF95A5750}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D0F679C-307A-4861-8B78-E7BCF95A5750}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -79,6 +85,7 @@ Global
 		{CEA20BDE-380F-47C3-938E-F959CBF33233} = {99E0BB3F-9591-4C7A-A8EE-C54B0C3DE7A5}
 		{3A082F6E-1EE8-4D59-9FAC-70874EB482D5} = {99E0BB3F-9591-4C7A-A8EE-C54B0C3DE7A5}
 		{65459852-E2D6-47B9-911F-D3E09BD12816} = {99E0BB3F-9591-4C7A-A8EE-C54B0C3DE7A5}
+		{8D0F679C-307A-4861-8B78-E7BCF95A5750} = {99E0BB3F-9591-4C7A-A8EE-C54B0C3DE7A5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F2AD77A5-5B2D-41FC-AD37-8EF8A4E54410}
