@@ -17,12 +17,14 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	private static readonly CancellationTokenSource _CancellationTokenSource = new();
 	private readonly TwitchChatConfiguration _Settings;
 	private readonly ILogger<TwitchChatProvider> _Logger;
+	private readonly TwitchProfileRepository _ProfileRepository;
 
-	public TwitchChatProvider(IOptions<TwitchChatConfiguration> settings, ILogger<TwitchChatProvider> logger)
+	public TwitchChatProvider(IOptions<TwitchChatConfiguration> settings, ILogger<TwitchChatProvider> logger, IHttpClientFactory clientFactory)
 	{
 
 		_Settings = settings.Value;
 		_Logger = logger;
+		_ProfileRepository = new TwitchProfileRepository(_Settings.ClientId, _Settings.ClientSecret, clientFactory.CreateClient("TwitchProfile"));
 		ListenForMessages();
 	}
 
@@ -39,14 +41,17 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	/// </summary>
 	public string Channel { get; set; } = "csharpfritz";
 
-	private async void ListenForMessages(IChatClient chatClient = null)
+	private async Task ListenForMessages(IChatClient chatClient = null)
 	{
 		
 		var token = _CancellationTokenSource.Token;
 		_Client = chatClient ?? new ChatClient(Channel, _Settings.ChatBotName, _Settings.OAuthToken, _Logger);
 		
-		_Client.NewMessage += (sender, args) =>
+		_Client.NewMessage += async (sender, args) =>
 		{
+
+			var profileUrl = await IdentifyProfilePic(args.UserName);
+
 			_Contents.Enqueue(new Content
 			{
 				Provider = this.Id,
@@ -54,7 +59,7 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 				SourceUri = new Uri($"https://twitch.tv/{Channel}"),
 				Author = new Creator {
 					ProfileUri = new Uri($"https://twitch.tv/{args.UserName}"),
-					ProfileImageUri = new Uri("https://twitch.tv"),		// TODO: Fetch and cache a collection of profile image URLs
+					ProfileImageUri = new Uri(profileUrl),		
 					DisplayName = args.DisplayName
 				},
 				Text = args.Message,
@@ -65,6 +70,11 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 		
 		_Client.Init();
 
+	}
+
+	private async Task<string> IdentifyProfilePic(string userName)
+	{
+		return await _ProfileRepository.GetProfilePic(userName);
 	}
 
 	public Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since)
