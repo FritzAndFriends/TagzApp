@@ -37,8 +37,9 @@ public static class ServicesExtensions {
 		}
 		else
 		{
-			services.ConfigureProvider<TagzApp.Providers.Mastodon.StartMastodon>(configuration);
-			services.ConfigureProvider<TagzApp.Providers.Twitter.StartTwitter>(configuration);
+			// services.ConfigureProvider<TagzApp.Providers.Mastodon.StartMastodon>(configuration);
+			// services.ConfigureProvider<TagzApp.Providers.Twitter.StartTwitter>(configuration);
+			services.ConfigureProvider<TagzApp.Providers.TwitchChat.StartTwitchChat>(configuration);
 		}
 
 		return services;

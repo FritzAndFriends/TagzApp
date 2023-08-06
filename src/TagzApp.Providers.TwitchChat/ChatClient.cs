@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 namespace TagzApp.Providers.TwitchChat;
 
 
-public class ChatClient : IDisposable
+public class ChatClient : IDisposable, IChatClient
 {
 
 	public const string LOGGER_CATEGORY = "Providers.TwitchChat";
@@ -33,6 +33,10 @@ public class ChatClient : IDisposable
 
 	internal static readonly Regex reUserName = new Regex(@"!([^@]+)@");
 	internal static readonly Regex reBadges = new Regex(@"badges=([^;]*)");
+	internal static readonly Regex reDisplayName = new Regex(@"display-name=([^;]*)");
+	internal static readonly Regex reTimestamp = new Regex(@"tmi-sent-ts=(\d+)");
+	internal static readonly Regex reMessageId = new Regex(@"id=([^;]*)");
+
 	internal static Regex reChatMessage;
 	internal static Regex reWhisperMessage;
 
@@ -236,9 +240,8 @@ public class ChatClient : IDisposable
 		var message = "";
 
 		userName = ChatClient.reUserName.Match(msg).Groups[1].Value;
-		if (userName.Equals(ChatBotName, StringComparison.InvariantCultureIgnoreCase)) return; // Exit and do not process if the bot posted this message
+		//if (userName.Equals(ChatBotName, StringComparison.InvariantCultureIgnoreCase)) return; // Exit and do not process if the bot posted this message
 
-		var badges = ChatClient.reBadges.Match(msg).Groups[1].Value.Split(',');
 
 		//if (!string.IsNullOrEmpty(userName) && msg.Contains($" JOIN #{ChannelName}"))
 		//{
@@ -249,31 +252,40 @@ public class ChatClient : IDisposable
 		if (reChatMessage.IsMatch(msg))
 		{
 
+			var displayName = ChatClient.reDisplayName.Match(msg).Groups[1].Value;
+			var timestamp = long.Parse(ChatClient.reTimestamp.Match(msg).Groups[1].Value);
+			var messageId = ChatClient.reMessageId.Match(msg).Groups[1].Value;
+
+			var badges = ChatClient.reBadges.Match(msg).Groups[1].Value.Split(',');
+
 			message = ChatClient.reChatMessage.Match(msg).Groups[1].Value;
 			Logger.LogTrace($"Message received from '{userName}': {message}");
 			NewMessage?.Invoke(this, new NewMessageEventArgs
 			{
+				MessageId = messageId,
 				UserName = userName,
+				DisplayName = displayName,
 				Message = message,
-				Badges = badges
+				Badges = badges,
+				Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(timestamp)
 			});
 
 		}
-		else if (reWhisperMessage.IsMatch(msg))
-		{
+		//else if (reWhisperMessage.IsMatch(msg))
+		//{
 
-			message = ChatClient.reWhisperMessage.Match(msg).Groups[1].Value;
-			Logger.LogTrace($"Whisper received from '{userName}': {message}");
+		//	message = ChatClient.reWhisperMessage.Match(msg).Groups[1].Value;
+		//	Logger.LogTrace($"Whisper received from '{userName}': {message}");
 
-			NewMessage?.Invoke(this, new NewMessageEventArgs
-			{
-				UserName = userName,
-				Message = message,
-				Badges = (badges ?? new string[] { }),
-				IsWhisper = true
-			});
+		//	NewMessage?.Invoke(this, new NewMessageEventArgs
+		//	{
+		//		UserName = userName,
+		//		Message = message,
+		//		Badges = (badges ?? new string[] { }),
+		//		IsWhisper = true
+		//	});
 
-		}
+		//}
 
 	}
 
