@@ -32,6 +32,8 @@ public class StartTwitchChat : IConfigureProvider
 			return services;
 		}
 
+		services.AddSingleton<ISocialMediaProvider, TwitchChatProvider>();
+
 
 		return services;
 

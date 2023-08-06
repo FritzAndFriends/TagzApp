@@ -1,4 +1,7 @@
-﻿namespace TagzApp.Providers.TwitchChat;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+
+namespace TagzApp.Providers.TwitchChat;
 
 public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 {
@@ -10,19 +13,24 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 
 	private static readonly Queue<Content> _Contents = new();
 	private static readonly CancellationTokenSource _CancellationTokenSource = new();
+	private readonly TwitchChatConfiguration _Settings;
+	private readonly ILogger<TwitchChatProvider> _Logger;
 	private Task _ContentRetrievalTask = null;
 
-  public TwitchChatProvider()
+  public TwitchChatProvider(IOptions<TwitchChatConfiguration> settings, ILogger<TwitchChatProvider> logger)
   {
     
 		_ContentRetrievalTask = Task.Run(ListenForMessages, _CancellationTokenSource.Token);
-
-  }
+		_Settings = settings.Value;
+		_Logger = logger;
+	}
 
 	private async void ListenForMessages()
 	{
 		
 		var token = _CancellationTokenSource.Token;
+		var client = new ChatClient(Channel, _Settings.ChatBotName, _Settings.OAuthToken, _Logger);
+		client.Init();
 		while (!token.IsCancellationRequested)
 		{
 
