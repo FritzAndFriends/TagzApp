@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 namespace TagzApp.Providers.TwitchChat;
 
 
-public class ChatClient : IDisposable, IChatClient
+public class ChatClient : IChatClient
 {
 
 	public const string LOGGER_CATEGORY = "Providers.TwitchChat";
