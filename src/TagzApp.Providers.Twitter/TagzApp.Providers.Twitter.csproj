@@ -13,6 +13,7 @@
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="7.0.0" />
 		<PackageReference Include="System.Net.Http.Json" Version="7.0.1" />
     <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
+    <ProjectReference Include="..\TagzApp.Communication\TagzApp.Communication.csproj" />
 	</ItemGroup>
 
 </Project>

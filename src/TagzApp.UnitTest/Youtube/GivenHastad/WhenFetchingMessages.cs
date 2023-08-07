@@ -2,6 +2,7 @@
 
 using Microsoft.Extensions.Options;
 using TagzApp.Providers.Youtube;
+using TagzApp.Providers.Youtube.Configuration;
 
 namespace TagzApp.UnitTest.Youtube.GivenHashtag;
 
@@ -15,10 +16,10 @@ public class WhenFetchingMessages
 
 	private YoutubeProvider _Sut;
 
-  public WhenFetchingMessages()
-  {
-		_Sut = new YoutubeProvider(Options.Create(new YoutubeConfiguration() { ApiKey="foo"}));
-  }
+	public WhenFetchingMessages()
+	{
+		_Sut = new YoutubeProvider(Options.Create(new YoutubeConfiguration() { ApiKey = "foo" }));
+	}
 
 	[Fact(Skip = "YouTube API Key required")]
 	public async Task ShouldReceiveMessages()

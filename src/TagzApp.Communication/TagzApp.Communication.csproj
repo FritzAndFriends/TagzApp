@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -7,17 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Ensure.That" Version="10.1.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="7.0.0" />
-    <PackageReference Include="System.Net.Http.Json" Version="7.0.1" />
-		<InternalsVisibleTo Include="TagzApp.UnitTest" />
+	<PackageReference Include="Microsoft.Extensions.Http.Polly" Version="7.0.9" />
+	<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
-    <ProjectReference Include="..\TagzApp.Communication\TagzApp.Communication.csproj" />
   </ItemGroup>
 
 </Project>

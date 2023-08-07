@@ -1,44 +1,40 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using TagzApp.Common.Exceptions;
+using TagzApp.Communication.Extensions;
+using TagzApp.Providers.Twitter.Configuration;
 
 namespace TagzApp.Providers.Twitter;
 
 public class StartTwitter : IConfigureProvider
 {
-
-	private const string ConfigurationKey = "providers:twitter";
-
 	public IServiceCollection RegisterServices(IServiceCollection services, IConfiguration configuration)
 	{
 
-		IConfiguration config = null;
+		IConfigurationSection config;
+
 		try
 		{
-			config = configuration.GetSection(ConfigurationKey);
+			config = configuration.GetSection(TwitterConfiguration.AppSettingsSection);
 			services.Configure<TwitterConfiguration>(config);
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 
-			// Was not able to configure the provider
-			throw new InvalidConfigurationException(ex.Message, ConfigurationKey);
-
+			throw new InvalidConfigurationException(ex.Message, TwitterConfiguration.AppSettingsSection);
 		}
 
-		if (config is null || string.IsNullOrEmpty(config.GetValue<string>("ApiKey")))
+		TwitterConfiguration? options = config.Get<TwitterConfiguration>();
+
+		if (string.IsNullOrEmpty(options?.BaseAddress?.ToString()) || string.IsNullOrEmpty(options?.ApiKey))
 		{
 			// No configuration provided, no registration to be added
 			return services;
 		}
 
-		services.AddHttpClient<ISocialMediaProvider, TwitterProvider>((svc, c) =>
-		{
-			var config = svc.GetRequiredService<IOptions<TwitterConfiguration>>().Value;
-			c.DefaultRequestHeaders.Add("Authorization", $"Bearer {config.BearerToken}");
-		});
+		services.AddHttpClient<ISocialMediaProvider, TwitterProvider, TwitterConfiguration>(configuration, TwitterConfiguration.AppSettingsSection);
 
 		return services;
-
 	}
 
 }

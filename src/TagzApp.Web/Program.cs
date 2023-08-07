@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Http.Extensions;
-using TagzApp.Providers.Mastodon;
-using System.Runtime.CompilerServices;
+using TagzApp.Communication.Extensions;
 using TagzApp.Web.Hubs;
 
 namespace TagzApp.Web;
@@ -19,7 +18,10 @@ public class Program
 
 		builder.Services.AddSignalR();
 
-    var app = builder.Build();
+		// Add the Polly policies
+		builder.Services.AddPolicies(builder.Configuration);
+
+		var app = builder.Build();
 
 		// Configure the HTTP request pipeline.
 		if (!app.Environment.IsDevelopment())
