@@ -116,10 +116,9 @@ public class InMemoryContentMessaging : IContentPublisher, IContentSubscriber, I
 							_LoadedContent.TryAdd(formattedTag, new());
             }
 
-						var searchTime = lastQueryTime;
-						lastQueryTime = DateTime.UtcNow;
 						Hashtag thisTag = new Hashtag() { Text = tag };
-						var contentIdentified = await provider.GetContentForHashtag(thisTag, searchTime);
+						var contentIdentified = await provider.GetContentForHashtag(thisTag, lastQueryTime);
+						lastQueryTime = DateTime.UtcNow;
 
 						// de-dupe with in-memory collection
 						if (contentIdentified != null && contentIdentified.Any())

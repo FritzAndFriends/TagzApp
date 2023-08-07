@@ -11,7 +11,7 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 
 	public string Id => "TWITCH";
 	public string DisplayName => "TwitchChat";
-	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(5);
+	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(1);
 
 	private static readonly ConcurrentQueue<Content> _Contents = new();
 	private static readonly CancellationTokenSource _CancellationTokenSource = new();
@@ -80,7 +80,7 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	public Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since)
 	{
 		
-		var messages = _Contents.Where(c => c.Timestamp >= since).ToList();
+		var messages = _Contents.ToList();
 		if (messages.Count() == 0) return Task.FromResult(Enumerable.Empty<Content>());
 
 		var messageCount = messages.Count();
