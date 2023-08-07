@@ -58,6 +58,25 @@
 
 			connection.invoke("SendMessageToOverlay", window.TagzApp.Tags[0], el.getAttribute("data-provider"), el.getAttribute("data-providerid"));
 
+			// Format Modal
+			let modalTitle = document.getElementById("modalTitle");
+			modalTitle.innerHTML = `
+            ${content.authorDisplayName}: 
+            <i class="bi bi-${content.provider.toLowerCase()}"></i>
+        `;
+
+			let modalBody = document.querySelector(".modal-body").innerHTML = content.text;
+			let modalTime = document.querySelector(".modal-time").textContent = new Date(content.timestamp).toLocaleString(undefined, {
+				day: 'numeric',
+				month: 'numeric',
+				year: 'numeric',
+				hour: '2-digit',
+				minute: '2-digit'
+			});
+
+			let modalWindow = new bootstrap.Modal(document.getElementById("contentModal"));
+			modalWindow.show();
+
 		});
 
 		const newest = getDateFromElement(taggedContent.firstElementChild);
