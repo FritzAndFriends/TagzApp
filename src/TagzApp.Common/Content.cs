@@ -1,4 +1,6 @@
-﻿namespace TagzApp.Common;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace TagzApp.Common;
 
 public class Content
 {
@@ -45,4 +47,16 @@ public class Content
 	/// </summary>
   public string Text { get; set; } = string.Empty;
 
+	public Card? PreviewCard { get; set; }
+
+	public Emote[]? Emotes { get; set; }
+
 }
+
+/// <summary>
+/// Definition of an emote to replace in a chat message with an image
+/// </summary>
+/// <param name="Pos">Position of the text to replace</param>
+/// <param name="Length">Length of the text to replace</param>
+/// <param name="ImageUrl">Image URL to replace with</param>
+public record Emote(int Pos, int Length, string ImageUrl);

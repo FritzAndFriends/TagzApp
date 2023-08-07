@@ -13,26 +13,30 @@
 /// <param name="Text">Text of the content</param>
 public record ContentModel(
 	string Provider, 
+	string ProviderId,
 	string Type, 
 	string SourceUri, 
 	DateTimeOffset Timestamp, 
 	string AuthorDisplayName, 
 	string AuthorProfileUri, 
 	string AuthorProfileImageUri, 
-	string Text
+	string Text,
+	Card? PreviewCard
 )
 {
 
 	public static implicit operator ContentModel(Content content) {
 		return new ContentModel(
 			content.Provider,
+			content.ProviderId,
 			content.Type.ToString(),
 			content.SourceUri.ToString(),
 			content.Timestamp,
 			content.Author.DisplayName,
 			content.Author.ProfileUri.ToString(),
 			content.Author.ProfileImageUri.ToString(),
-			content.Text
+			content.Text,
+			content.PreviewCard
 		);
 	}
 
