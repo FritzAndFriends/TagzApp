@@ -1,5 +1,8 @@
 ﻿namespace TagzApp.Common;
 
+/// <summary>
+/// Defines the interface for a Social Media Provider that delivers content to TagzApp
+/// </summary>
 public interface ISocialMediaProvider
 {
 

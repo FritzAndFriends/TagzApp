@@ -109,11 +109,11 @@ public class MyFirstTests : BaseFixture
       // Stub generates 10 articles.
       await page.WaitForSelectorAsync("article:nth-child(10)", new() { Timeout = 15000 });
       
-      var timeElements = await page.Locator("article .time").AllAsync();
+      var timeElements = await page.Locator("article").AllAsync();
       
       var parsedTimes = await Task.WhenAll(timeElements.Select(async te =>
       {
-        var dataTimeAttribute = await te.GetAttributeAsync("data-time");
+        var dataTimeAttribute = await te.GetAttributeAsync("data-timestamp");
         bool success = DateTime.TryParse(dataTimeAttribute, out DateTime time);
         return (success, time);
       }));
