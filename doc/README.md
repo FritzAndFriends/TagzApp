@@ -63,7 +63,7 @@ Arrange test state, Act to perform actionionable behavior, and Assert actual ver
 
 <div id='ordering'/>
 
-### Custom Test Execution Ordering [](#){id=ordering}
+### Custom Test Execution Ordering
 We are using the xUnit's ability to provide customize test execution ordering, and a functional example can be seen in the [TagzApp.WebTests/ModalWebTests.cs](../src/TagzApp.WebTest/ModalWebTests.cs) test class.
 
 An implementation of a [PriorityOrderer.cs](../src/TagzApp.WebTest/PriorityOrderer.cs) was created and then decorates the class as a TestCaseOrdererAttribute. The orderer uses a test attribute class and its properties to determine the ordering logic.
