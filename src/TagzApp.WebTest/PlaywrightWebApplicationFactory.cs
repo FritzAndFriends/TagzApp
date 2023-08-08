@@ -21,6 +21,7 @@ public class PlaywrightWebApplicationFactory : WebApplicationFactory<Web.Program
   private TestServer? _TestServer;
   private IPlaywright? _Playwright;
   private IBrowser? _Browser;
+  private IPage? _StaticPage;
   private string? _Uri;
   private readonly IMessageSink _Output;
 
@@ -104,6 +105,14 @@ public class PlaywrightWebApplicationFactory : WebApplicationFactory<Web.Program
     return await _Browser.NewPageAsync(browserNewPageOptions);
   }
 
+  public async Task<IPage> CreateSingletonPlaywrightPageAsync(bool headless = true)
+  {
+    // This method should instantiate a page for all tests in a class where tests dependencies and use same browser page.
+    // TODO Discuss whether this needs to be a singleton or implemented differently
+    if (_StaticPage is null) { _StaticPage = await CreatePlaywrightPageAsync(headless); }
+    return _StaticPage;
+  }
+
   [MemberNotNull(nameof(_Browser))]
   public async Task<IBrowser> GetBrowser(bool headless = true)
   {
@@ -118,6 +127,7 @@ public class PlaywrightWebApplicationFactory : WebApplicationFactory<Web.Program
     if (_Browser is null)
     {
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
+      // Browser Type gets cached as part of the app
       _Browser ??= (await _Playwright.Chromium.LaunchAsync(typeOptions)) ?? throw new InvalidOperationException();
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
     }
