@@ -25,9 +25,9 @@ public class OverlayTests : BaseFixture
 			Timeout = 5000
 		});
 
-		// Browser 2
-
-		var overlayBrowser = await WebApp.GetBrowser();
+    // Browser 2
+    // TODO: Should be able to us CreatePlaywrightPageAsync for new Browser here
+    var overlayBrowser = await WebApp.GetBrowser();
 		try
 		{
 			var overlayPage = await overlayBrowser.NewPageAsync(new()
