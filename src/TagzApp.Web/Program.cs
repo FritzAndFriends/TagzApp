@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Http.Extensions;
 using TagzApp.Communication.Extensions;
 using TagzApp.Web.Hubs;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using TagzApp.Web.Data;
 
 namespace TagzApp.Web;
 
@@ -10,6 +13,20 @@ public class Program
 	{
 
 		var builder = WebApplication.CreateBuilder(args);
+  var connectionString = builder.Configuration.GetConnectionString("SecurityContextConnection") ?? throw new InvalidOperationException("Connection string 'SecurityContextConnection' not found.");
+
+  builder.Services.AddDbContext<SecurityContext>(options => options.UseSqlite(connectionString));
+
+  builder.Services.AddDefaultIdentity<IdentityUser>(options => 
+			options.SignIn.RequireConfirmedAccount = true
+		).AddEntityFrameworkStores<SecurityContext>();
+
+		builder.Services.AddAuthentication()
+			.AddMicrosoftAccount(microsoftOptions =>
+			{
+				microsoftOptions.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"]!;
+				microsoftOptions.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"]!;
+			});
 
 		// Add services to the container.
 		builder.Services.AddRazorPages();
