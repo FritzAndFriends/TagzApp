@@ -6,7 +6,7 @@ This is documentation for writing new features and for using the TagzApp softwar
 1. [Adding new social media providers](#media-providers)
 2. [Icons](#icons)
 3. [Testing](#testing)
-   a. [Custom Test Execution Ordering](#ordering)
+4. [Custom Test Execution Ordering](#ordering)
 
 <div id='media-providers'/>
 
@@ -64,9 +64,9 @@ Arrange test state, Act to perform actionionable behavior, and Assert actual ver
 <div id='ordering'/>
 
 ### Custom Test Execution Ordering [](#){id=ordering}
-We are using the xUnit's ability to provide customize test execution ordering, and a functional example can be seen in the [TagzApp.WebTests/ModalWebTests.cs](../src/TagzApp.WebTests/ModalWebTests.cs) test class.
+We are using the xUnit's ability to provide customize test execution ordering, and a functional example can be seen in the [TagzApp.WebTests/ModalWebTests.cs](../src/TagzApp.WebTest/ModalWebTests.cs) test class.
 
-An implementation of a [PriorityOrderer.cs](../src/TagzApp.WebTests/PriorityOrderer.cs) was created and then decorates the class as a TestCaseOrdererAttribute. The orderer uses a test attribute class and its properties to determine the ordering logic.
+An implementation of a [PriorityOrderer.cs](../src/TagzApp.WebTest/PriorityOrderer.cs) was created and then decorates the class as a TestCaseOrdererAttribute. The orderer uses a test attribute class and its properties to determine the ordering logic.
 
 Test cases which want to avail of the orderer are decorated with the test Attribute with required passed property values. The orderer then uses these values to determine the order of execution.
 
