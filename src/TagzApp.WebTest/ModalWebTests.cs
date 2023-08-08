@@ -9,12 +9,10 @@ namespace TagzApp.WebTest;
 public class ModalWebTests : BaseFixture
 {
   private readonly IPage _Page; //Shared page for all tests
-  private readonly ITestOutputHelper _OutputHelper;
 
   public ModalWebTests(PlaywrightWebApplicationFactory webapp, ITestOutputHelper outputHelper) : base(webapp, outputHelper)
   {
-    _OutputHelper = outputHelper;
-    _Page = WebApp.CreateSingletonPlaywrightPageAsync(headless: false).GetAwaiter().GetResult();
+    _Page = WebApp.CreateSingletonPlaywrightPageAsync(headless: true).GetAwaiter().GetResult();
   }
 
   // Creating PriorityOrder to help run tests in an order
@@ -84,13 +82,25 @@ public class ModalWebTests : BaseFixture
     //	Title = "Close Modal"
     //});
 
-    var contentModel = _Page.Locator("#contentModal").First;
-    // Click CLose button
-    await _Page.GetByRole(AriaRole.Button, new() { Name = "Close" }).ClickAsync();
+    // Modal should be in a state of being displayed
+    // find modal
+    Assert.True(await _Page.Locator("#contentModal").IsVisibleAsync());
+
+    // Click Close button
+    var closeButton = _Page.GetByRole(AriaRole.Button, new() { Name = "Close" }).First;
+    await closeButton.ClickAsync(new LocatorClickOptions() { Delay = 500 });
+
+    // Wait for modal to disappear (because the state of the dialog closure can cause the test to fail)
+    int secondsToFail = 5;
+    while (await _Page.Locator("#contentModal").IsVisibleAsync())
+    {
+      if (secondsToFail <= 0) { break; }
+      await Task.Delay(1000);
+      secondsToFail--;
+    }
 
     // Determine is modal is still visible
-    var modalVisible = await _Page.Locator("#contentModal").IsVisibleAsync();
-    Assert.False(modalVisible);
+    Assert.False(await _Page.Locator("#contentModal").IsVisibleAsync());
 
     //await page.Context.Tracing.StopAsync(new()
     //{
@@ -98,10 +108,6 @@ public class ModalWebTests : BaseFixture
     //});
   }
 
-  public void Dispose()
-  {
-
-  }
 }
 
 

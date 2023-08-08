@@ -114,7 +114,7 @@ public class PlaywrightWebApplicationFactory : WebApplicationFactory<Web.Program
   }
 
   [MemberNotNull(nameof(_Browser))]
-  public async Task<IBrowser> GetBrowser(bool headless = true)
+  public async Task<IBrowser> GetBrowser(bool headless = true, bool devtools = false)
   {
     // TODO: For future BrowserTypeLaunchOptions typeOptions can also effect type of Browser to launch
     // (We are only using Chromium for now) Note: Channel options exist for MSedge and Chrome also
@@ -123,7 +123,7 @@ public class PlaywrightWebApplicationFactory : WebApplicationFactory<Web.Program
     // https://playwright.dev/dotnet/docs/api/class-browsertype#browsertypelaunchoptions
     // Future Guide for runtime configs: https://playwright.dev/dotnet/docs/next/browsers
 
-    var typeOptions = new BrowserTypeLaunchOptions() { Headless = headless, Devtools = true };
+    var typeOptions = new BrowserTypeLaunchOptions() { Headless = headless, Devtools = devtools };
     if (_Browser is null)
     {
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
