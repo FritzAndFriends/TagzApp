@@ -63,7 +63,7 @@ public static class IServiceCollectionExtensions
 		// Return the http client build configured
 		return services
 			 .Configure<TClientOptions>(configuration.GetSection(configurationSectionName))
-			 .AddHttpClient<TClient, TImplementation>()
+			 .AddHttpClient(typeof(TImplementation).Name)
 			 .ConfigureHttpClient(
 					 (serviceProvider, httpClient) =>
 					 {

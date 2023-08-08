@@ -20,9 +20,9 @@ public class TwitterProvider : ISocialMediaProvider
 
 	private string _NewestId = string.Empty;
 
-	public TwitterProvider(HttpClient httpClient)
+	public TwitterProvider(IHttpClientFactory httpClientFactory)
 	{
-		_HttpClient = httpClient;
+		_HttpClient = httpClientFactory.CreateClient(nameof(TwitterProvider));
 	}
 
 	public async Task<IEnumerable<Content>> GetContentForHashtag(Common.Hashtag tag, DateTimeOffset since)
@@ -36,7 +36,7 @@ public class TwitterProvider : ISocialMediaProvider
 		TwitterData recentTweets = new TwitterData();
 		try
 		{
-			var response = await _HttpClient.GetAsync(targetUri);
+
 #if TWITTER_LIVE
 
 			var response = await _HttpClient.GetAsync(targetUri);

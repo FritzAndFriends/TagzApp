@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using TagzApp.Common.Exceptions;
 using TagzApp.Communication.Extensions;
 using TagzApp.Providers.Twitter.Configuration;
@@ -33,6 +34,7 @@ public class StartTwitter : IConfigureProvider
 		}
 
 		services.AddHttpClient<ISocialMediaProvider, TwitterProvider, TwitterConfiguration>(configuration, TwitterConfiguration.AppSettingsSection);
+		services.AddTransient<ISocialMediaProvider, TwitterProvider>();
 
 		return services;
 	}

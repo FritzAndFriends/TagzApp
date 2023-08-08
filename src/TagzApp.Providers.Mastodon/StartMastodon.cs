@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using TagzApp.Common.Exceptions;
 using TagzApp.Communication.Extensions;
 using TagzApp.Providers.Mastodon.Configuration;
@@ -32,6 +33,7 @@ public class StartMastodon : IConfigureProvider
 		}
 
 		services.AddHttpClient<ISocialMediaProvider, MastodonProvider, MastodonConfiguration>(configuration, MastodonConfiguration.AppSettingsSection);
+		services.AddTransient<ISocialMediaProvider, MastodonProvider>();
 		return services;
 	}
 }
