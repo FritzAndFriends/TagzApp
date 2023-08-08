@@ -30,9 +30,10 @@
 		newMessage.setAttribute("data-provider", content.provider);
 		newMessage.setAttribute("data-providerid", content.providerId);
 		const newMessageTime = new Date(content.timestamp);
+		newMessage.setAttribute("data-timestamp", newMessageTime.toISOString());
 		newMessage.innerHTML = `
 					<span class="author">${content.authorDisplayName}:  <i class="bi bi-${content.provider.toLowerCase()}"></i></span>
-					<span class="time" data-time="${newMessageTime.toISOString()}">${newMessageTime.toLocaleString(undefined, { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+					<span class="time">${newMessageTime.toLocaleString(undefined, { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
 					<span class="content">${content.text}</span>`;
 
 		if (content.previewCard) {
@@ -81,9 +82,9 @@
 
 		const newest = getDateFromElement(taggedContent.firstElementChild);
 		const oldest = getDateFromElement(taggedContent.lastElementChild);
-		if (taggedContent.childElementCount === 0 || (newest && (newest <= newMessageTime))) {
+		if (newest === null || (newest <= newMessageTime)) {
 			taggedContent.prepend(newMessage);
-		} else if (oldest && (oldest > newMessageTime)) {
+		} else if (oldest !== null && (oldest > newMessageTime)) {
 			taggedContent.append(newMessage);
 		} else {
 			const times = [...taggedContent.children].map(article => getDateFromElement(article));
@@ -94,11 +95,11 @@
 	}
 
 	function getDateFromElement(el) {
-		const span = el?.querySelector('.time');
-		if (span === undefined || span === null) return false;
+		const timestamp = el?.dataset.timestamp;
+		if (timestamp === undefined || timestamp === null) return null;
 
-		const date = new Date(span.dataset.time);
-		if (isNaN(date)) return false;
+		const date = new Date(timestamp);
+		if (isNaN(date)) return null;
 
 		return date;
 	}
