@@ -3,6 +3,7 @@
 using Google.Apis.Http;
 using Microsoft.Extensions.Logging.Abstractions;
 using TagzApp.Providers.Mastodon;
+using IHttpClientFactory = System.Net.Http.IHttpClientFactory;
 
 namespace TagzApp.UnitTest.Mastodon.GivenHashtag;
 
@@ -15,6 +16,7 @@ public class WhenFetchingMessages
 	};
 
 	private MastodonProvider _Sut;
+	private IHttpClientFactory _HttpClientFactory;
 
   public WhenFetchingMessages()
   {
@@ -22,7 +24,10 @@ public class WhenFetchingMessages
 		{
 			BaseAddress = new Uri("https://mas.to")
 		};
-		_Sut = new MastodonProvider(client, NullLogger<MastodonProvider>.Instance);
+
+		_HttpClientFactory = new StubHttpClientFactory(client);
+
+		_Sut = new MastodonProvider(_HttpClientFactory, NullLogger<MastodonProvider>.Instance);
   }
 
 	[Fact]
@@ -48,6 +53,21 @@ public class WhenFetchingMessages
 		Assert.NotNull(messages.First().Author);
 		Assert.NotNull(messages.First().Author.DisplayName);
 
+	}
+
+	internal class StubHttpClientFactory : IHttpClientFactory
+	{
+		private readonly HttpClient _Client;
+
+		public StubHttpClientFactory(HttpClient client)
+    {
+			_Client = client;
+    }
+
+    public HttpClient CreateClient(string name)
+		{
+			return _Client;
+		}
 	}
 
 }
