@@ -1,4 +1,5 @@
-﻿using TagzApp.Web.Services;
+﻿using Microsoft.AspNetCore.Authentication;
+using TagzApp.Web.Services;
 
 public static class ServicesExtensions {
 
@@ -51,5 +52,44 @@ public static class ServicesExtensions {
 	/// </summary>
 	public static List<IConfigureProvider> SocialMediaProviders { get; set; } = new();
 
+	public static AuthenticationBuilder AddExtenalProviders(this AuthenticationBuilder builder, IConfiguration configuration)
+	{
+
+		if (!string.IsNullOrEmpty(configuration["Authentication:Microsoft:ClientId"]))
+		{
+
+			builder.AddMicrosoftAccount(microsoftOptions =>
+			{
+				microsoftOptions.ClientId = configuration["Authentication:Microsoft:ClientId"]!;
+				microsoftOptions.ClientSecret = configuration["Authentication:Microsoft:ClientSecret"]!;
+			});
+
+		}
+
+		if (!string.IsNullOrEmpty(configuration["Authentication:GitHub:ClientId"]))
+		{
+
+			builder.AddGitHub(ghOptions =>
+			{
+				ghOptions.ClientId = configuration["Authentication:GitHub:ClientId"]!;
+				ghOptions.ClientSecret = configuration["Authentication:GitHub:ClientSecret"]!;
+			});
+
+		}
+
+		if (!string.IsNullOrEmpty(configuration["Authentication:LinkedIn:ClientId"]))
+		{
+
+			builder.AddLinkedIn(liOptions =>
+			{
+				liOptions.ClientId = configuration["Authentication:LinkedIn:ClientId"]!;
+				liOptions.ClientSecret = configuration["Authentication:LinkedIn:ClientSecret"]!;
+			});
+
+		}
+
+		return builder;
+
+	}
 
 }

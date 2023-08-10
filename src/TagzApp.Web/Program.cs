@@ -21,22 +21,7 @@ public class Program
 				options.SignIn.RequireConfirmedAccount = true
 			).AddEntityFrameworkStores<SecurityContext>();
 
-		builder.Services.AddAuthentication()
-			.AddMicrosoftAccount(microsoftOptions =>
-			{
-				microsoftOptions.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"]!;
-				microsoftOptions.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"]!;
-			})
-			.AddGitHub(ghOptions =>
-			{
-				ghOptions.ClientId = builder.Configuration["Authentication:GitHub:ClientId"]!;
-				ghOptions.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"]!;
-			})
-		.AddLinkedIn(liOptions =>
-		{
-			liOptions.ClientId = builder.Configuration["Authentication:LinkedIn:ClientId"]!;
-			liOptions.ClientSecret = builder.Configuration["Authentication:LinkedIn:ClientSecret"]!;
-		});
+		_ = builder.Services.AddAuthentication().AddExtenalProviders(builder.Configuration);
 
 		// Add services to the container.
 		builder.Services.AddRazorPages();
