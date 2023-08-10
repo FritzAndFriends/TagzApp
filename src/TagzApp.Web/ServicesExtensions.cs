@@ -106,6 +106,11 @@ public static class ServicesExtensions {
 				await roleManager.CreateAsync(new IdentityRole(Security.Role.Admin));
 			}
 
+			if (!(await roleManager.RoleExistsAsync(Security.Role.Moderator)))
+			{
+				await roleManager.CreateAsync(new IdentityRole(Security.Role.Moderator));
+			}
+
 		}
 
 	}

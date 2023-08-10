@@ -32,11 +32,16 @@ public class Program
 			{
 				policy.RequireRole(Security.Role.Admin);
 			});
+			config.AddPolicy(Security.Policy.Moderator, policy =>
+			{
+				policy.RequireRole(Security.Role.Moderator, Security.Role.Admin);
+			});
 		});
 
 		// Add services to the container.
 		builder.Services.AddRazorPages(options => {
 			options.Conventions.AuthorizeAreaFolder("Admin", "/", Security.Policy.AdminRoleOnly);
+			options.Conventions.AuthorizePage("/Moderation", Security.Policy.Moderator);
 		});
 
 		builder.Services.AddTagzAppHostedServices(builder.Configuration);
