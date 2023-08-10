@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
+using TagzApp.Web;
 using TagzApp.Web.Services;
 
 public static class ServicesExtensions {
@@ -89,6 +91,22 @@ public static class ServicesExtensions {
 		}
 
 		return builder;
+
+	}
+
+	public static async Task InitializeSecurity(this WebApplicationBuilder builder, IServiceProvider services)
+	{
+
+		using (var scope = services.CreateScope())
+		{
+
+			var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+			if (!(await roleManager.RoleExistsAsync(Security.Role.Admin)))
+			{
+				await roleManager.CreateAsync(new IdentityRole(Security.Role.Admin));
+			}
+
+		}
 
 	}
 

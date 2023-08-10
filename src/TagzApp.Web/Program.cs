@@ -4,6 +4,7 @@ using TagzApp.Web.Hubs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TagzApp.Web.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TagzApp.Web;
 
@@ -19,12 +20,24 @@ public class Program
 
 		builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 				options.SignIn.RequireConfirmedAccount = true
-			).AddEntityFrameworkStores<SecurityContext>();
+			)
+			.AddRoles<IdentityRole>()
+			.AddEntityFrameworkStores<SecurityContext>();
 
 		_ = builder.Services.AddAuthentication().AddExtenalProviders(builder.Configuration);
 
+		builder.Services.AddAuthorization(config =>
+		{
+			config.AddPolicy(Security.Policy.AdminRoleOnly, policy =>
+			{
+				policy.RequireRole(Security.Role.Admin);
+			});
+		});
+
 		// Add services to the container.
-		builder.Services.AddRazorPages();
+		builder.Services.AddRazorPages(options => {
+			options.Conventions.AuthorizeAreaFolder("Admin", "/", Security.Policy.AdminRoleOnly);
+		});
 
 		builder.Services.AddTagzAppHostedServices(builder.Configuration);
 
@@ -66,7 +79,10 @@ public class Program
 
 		}
 
+		builder.InitializeSecurity(app.Services);
+
 		app.Run();
+
 
 	}
 }
