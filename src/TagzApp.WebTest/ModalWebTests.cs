@@ -73,21 +73,38 @@ public class ModalWebTests : BaseFixture
   [Fact, TestPriority(2)]
   public async Task CloseModal()
   {
-    //await page.Context.Tracing.StartAsync(new()
-    //{
-    //	Screenshots = true,
-    //	Snapshots = true,
-    //	Sources = true,
-    //	Name = $"{nameof(CloseModal)}.zip",
-    //	Title = "Close Modal"
-    //});
+		//await page.Context.Tracing.StartAsync(new()
+		//{
+		//	Screenshots = true,
+		//	Snapshots = true,
+		//	Sources = true,
+		//	Name = $"{nameof(CloseModal)}.zip",
+		//	Title = "Close Modal"
+		//});
 
-    // Modal should be in a state of being displayed
-    // find modal
-    Assert.True(await _Page.Locator("#contentModal").IsVisibleAsync());
+		// Modal should be in a state of being displayed
+		// find modal
+		await _Page.GotoAsync("/");
+		var isModalVisible = await _Page.Locator("#contentModal").IsVisibleAsync();
+		if (!isModalVisible)
+		{
 
-    // Click Close button
-    var closeButton = _Page.GetByRole(AriaRole.Button, new() { Name = "Close" }).First;
+			var article = _Page.Locator("article").First;
+			var articleContents = await article.TextContentAsync();
+
+			// Click first article element
+			await article.ClickAsync();
+
+			// Wait for modal to appear
+			await _Page.Locator("#contentModal").WaitForAsync(new()
+			{
+				Timeout = 30000
+			});
+
+		}
+
+		// Click Close button
+		var closeButton = _Page.GetByRole(AriaRole.Button, new() { Name = "Close" }).First;
     await closeButton.ClickAsync(new LocatorClickOptions() { Delay = 500 });
 
     // Wait for modal to disappear (because the state of the dialog closure can cause the test to fail)
