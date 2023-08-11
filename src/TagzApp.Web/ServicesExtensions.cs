@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using TagzApp.Web;
+using TagzApp.Web.Data;
 using TagzApp.Web.Services;
 
 public static class ServicesExtensions {
@@ -99,6 +101,10 @@ public static class ServicesExtensions {
 
 		using (var scope = services.CreateScope())
 		{
+
+			// create database if not exists
+			var dbContext = services.GetRequiredService<SecurityContext>();
+			await dbContext.Database.EnsureCreatedAsync();
 
 			var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 			if (!(await roleManager.RoleExistsAsync(Security.Role.Admin)))
