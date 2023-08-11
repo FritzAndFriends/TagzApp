@@ -35,7 +35,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Communication", "Ta
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Providers.Twitter", "TagzApp.Providers.Twitter\TagzApp.Providers.Twitter.csproj", "{65459852-E2D6-47B9-911F-D3E09BD12816}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagzApp.Providers.TwitchChat", "TagzApp.Providers.TwitchChat\TagzApp.Providers.TwitchChat.csproj", "{8D0F679C-307A-4861-8B78-E7BCF95A5750}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Providers.TwitchChat", "TagzApp.Providers.TwitchChat\TagzApp.Providers.TwitchChat.csproj", "{8D0F679C-307A-4861-8B78-E7BCF95A5750}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
+using System.Web;
 
 namespace TagzApp.Providers.TwitchChat;
 
@@ -62,7 +63,7 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 					ProfileImageUri = new Uri(profileUrl),		
 					DisplayName = args.DisplayName
 				},
-				Text = args.Message,
+				Text = HttpUtility.HtmlEncode(args.Message),
 				Type = ContentType.Chat,
 				Timestamp = args.Timestamp
 			});
