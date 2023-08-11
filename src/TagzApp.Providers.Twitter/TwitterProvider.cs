@@ -97,7 +97,7 @@ public class TwitterProvider : ISocialMediaProvider
 					Author = new Creator
 					{
 						DisplayName = author.name,
-						UserName = author.username,
+						UserName = $"@{author.username}",
 						ProviderId = "TWITTER",
 						ProfileImageUri = new("https://twitter.com"),
 						ProfileUri = new($"https://twitter.com/{author.username}")
