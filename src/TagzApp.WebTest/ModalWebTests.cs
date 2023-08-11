@@ -92,12 +92,10 @@ public class ModalWebTests : BaseFixture
 
     // Wait for modal to disappear (because the state of the dialog closure can cause the test to fail)
     int secondsToFail = 5;
-    while (await _Page.Locator("#contentModal").IsVisibleAsync())
-    {
-      if (secondsToFail <= 0) { break; }
-      await Task.Delay(1000);
-      secondsToFail--;
-    }
+		await _Page.Locator("#contentModal").WaitForAsync(new LocatorWaitForOptions
+		{
+			State = WaitForSelectorState.Hidden
+		});
 
     // Determine is modal is still visible
     Assert.False(await _Page.Locator("#contentModal").IsVisibleAsync());
