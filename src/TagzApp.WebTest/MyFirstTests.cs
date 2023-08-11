@@ -13,22 +13,21 @@ public class MyFirstTests : BaseFixture
 
     var page = await WebApp.CreatePlaywrightPageAsync();
 
-    //await page.Context.Tracing.StartAsync(new()
-    //{
-    //	Screenshots = true,
-    //	Snapshots = true,
-    //	Sources = true,
-    //	Name = $"{nameof(CanAddHashtags)}.zip",
-    //	Title = "Can Add Hashtags"
-    //});
+		//await page.Context.Tracing.StartAsync(new()
+		//{
+		//	Screenshots = true,
+		//	Snapshots = true,
+		//	Sources = true,
+		//	Name = $"{nameof(CanAddHashtags)}.zip",
+		//	Title = "Can Add Hashtags"
+		//});
 
-    await page.GotoAsync("/");
+		await page
+			.GotoHashtagSearchPage().Result
+			.SearchForHashtag("dotnet").Result
+			.GotoWaterfallPage();
 
-    await page.GetByPlaceholder("New Hashtag").FillAsync("dotnet");
-
-    await page.GetByRole(AriaRole.Button, new() { Name = "Add" }).ClickAsync();
-
-    string? firstHashtagContent = await page.Locator(".hashtags").First.TextContentAsync();
+		string? firstHashtagContent = await page.Locator(".hashtags").First.TextContentAsync();
     Assert.Equal("dotnet", firstHashtagContent);
 
     //await page.Context.Tracing.StopAsync(new()
@@ -54,13 +53,12 @@ public class MyFirstTests : BaseFixture
       Title = "Load Content From Social Media Provider"
     });
 
-    await page.GotoAsync("/");
+		await page
+			.GotoHashtagSearchPage().Result
+			.SearchForHashtag("dotnet").Result
+			.GotoWaterfallPage();
 
-    await page.GetByPlaceholder("New Hashtag").FillAsync("dotnet");
-
-    await page.GetByRole(AriaRole.Button, new() { Name = "Add" }).ClickAsync();
-
-    string? firstHashtagContent = await page.Locator(".hashtags").First.TextContentAsync();
+		// string? firstHashtagContent = await page.Locator(".hashtags").First.TextContentAsync();
 
     try
     {
@@ -97,14 +95,13 @@ public class MyFirstTests : BaseFixture
       Title = "Content Should Be In Desending Order"
     });
 
-    await page.GotoAsync("/");
+		await page
+			.GotoHashtagSearchPage().Result
+			.SearchForHashtag("dotnet").Result
+			.GotoWaterfallPage();
 
-    await page.GetByPlaceholder("New Hashtag").FillAsync("dotnet");
-
-    await page.GetByRole(AriaRole.Button, new() { Name = "Add" }).ClickAsync();
-
-    try
-    {
+		try
+		{
 
       // Stub generates 10 articles.
       await page.WaitForSelectorAsync("article:nth-child(10)", new() { Timeout = 15000 });
