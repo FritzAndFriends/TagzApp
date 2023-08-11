@@ -34,19 +34,20 @@ jobs:
       working-directory: ./src/TagzApp.UnitTest
 
   playwright:
-    name: 'Playwright Tests'
-    runs-on: ubuntu-latest 
-    defaults:
-      run:
-        working-directory: ./src/TagzApp.WebTest
-    container:
-      image: mcr.microsoft.com/playwright/dotnet:v1.35.0-jammy
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup dotnet
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 7.0.x
-      - run: dotnet build
-      - name: Execute Playwright tests
-        run: dotnet test --no-build
+        name: 'Playwright Tests'
+        runs-on: ubuntu-latest 
+        defaults:
+            run:
+                working-directory: ./src/TagzApp.WebTest
+        timeout-minutes: 10
+        container:
+            image: mcr.microsoft.com/playwright/dotnet:v1.35.0-jammy
+        steps:
+            - uses: actions/checkout@v3
+            - name: Setup dotnet
+              uses: actions/setup-dotnet@v3
+              with:
+                dotnet-version: 7.0.x
+            - run: dotnet build
+            - name: Execute Playwright tests
+              run: dotnet test --no-build
