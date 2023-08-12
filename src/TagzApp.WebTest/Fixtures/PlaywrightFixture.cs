@@ -17,9 +17,10 @@ public class PlaywrightFixture : PlaywrightFixture<Web.Program>
 
   public PlaywrightFixture(IMessageSink output) : base(output) { }
 
-  protected override IHostBuilder? CreateHostBuilder()
+  protected override IHost CreateHost(IHostBuilder builder)
   {
     ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
-    return base.CreateHostBuilder();
+
+    return base.CreateHost(builder);
   }
 }
