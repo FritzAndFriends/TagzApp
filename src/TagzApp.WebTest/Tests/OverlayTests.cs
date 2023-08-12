@@ -4,7 +4,7 @@ namespace TagzApp.WebTest;
 
 public class OverlayTests : TestsBase
 {
-  public OverlayTests(PlaywrightWebApplicationFactory webapp, ITestOutputHelper outputHelper) : base(webapp, outputHelper)
+  public OverlayTests(PlaywrightFixture webapp, ITestOutputHelper outputHelper) : base(webapp, outputHelper)
   {
   }
 

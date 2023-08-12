@@ -11,11 +11,11 @@ namespace TagzApp.WebTest.Fixtures;
 /// Functionality is now wrapped in the nuget package C3D.Extensions.Playwright.AspNetCore.Xunit
 /// </p>
 /// </summary>
-public class PlaywrightWebApplicationFactory : PlaywrightFixture<Web.Program>
+public class PlaywrightFixture : PlaywrightFixture<Web.Program>
 {
   public override string? Environment { get; } = "Development";
 
-  public PlaywrightWebApplicationFactory(IMessageSink output) : base(output) { }
+  public PlaywrightFixture(IMessageSink output) : base(output) { }
 
   protected override IHostBuilder? CreateHostBuilder()
   {

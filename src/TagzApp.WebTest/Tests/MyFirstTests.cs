@@ -5,7 +5,7 @@ namespace TagzApp.WebTest;
 
 public class MyFirstTests : TestsBase
 {
-  public MyFirstTests(PlaywrightWebApplicationFactory webapp, ITestOutputHelper outputHelper) : base(webapp, outputHelper) { }
+  public MyFirstTests(PlaywrightFixture webapp, ITestOutputHelper outputHelper) : base(webapp, outputHelper) { }
 
   [Fact]
   public async Task CanAddHashtags()
