@@ -45,7 +45,7 @@ public class OverlayTests : TestsBase
     await overlayPage.GotoAsync($"/overlay/{TAG}");
 
     var overlayContents = await overlayPage.Locator("#overlayDisplay").AllTextContentsAsync();
-    Assert.Empty(string.Join('\n', overlayContents.Select(o => o.Trim()).ToArray()));
+    Assert.All(overlayContents, o=>string.IsNullOrWhiteSpace(o));
 
     // Click the first message on the waterfall display
     await mainPage.Locator("article").First.ClickAsync();
