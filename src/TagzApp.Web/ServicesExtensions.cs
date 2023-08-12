@@ -78,29 +78,31 @@ public static class ServicesExtensions
         action(clientID, clientSecret);
       }
 			});
-
 		}
+
+  public static AuthenticationBuilder AddExternalProvider(this AuthenticationBuilder builder, string name, IConfiguration configuration,
+    Action<Action<Microsoft.AspNetCore.Authentication.OAuth.OAuthOptions>> action)
+		{
+    return builder.AddExternalProvider(name, configuration, (section) => {
+      var clientID = section["ClientID"];
+      var clientSecret = section["ClientSecret"];
+      if (!string.IsNullOrEmpty(clientID) && !string.IsNullOrEmpty(clientSecret))
+      {
+        action(options =>
+			{
+          options.ClientId = clientID;
+          options.ClientSecret = clientSecret;
+        });
+      }
+    });
+  }
 
   public static AuthenticationBuilder AddExternalProviders(this AuthenticationBuilder builder, IConfiguration configuration)
 		{
 
-    builder.AddExternalProvider("Microsoft", configuration , (id, secret) => builder.AddMicrosoftAccount(options =>
-			{
-      options.ClientId = id;
-      options.ClientSecret = secret;
-    }));
-
-    builder.AddExternalProvider("GitHub", configuration, (id, secret) => builder.AddGitHub(options =>
-		{
-      options.ClientId = id;
-      options.ClientSecret = secret;
-    }));
-
-    builder.AddExternalProvider("LinkedIn", configuration, (id, secret) => builder.AddLinkedIn(options =>
-			{
-      options.ClientId = id;
-      options.ClientSecret = secret;
-    }));
+    builder.AddExternalProvider("Microsoft", configuration , options => builder.AddMicrosoftAccount(options));
+    builder.AddExternalProvider("GitHub", configuration, options => builder.AddGitHub(options));
+    builder.AddExternalProvider("LinkedIn", configuration, options => builder.AddLinkedIn(options));
 
 		return builder;
 
