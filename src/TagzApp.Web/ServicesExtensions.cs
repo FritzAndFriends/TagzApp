@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using TagzApp.Web;
 using TagzApp.Web.Data;
 using TagzApp.Web.Services;
 
-public static class ServicesExtensions {
+public static class ServicesExtensions
+{
 
 	public static IServiceCollection ConfigureProvider<T>(this IServiceCollection services, IConfiguration configuration) where T : IConfigureProvider, new()
 	{
@@ -59,51 +59,61 @@ public static class ServicesExtensions {
 	public static AuthenticationBuilder AddExtenalProviders(this AuthenticationBuilder builder, IConfiguration configuration)
 	{
 
-		if (!string.IsNullOrEmpty(configuration["Authentication:Microsoft:ClientId"]))
+  public static AuthenticationBuilder AddExternalProvider(this AuthenticationBuilder builder, string name, IConfiguration configuration, 
+    Action<IConfiguration> action)
 		{
+    var section = configuration.GetSection($"Authentication:{name}");
+    if (section is not null) action(section);
+    return builder;
+  }
 
-			builder.AddMicrosoftAccount(microsoftOptions =>
+  public static AuthenticationBuilder AddExternalProvider(this AuthenticationBuilder builder, string name, IConfiguration configuration, 
+    Action<string, string> action)
 			{
-				microsoftOptions.ClientId = configuration["Authentication:Microsoft:ClientId"]!;
-				microsoftOptions.ClientSecret = configuration["Authentication:Microsoft:ClientSecret"]!;
+    return builder.AddExternalProvider(name, configuration, (section) => {
+      var clientID = section["ClientID"];
+      var clientSecret = section["ClientSecret"];
+      if (!string.IsNullOrEmpty(clientID) && !string.IsNullOrEmpty(clientSecret))
+      {
+        action(clientID, clientSecret);
+      }
 			});
 
 		}
 
-		if (!string.IsNullOrEmpty(configuration["Authentication:GitHub:ClientId"]))
+  public static AuthenticationBuilder AddExternalProviders(this AuthenticationBuilder builder, IConfiguration configuration)
 		{
 
-			builder.AddGitHub(ghOptions =>
+    builder.AddExternalProvider("Microsoft", configuration , (id, secret) => builder.AddMicrosoftAccount(options =>
 			{
-				ghOptions.ClientId = configuration["Authentication:GitHub:ClientId"]!;
-				ghOptions.ClientSecret = configuration["Authentication:GitHub:ClientSecret"]!;
-			});
+      options.ClientId = id;
+      options.ClientSecret = secret;
+    }));
 
-		}
-
-		if (!string.IsNullOrEmpty(configuration["Authentication:LinkedIn:ClientId"]))
+    builder.AddExternalProvider("GitHub", configuration, (id, secret) => builder.AddGitHub(options =>
 		{
+      options.ClientId = id;
+      options.ClientSecret = secret;
+    }));
 
-			builder.AddLinkedIn(liOptions =>
+    builder.AddExternalProvider("LinkedIn", configuration, (id, secret) => builder.AddLinkedIn(options =>
 			{
-				liOptions.ClientId = configuration["Authentication:LinkedIn:ClientId"]!;
-				liOptions.ClientSecret = configuration["Authentication:LinkedIn:ClientSecret"]!;
-			});
-
-		}
+      options.ClientId = id;
+      options.ClientSecret = secret;
+    }));
 
 		return builder;
 
 	}
 
-	public static async Task InitializeSecurity(this WebApplicationBuilder builder, IServiceProvider services)
+  public static async Task InitializeSecurity(this IServiceProvider services)
 	{
 
 		using (var scope = services.CreateScope())
 		{
 
 			// create database if not exists
-			var dbContext = services.GetRequiredService<SecurityContext>();
+      var dbContext = scope.ServiceProvider.GetRequiredService<SecurityContext>();
 			await dbContext.Database.EnsureCreatedAsync();
 
 			var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();

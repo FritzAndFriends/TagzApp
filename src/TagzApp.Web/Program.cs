@@ -24,7 +24,7 @@ public class Program
 			.AddRoles<IdentityRole>()
 			.AddEntityFrameworkStores<SecurityContext>();
 
-		_ = builder.Services.AddAuthentication().AddExtenalProviders(builder.Configuration);
+		_ = builder.Services.AddAuthentication().AddExternalProviders(builder.Configuration);
 
 		builder.Services.AddAuthorization(config =>
 		{
@@ -43,6 +43,7 @@ public class Program
 			options.Conventions.AuthorizeAreaFolder("Admin", "/", Security.Policy.AdminRoleOnly);
 			options.Conventions.AuthorizePage("/Moderation", Security.Policy.Moderator);
 		});
+
 
 		builder.Services.AddTagzAppHostedServices(builder.Configuration);
 
@@ -84,7 +85,7 @@ public class Program
 
 		}
 
-		builder.InitializeSecurity(app.Services);
+    app.Services.InitializeSecurity().GetAwaiter().GetResult();	// Ensure this runs before we start the app.
 
 		app.Run();
 
