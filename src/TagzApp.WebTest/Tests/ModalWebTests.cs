@@ -1,4 +1,7 @@
 ﻿using C3D.Extensions.Playwright.AspNetCore.Xunit;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
+using Xunit.Sdk;
 
 namespace TagzApp.WebTest;
 
@@ -10,7 +13,9 @@ public class ModalFixture : PlaywrightPageFixture<Web.Program>
 
   protected override IHost CreateHost(IHostBuilder builder)
   {
-    ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
+    // ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
+
+    builder.UseOnlyStubSocialMediaProvider();
 
     return base.CreateHost(builder);
   }

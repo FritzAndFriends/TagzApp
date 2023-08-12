@@ -1,4 +1,6 @@
 ﻿using C3D.Extensions.Playwright.AspNetCore.Xunit;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Xunit.Sdk;
 
 namespace TagzApp.WebTest.Fixtures;
 
@@ -13,14 +15,20 @@ namespace TagzApp.WebTest.Fixtures;
 /// </summary>
 public class PlaywrightFixture : PlaywrightFixture<Web.Program>
 {
+  private readonly IMessageSink _Output;
+
   public override string? Environment { get; } = "Development";
 
-  public PlaywrightFixture(IMessageSink output) : base(output) { }
+  public PlaywrightFixture(IMessageSink output) : base(output) { _Output = output; }
 
   protected override IHost CreateHost(IHostBuilder builder)
   {
-    ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
+    //ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
 
-    return base.CreateHost(builder);
+    builder.UseOnlyStubSocialMediaProvider();
+
+    var host = base.CreateHost(builder);
+
+    return host;
   }
 }
