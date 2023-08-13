@@ -171,6 +171,7 @@ public class TwitterProvider : ISocialMediaProvider
 			sinceTerm,
 			"&max_results=", _SearchMaxResults,
 			"&tweet.fields=", _SearchFields,
+			"&user.fields=profile_image_url",
 			"&expansions=", _SearchExpansions);
 
 		return new Uri($"/2/tweets/search/recent?{query}", UriKind.Relative);
