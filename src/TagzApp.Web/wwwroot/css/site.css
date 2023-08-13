@@ -167,6 +167,7 @@ background-color: #00B140;
 	grid-template-rows: 36px 14px 1fr;
 	grid-column-gap: 10px;
 	grid-row-gap: 15px;
+	max-width: 600px;
 }
 
 #overlayDisplay.showPreview {
