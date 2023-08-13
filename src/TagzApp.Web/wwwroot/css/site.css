@@ -57,6 +57,9 @@ body {
 
 	#taggedContent .byline {
 		grid-area: 1 / 2 / 2 / 3;
+		min-width: 170px;
+		overflow: hidden;
+		white-space: nowrap;
 	}
 
 
@@ -109,6 +112,8 @@ body {
 		font-style: normal;
 		font-weight: 400;
 		line-height: normal;
+		text-overflow: ellipsis;
+		overflow: hidden;
 	}
 
 #overlayDisplay.show {
