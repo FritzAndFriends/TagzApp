@@ -23,10 +23,11 @@ public class ModalFixture : PlaywrightPageFixture<Web.Program>
   }
 }
 
+// We don't pull in the default TestsBase class as we have a different fixture in use for these tests.
 [TestCaseOrderer(ordererTypeName: "TagzApp.WebTest.PriorityOrderer", ordererAssemblyName: "TagzApp.WebTest")]
 public class ModalWebTests : IClassFixture<ModalFixture>
 {
-  private IPage _Page => _Webapp.Page; //Shared page for all tests
+  private IPage Page => _Webapp.Page; //Shared page for all tests
   private readonly ModalFixture _Webapp;
   private readonly ITestOutputHelper _OutputHelper;
 
@@ -51,31 +52,31 @@ public class ModalWebTests : IClassFixture<ModalFixture>
 
     // await using var trace = await page.TraceAsync("Can Launch Modal", true, true, true);
 
-    await _Page.GotoAsync("/");
-    await _Page.GetByPlaceholder("New Hashtag").FillAsync("dotnet");
-    await _Page.GetByRole(AriaRole.Button, new() { Name = "Add" }).ClickAsync();
+    await Page.GotoAsync("/");
+    await Page.GetByPlaceholder("New Hashtag").FillAsync("dotnet");
+    await Page.GetByRole(AriaRole.Button, new() { Name = "Add" }).ClickAsync();
 
 
     // Get first article element
-    await _Page.Locator("article").WaitForAsync(new()
+    await Page.Locator("article").WaitForAsync(new()
     {
       Timeout = 30000
     });
     // Get contents of first article element
-    var article = _Page.Locator("article").First;
+    var article = Page.Locator("article").First;
     var articleContents = await article.TextContentAsync();
 
     // Click first article element
     await article.ClickAsync();
 
     // Wait for modal to appear
-    await _Page.Locator("#contentModal").WaitForAsync(new()
+    await Page.Locator("#contentModal").WaitForAsync(new()
     {
       Timeout = 30000
     });
 
     // find modal
-    var contentModel = _Page.Locator("#contentModal").First;
+    var contentModel = Page.Locator("#contentModal").First;
     // Determine Modal is visible
     var modalIsVisible = await contentModel.IsVisibleAsync();
     Assert.True(modalIsVisible);
@@ -98,19 +99,19 @@ public class ModalWebTests : IClassFixture<ModalFixture>
 
     // Modal should be in a state of being displayed
     // find modal
-    await _Page.GotoAsync("/");
-    var isModalVisible = await _Page.Locator("#contentModal").IsVisibleAsync();
+    await Page.GotoAsync("/");
+    var isModalVisible = await Page.Locator("#contentModal").IsVisibleAsync();
     if (!isModalVisible)
     {
 
-      var article = _Page.Locator("article").First;
+      var article = Page.Locator("article").First;
       var articleContents = await article.TextContentAsync();
 
       // Click first article element
       await article.ClickAsync();
 
       // Wait for modal to appear
-      await _Page.Locator("#contentModal").WaitForAsync(new()
+      await Page.Locator("#contentModal").WaitForAsync(new()
       {
         Timeout = 30000
       });
@@ -118,19 +119,19 @@ public class ModalWebTests : IClassFixture<ModalFixture>
     }
 
     // Click Close button
-    var closeButton = _Page.GetByRole(AriaRole.Button, new() { Name = "Close" }).First;
+    var closeButton = Page.GetByRole(AriaRole.Button, new() { Name = "Close" }).First;
     await closeButton.ClickAsync(new LocatorClickOptions() { Delay = 500 });
 
     // Wait for modal to disappear (because the state of the dialog closure can cause the test to fail)
     int secondsToFail = 5;
-    await _Page.Locator("#contentModal").WaitForAsync(new LocatorWaitForOptions
+    await Page.Locator("#contentModal").WaitForAsync(new LocatorWaitForOptions
     {
       State = WaitForSelectorState.Hidden,
       Timeout = secondsToFail * 1000
     });
 
     // Determine is modal is still visible
-    Assert.False(await _Page.Locator("#contentModal").IsVisibleAsync());
+    Assert.False(await Page.Locator("#contentModal").IsVisibleAsync());
 
     _Webapp.SkipTest = false;
   }
