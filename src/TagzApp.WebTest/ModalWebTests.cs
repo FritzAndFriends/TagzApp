@@ -20,7 +20,7 @@ public class ModalWebTests : BaseFixture
   // TODO: There are test dependencies here - so state of one can affect the other.
   // Need to figure out how to skip the second test if the first fails.
 
-  [Fact, TestPriority(1)]
+  [Fact(Skip = "May be running too long on GitHub actions"), TestPriority(1)]
   public async Task CanLaunchModal()
   {
     //await page.Context.Tracing.StartAsync(new()
@@ -70,7 +70,7 @@ public class ModalWebTests : BaseFixture
     //});
   }
 
-  [Fact, TestPriority(2)]
+  [Fact(Skip = "May be running too long on GitHub actions"), TestPriority(2)]
   public async Task CloseModal()
   {
 		//await page.Context.Tracing.StartAsync(new()

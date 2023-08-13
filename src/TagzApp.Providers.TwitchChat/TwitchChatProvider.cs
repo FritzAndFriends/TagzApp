@@ -61,7 +61,8 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 				Author = new Creator {
 					ProfileUri = new Uri($"https://twitch.tv/{args.UserName}"),
 					ProfileImageUri = new Uri(profileUrl),		
-					DisplayName = args.DisplayName
+					DisplayName = args.DisplayName,
+					UserName = $"@{args.DisplayName}"
 				},
 				Text = HttpUtility.HtmlEncode(args.Message),
 				Type = ContentType.Chat,

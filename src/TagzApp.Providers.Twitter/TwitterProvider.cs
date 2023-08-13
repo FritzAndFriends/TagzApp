@@ -56,13 +56,16 @@ public class TwitterProvider : ISocialMediaProvider
 			Console.WriteLine(ex.Message);
 		}
 
-		var outTweets = ConvertToContent(recentTweets, tag);
+		var authorIds = recentTweets?.data.Select(t => t.author_id).Distinct().ToArray() ?? Array.Empty<string>();
+		var profilePics = await GetProfilePics(authorIds);
+
+		var outTweets = ConvertToContent(recentTweets, profilePics, tag);
 
 		return outTweets;
 
 	}
 
-	private IEnumerable<Content> ConvertToContent(TwitterData? recentTweets, Common.Hashtag tag)
+	private IEnumerable<Content> ConvertToContent(TwitterData? recentTweets, IEnumerable<UserProfilePic> profilePics, Common.Hashtag tag)
 	{
 
 		if (recentTweets is null) return Enumerable.Empty<Content>();
@@ -97,9 +100,9 @@ public class TwitterProvider : ISocialMediaProvider
 					Author = new Creator
 					{
 						DisplayName = author.name,
-						UserName = author.username,
+						UserName = $"@{author.username}",
 						ProviderId = "TWITTER",
-						ProfileImageUri = new("https://twitter.com"),
+						ProfileImageUri = new(profilePics.FirstOrDefault(p => p.TwitterId == author.id)?.ProfilePicUrl ?? "https://twitter.com"),
 						ProfileUri = new($"https://twitter.com/{author.username}")
 					},
 					SourceUri = new Uri($"https://twitter.com/{author.username}/status/{t.id}"),
@@ -172,4 +175,53 @@ public class TwitterProvider : ISocialMediaProvider
 
 		return new Uri($"/2/tweets/search/recent?{query}", UriKind.Relative);
 	}
+
+	private Dictionary<string, string> _ProfilePicUrls = new();
+	private async Task<IEnumerable<UserProfilePic>> GetProfilePics(IEnumerable<string> twitterIds)
+	{
+
+		var outUrls = new List<UserProfilePic>();
+		outUrls.AddRange(_ProfilePicUrls.IntersectBy(twitterIds, kv => kv.Key).Select(u => new UserProfilePic(u.Key, u.Value)).ToArray());
+
+		var missingTwitterIds = twitterIds.Except(_ProfilePicUrls.Select(p => p.Key)).ToArray();
+		if (missingTwitterIds.Length == 0) return outUrls;
+
+		var query = string.Concat(
+					"ids=", string.Join(",", missingTwitterIds),
+								"&user.fields=profile_image_url");
+
+		var uri = new Uri($"/2/users?{query}", UriKind.Relative);
+		var response = await _HttpClient.GetAsync(uri);
+
+		if (response.IsSuccessStatusCode)
+		{
+
+			var json = await response.Content.ReadAsStringAsync();
+			var data = JsonSerializer.Deserialize<TwitterUserData>(json);
+
+			if (data is not null && data.data is not null)
+			{
+
+				foreach (var u in data.data)
+				{
+					var profilePicUrl = u.profile_image_url;
+					if (profilePicUrl is not null)
+					{
+						_ProfilePicUrls.Add(u.id, profilePicUrl);
+						outUrls.Add(new UserProfilePic(u.id, profilePicUrl));
+					}
+				}
+
+			}
+
+			// TODO: Handle errors - blank profile pic, etc.
+
+		}
+
+		return outUrls;
+
+	}
+
+	private record UserProfilePic(string TwitterId, string ProfilePicUrl);
+
 }

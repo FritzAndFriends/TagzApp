@@ -32,13 +32,19 @@
 		const newMessageTime = new Date(content.timestamp);
 		newMessage.setAttribute("data-timestamp", newMessageTime.toISOString());
 		newMessage.innerHTML = `
-					<span class="author">${content.authorDisplayName}:  <i class="bi bi-${content.provider.toLowerCase()}"></i></span>
-					<span class="time">${newMessageTime.toLocaleString(undefined, { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-					<span class="content">${content.text}</span>`;
+		<img class="ProfilePicture" src="${content.authorProfileImageUri}" alt="${content.authorDisplayName}" />
+		<div class="byline">
+			<div class="author">${content.authorDisplayName}</div>
+			<div class="authorUserName">${content.authorUserName}</div>
+		</div>
+		<i class="provider bi bi-${content.provider.toLowerCase()}"></i>
+		<div class="time">${newMessageTime.toLocaleString(undefined, { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' })}</div>
+
+		<div class="content">${content.text}</div>`;
 
 		if (content.previewCard) {
 			newMessage.innerHTML += `
-				<div class="card">
+				<div class="contentcard">
 					<img src="${content.previewCard.imageUri}" class="card-img-top" alt="${content.previewCard.altText}" />
 				</div>
 			`

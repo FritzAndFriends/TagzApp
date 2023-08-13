@@ -27,72 +27,89 @@ body {
 	padding: 0.3em;
 	display: grid;
 	grid-gap: 5px;
-	grid-template-columns: repeat(auto-fill, minmax(250px,1fr));
+	grid-template-columns: repeat(auto-fill, minmax(275px,1fr));
 	grid-auto-rows: 10px;
 }
 
-
-/*
-
-{
-	display: "flex";
-	width: "275px";
-	padding: "16px";
-	flexDirection: "column";
-	alignItems: "flex-start";
-	gap: "12px";
-	borderRadius: "20px";
-	border: "1px solid #E2E8ED";
-	background: "#FFF";
-	boxShadow: "0px 2px 4px 0px rgba(0, 0, 0, 0.04)";
-}
-
-*/
-
 	#taggedContent article {
 		position: relative;
-		font-size: 0.6em;
-		border: 1px solid black;
+		/*font-size: 0.6em;*/
+		border: 1px solid #E2E8ED;
+		border-radius: 20px;
 		background-color: #FFF;
-		padding: 0.2em;
+		padding: 8px 16px 16px 16px;
 		overflow: hidden;
 		cursor: pointer;
-		/*
-	display: flex;
-	padding: 16px;
-	flex-direction: column;
-align-items: flex-start;
-gap: 12px;
-border-radius: 20px;
-border: 1px solid #E2E8ED;
-background: #FFF;
-box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.04);
-
-*/
+		box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.04);
+		display: grid;
+		grid-template-columns: 36px 1fr 16px;
+		grid-template-rows: 36px 14px 1fr 1fr;
+		grid-column-gap: 10px;
+		grid-row-gap: 15px;
 	}
 
-#taggedContent .bi {
-	position: absolute;
-	right: 0.2em;
-	top: 0;
-}
+	#taggedContent .ProfilePicture {
+		grid-area: 1 / 1 / 2 / 2;
+		width: 36px;
+		height: 36px;
+		border-radius: 50%;
+	}
 
-#taggedContent article > span {
-	display: block;
-}
+	#taggedContent .byline {
+		grid-area: 1 / 2 / 2 / 3;
+	}
 
-#taggedContent article .author {
-	font-weight: bold;
-	font-size: 1.2em;
-	text-align: left;
-	width: calc(100% - 1.1em);
-	overflow: hidden;
-}
 
-#taggedContent article .time {
-	text-align: left;
-}
+	#taggedContent .provider {
+		grid-area: 1 / 3 / 2 / 4;
+		font-size: 20px;
+	}
 
+	#taggedContent .time {
+		grid-area: 2 / 1 / 3 / 4;
+		color: #697882;
+		font-family: Helvetica;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: normal;
+	}
+
+	#taggedContent .content {
+		grid-area: 3 / 1 / 4 / 4;
+		display: block;
+		width: 100%;
+		line-height: 1.2em;
+		padding-bottom: 10px;
+	}
+
+	#taggedContent .contentcard {
+		grid-area: 4 / 1 / 5 / 4;
+		display: block;
+		width: 100%;
+	}
+
+		#taggedContent .contentcard img {
+			border-radius: 4px;
+		}
+
+	#taggedContent .author {
+		color: #000;
+		font-family: Helvetica;
+		font-size: 16px;
+		font-style: normal;
+		font-weight: 700;
+		line-height: normal;
+	}
+
+	#taggedContent .authorUserName {
+		color: #697882;
+		font-family: Helvetica;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: normal;
+	}
 
 #overlayDisplay.show {
 	width: 40em;
