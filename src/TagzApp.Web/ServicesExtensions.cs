@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
-using TagzApp.Web;
 using TagzApp.Web.Data;
 using TagzApp.Web.Services;
+
+namespace TagzApp.Web;
 
 public static class ServicesExtensions
 {
@@ -55,10 +56,6 @@ public static class ServicesExtensions
 	/// A collection of externally configured providers
 	/// </summary>
 	public static List<IConfigureProvider> SocialMediaProviders { get; set; } = new();
-
-	public static AuthenticationBuilder AddExtenalProviders(this AuthenticationBuilder builder, IConfiguration configuration)
-	{
-
   public static AuthenticationBuilder AddExternalProvider(this AuthenticationBuilder builder, string name, IConfiguration configuration, 
     Action<IConfiguration> action)
 		{
@@ -111,26 +108,23 @@ public static class ServicesExtensions
   public static async Task InitializeSecurity(this IServiceProvider services)
 	{
 
-		using (var scope = services.CreateScope())
-		{
+    using var scope = services.CreateScope();
 
-			// create database if not exists
-      var dbContext = scope.ServiceProvider.GetRequiredService<SecurityContext>();
-			await dbContext.Database.EnsureCreatedAsync();
+    // create database if not exists
+    var dbContext = scope.ServiceProvider.GetRequiredService<SecurityContext>();
+    await dbContext.Database.EnsureCreatedAsync();
 
-			var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-			if (!(await roleManager.RoleExistsAsync(Security.Role.Admin)))
-			{
-				await roleManager.CreateAsync(new IdentityRole(Security.Role.Admin));
-			}
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    if (!(await roleManager.RoleExistsAsync(Security.Role.Admin)))
+    {
+      await roleManager.CreateAsync(new IdentityRole(Security.Role.Admin));
+    }
 
-			if (!(await roleManager.RoleExistsAsync(Security.Role.Moderator)))
-			{
-				await roleManager.CreateAsync(new IdentityRole(Security.Role.Moderator));
-			}
+    if (!(await roleManager.RoleExistsAsync(Security.Role.Moderator)))
+    {
+      await roleManager.CreateAsync(new IdentityRole(Security.Role.Moderator));
+    }
 
-		}
-
-	}
+  }
 
 }

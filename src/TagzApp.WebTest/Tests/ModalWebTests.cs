@@ -11,6 +11,8 @@ public class ModalFixture : PlaywrightPageFixture<Web.Program>
 {
   public ModalFixture(IMessageSink output) : base(output) { }
 
+  public bool SkipTest { get; set; }
+
   protected override IHost CreateHost(IHostBuilder builder)
   {
     // ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
@@ -36,12 +38,17 @@ public class ModalWebTests : IClassFixture<ModalFixture>
 
   // Creating PriorityOrder to help run tests in an order
   // Refs: https://learn.microsoft.com/en-us/dotnet/core/testing/order-unit-tests?pivots=xunit
-  // TODO: There are test dependencies here - so state of one can affect the other.
-  // Need to figure out how to skip the second test if the first fails.
+  // There are test dependencies here - so state of one can affect the other.
+  // We use the Xunit.SkippableFact package (https://github.com/AArnott/Xunit.SkippableFact) to allow skipping a test
+  // At the start of each test, we check the fixture flag and skip if set, then set it.
+  // At the end of the test (if we complete) we reset the flag.
 
-  [Fact(Skip = "May be running too long on GitHub actions"), TestPriority(1)]
+  [Fact(),TestPriority(1)]
   public async Task CanLaunchModal()
   {
+    Skip.If(_Webapp.SkipTest, "Previous test failed");
+    _Webapp.SkipTest = true;
+
     // await using var trace = await page.TraceAsync("Can Launch Modal", true, true, true);
 
     await _Page.GotoAsync("/");
@@ -75,11 +82,18 @@ public class ModalWebTests : IClassFixture<ModalFixture>
 
     //Get contents of modal
     var modalContents = await contentModel.TextContentAsync();
+
+    // Assert.Equal(1, 2);  // To test if we skip the second test if the first one fails.
+
+    _Webapp.SkipTest = false;
   }
 
-  [Fact(Skip = "May be running too long on GitHub actions"), TestPriority(2)]
+  [SkippableFact(),TestPriority(2)]
   public async Task CloseModal()
   {
+    Skip.If(_Webapp.SkipTest, "Previous test failed");
+    _Webapp.SkipTest = true;
+    
     // await using var trace = await page.TraceAsync("Close Modal", true, true, true);
 
     // Modal should be in a state of being displayed
@@ -117,6 +131,8 @@ public class ModalWebTests : IClassFixture<ModalFixture>
 
     // Determine is modal is still visible
     Assert.False(await _Page.Locator("#contentModal").IsVisibleAsync());
+
+    _Webapp.SkipTest = false;
   }
 
 }
