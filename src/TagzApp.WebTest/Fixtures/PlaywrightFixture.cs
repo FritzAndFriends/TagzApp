@@ -1,5 +1,6 @@
 ﻿using C3D.Extensions.Playwright.AspNetCore.Xunit;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using TagzApp.Web;
 using Xunit.Sdk;
 
 namespace TagzApp.WebTest.Fixtures;
@@ -15,11 +16,9 @@ namespace TagzApp.WebTest.Fixtures;
 /// </summary>
 public class PlaywrightFixture : PlaywrightFixture<Web.Program>
 {
-  private readonly IMessageSink _Output;
-
   public override string? Environment { get; } = "Development";
 
-  public PlaywrightFixture(IMessageSink output) : base(output) { _Output = output; }
+  public PlaywrightFixture(IMessageSink output) : base(output) { }
 
   protected override IHost CreateHost(IHostBuilder builder)
   {
