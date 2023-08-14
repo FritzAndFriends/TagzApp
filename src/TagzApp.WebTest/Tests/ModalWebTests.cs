@@ -16,7 +16,7 @@ public class ModalFixture : PlaywrightPageFixture<Web.Program>
   protected override IHost CreateHost(IHostBuilder builder)
   {
     // ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
-
+    builder.AddTestConfiguration();
     builder.UseOnlyStubSocialMediaProvider();
     builder.UseUniqueDb(_Uniqueid);
     return base.CreateHost(builder);
@@ -26,7 +26,7 @@ public class ModalFixture : PlaywrightPageFixture<Web.Program>
   public async override Task InitializeAsync()
   {
     await base.InitializeAsync();
-    await Task.Delay(1000);
+    await Services.ApplyStartUpDelay();
   }
 
   [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA1816:Dispose methods should call SuppressFinalize", Justification = "Base class calls SuppressFinalize")]

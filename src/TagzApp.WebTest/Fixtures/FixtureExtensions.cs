@@ -31,4 +31,31 @@ public static class FixtureExtensions
       }
     }
   }
+
+  /// <summary>
+  /// Add the file provided from the test project to the host app configuration
+  /// </summary>
+  /// <param name="builder">The IHostBuilder</param>
+  /// <param name="fileName">The filename or null (defaults to appsettings.Test.json)</param>
+  /// <returns>Returns the IHostBuilder to allow chaining</returns>
+  public static IHostBuilder AddTestConfiguration(this IHostBuilder builder, string? fileName = null)
+  {
+    var testDirectory = System.IO.Directory.GetCurrentDirectory();
+    builder.ConfigureAppConfiguration(host => host.AddJsonFile(System.IO.Path.Combine(testDirectory, fileName ?? "appsettings.Test.json"), true));
+    return builder;
+  }
+
+  /// <summary>
+  /// Applies a startup delay based on the configuration parameter TestHostStartDelay. This allows easy adding of a custom delay on build / test servers.
+  /// </summary>
+  /// <param name="serviceProvider">The IServiceProvider used to get the IConfiguration</param>
+  /// <remarks>The default delay if no value is found is 0 and no delay is applied.</remarks>
+  public static async Task ApplyStartUpDelay(this IServiceProvider serviceProvider)
+  {
+    var config = serviceProvider.GetRequiredService<IConfiguration>();
+    if (int.TryParse(config["TestHostStartDelay"] ?? "0", out var delay) && delay != 0)
+    {
+      await Task.Delay(delay);
+    }
+  }
 }

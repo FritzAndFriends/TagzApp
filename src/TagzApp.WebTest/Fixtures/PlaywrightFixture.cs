@@ -1,7 +1,4 @@
 ﻿using C3D.Extensions.Playwright.AspNetCore.Xunit;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using TagzApp.Web;
-using Xunit.Sdk;
 
 namespace TagzApp.WebTest.Fixtures;
 
@@ -25,7 +22,7 @@ public class PlaywrightFixture : PlaywrightFixture<Web.Program>
   protected override IHost CreateHost(IHostBuilder builder)
   {
     //ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
-
+    builder.AddTestConfiguration();
     builder.UseOnlyStubSocialMediaProvider();
     builder.UseUniqueDb(_Uniqueid);
     var host = base.CreateHost(builder);
@@ -46,6 +43,6 @@ public class PlaywrightFixture : PlaywrightFixture<Web.Program>
   public async override Task InitializeAsync()
   {
     await base.InitializeAsync();
-    await Task.Delay(1000);
+    await Services.ApplyStartUpDelay();
   }
 }
