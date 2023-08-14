@@ -1,7 +1,5 @@
 ﻿using C3D.Extensions.Playwright.AspNetCore.Xunit;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.VisualStudio.TestPlatform.Utilities;
-using Xunit.Sdk;
+using TagzApp.WebTest.Fixtures;
 
 namespace TagzApp.WebTest;
 
@@ -13,13 +11,24 @@ public class ModalFixture : PlaywrightPageFixture<Web.Program>
 
   public bool SkipTest { get; set; }
 
+  private readonly Guid _Uniqueid = Guid.NewGuid();
+
   protected override IHost CreateHost(IHostBuilder builder)
   {
     // ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
 
     builder.UseOnlyStubSocialMediaProvider();
-
+    builder.UseUniqueDb(_Uniqueid);
     return base.CreateHost(builder);
+  }
+
+  [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA1816:Dispose methods should call SuppressFinalize", Justification = "Base class calls SuppressFinalize")]
+  public async override ValueTask DisposeAsync()
+  {
+    await base.DisposeAsync();
+
+    var logger = this.MessageSink.CreateLogger<PlaywrightFixture>();
+    await _Uniqueid.CleanUpDbFilesAsync(logger);
   }
 }
 

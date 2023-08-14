@@ -20,14 +20,25 @@ public class PlaywrightFixture : PlaywrightFixture<Web.Program>
 
   public PlaywrightFixture(IMessageSink output) : base(output) { }
 
+  private readonly Guid _Uniqueid = Guid.NewGuid();
+
   protected override IHost CreateHost(IHostBuilder builder)
   {
     //ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
 
     builder.UseOnlyStubSocialMediaProvider();
-
+    builder.UseUniqueDb(_Uniqueid);
     var host = base.CreateHost(builder);
 
     return host;
+  }
+
+  [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA1816:Dispose methods should call SuppressFinalize", Justification = "Base class calls SuppressFinalize")]
+  public async override ValueTask DisposeAsync()
+  {
+    await base.DisposeAsync();
+
+    var logger = this.MessageSink.CreateLogger<PlaywrightFixture>();
+    await _Uniqueid.CleanUpDbFilesAsync(logger);
   }
 }

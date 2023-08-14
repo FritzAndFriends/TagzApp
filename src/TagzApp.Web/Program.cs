@@ -13,9 +13,11 @@ public class Program
 	{
 
 		var builder = WebApplication.CreateBuilder(args);
-		var connectionString = builder.Configuration.GetConnectionString("SecurityContextConnection") ?? throw new InvalidOperationException("Connection string 'SecurityContextConnection' not found.");
 
-		builder.Services.AddDbContext<SecurityContext>(options => options.UseSqlite(connectionString));
+		builder.Services.AddDbContext<SecurityContext>(options => 
+			options.UseSqlite(
+				builder.Configuration.GetConnectionString("SecurityContextConnection") ?? 
+					throw new InvalidOperationException("Connection string 'SecurityContextConnection' not found.")));
 
 		builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 				options.SignIn.RequireConfirmedAccount = true
