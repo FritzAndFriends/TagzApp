@@ -41,4 +41,11 @@ public class PlaywrightFixture : PlaywrightFixture<Web.Program>
     var logger = this.MessageSink.CreateLogger<PlaywrightFixture>();
     await _Uniqueid.CleanUpDbFilesAsync(logger);
   }
+
+  // Temp hack to see if it is a timing issue in github actions
+  public async override Task InitializeAsync()
+  {
+    await base.InitializeAsync();
+    await Task.Delay(1000);
+  }
 }

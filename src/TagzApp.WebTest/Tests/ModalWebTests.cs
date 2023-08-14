@@ -22,6 +22,13 @@ public class ModalFixture : PlaywrightPageFixture<Web.Program>
     return base.CreateHost(builder);
   }
 
+  // Temp hack to see if it is a timing issue in github actions
+  public async override Task InitializeAsync()
+  {
+    await base.InitializeAsync();
+    await Task.Delay(1000);
+  }
+
   [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA1816:Dispose methods should call SuppressFinalize", Justification = "Base class calls SuppressFinalize")]
   public async override ValueTask DisposeAsync()
   {

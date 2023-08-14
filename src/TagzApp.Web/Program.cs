@@ -14,9 +14,9 @@ public class Program
 
 		var builder = WebApplication.CreateBuilder(args);
 
-		builder.Services.AddDbContext<SecurityContext>(options => 
-			options.UseSqlite(
-				builder.Configuration.GetConnectionString("SecurityContextConnection") ?? 
+		// Late bind the connection string so that any changes to the configuration made later on, or in the test fixture can be picked up.
+		builder.Services.AddDbContext<SecurityContext>((services,options) => 
+			options.UseSqlite(services.GetRequiredService<IConfiguration>().GetConnectionString("SecurityContextConnection") ?? 
 					throw new InvalidOperationException("Connection string 'SecurityContextConnection' not found.")));
 
 		builder.Services.AddDefaultIdentity<IdentityUser>(options =>
