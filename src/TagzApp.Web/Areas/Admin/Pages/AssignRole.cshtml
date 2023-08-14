@@ -1,0 +1,37 @@
+﻿@page
+@using TagzApp.Web.Areas.Admin.Pages;
+@model TagzApp.Web.Areas.Admin.Pages.AssignRoleModel
+@{
+	ViewData["ActivePage"] = ManageNavPages.Users;
+}
+
+
+<form method="post" class="mt-3">
+	<div class="form-group mb-3">
+		<label for="user">User:</label>
+		<label id="user" name="user">@Model.CurrentUser.Email</label>
+	</div>
+
+<div class="form-group">
+    <label for="role">Assigned Roles:</label>
+		<p>
+    <select id="role" name="role" multiple class="mb-3">
+        @foreach (var role in Model.Roles)
+        {
+            @if (Model.UserRoles.Contains(role.Name))
+            {
+                <option value="@role" selected>@role</option>
+            }
+            else
+            {
+                <option value="@role">@role</option>
+            }
+        }
+    </select>
+		</p>
+</div>
+<div class="form-group">
+    <button type="submit" class="btn btn-primary">Assign Role</button>
+</div>
+
+</form>

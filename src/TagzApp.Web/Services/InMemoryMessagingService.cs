@@ -11,11 +11,11 @@ public class InMemoryMessagingService : IHostedService
 
 	private InMemoryContentMessaging _Service = default;
 
-	public readonly Dictionary<string, ConcurrentBag<Content>> Content = new Dictionary<string, ConcurrentBag<Content>>();
 	private readonly IEnumerable<ISocialMediaProvider> _Providers;
 	private readonly IHubContext<MessageHub> _HubContext;
 	private readonly ILogger<InMemoryMessagingService> _Logger;
 
+	
 	public InMemoryMessagingService(
 		IEnumerable<ISocialMediaProvider> providers, 
 		IHubContext<MessageHub> hubContext,
@@ -27,7 +27,12 @@ public class InMemoryMessagingService : IHostedService
 		_Logger = logger;
 	}
 
-  #region Hosted Service Implementation
+	/// <summary>
+	/// A collection of the tags and the content found for them.
+	/// </summary>
+	public readonly Dictionary<string, ConcurrentBag<Content>> Content = new Dictionary<string, ConcurrentBag<Content>>();
+  
+	#region Hosted Service Implementation
 
   public Task StartAsync(CancellationToken cancellationToken)
 	{

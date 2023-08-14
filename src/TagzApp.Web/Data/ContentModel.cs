@@ -18,9 +18,11 @@ public record ContentModel(
 	string SourceUri, 
 	DateTimeOffset Timestamp, 
 	string AuthorDisplayName, 
+	string AuthorUserName,
 	string AuthorProfileUri, 
 	string AuthorProfileImageUri, 
-	string Text
+	string Text,
+	Card? PreviewCard
 )
 {
 
@@ -32,9 +34,11 @@ public record ContentModel(
 			content.SourceUri.ToString(),
 			content.Timestamp,
 			content.Author.DisplayName,
+			content.Author.UserName,
 			content.Author.ProfileUri.ToString(),
 			content.Author.ProfileImageUri.ToString(),
-			content.Text
+			content.Text,
+			content.PreviewCard
 		);
 	}
 
