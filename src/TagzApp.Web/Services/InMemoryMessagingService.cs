@@ -3,26 +3,25 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using TagzApp.Web.Data;
 using TagzApp.Web.Hubs;
+using TagzApp.Web.Services.Base;
 
 namespace TagzApp.Web.Services;
 
-public class InMemoryMessagingService : IHostedService
+public class InMemoryMessagingService : BaseProviderManager, IHostedService
 {
 
 	private InMemoryContentMessaging _Service = default;
 
-	private readonly IEnumerable<ISocialMediaProvider> _Providers;
 	private readonly IHubContext<MessageHub> _HubContext;
 	private readonly ILogger<InMemoryMessagingService> _Logger;
 
 	
 	public InMemoryMessagingService(
-		IEnumerable<ISocialMediaProvider> providers, 
+		IConfiguration configuration, 
 		IHubContext<MessageHub> hubContext,
 		ILogger<InMemoryMessagingService> logger
-	)
+	):base(configuration, logger)
   {
-		_Providers = providers;
 		_HubContext = hubContext;
 		_Logger = logger;
 	}
@@ -36,7 +35,7 @@ public class InMemoryMessagingService : IHostedService
 
   public Task StartAsync(CancellationToken cancellationToken)
 	{
-
+		InitProviders();
 		_Service = new InMemoryContentMessaging();
 		_Service.StartProviders(_Providers, cancellationToken);
 

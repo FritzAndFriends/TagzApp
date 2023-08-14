@@ -38,8 +38,6 @@ public class PlaywrightWebApplicationFactory : WebApplicationFactory<Web.Program
   protected override IHost CreateHost(IHostBuilder builder)
   {
 
-    ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
-
     if (Environment is not null)
     {
       builder.UseEnvironment(Environment);
