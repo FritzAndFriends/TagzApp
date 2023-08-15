@@ -23,26 +23,26 @@ public class OverlayTests : TestsBase
     var mainPage = context1.Page;
     var overlayPage = context2.Page;
 
-    // If required 2 browser instances can be setup instead
+		// If required 2 browser instances can be setup instead
 
-    //await using var browser1 = await WebApp.CreateCustomPlaywrightBrowserPageAsync();
-    //await using var browser2 = await WebApp.CreateCustomPlaywrightBrowserPageAsync();
-    //var mainPage = browser1.Page;
-    //var overlayPage = browser2.Page;
+		//await using var browser1 = await WebApp.CreateCustomPlaywrightBrowserPageAsync();
+		//await using var browser2 = await WebApp.CreateCustomPlaywrightBrowserPageAsync();
+		//var mainPage = browser1.Page;
+		//var overlayPage = browser2.Page;
 
 
-    await mainPage.GotoAsync("/");
+		await mainPage.GotoHashtagSearchPage();
 
-    await mainPage.GetByPlaceholder("New Hashtag").FillAsync(TAG);
+    await mainPage.SearchForHashtag(TAG);
 
-    await mainPage.GetByRole(AriaRole.Button, new() { Name = "Add" }).ClickAsync();
+		await mainPage.GotoWaterfallPage();
 
     await mainPage.Locator("article").WaitForAsync(new()
     {
       Timeout = 5000
     });
 
-    await overlayPage.GotoAsync($"/overlay");
+		await overlayPage.GotoOverlayPage();
 
     var overlayContents = await overlayPage.Locator("#overlayDisplay").AllTextContentsAsync();
     Assert.All(overlayContents, o => string.IsNullOrWhiteSpace(o));

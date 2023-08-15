@@ -35,4 +35,13 @@ public static class TagzAppNavigator
 
 	}
 
+	public static async Task<IPage> GotoOverlayPage(this IPage page)
+	{
+
+		if (page.Url != "/overlay") await page.GotoAsync("/overlay");
+
+		return page;
+
+	}
+
 }

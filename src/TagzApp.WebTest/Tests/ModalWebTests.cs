@@ -66,12 +66,12 @@ public class ModalWebTests : IClassFixture<ModalFixture>
     Skip.If(_Webapp.SkipTest, "Previous test failed");
     _Webapp.SkipTest = true;
 
-    // await using var trace = await page.TraceAsync("Can Launch Modal", true, true, true);
+		// await using var trace = await page.TraceAsync("Can Launch Modal", true, true, true);
 
-    await Page.GotoAsync("/");
-    await Page.GetByPlaceholder("New Hashtag").FillAsync("dotnet");
-    await Page.GetByRole(AriaRole.Button, new() { Name = "Add" }).ClickAsync();
+		await Page.GotoHashtagSearchPage();
+    await Page.SearchForHashtag("dotnet");
 
+		await Page.GotoWaterfallPage();
 
     // Get first article element
     await Page.Locator("article").WaitForAsync(new()
@@ -115,7 +115,7 @@ public class ModalWebTests : IClassFixture<ModalFixture>
 
     // Modal should be in a state of being displayed
     // find modal
-    await Page.GotoAsync("/");
+    await Page.GotoWaterfallPage();
     var isModalVisible = await Page.Locator("#contentModal").IsVisibleAsync();
     if (!isModalVisible)
     {
