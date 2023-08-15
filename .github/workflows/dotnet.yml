@@ -85,8 +85,8 @@ jobs:
               #context: # default is workflow
               images: ${{ github.repository }}
               tags: |
-                ghcr.io/${{ github.repository }}:latest
-                ghcr.io/${{ github.repository }}:${{ steps.date.outputs.date }}.${{ github.run_attempt }}
+                ${{ github.repository }}:latest
+                ${{ github.repository }}:${{ steps.date.outputs.date }}.${{ github.run_attempt }}
 
           - uses: docker/build-push-action@v4.1.1
             with:
