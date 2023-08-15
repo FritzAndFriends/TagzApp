@@ -5,11 +5,11 @@ name: Build and Test .NET projects
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "*" ]
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
-    branches: [	"main" ]
+    branches: [	"*" ]
 
 
 jobs:
@@ -85,7 +85,6 @@ jobs:
               #context: # default is workflow
               images: ${{ github.repository }}
               tags: "latest,${{ steps.date.outputs.date }}.${{ github.run_attempt }}"
-              github-token: ${{ secrets.GITHUB_TOKEN }}
 
           - uses: docker/build-push-action@v4.1.1
             with:
