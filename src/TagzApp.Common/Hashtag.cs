@@ -13,6 +13,11 @@ public class Hashtag
 
 	}
 
+	/// <summary>
+	/// Clear all formatting around the text of a hashtag and make it lowercase.
+	/// </summary>
+	/// <param name="text">Hashtag text to clean up</param>
+	/// <returns>Lowercase text of a hashtag with no formatting</returns>
 	public static string ClearFormatting(string text)
 	{
 
