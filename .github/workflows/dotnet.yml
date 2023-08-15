@@ -54,3 +54,20 @@ jobs:
               env:
                 TestHostStartDelay: 1000
               run: dotnet test --no-build
+  image:        
+        name: 'Create docker image for Web'
+        runs-on: ubuntu-latest
+        steps:
+          - name: Get current date
+            id: date
+            run: echo "::set-output name=date::$(date +'%Y%m-%d')"
+          - uses: docker/build-push-action@v4.1.1
+            with:
+              context: .
+              # Path to the Dockerfile
+              file: ./src/TagzApp.Web/dockerfile
+              push: true
+              sbom: true
+              tags: "latest,${{ steps.date.outputs.date }}.${{ GITHUB_RUN_ATTEMPT }}"
+              github-token: ${{ github.token }}
+      
