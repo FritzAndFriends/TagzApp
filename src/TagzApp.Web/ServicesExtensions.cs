@@ -21,26 +21,12 @@ public static class ServicesExtensions
   /// <summary>
   /// A collection of externally configured providers
   /// </summary>
-  public static List<IConfigureProvider> SocialMediaProviders { get; set; } = new();
   public static AuthenticationBuilder AddExternalProvider(this AuthenticationBuilder builder, string name, IConfiguration configuration,
     Action<IConfiguration> action)
   {
     var section = configuration.GetSection($"Authentication:{name}");
     if (section is not null) action(section);
     return builder;
-  }
-
-  public static AuthenticationBuilder AddExternalProvider(this AuthenticationBuilder builder, string name, IConfiguration configuration,
-    Action<string, string> action)
-  {
-    return builder.AddExternalProvider(name, configuration, (section) => {
-      var clientID = section["ClientID"];
-      var clientSecret = section["ClientSecret"];
-      if (!string.IsNullOrEmpty(clientID) && !string.IsNullOrEmpty(clientSecret))
-      {
-        action(clientID, clientSecret);
-      }
-    });
   }
 
   public static AuthenticationBuilder AddExternalProvider(this AuthenticationBuilder builder, string name, IConfiguration configuration,

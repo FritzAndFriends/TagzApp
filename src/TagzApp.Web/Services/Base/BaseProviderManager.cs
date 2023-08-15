@@ -3,7 +3,7 @@ using TagzApp.Communication.Extensions;
 
 namespace TagzApp.Web.Services.Base;
 
-public abstract class BaseProviderManager
+public class BaseProviderManager
 {
   private readonly IServiceCollection _Services;
   private readonly IConfiguration _Configuration;
