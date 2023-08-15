@@ -81,8 +81,8 @@ jobs:
               #context: # default is workflow
               images: ${{ github.repository }}
               tags: |
-                ${{ github.repository }}:latest
-                ${{ github.repository }}:${{ steps.date.outputs.date }}.${{ github.run_attempt }}
+               latest
+               ${{ steps.date.outputs.date }}.${{ github.run_attempt }}
 
           - uses: docker/build-push-action@v4.1.1
             with:
