@@ -19,8 +19,9 @@ public class InMemoryMessagingService : BaseProviderManager, IHostedService
 	public InMemoryMessagingService(
 		IConfiguration configuration, 
 		IHubContext<MessageHub> hubContext,
-		ILogger<InMemoryMessagingService> logger
-	):base(configuration, logger)
+		ILogger<InMemoryMessagingService> logger,
+		IEnumerable<ISocialMediaProvider>? socialMediaProviders = null
+	):base(configuration, logger, socialMediaProviders)
   {
 		_HubContext = hubContext;
 		_Logger = logger;
