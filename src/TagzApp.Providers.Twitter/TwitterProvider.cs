@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.IO.Compression;
+using System.Net.Http.Json;
 using System.Reflection;
 using System.Text.Json;
 using System.Web;
@@ -49,16 +50,16 @@ public class TwitterProvider : ISocialMediaProvider
 #else
 
 			var assembly = Assembly.GetExecutingAssembly();
-			var resourceName = "TagzApp.Providers.Twitter.Models.SampleTweets.json";
+			var resourceName = "TagzApp.Providers.Twitter.Models.SampleTweets.json.gz";
 			string sampleJson = string.Empty;
 
-			using (Stream stream = assembly.GetManifestResourceStream(resourceName))
-			using (StreamReader reader = new StreamReader(stream))
+			using var stream = assembly.GetManifestResourceStream(resourceName);
+			if (stream is not null)
 			{
-				sampleJson = reader.ReadToEnd();
+				using var unzip = new GZipStream(stream, CompressionMode.Decompress);
+				var embeddedTweets = JsonSerializer.Deserialize<TwitterData>(unzip);
+				if (embeddedTweets is not null) recentTweets = embeddedTweets;
 			}
-			recentTweets = JsonSerializer.Deserialize<TwitterData>(sampleJson);
-
 #endif
 
 		}

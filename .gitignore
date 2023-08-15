@@ -411,3 +411,5 @@ FodyWeavers.xsd
 *.db
 *.db-shm
 *.db-wal
+
+/src/TagzApp.Providers.Twitter/Models/SampleTweets.json.gz
