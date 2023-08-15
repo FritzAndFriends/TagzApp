@@ -57,7 +57,7 @@
 		<img class="ProfilePicture" src="${content.authorProfileImageUri}" alt="${content.authorDisplayName}" />
 		<div class="byline">
 			<div class="author">${content.authorDisplayName}</div>
-			<div class="authorUserName">${content.authorUserName}</div>
+			<div class="authorUserName" title="${content.authorUserName}">${content.authorUserName}</div>
 		</div>
 		<i class="provider bi bi-${content.provider.toLowerCase()}"></i>
 		<div class="time">${newMessageTime.toLocaleString(undefined, { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' })}</div>
