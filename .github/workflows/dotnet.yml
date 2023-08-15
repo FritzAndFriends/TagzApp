@@ -79,7 +79,7 @@ jobs:
             uses: docker/metadata-action@v4.6.0
             with:
               #context: # default is workflow
-              images: ${{ github.repository }}
+              images: ghcr.io/${{ github.repository }}
               tags: |
                latest
                ${{ steps.date.outputs.date }}.${{ github.run_attempt }}
