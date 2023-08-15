@@ -16,8 +16,7 @@ public class MyFirstTests : TestsBase
 
     await page
       .GotoHashtagSearchPage().Result
-      .SearchForHashtag("dotnet").Result
-      .GotoWaterfallPage();
+      .SearchForHashtag("dotnet");
 
     string? firstHashtagContent = await page.Locator(".hashtags").First.TextContentAsync();
     Assert.Equal("dotnet", firstHashtagContent);

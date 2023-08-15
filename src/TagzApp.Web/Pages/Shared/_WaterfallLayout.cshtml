@@ -12,22 +12,46 @@
 	<link rel="stylesheet" href="~/TagzApp.Web.styles.css" asp-append-version="true" />
 	<link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
 </head>
-<body>
+<body style="overflow-y: hidden;">
 
-	<partial name="_Header" />
+	<div id="floatingHeader" class="scrollOut">
+		<partial name="_Header" />
+	</div>
 
-	<div class="container">
+	<div id="headerButton" class="btn">
+		<i class="bi bi-three-dots"></i>
+	</div>
+
+	<div class="container" style="max-width: 1800px">
 		<main role="main" class="pb-3">
 			@RenderBody()
 		</main>
 	</div>
 
-	<partial name="_Footer" />
-
 	<script src="~/lib/jquery/dist/jquery.min.js"></script>
 	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 	<script src="~/lib/microsoft-signalr/signalr.min.js"></script>
 	<script src="~/js/site.js" asp-append-version="true"></script>
+
+	<script>
+
+
+		$(document).ready(function () {
+			const floatingHeader = document.getElementById("floatingHeader");
+			// $(floatingHeader).hover(() => console.log("in"), () => console.log("out"));
+			document.getElementById("headerButton").addEventListener("click", function () {
+				window.setTimeout(() => {
+					floatingHeader.addEventListener("mouseleave", (el) => {
+						floatingHeader.classList.remove("scrollIn");
+					});
+					floatingHeader.addEventListener("click", (el) => {
+						floatingHeader.classList.remove("scrollIn");
+					});
+				}, 3000);
+				floatingHeader.classList.add("scrollIn");
+			});
+		});
+		</script>
 
 	@await RenderSectionAsync("Scripts", required: false)
 </body>

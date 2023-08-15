@@ -29,7 +29,16 @@ public static class TagzAppNavigator
 	public static async Task<IPage> GotoWaterfallPage(this IPage page)
 	{
 
-		if (page.Url != "/") await page.GotoAsync("/");
+		if (page.Url != "/waterfall") await page.GotoAsync("/waterfall");
+
+		return page;
+
+	}
+
+	public static async Task<IPage> GotoOverlayPage(this IPage page)
+	{
+
+		if (page.Url != "/overlay") await page.GotoAsync("/overlay");
 
 		return page;
 
