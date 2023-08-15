@@ -1,0 +1,10 @@
+version: '3.7'
+services:
+  web:
+    container_name: tagzapp.web
+    hostname: tagzappweb
+    build:
+      dockerfile: ./src/TagzApp.Web/dockerfile
+      context: .
+    ports:
+      - "80"
