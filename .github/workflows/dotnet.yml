@@ -59,21 +59,36 @@ jobs:
         runs-on: ubuntu-latest
         steps:
           - uses: actions/checkout@v3
+          
           - name: Get current date
             id: date
             run: echo "::set-output name=date::$(date +'%Y%m-%d')"
             
-        
-          - name: debug
-            id: debug
-            run: ls -alh
-            
+          - name: Docker Login
+            uses: docker/login-action@v2.2.0
+            with:
+              # Server address of Docker registry. If not set then will default to Docker Hub
+              registry: ghcr.io
+              # Username used to log against the Docker registry
+              username: ${{ github.actor }}
+              # Password or personal access token used to log against the Docker registry
+              password:  ${{ github.token }}
+              # Specifies whether the given registry is ECR (auto, true or false)
+              ecr: auto
+              # Log out from the Docker registry at the end of a job
+              logout: true
+              
+          - name: Docker Metadata action
+            uses: docker/metadata-action@v4.6.0
+            with:
+              #context: # default is workflow
+              images: ${{vars.ORGANIZATION_VAR}}/${{ vars.REPOSITORY_VAR }}
+              tags: "latest,${{ steps.date.outputs.date }}.${{ github.run_attempt }}"
+              github-token: ${{ github.token }}
+
           - uses: docker/build-push-action@v4.1.1
             with:
               context: .
               # Path to the Dockerfile
               file: ./src/TagzApp.Web/dockerfile
               push: true
-              tags: "latest,${{ steps.date.outputs.date }}.${{ github.run_attempt }}"
-              github-token: ${{ github.token }}
-      
