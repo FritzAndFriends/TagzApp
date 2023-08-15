@@ -92,3 +92,5 @@ jobs:
               # Path to the Dockerfile
               file: ./src/TagzApp.Web/dockerfile
               push: true
+              tags: ${{ steps.meta.outputs.tags }}
+              labels: ${{ steps.meta.outputs.labels }}
