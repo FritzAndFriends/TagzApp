@@ -72,7 +72,7 @@ jobs:
               # Username used to log against the Docker registry
               username: ${{ github.actor }}
               # Password or personal access token used to log against the Docker registry
-              password:  ${{ github.token }}
+              password:  ${{ secrets.GITHUB_TOKEN }}
               # Specifies whether the given registry is ECR (auto, true or false)
               ecr: auto
               # Log out from the Docker registry at the end of a job
