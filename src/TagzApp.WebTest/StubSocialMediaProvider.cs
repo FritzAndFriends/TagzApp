@@ -1,4 +1,5 @@
 ﻿using Bogus;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace TagzApp.WebTest;
 
@@ -31,6 +32,23 @@ public class StubSocialMediaProvider : ISocialMediaProvider
 
 	}
 }
+
+public static class StubSocialMediaProviderExtensions
+{
+	public static IServiceCollection UseOnlyStubSocialMediaProvider(this IServiceCollection services)
+	{
+    services.RemoveAll<ISocialMediaProvider>();
+    services.AddSingleton<ISocialMediaProvider, StubSocialMediaProvider>();
+		return services;
+  }
+
+  public static IHostBuilder UseOnlyStubSocialMediaProvider(this IHostBuilder builder) => 
+		builder.ConfigureServices(services => services.UseOnlyStubSocialMediaProvider());
+
+  public static IWebHostBuilder UseOnlyStubSocialMediaProvider(this IWebHostBuilder builder) =>
+		builder.ConfigureServices(services => services.UseOnlyStubSocialMediaProvider());
+}
+
 
 public class StartStubSocialMediaProvider : IConfigureProvider
 {

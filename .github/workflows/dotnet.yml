@@ -42,6 +42,7 @@ jobs:
         timeout-minutes: 10
         container:
             image: mcr.microsoft.com/playwright/dotnet:v1.35.0-jammy
+            options: --ipc=host
         steps:
             - uses: actions/checkout@v3
             - name: Setup dotnet
@@ -50,4 +51,6 @@ jobs:
                 dotnet-version: 7.0.x
             - run: dotnet build
             - name: Execute Playwright tests
+              env:
+                TestHostStartDelay: 1000
               run: dotnet test --no-build
