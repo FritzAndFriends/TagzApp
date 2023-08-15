@@ -54,8 +54,8 @@ public class InMemoryMessagingService : BaseProviderManager, IHostedService
 	public Task AddHashtagToWatch(string tag)
 	{
 
-		if (!Content.ContainsKey(tag)) {
-			Content.Add(tag.TrimStart('#'), new ConcurrentBag<Content>());
+		if (!Content.ContainsKey(Hashtag.ClearFormatting(tag))) {   // Check hastag without #
+			Content.Add(Hashtag.ClearFormatting(tag), new ConcurrentBag<Content>());
 		}
 
 		_Service.SubscribeToContent(new Hashtag() { Text = tag }, 
