@@ -25,7 +25,6 @@ namespace TagzApp.Web.Pages
 				Tags.Add(item.Key);
 			}
 
-
 		}
 
 		public IActionResult OnPost()
