@@ -3,7 +3,29 @@
 	var connection;
 
 	const taggedContent = document.getElementById("taggedContent");
+	const observer = new MutationObserver(function (mutationsList, observer) {
+		for (const mutation of mutationsList) {
+			if (mutation.type !== 'childList') continue;
+			for (const node of mutation.addedNodes) {
+				const imgCardTop = node.querySelector(".card-img-top");
+				if (imgCardTop !== null) {
+					imgCardTop.addEventListener("load", function (ev) {
+						window.Masonry.resizeGridItem(node);
+					}, false);
+					imgCardTop.addEventListener("error", function (ev) {
+						window.Masonry.resizeGridItem(node);
+					}, false);
+				} else {
+					window.Masonry.resizeGridItem(node);
+				}
+            }
+		}
+	});
+	const observerConfig = {
+		childList: true
+	};
 
+	observer.observe(taggedContent, observerConfig);
 	async function start() {
 		try {
 			await connection.start();
@@ -50,15 +72,6 @@
 			`
 		}
 
-		if (content.previewCard) {
-			newMessage.querySelector(".card-img-top").addEventListener("load", function (ev) {
-				window.Masonry.resizeGridItem(newMessage);
-			}, false);
-		} else {
-			newMessage.addEventListener("DOMNodeInserted", function (ev) {
-				window.Masonry.resizeGridItem(newMessage);
-			}, false);
-		}
 		newMessage.addEventListener("click", function (ev) {
 
 			var el = ev.target.closest('article');

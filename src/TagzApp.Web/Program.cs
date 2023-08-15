@@ -4,7 +4,6 @@ using TagzApp.Web.Hubs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TagzApp.Web.Data;
-using Microsoft.AspNetCore.Authorization;
 
 namespace TagzApp.Web;
 
@@ -14,9 +13,11 @@ public class Program
 	{
 
 		var builder = WebApplication.CreateBuilder(args);
-		var connectionString = builder.Configuration.GetConnectionString("SecurityContextConnection") ?? throw new InvalidOperationException("Connection string 'SecurityContextConnection' not found.");
 
-		builder.Services.AddDbContext<SecurityContext>(options => options.UseSqlite(connectionString));
+		// Late bind the connection string so that any changes to the configuration made later on, or in the test fixture can be picked up.
+		builder.Services.AddDbContext<SecurityContext>((services,options) => 
+			options.UseSqlite(services.GetRequiredService<IConfiguration>().GetConnectionString("SecurityContextConnection") ?? 
+					throw new InvalidOperationException("Connection string 'SecurityContextConnection' not found.")));
 
 		builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 				options.SignIn.RequireConfirmedAccount = true
@@ -24,7 +25,7 @@ public class Program
 			.AddRoles<IdentityRole>()
 			.AddEntityFrameworkStores<SecurityContext>();
 
-		_ = builder.Services.AddAuthentication().AddExtenalProviders(builder.Configuration);
+		_ = builder.Services.AddAuthentication().AddExternalProviders(builder.Configuration);
 
 		builder.Services.AddAuthorization(config =>
 		{
@@ -43,6 +44,7 @@ public class Program
 			options.Conventions.AuthorizeAreaFolder("Admin", "/", Security.Policy.AdminRoleOnly);
 			options.Conventions.AuthorizePage("/Moderation", Security.Policy.Moderator);
 		});
+
 
 		builder.Services.AddTagzAppHostedServices(builder.Configuration);
 
@@ -84,7 +86,7 @@ public class Program
 
 		}
 
-		builder.InitializeSecurity(app.Services);
+    app.Services.InitializeSecurity().GetAwaiter().GetResult();	// Ensure this runs before we start the app.
 
 		app.Run();
 

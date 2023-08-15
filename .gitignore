@@ -406,3 +406,8 @@ FodyWeavers.xsd
 .idea/**/shelf
 .idea/**/contentModel.xml
 .idea/httpRequests
+
+# SQLite
+*.db
+*.db-shm
+*.db-wal
