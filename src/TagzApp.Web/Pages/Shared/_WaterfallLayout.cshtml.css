@@ -46,3 +46,51 @@ button.accept-policy {
   white-space: nowrap;
   line-height: 60px;
 }
+
+#floatingHeader {
+	position: fixed;
+	top: 0;
+	width: 100%;
+	z-index: 1000;
+}
+
+.scrollOut {
+	animation-name: scrollUp;
+	animation-duration: 2s;
+	animation-fill-mode: forwards;
+}
+
+.scrollIn {
+	animation-name: scrollIn;
+	animation-duration: 1s;
+	animation-fill-mode: forwards;
+}
+
+#headerButton {
+	position: fixed;
+	top: 10px;
+	right: 10px;
+	z-index: 900;
+}
+
+@keyframes scrollUp {
+	from {
+		top: 0;
+	}
+
+	to {
+		top: -200px;
+	}
+}
+
+@keyframes scrollIn {
+	from {
+		top: -200px;
+	}
+
+	to {
+		top: 0;
+	}
+}
+
+

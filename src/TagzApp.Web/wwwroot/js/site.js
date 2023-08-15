@@ -47,7 +47,7 @@
 			taggedContent.querySelector(".spinner-border").remove();
 		}
 
-		if (document.querySelector("[data-url='" + content.sourceUri + "']")) return;
+		if (document.querySelector("[data-providerid='" + content.providerId + "']")) return;
 
 		const newMessage = document.createElement("article");
 		newMessage.setAttribute("data-url", content.sourceUri);
