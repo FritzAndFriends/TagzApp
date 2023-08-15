@@ -63,6 +63,11 @@ jobs:
             id: date
             run: echo "::set-output name=date::$(date +'%Y%m-%d')"
             
+        
+          - name: debug
+            id: debug
+            run: ls -alh
+            
           - uses: docker/build-push-action@v4.1.1
             with:
               context: .
