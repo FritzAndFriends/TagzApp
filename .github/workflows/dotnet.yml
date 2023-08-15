@@ -68,6 +68,6 @@ jobs:
               file: ./src/TagzApp.Web/dockerfile
               push: true
               sbom: true
-              tags: "latest,${{ steps.date.outputs.date }}.${{ GITHUB_RUN_ATTEMPT }}"
+              tags: "latest,${{ steps.date.outputs.date }}.${{ github.run_attempt }}"
               github-token: ${{ github.token }}
       
