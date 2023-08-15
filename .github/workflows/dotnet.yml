@@ -79,6 +79,7 @@ jobs:
               logout: true
               
           - name: Docker Metadata action
+            id: meta
             uses: docker/metadata-action@v4.6.0
             with:
               #context: # default is workflow
