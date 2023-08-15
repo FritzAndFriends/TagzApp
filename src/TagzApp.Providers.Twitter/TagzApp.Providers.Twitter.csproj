@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -23,5 +23,64 @@
     <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
     <ProjectReference Include="..\TagzApp.Communication\TagzApp.Communication.csproj" />
 	</ItemGroup>
+
+  <UsingTask TaskName="GZip" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Files ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+      <Result ParameterType="Microsoft.Build.Framework.ITaskItem[]" Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.IO.Compression" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+    if (Files.Length > 0)
+    {
+        Result = new TaskItem[Files.Length];
+        for (int i = 0; i < Files.Length; i++)
+        {
+            ITaskItem item = Files[i];
+            string sourcePath = item.GetMetadata("FullPath");
+            string sourceItemSpec = item.ItemSpec;
+                  
+            string destinationSuffix = ".gz";
+            string destinationPath = sourcePath + destinationSuffix;
+            string destinationItemSpec = sourceItemSpec + destinationSuffix;
+
+            Log.LogMessage(MessageImportance.Normal, 
+                "EmbeddedResource Src : " + sourceItemSpec);
+                  
+            using (var sourceStream = File.OpenRead(sourcePath))
+            using (var destinationStream = File.OpenWrite(destinationPath))
+            using (var destinationGZip = new GZipStream(destinationStream, 
+              CompressionLevel.Optimal))
+            {
+                sourceStream.CopyTo(destinationGZip);
+            }
+                  
+            var destinationItem = new TaskItem(destinationItemSpec);
+            
+            Log.LogMessage(MessageImportance.Normal, 
+                "EmbeddedResource GZip: " + destinationItem.ItemSpec);
+                  
+            Result[i] = destinationItem;
+        }
+    }
+  ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="GZip" BeforeTargets="BeforeBuild">
+    <GZip Files="@(EmbeddedResource)">
+      <Output ItemName="GZipEmbeddedResource" TaskParameter="Result" />
+    </GZip>
+    <Message Text="Source EmbeddedResources: @(EmbeddedResource)" Importance="High" />
+    <Message Text="GZipped EmbeddedResources: @(GZipEmbeddedResource)" Importance="High" />
+    <ItemGroup>
+      <EmbeddedResource Remove="@(EmbeddedResource)" />
+      <EmbeddedResource Include="@(GZipEmbeddedResource)" />
+    </ItemGroup>
+  </Target>
 
 </Project>
