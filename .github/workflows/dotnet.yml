@@ -86,3 +86,5 @@ jobs:
               file: ./src/TagzApp.Web/dockerfile
               push: true
               tags: ${{ steps.meta.outputs.tags }}
+              build-args: |
+                Build_Version: ${{ steps.date.outputs.date }}.${{ github.run_attempt }}
