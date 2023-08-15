@@ -83,7 +83,7 @@ jobs:
             uses: docker/metadata-action@v4.6.0
             with:
               #context: # default is workflow
-              images: ${{vars.ORGANIZATION_VAR}}/${{ vars.REPOSITORY_VAR }}
+              images: ${{ github.repository }}
               tags: "latest,${{ steps.date.outputs.date }}.${{ github.run_attempt }}"
               github-token: ${{ github.token }}
 
