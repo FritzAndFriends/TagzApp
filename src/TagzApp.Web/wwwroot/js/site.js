@@ -88,6 +88,15 @@
         `;
 
 			let modalBody = document.querySelector(".modal-body").innerHTML = content.text;
+
+			if (content.previewCard) {
+				document.querySelector(".modal-body").innerHTML += `
+				<div class="contentcard">
+					<img src="${content.previewCard.imageUri}" class="card-img-top" alt="${content.previewCard.altText}" />
+				</div>
+			`
+			}
+
 			let modalTime = document.querySelector(".modal-time").textContent = new Date(content.timestamp).toLocaleString(undefined, {
 				day: 'numeric',
 				month: 'numeric',
