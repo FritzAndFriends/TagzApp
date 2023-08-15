@@ -8,85 +8,37 @@ namespace TagzApp.Web;
 public static class ServicesExtensions
 {
 
-	public static IServiceCollection ConfigureProvider<T>(this IServiceCollection services, IConfiguration configuration) where T : IConfigureProvider, new()
-	{
+  public static IServiceCollection AddTagzAppHostedServices(this IServiceCollection services, IConfigurationRoot configuration)
+  {
 
-		var providerStart = (IConfigureProvider)(Activator.CreateInstance<T>());
-		providerStart.RegisterServices(services, configuration);
+    services.AddSingleton<InMemoryMessagingService>();
+    services.AddHostedService(s => s.GetRequiredService<InMemoryMessagingService>());
 
-		return services;
+    return services;
 
-	}
+  }
 
-	public static IServiceCollection ConfigureProvider(this IServiceCollection services, IConfigureProvider provider, IConfiguration configuration)
-	{
-
-		provider.RegisterServices(services, configuration);
-
-		return services;
-
-	}
-
-	public static IServiceCollection AddTagzAppHostedServices(this IServiceCollection services, IConfigurationRoot configuration)
-	{
-
-		services.AddSingleton<InMemoryMessagingService>();
-		services.AddHostedService(s => s.GetRequiredService<InMemoryMessagingService>());
-
-		// Register the providers
-		if (SocialMediaProviders.Any())
-		{
-			foreach (var item in SocialMediaProviders)
-			{
-				services.ConfigureProvider(item, configuration);
-			}
-		}
-		else
-		{
-			services.ConfigureProvider<TagzApp.Providers.Mastodon.StartMastodon>(configuration);
-			services.ConfigureProvider<TagzApp.Providers.Twitter.StartTwitter>(configuration);
-			services.ConfigureProvider<TagzApp.Providers.TwitchChat.StartTwitchChat>(configuration);
-		}
-
-		return services;
-
-	}
-
-	/// <summary>
-	/// A collection of externally configured providers
-	/// </summary>
-	public static List<IConfigureProvider> SocialMediaProviders { get; set; } = new();
-  public static AuthenticationBuilder AddExternalProvider(this AuthenticationBuilder builder, string name, IConfiguration configuration, 
+  /// <summary>
+  /// A collection of externally configured providers
+  /// </summary>
+  public static AuthenticationBuilder AddExternalProvider(this AuthenticationBuilder builder, string name, IConfiguration configuration,
     Action<IConfiguration> action)
-		{
+  {
     var section = configuration.GetSection($"Authentication:{name}");
     if (section is not null) action(section);
     return builder;
   }
 
-  public static AuthenticationBuilder AddExternalProvider(this AuthenticationBuilder builder, string name, IConfiguration configuration, 
-    Action<string, string> action)
-			{
-    return builder.AddExternalProvider(name, configuration, (section) => {
-      var clientID = section["ClientID"];
-      var clientSecret = section["ClientSecret"];
-      if (!string.IsNullOrEmpty(clientID) && !string.IsNullOrEmpty(clientSecret))
-      {
-        action(clientID, clientSecret);
-      }
-			});
-		}
-
   public static AuthenticationBuilder AddExternalProvider(this AuthenticationBuilder builder, string name, IConfiguration configuration,
     Action<Action<Microsoft.AspNetCore.Authentication.OAuth.OAuthOptions>> action)
-		{
+  {
     return builder.AddExternalProvider(name, configuration, (section) => {
       var clientID = section["ClientID"];
       var clientSecret = section["ClientSecret"];
       if (!string.IsNullOrEmpty(clientID) && !string.IsNullOrEmpty(clientSecret))
       {
         action(options =>
-			{
+        {
           options.ClientId = clientID;
           options.ClientSecret = clientSecret;
         });
@@ -95,18 +47,18 @@ public static class ServicesExtensions
   }
 
   public static AuthenticationBuilder AddExternalProviders(this AuthenticationBuilder builder, IConfiguration configuration)
-		{
+  {
 
-    builder.AddExternalProvider("Microsoft", configuration , options => builder.AddMicrosoftAccount(options));
+    builder.AddExternalProvider("Microsoft", configuration, options => builder.AddMicrosoftAccount(options));
     builder.AddExternalProvider("GitHub", configuration, options => builder.AddGitHub(options));
     builder.AddExternalProvider("LinkedIn", configuration, options => builder.AddLinkedIn(options));
 
-		return builder;
+    return builder;
 
-	}
+  }
 
   public static async Task InitializeSecurity(this IServiceProvider services)
-	{
+  {
 
     using var scope = services.CreateScope();
 
