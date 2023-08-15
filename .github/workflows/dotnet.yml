@@ -5,55 +5,55 @@ name: Build and Test .NET projects
 
 on:
   push:
-    branches: [ "*" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
-    branches: [	"*" ]
+    branches: [	"main" ]
 
 
 jobs:
-  # build:
+  build:
 
-  #   runs-on: ubuntu-latest
-  #   defaults:
-  #     run:
-  #       working-directory: ./src
-  #   steps:
-  #   - uses: actions/checkout@v3
-  #   - name: Setup .NET
-  #     uses: actions/setup-dotnet@v3
-  #     with:
-  #       dotnet-version: 7.0.x
-  #   - name: Restore dependencies
-  #     run: dotnet restore
-  #   - name: Build
-  #     run: dotnet build --no-restore
-  #   - name: Unit Test
-  #     run: dotnet test --no-build --verbosity normal
-  #     working-directory: ./src/TagzApp.UnitTest
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./src
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 7.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Unit Test
+      run: dotnet test --no-build --verbosity normal
+      working-directory: ./src/TagzApp.UnitTest
 
-  # playwright:
-  #       name: 'Playwright Tests'
-  #       runs-on: ubuntu-latest 
-  #       defaults:
-  #           run:
-  #               working-directory: ./src/TagzApp.WebTest
-  #       timeout-minutes: 10
-  #       container:
-  #           image: mcr.microsoft.com/playwright/dotnet:v1.35.0-jammy
-  #           options: --ipc=host
-  #       steps:
-  #           - uses: actions/checkout@v3
-  #           - name: Setup dotnet
-  #             uses: actions/setup-dotnet@v3
-  #             with:
-  #               dotnet-version: 7.0.x
-  #           - run: dotnet build
-  #           - name: Execute Playwright tests
-  #             env:
-  #               TestHostStartDelay: 1000
-  #             run: dotnet test --no-build
+  playwright:
+        name: 'Playwright Tests'
+        runs-on: ubuntu-latest 
+        defaults:
+            run:
+                working-directory: ./src/TagzApp.WebTest
+        timeout-minutes: 10
+        container:
+            image: mcr.microsoft.com/playwright/dotnet:v1.35.0-jammy
+            options: --ipc=host
+        steps:
+            - uses: actions/checkout@v3
+            - name: Setup dotnet
+              uses: actions/setup-dotnet@v3
+              with:
+                dotnet-version: 7.0.x
+            - run: dotnet build
+            - name: Execute Playwright tests
+              env:
+                TestHostStartDelay: 1000
+              run: dotnet test --no-build
   image:        
         name: 'Create docker image for Web'
         runs-on: ubuntu-latest
@@ -67,18 +67,14 @@ jobs:
           - name: Docker Login
             uses: docker/login-action@v2.2.0
             with:
-              # Server address of Docker registry. If not set then will default to Docker Hub
               registry: ghcr.io
-              # Username used to log against the Docker registry
               username: ${{ github.actor }}
-              # Password or personal access token used to log against the Docker registry
               password:  ${{ secrets.GITHUB_TOKEN }}
               
           - name: Docker Metadata action
             id: meta
             uses: docker/metadata-action@v4.6.0
             with:
-              #context: # default is workflow
               images: ghcr.io/${{ github.repository }}
               tags: |
                latest
@@ -87,7 +83,6 @@ jobs:
           - uses: docker/build-push-action@v4.1.1
             with:
               context: .
-              # Path to the Dockerfile
               file: ./src/TagzApp.Web/dockerfile
               push: true
               tags: ${{ steps.meta.outputs.tags }}
