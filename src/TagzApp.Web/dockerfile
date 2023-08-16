@@ -13,9 +13,9 @@ RUN dotnet build "./TagzApp.Web/TagzApp.Web.csproj" -c Release -o /app/build
 
 FROM build AS publish
 ARG Build_Version=1.0.0
-RUN dotnet publish "./TagzApp.Web/TagzApp.Web.csproj" -c Release -o /app/publish /p:UseAppHost=false -p:Version=${Build_Version}
+RUN dotnet publish "./TagzApp.Web/TagzApp.Web.csproj" -c Release -o /app/publish /p:UseAppHost=false /p:Version=${Build_Version}
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "TagzApp.Web.dll"]
+CMD ["dotnet", "TagzApp.Web.dll"]
