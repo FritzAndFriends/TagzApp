@@ -6,16 +6,13 @@ EXPOSE 80
 EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+ARG Build_Version=1.0.0
 WORKDIR /src
 COPY ./src .
 RUN dotnet restore "./TagzApp.Web/TagzApp.Web.csproj"
-RUN dotnet build "./TagzApp.Web/TagzApp.Web.csproj" -c Release -o /app/build
-
-FROM build AS publish
-ARG Build_Version=1.0.0
 RUN dotnet publish "./TagzApp.Web/TagzApp.Web.csproj" -c Release -o /app/publish /p:UseAppHost=false /p:Version=${Build_Version}
 
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=build /app/publish .
 CMD ["dotnet", "TagzApp.Web.dll"]
