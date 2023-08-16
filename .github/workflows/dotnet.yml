@@ -57,6 +57,7 @@ jobs:
   image:        
         name: 'Create docker image for Web'
         runs-on: ubuntu-latest
+        needs: [playwright]
         steps:
           - uses: actions/checkout@v3
           
