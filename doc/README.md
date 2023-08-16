@@ -7,6 +7,7 @@ This is documentation for writing new features and for using the TagzApp softwar
 2. [Icons](#icons)
 3. [Testing](#testing)
 4. [Custom Test Execution Ordering](#ordering)
+5. [Docker](#docker)
 
 <div id='media-providers'/>
 
@@ -25,7 +26,7 @@ public class StartMastodon : IConfigureProvider
 	{
 
 		IConfigurationSection config = configuration.GetSection(ConfigurationKey);
-		services.Configure<MastodonConfiguration>(config); 
+		services.Configure<MastodonConfiguration>(config);
 
 		services.AddHttpClient<MastodonProvider>(c => ConfigureHttpClient(c, config));
 
@@ -71,3 +72,55 @@ An implementation of a [PriorityOrderer.cs](../src/TagzApp.WebTest/PriorityOrder
 Test cases which want to avail of the orderer are decorated with the test Attribute with required passed property values. The orderer then uses these values to determine the order of execution.
 
 This example came directly out of [Microsoft learn documentation](https://learn.microsoft.com/en-us/dotnet/core/testing/order-unit-tests?pivots=xunit#order-by-custom-attribute) for more information on how to use this feature.
+
+
+<div id='docker'/>
+
+### Docker
+TagzApp includes docker support and docker-compose files for easy deployment. You can either run the latest image that's built by us, or build locally.
+
+### Running the Official Version
+
+```
+git clone https://github.com/FritzAndFriends/TagzApp
+cd TagzApp
+
+# update docker-compose.yml as needed (custom API tokens, etc.)
+docker compose -f docker-compose.yml up
+
+```
+
+
+### Building a Local Docker Container
+
+```
+git clone https://github.com/FritzAndFriends/TagzApp
+cd TagzApp
+
+# update docker-compose.local.yml as needed (custom API tokens, etc.)
+docker compose -f docker-compose.local.yml up --build
+
+# or
+
+docker build -t tagzapp/web:dev -f TagzApp.Web/dockerfile .
+docker run \
+	--rm \
+	-p "8080:80"
+	tagzapp/web:dev
+```
+
+
+## Overriding Default Config settings
+
+You don't *need* to override any configurations, the app will work out of the box, but you might not be able to search every provider.
+
+In case you do have your own API keys or other values (see the  the [`appsettings.json`](../src/TagzApp.Web/appsettings.json) for what can be supplied), then you can supply them like this:
+
+* from `docker-compose.yml` - use `key:subkey:property=value` syntax. See the docker-compose files for examples. Ex.
+
+```
+environment:
+	- providers:twitter:ApiKey=MySecretKey
+```
+
+* from `docker run` - use `-e "providers:twitter:ApiKey=MySecretKey"`. You need to repeat the `-e ` flag for each override.
