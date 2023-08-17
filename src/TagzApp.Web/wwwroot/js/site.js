@@ -81,20 +81,31 @@
 			connection.invoke("SendMessageToOverlay", window.TagzApp.Tags[0], el.getAttribute("data-provider"), el.getAttribute("data-providerid"));
 
 			// Format Modal
-			let modalTitle = document.getElementById("modalTitle");
-			modalTitle.innerHTML = `
-            ${content.authorDisplayName}: 
-            <i class="bi bi-${content.provider.toLowerCase()}"></i>
-        `;
+			let modalProfilePic = document.querySelector(".modal-header img");
+			modalProfilePic.src = content.authorProfileImageUri;
+			modalProfilePic.alt = content.authorDisplayName;
+
+			document.querySelector(".modal-header .author").innerText = content.authorDisplayName;
+
+			let modalAuthorUserName = document.querySelector(".modal-header .authorUserName");
+			modalAuthorUserName.setAttribute("title", content.authorUserName);
+			modalAuthorUserName.innerText = content.authorUserName;
+
+			let modalProvider = document.querySelector(".modal-header .bi");
+			modalProvider.setAttribute("class", "");
+			modalProvider.classList.add('provider', 'bi', `bi-${content.provider.toLowerCase()}`);
+
+			document.querySelector(".modal-header .time").innerText = `${newMessageTime.toLocaleString(undefined, { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' })}`;
 
 			let modalBody = document.querySelector(".modal-body").innerHTML = content.text;
-			let modalTime = document.querySelector(".modal-time").textContent = new Date(content.timestamp).toLocaleString(undefined, {
-				day: 'numeric',
-				month: 'numeric',
-				year: 'numeric',
-				hour: '2-digit',
-				minute: '2-digit'
-			});
+
+			if (content.previewCard) {
+				document.querySelector(".modal-body").innerHTML += `
+				<div class="contentcard">
+					<img src="${content.previewCard.imageUri}" class="card-img-top" alt="${content.previewCard.altText}" />
+				</div>
+			`
+			}
 
 			let modalWindow = new bootstrap.Modal(document.getElementById("contentModal"));
 			modalWindow.show();
