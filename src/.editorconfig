@@ -85,6 +85,7 @@ dotnet_style_namespace_match_folder = true:suggestion
 tab_width = 2
 indent_size = 2
 end_of_line = crlf
+indent_style = tab
 
 [*.cs]
 csharp_indent_labels = one_less_than_current
