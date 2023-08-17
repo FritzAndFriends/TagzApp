@@ -13,6 +13,7 @@
     <ProjectReference Include="..\TagzApp.Providers.Mastodon\TagzApp.Providers.Mastodon.csproj" />
     <ProjectReference Include="..\TagzApp.Providers.TwitchChat\TagzApp.Providers.TwitchChat.csproj" />
     <ProjectReference Include="..\TagzApp.Providers.Twitter\TagzApp.Providers.Twitter.csproj" />
+    <ProjectReference Include="..\TagzApp.Providers.Blazot\TagzApp.Providers.Blazot.csproj" />
   </ItemGroup>
 
   <ItemGroup>
