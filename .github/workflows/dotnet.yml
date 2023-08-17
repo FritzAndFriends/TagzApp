@@ -15,8 +15,7 @@ on:
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./src
@@ -35,6 +34,7 @@ jobs:
       working-directory: ./src/TagzApp.UnitTest
 
   playwright:
+        if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
         name: 'Playwright Tests'
         runs-on: ubuntu-latest 
         defaults:
