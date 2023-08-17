@@ -1,0 +1,16 @@
+﻿/* Extends bootstrap icons to include a Blazot icon in the card item. */
+.bi-blazot {
+    width: 24px;
+    height: 36px;
+    background-position: right 0 top 0.06rem;
+    background-repeat: no-repeat;
+    background-image: url('data:image/svg+xml;utf8, <svg version="1.1" id="BlazotRocketOnlyIcon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 42 42" enable-background="new 0 0 42 42" xml:space="preserve" fill="currentColor"><g id="Rocket"><path d="M28.4,26c1-0.7,2-1.6,3.1-2.7c8.2-8.5,6.7-20.1,6.7-20.1s-11.2-1.5-19.4,7c-1,1-1.8,2.1-2.6,3.1l-7,0.3l-5.5,9l8.4,1.5c-0.1,0.4-0.1,0.7-0.2,1.1l5,5.2c0.3-0.1,0.7-0.1,1-0.2l1.5,8.7l8.6-5.7L28.4,26zM25.5,16.4c-2.1-2.2-2.1-5.8,0-8s5.6-2.2,7.7,0s2.1,5.8,0,8S27.7,18.6,25.5,16.4z"/></g><g id="Flame"><path d="M13.4,28.9c-1.7-1.7-4-2.1-6,0c-2,2.1-3.8,6.4-2.8,9.2c2.9,1,6.8-0.8,8.8-2.9C15.4,33,15,30.6,13.4,28.9zM6.7,35.8c-0.5-1.9,0.7-4.9,2.1-6.3c1.4-1.5,3-1.3,4.1-0.2c1.1,1.1,1.3,2.8-0.2,4.3C11.4,35.1,8.7,36.4,6.7,35.8z"/></g></svg>');
+}
+
+/* Extends bootstrap icons to include a Blazot icon in the modal. */
+div.modal .bi-blazot {
+    display: inline-block;
+    vertical-align: middle;
+    width: 24px;
+    height: 26px;
+}
