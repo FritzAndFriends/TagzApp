@@ -60,7 +60,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         name: 'Create docker image for Web'
         runs-on: ubuntu-latest
-        # needs: [playwright]
+        needs: [playwright]
         steps:
           - uses: actions/checkout@v3
           
