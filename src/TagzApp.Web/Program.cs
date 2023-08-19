@@ -41,7 +41,7 @@ public class Program
 
 		// Add services to the container.
 		builder.Services.AddRazorPages(options => {
-			options.Conventions.AuthorizeAreaFolder("Admin", "/", Security.Policy.AdminRoleOnly);
+			//options.Conventions.AuthorizeAreaFolder("Admin", "/", Security.Policy.AdminRoleOnly);
 			options.Conventions.AuthorizePage("/Moderation", Security.Policy.Moderator);
 		});
 
