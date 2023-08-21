@@ -15,7 +15,7 @@ public class Content
 	/// <summary>
 	///   Id provided by the provider for this content
 	/// </summary>
-	public required string ProviderId { get; set; }
+	public string ProviderId { get; set; }
 
 	public string HashtagSought { get; set; } = string.Empty;
 
