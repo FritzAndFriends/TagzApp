@@ -6,9 +6,11 @@ name: Build and Test .NET projects
 on:
   push:
     branches: [ "main" ]
+    paths: [ "src" ]
   pull_request:
     branches: [ "main" ]
     types: [opened, synchronize, reopened, closed]
+    paths: [ "src" ]
   workflow_dispatch:
     branches: [	"main" ]
 
