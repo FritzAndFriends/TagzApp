@@ -1,9 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <UserSecretsId>f5d54418-d0d8-4854-8a2f-d0f4cd7ca7c3</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,6 +17,12 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Xunit.SkippableFact" Version="1.4.13" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="7.0.0" />
+  </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
     <ProjectReference Include="..\TagzApp.Providers.Mastodon\TagzApp.Providers.Mastodon.csproj" />
