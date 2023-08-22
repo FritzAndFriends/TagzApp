@@ -10,6 +10,7 @@ on:
   pull_request:
     branches: [ "main" ]
     types: [opened, synchronize, reopened, closed]
+    paths: [ "src" ]
   workflow_dispatch:
     branches: [	"main" ]
 
