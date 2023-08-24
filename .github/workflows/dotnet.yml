@@ -17,7 +17,7 @@ on:
 
 jobs:
   build:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')    
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')    
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -37,7 +37,7 @@ jobs:
       working-directory: ./src/TagzApp.UnitTest
 
   playwright:
-        if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
         name: 'Playwright Tests'
         runs-on: ubuntu-latest 
         defaults:
@@ -59,7 +59,7 @@ jobs:
                 TestHostStartDelay: 1000
               run: dotnet test --no-build
   image:        
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository_owner == 'FritzAndFriends'
+        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository_owner == 'FritzAndFriends')
         name: 'Create docker image for Web'
         runs-on: ubuntu-latest
         needs: [playwright]
