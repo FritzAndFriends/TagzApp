@@ -13,25 +13,25 @@
 	</div>
 
 <div class="form-group">
-    <label for="role">Assigned Roles:</label>
+		<label for="role">Assigned Roles:</label>
 		<p>
-    <select id="role" name="role" multiple class="mb-3">
-        @foreach (var role in Model.Roles)
-        {
-            @if (Model.UserRoles.Contains(role.Name))
-            {
-                <option value="@role" selected>@role</option>
-            }
-            else
-            {
-                <option value="@role">@role</option>
-            }
-        }
-    </select>
+		<select id="role" name="role" multiple class="mb-3">
+				@foreach (var role in Model.Roles)
+				{
+						@if (Model.UserRoles.Contains(role.Name))
+						{
+								<option value="@role" selected>@role</option>
+						}
+						else
+						{
+								<option value="@role">@role</option>
+						}
+				}
+		</select>
 		</p>
 </div>
 <div class="form-group">
-    <button type="submit" class="btn btn-primary">Assign Role</button>
+		<button type="submit" class="btn btn-primary">Assign Role</button>
 </div>
 
 </form>
