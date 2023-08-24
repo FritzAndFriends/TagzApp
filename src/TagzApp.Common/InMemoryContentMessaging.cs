@@ -19,6 +19,10 @@ public class InMemoryContentMessaging : IContentPublisher, IContentSubscriber, I
 
 	private bool _DisposedValue;
 
+	public bool HasSubscribers => _Actions.Any();
+
+	public IEnumerable<string> TagsSubscribedTo => _Actions.Keys;
+
 	public InMemoryContentMessaging()
 	{
 		_CancellationTokenSource = new CancellationTokenSource();
@@ -72,7 +76,7 @@ public class InMemoryContentMessaging : IContentPublisher, IContentSubscriber, I
 
 	}
 
-	public void SubscribeToContent(Hashtag tag, Action<Content> onNewContent)
+	public void SubscribeToContentAsync(Hashtag tag, Action<Content> onNewContent)
 	{
 
 		if (!_Actions.ContainsKey(tag.Text))

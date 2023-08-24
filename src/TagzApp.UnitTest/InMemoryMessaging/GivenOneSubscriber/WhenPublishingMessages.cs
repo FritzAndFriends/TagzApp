@@ -27,7 +27,7 @@ public class WhenPublishingMessages
 
 		// Arrange
 		Content published = null;
-		_Sut.SubscribeToContent(_Tag, (content) => published = content);
+		_Sut.SubscribeToContentAsync(_Tag, (content) => published = content);
 
 		// Act
 		await _Sut.PublishContentAsync(_Tag, _Content);

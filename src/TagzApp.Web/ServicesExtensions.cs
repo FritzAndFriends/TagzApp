@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
+using TagzApp.Storage.Postgres;
 using TagzApp.Web.Data;
 using TagzApp.Web.Services;
 
@@ -11,10 +12,12 @@ public static class ServicesExtensions
   public static IServiceCollection AddTagzAppHostedServices(this IServiceCollection services, IConfigurationRoot configuration)
   {
 
-    services.AddSingleton<InMemoryMessagingService>();
-    services.AddHostedService(s => s.GetRequiredService<InMemoryMessagingService>());
+    services.AddSingleton<PostgresMessagingService>();
+    services.AddHostedService(s => s.GetRequiredService<PostgresMessagingService>());
 
-    return services;
+		services.AddPostgresStorage(configuration);
+
+		return services;
 
   }
 

@@ -3,6 +3,10 @@
 public interface IContentSubscriber
 {
 
-	void SubscribeToContent(Hashtag tag, Action<Content> onNewContent);
+	void SubscribeToContentAsync(Hashtag tag, Action<Content> onNewContent);
+
+	bool HasSubscribers { get; }
+
+	IEnumerable<string> TagsSubscribedTo { get; }
 
 }

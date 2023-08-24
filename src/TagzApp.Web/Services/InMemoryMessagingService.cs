@@ -58,7 +58,7 @@ public class InMemoryMessagingService : BaseProviderManager, IHostedService
 			Content.Add(Hashtag.ClearFormatting(tag), new ConcurrentBag<Content>());
 		}
 
-		_Service.SubscribeToContent(new Hashtag() { Text = tag }, 
+		_Service.SubscribeToContentAsync(new Hashtag() { Text = tag }, 
 			c => {
 				Content[c.HashtagSought.TrimStart('#')].Add(c);
 				_HubContext.Clients
