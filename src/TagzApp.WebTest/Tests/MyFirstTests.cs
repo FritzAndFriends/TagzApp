@@ -37,7 +37,7 @@ public class MyFirstTests : TestsBase
 
 		// string? firstHashtagContent = await page.Locator(".hashtags").First.TextContentAsync();
 
-		await page.Locator("article").WaitForAsync(new()
+		await page.Locator("article").First.WaitForAsync(new()
 		{
 			Timeout = 5000
 		});
