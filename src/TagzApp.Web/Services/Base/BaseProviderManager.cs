@@ -8,7 +8,7 @@ public class BaseProviderManager
   private readonly IServiceCollection _Services;
   private readonly IConfiguration _Configuration;
   private readonly ILogger<BaseProviderManager> _Logger;
-  protected IEnumerable<ISocialMediaProvider> _Providers;
+  public IEnumerable<ISocialMediaProvider> Providers { get; private set; }
 
   public BaseProviderManager(IConfiguration configuration, ILogger<BaseProviderManager> logger, 
     IEnumerable<ISocialMediaProvider>? socialMediaProviders)
@@ -16,13 +16,13 @@ public class BaseProviderManager
     _Services = new ServiceCollection();
     _Configuration = configuration;
     _Logger = logger;
-    _Providers = socialMediaProviders != null && socialMediaProviders.Count() > 0 
+    Providers = socialMediaProviders != null && socialMediaProviders.Count() > 0 
       ? socialMediaProviders : new List<ISocialMediaProvider>();
   }
 
   public void InitProviders()
   {
-    if (!_Providers.Any())
+    if (!Providers.Any())
     {
       LoadConfigurationProviders();
     }
@@ -77,6 +77,6 @@ public class BaseProviderManager
 
     var sp = _Services.BuildServiceProvider();
     socialMediaProviders.AddRange(sp.GetServices<ISocialMediaProvider>());
-    _Providers = socialMediaProviders;
+    Providers = socialMediaProviders;
   }
 } 

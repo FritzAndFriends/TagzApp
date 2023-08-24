@@ -38,7 +38,7 @@ public class InMemoryMessagingService : BaseProviderManager, IHostedService
 	{
 		InitProviders();
 		_Service = new InMemoryContentMessaging();
-		_Service.StartProviders(_Providers, cancellationToken);
+		_Service.StartProviders(Providers, cancellationToken);
 
 		return Task.CompletedTask;
 	}

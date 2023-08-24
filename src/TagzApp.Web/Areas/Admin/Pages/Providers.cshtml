@@ -1,0 +1,22 @@
+﻿@page
+@using TagzApp.Web.Areas.Admin.Pages;
+@model TagzApp.Web.Areas.Admin.Pages.ProvidersModel
+@{
+    ViewData["ActivePage"] = ManageNavPages.Providers;
+}
+
+<h2>Provider Management</h2>
+
+<article>
+    @foreach(var provider in Model.Providers)
+    {
+        <ul>
+            <li class="card">
+                <div class="card-body">
+                    <i class="bi bi-@provider.Id.ToLower()"></i>
+                    @provider.DisplayName
+                </div>
+            </li>
+        </ul>
+    }
+</article>
