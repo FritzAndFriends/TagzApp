@@ -26,7 +26,7 @@ jobs:
         run: |
           {
             echo 'cs_files<<EOF'
-            echo "$diff" | grep -E "^[ACMR][0-9]{0,3}[[:space:]]+.+\.cs$" | sed -E "s/.*[[:space:]]+//"
+            echo "$diff" | grep -E "^[ACMR][0-9]{0,3}[[:space:]]+.+\.cs$" | sed -E "s/.*[[:space:]]+//" | paste -sd " "
             echo EOF
           } >> "$GITHUB_OUTPUT"
       - name: Assign JS/CSS files to output
