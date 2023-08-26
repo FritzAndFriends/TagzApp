@@ -18,7 +18,7 @@ jobs:
         run: |
           {
             echo 'diff<<EOF'
-            git diff main --name-status
+            git diff origin/main --name-status
             echo EOF
           } >> "$GITHUB_ENV"
       - name: Assign C# files to output
