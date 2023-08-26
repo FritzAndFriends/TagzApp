@@ -13,4 +13,12 @@ internal class TagzAppContext : DbContext
 
 	public DbSet<PgContent> Content { get; set; }
 
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
+	{
+
+		modelBuilder.Entity<PgContent>().HasAlternateKey(c => new { c.Provider, c.ProviderId });
+
+		base.OnModelCreating(modelBuilder);
+	}
+
 }

@@ -1,19 +1,23 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+using TagzApp.Storage.Postgres;
+using TagzApp.Web.Services;
 
-namespace TagzApp.Storage.Postgres;
+namespace Microsoft.Extensions.DependencyInjection;
 
 public static class AppExtensions
 {
 
-	public static IServiceCollection RegisterServices(this IServiceCollection services, IConfiguration configuration)
+	public static IServiceCollection AddPostgresServices(this IServiceCollection services, IConfiguration configuration)
 	{
 
 		services.AddDbContext<TagzAppContext>(options =>
 				{
 			options.UseNpgsql(configuration.GetConnectionString("TagzApp"));
 		});
+
+		//services.AddSingleton<IMessagingService, InMemoryMessagingService>();
+		//services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
 
 		return services;
 

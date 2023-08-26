@@ -13,7 +13,9 @@ public static class ServicesExtensions
 
 		services.AddSingleton<INotifyNewMessages, SignalRNotifier>();
 
-    services.AddSingleton<IMessagingService, InMemoryMessagingService>();
+		services.AddPostgresServices(configuration);
+
+		services.AddSingleton<IMessagingService, InMemoryMessagingService>();
     services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
 
     return services;
