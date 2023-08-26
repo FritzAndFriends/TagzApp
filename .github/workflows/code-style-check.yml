@@ -48,7 +48,7 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
       - name: dotnet format
-        run: dotnet format style src/TagzApp.sln --verbosity detailed --verify-no-changes --include ${{ needs.get-changed-files.outputs.cs_files }}
+        run: dotnet format src/TagzApp.sln --verbosity detailed --verify-no-changes --include ${{ needs.get-changed-files.outputs.cs_files }}
 
   run-prettier:
     if: needs.get-changed-files.outputs.js_css_files != ''
