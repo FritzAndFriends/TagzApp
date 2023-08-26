@@ -8,9 +8,9 @@ public interface IMessagingService : IHostedService
 
 	Task AddHashtagToWatch(string tag);
 
-	Task<Content> GetContentByIds(string provider, string providerId);
+	Task<Content?> GetContentByIds(string provider, string providerId);
 
-	IEnumerable<Content> GetExistingContentForTag(string tag);
+	Task<IEnumerable<Content>> GetExistingContentForTag(string tag);
 
 	IEnumerable<ISocialMediaProvider> Providers { get; }
 

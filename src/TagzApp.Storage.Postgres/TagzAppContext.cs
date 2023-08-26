@@ -13,6 +13,8 @@ internal class TagzAppContext : DbContext
 
 	public DbSet<PgContent> Content { get; set; }
 
+	public DbSet<Tag> TagsWatched { get; set; }
+
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 

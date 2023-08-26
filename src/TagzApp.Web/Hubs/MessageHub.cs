@@ -45,10 +45,10 @@ public class MessageHub : Hub
 		return "overlay_" + overlayForTag.TrimStart('#').ToLowerInvariant();
 	}
 
-	public IEnumerable<ContentModel> GetExistingContentForTag(string tag)
+	public async Task<IEnumerable<ContentModel>> GetExistingContentForTag(string tag)
   {
 
-    return _Service.GetExistingContentForTag(tag)
+    return (await _Service.GetExistingContentForTag(tag))
       .Select(c => (ContentModel)c)
       .ToArray();
 

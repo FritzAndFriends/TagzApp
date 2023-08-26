@@ -52,7 +52,7 @@ public class InMemoryMessagingService : BaseProviderManager, IMessagingService
 	{
 
 		if (!_Content.ContainsKey(Hashtag.ClearFormatting(tag)))
-		{   // Check hastag without #
+		{   // Check hashtag without #
 			_Content.Add(Hashtag.ClearFormatting(tag), new ConcurrentBag<Content>());
 		}
 
@@ -68,16 +68,16 @@ public class InMemoryMessagingService : BaseProviderManager, IMessagingService
 
 	}
 
-	public IEnumerable<Content> GetExistingContentForTag(string tag)
+	public Task<IEnumerable<Content>> GetExistingContentForTag(string tag)
 	{
 
-		if (!_Service._LoadedContent.ContainsKey(tag.TrimStart('#').ToLowerInvariant())) return Enumerable.Empty<Content>();
+		if (!_Service._LoadedContent.ContainsKey(tag.TrimStart('#').ToLowerInvariant())) return Task.FromResult(Enumerable.Empty<Content>());
 
-		return _Service._LoadedContent[tag.TrimStart('#').ToLowerInvariant()];
+		return Task.FromResult(_Service._LoadedContent[tag.TrimStart('#').ToLowerInvariant()].AsEnumerable());
 
 	}
 
-	public async Task<Content> GetContentByIds(string provider, string providerId)
+	public async Task<Content?> GetContentByIds(string provider, string providerId)
 	{
 
 		return _Content.First().Value
