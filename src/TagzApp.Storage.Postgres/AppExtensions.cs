@@ -16,8 +16,8 @@ public static class AppExtensions
 			options.UseNpgsql(configuration.GetConnectionString("TagzApp"));
 		});
 
-		//services.AddSingleton<IMessagingService, InMemoryMessagingService>();
-		//services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
+		services.AddSingleton<IMessagingService, PostgresMessagingService>();
+		services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
 
 		return services;
 
