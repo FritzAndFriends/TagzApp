@@ -54,15 +54,15 @@ public class MessageHub : Hub
 
   }
 
-	public void SendMessageToOverlay(string tag, string provider, string providerId)
+	public async Task SendMessageToOverlay(string tag, string provider, string providerId)
 	{
 
 		var formattedTag = Hashtag.ClearFormatting(tag);
-		var message = _Service.Content[formattedTag].FirstOrDefault(c => c.Provider == provider && c.ProviderId == providerId);
+		var message = await _Service.GetContentByIds(provider, providerId);
 
 		if (message is null) return;
 
-		Clients.Group(FormatOverlayGroupname(formattedTag))
+		await Clients.Group(FormatOverlayGroupname(formattedTag))
 			.SendAsync("DisplayOverlay", (ContentModel)message);
 
 	}

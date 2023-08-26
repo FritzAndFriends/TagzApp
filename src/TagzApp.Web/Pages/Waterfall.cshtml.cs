@@ -17,9 +17,9 @@ public class WaterfallModel : PageModel
 	public void OnGet()
 	{
 
-		foreach (var item in _Service.Content)
+		foreach (var item in _Service.TagsTracked)
 		{
-			Tags.Add(item.Key);
+			Tags.Add(item);
 		}
 
 	}
