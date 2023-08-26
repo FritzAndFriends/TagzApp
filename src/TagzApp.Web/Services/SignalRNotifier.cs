@@ -13,12 +13,12 @@ public class SignalRNotifier : INotifyNewMessages
 		_HubContext = hubContext;
 	}
 
-	public void Notify(string hashtag, ContentModel content)
+	public void Notify(string hashtag, Content content)
 	{
 
 		_HubContext.Clients
 			.Group(hashtag)
-			.SendAsync("NewMessage", content);
+			.SendAsync("NewMessage", (ContentModel)content);
 
 	}
 }
