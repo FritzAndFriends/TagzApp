@@ -40,6 +40,9 @@ public class BaseProviderManager
     {
       foreach (string dllPath in Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories))
       {
+
+				if (dllPath.Contains("Microsoft.") || dllPath.Contains("System.")) continue;
+
         try
         {
           var assembly = Assembly.LoadFrom(dllPath);

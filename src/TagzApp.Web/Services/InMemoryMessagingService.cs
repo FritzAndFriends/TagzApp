@@ -1,29 +1,27 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 using TagzApp.Communication;
-using TagzApp.Web.Data;
 using TagzApp.Web.Hubs;
 
 namespace TagzApp.Web.Services;
 
-public class InMemoryMessagingService : BaseProviderManager, IHostedService, IMessagingService
+public class InMemoryMessagingService : BaseProviderManager, IMessagingService
 {
 
 	private InMemoryContentMessaging _Service = default;
 
-	private readonly IHubContext<MessageHub> _HubContext;
 	private readonly ILogger<InMemoryMessagingService> _Logger;
-
+	private readonly INotifyNewMessages _NotifyNewMessages;
 
 	public InMemoryMessagingService(
 		IConfiguration configuration,
-		IHubContext<MessageHub> hubContext,
 		ILogger<InMemoryMessagingService> logger,
+		INotifyNewMessages notifyNewMessages,
 		IEnumerable<ISocialMediaProvider>? socialMediaProviders = null
 	) : base(configuration, logger, socialMediaProviders)
 	{
-		_HubContext = hubContext;
 		_Logger = logger;
+		_NotifyNewMessages = notifyNewMessages;
 	}
 
 	/// <summary>
@@ -62,9 +60,7 @@ public class InMemoryMessagingService : BaseProviderManager, IHostedService, IMe
 			c =>
 			{
 				_Content[c.HashtagSought.TrimStart('#')].Add(c);
-				_HubContext.Clients
-					.Group(c.HashtagSought.TrimStart('#').ToLowerInvariant())
-					.SendAsync("NewMessage", (ContentModel)c);
+				_NotifyNewMessages.Notify(Hashtag.ClearFormatting(c.HashtagSought), c);
 				//_Logger.LogInformation($"Message found for tag '{c.HashtagSought}': {c.Text}");
 			});
 

@@ -6,9 +6,9 @@ namespace TagzApp.Web.Hubs;
 
 public class MessageHub : Hub
 {
-  private readonly InMemoryMessagingService _Service;
+  private readonly IMessagingService _Service;
 
-  public MessageHub(InMemoryMessagingService svc)
+  public MessageHub(IMessagingService svc)
   {
     _Service = svc;
   }

@@ -5,9 +5,9 @@ namespace TagzApp.Web.Pages;
 
 public class WaterfallModel : PageModel
 {
-	private readonly InMemoryMessagingService _Service;
+	private readonly IMessagingService _Service;
 
-	public WaterfallModel(InMemoryMessagingService service)
+	public WaterfallModel(IMessagingService service)
   {
 		_Service = service;
 	}

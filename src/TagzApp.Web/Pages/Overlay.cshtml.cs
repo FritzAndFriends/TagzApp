@@ -7,9 +7,9 @@ namespace TagzApp.Web.Pages;
 public class OverlayModel : PageModel
 {
 
-	public OverlayModel(InMemoryMessagingService svc)
+	public OverlayModel(IMessagingService svc)
   {
-		Tag = svc.Content.Any() ? svc.Content.Keys.First() : string.Empty;
+		Tag = svc.TagsTracked.Any() ? svc.TagsTracked.First() : string.Empty;
 	}
 
   public string Tag { get; }

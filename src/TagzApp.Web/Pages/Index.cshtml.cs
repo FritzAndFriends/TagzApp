@@ -8,9 +8,9 @@ namespace TagzApp.Web.Pages
 	{
 		private readonly ILogger<IndexModel> _logger;
 		public readonly IConfiguration _Configuration;
-		private readonly InMemoryMessagingService _Service;
+		private readonly IMessagingService _Service;
 
-		public IndexModel(ILogger<IndexModel> logger, IConfiguration configuration, InMemoryMessagingService service)
+		public IndexModel(ILogger<IndexModel> logger, IConfiguration configuration, IMessagingService service)
 		{
 			_logger = logger;
 			_Configuration = configuration;

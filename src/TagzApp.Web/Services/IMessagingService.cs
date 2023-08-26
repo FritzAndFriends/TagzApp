@@ -1,6 +1,6 @@
 ﻿namespace TagzApp.Web.Services;
 
-public interface IMessagingService
+public interface IMessagingService : IHostedService
 {
 	IEnumerable<string> TagsTracked { get; }
 
@@ -10,7 +10,6 @@ public interface IMessagingService
 
 	IEnumerable<Content> GetExistingContentForTag(string tag);
 
-	Task StartAsync(CancellationToken cancellationToken);
-	Task StopAsync(CancellationToken cancellationToken);
+	IEnumerable<ISocialMediaProvider> Providers { get; }
 
 }

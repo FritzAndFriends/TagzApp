@@ -11,8 +11,10 @@ public static class ServicesExtensions
   public static IServiceCollection AddTagzAppHostedServices(this IServiceCollection services, IConfigurationRoot configuration)
   {
 
-    services.AddSingleton<InMemoryMessagingService>();
-    services.AddHostedService(s => s.GetRequiredService<InMemoryMessagingService>());
+		services.AddSingleton<INotifyNewMessages, SignalRNotifier>();
+
+    services.AddSingleton<IMessagingService, InMemoryMessagingService>();
+    services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
 
     return services;
 
