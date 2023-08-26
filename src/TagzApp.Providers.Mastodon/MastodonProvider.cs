@@ -64,7 +64,7 @@ internal class MastodonProvider : ISocialMediaProvider
 			Author = new Creator
 			{
 				DisplayName = m.account!.display_name,
-				UserName = m.account.acct + (m.account.acct.Contains("@") ? "" : $"@{baseServerAddress}" ),
+				UserName = m.account.acct + (m.account.acct.Contains("@") ? "" : $"@{baseServerAddress}"),
 				ProviderId = Id,
 				ProfileImageUri = new Uri(m.account.avatar_static),
 				ProfileUri = new Uri(m.account.url)

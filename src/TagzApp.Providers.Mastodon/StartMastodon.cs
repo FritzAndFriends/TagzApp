@@ -9,9 +9,6 @@ namespace TagzApp.Providers.Mastodon;
 
 public class StartMastodon : IConfigureProvider
 {
-	/// <summary>
-	/// Registers the Mastodon provider to the DI container
-	/// </summary>
 	public IServiceCollection RegisterServices(IServiceCollection services, IConfiguration configuration)
 	{
 		IConfigurationSection config;
