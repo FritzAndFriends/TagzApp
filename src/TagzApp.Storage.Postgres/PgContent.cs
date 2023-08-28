@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 using TagzApp.Common.Models;
 
@@ -15,6 +16,7 @@ internal class PgContent
 	[MaxLength(50)]
 	public string ProviderId { get; set; }
 
+	[MaxLength(50)]
 	public string HashtagSought { get; set; } = string.Empty;
 
 	public ContentType Type { get; set; } = ContentType.Message;
@@ -32,6 +34,7 @@ internal class PgContent
 
 	public string? Emotes { get; set; }
 
+	public PgModerationAction? ModerationAction { get; internal set; }
 
 	public static explicit operator Content(PgContent thisContent)	
 	{

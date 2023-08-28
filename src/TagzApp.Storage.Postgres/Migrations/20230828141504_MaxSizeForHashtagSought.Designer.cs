@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TagzApp.Storage.Postgres;
@@ -11,9 +12,11 @@ using TagzApp.Storage.Postgres;
 namespace TagzApp.Storage.Postgres.Migrations
 {
     [DbContext(typeof(TagzAppContext))]
-    partial class TagzAppContextModelSnapshot : ModelSnapshot
+    [Migration("20230828141504_MaxSizeForHashtagSought")]
+    partial class MaxSizeForHashtagSought
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,8 +42,7 @@ namespace TagzApp.Storage.Postgres.Migrations
 
                     b.Property<string>("HashtagSought")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("text");
 
                     b.Property<long?>("ModerationActionId")
                         .HasColumnType("bigint");
@@ -96,13 +98,11 @@ namespace TagzApp.Storage.Postgres.Migrations
 
                     b.Property<string>("Provider")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ProviderId")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Reason")
                         .HasMaxLength(100)
@@ -124,8 +124,7 @@ namespace TagzApp.Storage.Postgres.Migrations
             modelBuilder.Entity("TagzApp.Storage.Postgres.Tag", b =>
                 {
                     b.Property<string>("Text")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("text");
 
                     b.HasKey("Text");
 
