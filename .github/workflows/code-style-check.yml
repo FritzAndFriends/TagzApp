@@ -1,15 +1,12 @@
 name: code-style-check
 on:
-  push:
-    branches:
-      - feature_code_formatter_action
   pull_request:
     types: opened
+    branches: feature_code_formatter_action
 
 jobs:
 
   get-changed-files:
-    if: github.event.head_commit.committer.email != 'you@example.com'
     runs-on: ubuntu-latest
     outputs:
       cs_files: ${{ steps.cs.outputs.cs_files }}
@@ -21,10 +18,11 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Get diff
+        # TODO: change back to origin/master before merging to PR branch
         run: |
           {
             echo 'diff<<EOF'
-            git diff origin/main --name-status
+            git diff origin/feature_code_check_action --name-status
             echo EOF
           } >> "$GITHUB_ENV"
       - name: Assign C# files to output
@@ -40,7 +38,7 @@ jobs:
         run: |
           {
             echo 'js_css_files<<EOF'
-            echo "$diff" | grep -E "^[ACMR][0-9]{0,3}[[:space:]]+.+\.(js|css)$" | sed -E "s/.*[[:space:]]+//"
+            echo "$diff" | grep -E "^[ACMR][0-9]{0,3}[[:space:]]+.+\.(js|css)$" | sed -E "s/.*[[:space:]]+//" | paste -sd " "
             echo EOF
           } >> "$GITHUB_OUTPUT"
 
@@ -48,38 +46,54 @@ jobs:
     if: needs.get-changed-files.outputs.cs_files != ''
     runs-on: ubuntu-latest
     needs: get-changed-files
+    outputs:
+      dotnet-format-changed-count: ${{ steps.get-dotnet-format-changed-count.outputs.count }}
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
       - name: dotnet format
-        run: dotnet format src/TagzApp.sln --verbosity detailed --include ${{ needs.get-changed-files.outputs.cs_files }}
+        id: dotnet-format
+        run: dotnet format src/TagzApp.sln --verbosity normal --exclude src/TagzApp.Web/Migrations/ --include ${{ needs.get-changed-files.outputs.cs_files }}
+      - name: Get dotnet format changed count
+        id: get-dotnet-format-changed-count
+        run: |
+          count=$(echo "${{ steps.dotnet-format.outputs.stdout }}" | grep -c "Formatted code file")
+          echo "count=$count" >> $GITHUB_OUTPUT
 
   run-prettier:
     if: needs.get-changed-files.outputs.js_css_files != ''
     runs-on: ubuntu-latest
     needs: get-changed-files
+    outputs:
+      prettier-changed-count: ${{ steps.get-prettier-changed-count.outputs.count }}
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
       - name: prettier
+        id: prettier
         uses: creyD/prettier_action@v4.3
         with:
-          prettier_options: --write ${{ needs.get-changed-files.outputs.js_css_files }}
+          prettier_options: --write --end-of-line crlf --use-tabs --tab-width 2 --list-different ${{ needs.get-changed-files.outputs.js_css_files }}
+      - name: Get prettier changed count
+        id: get-prettier-changed-count
+        run: |
+          count=$(echo "${{ steps.prettier.outputs.stdout }}" | grep -cE "\.(js|css)$")
+          echo "count=$count" >> $GITHUB_OUTPUT
     
   run-git-commit:
-    if: needs.get-changed-files.outputs.cs_files != '' || needs.get-changed-files.outputs.js_css_files != ''
+    if: needs.run-dotnet-format.outputs.dotnet-format-changed-count > 0 || needs.run-prettier.outputs.prettier-changed-count > 0
     runs-on: ubuntu-latest
-    needs: [get-changed-files, run-dotnet-format, run-prettier]
+    needs: [run-dotnet-format, run-prettier]
     steps:
       - uses: actions/checkout@v3
       - name: Commit changes
         run: |
-          git config --global user.email "you@example.com"
-          git config --global user.name "Your Name"
-          git add . # files listed by get-changed-files
+          git config --global user.email "code-style-check-action@users.noreply.github.com"
+          git config --global user.name "code-style-check action"
+          git add .
           git commit -m "Apply formatting changes"
           git push
