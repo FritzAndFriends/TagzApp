@@ -25,69 +25,67 @@ public static class ServicesExtensions
 
 		}
 
-    return services;
+		return services;
+	}
 
-  }
+	/// <summary>
+	/// A collection of externally configured providers
+	/// </summary>
+	public static AuthenticationBuilder AddExternalProvider(this AuthenticationBuilder builder, string name,
+		IConfiguration configuration,
+		Action<IConfiguration> action)
+	{
+		var section = configuration.GetSection($"Authentication:{name}");
+		if (section is not null) action(section);
+		return builder;
+	}
 
-  /// <summary>
-  /// A collection of externally configured providers
-  /// </summary>
-  public static AuthenticationBuilder AddExternalProvider(this AuthenticationBuilder builder, string name, IConfiguration configuration,
-    Action<IConfiguration> action)
-  {
-    var section = configuration.GetSection($"Authentication:{name}");
-    if (section is not null) action(section);
-    return builder;
-  }
+	public static AuthenticationBuilder AddExternalProvider(this AuthenticationBuilder builder, string name,
+		IConfiguration configuration,
+		Action<Action<Microsoft.AspNetCore.Authentication.OAuth.OAuthOptions>> action)
+	{
+		return builder.AddExternalProvider(name, configuration, (section) =>
+		{
+			var clientID = section["ClientID"];
+			var clientSecret = section["ClientSecret"];
+			if (!string.IsNullOrEmpty(clientID) && !string.IsNullOrEmpty(clientSecret))
+			{
+				action(options =>
+				{
+					options.ClientId = clientID;
+					options.ClientSecret = clientSecret;
+				});
+			}
+		});
+	}
 
-  public static AuthenticationBuilder AddExternalProvider(this AuthenticationBuilder builder, string name, IConfiguration configuration,
-    Action<Action<Microsoft.AspNetCore.Authentication.OAuth.OAuthOptions>> action)
-  {
-    return builder.AddExternalProvider(name, configuration, (section) => {
-      var clientID = section["ClientID"];
-      var clientSecret = section["ClientSecret"];
-      if (!string.IsNullOrEmpty(clientID) && !string.IsNullOrEmpty(clientSecret))
-      {
-        action(options =>
-        {
-          options.ClientId = clientID;
-          options.ClientSecret = clientSecret;
-        });
-      }
-    });
-  }
+	public static AuthenticationBuilder AddExternalProviders(this AuthenticationBuilder builder,
+		IConfiguration configuration)
+	{
+		builder.AddExternalProvider("Microsoft", configuration, options => builder.AddMicrosoftAccount(options));
+		builder.AddExternalProvider("GitHub", configuration, options => builder.AddGitHub(options));
+		builder.AddExternalProvider("LinkedIn", configuration, options => builder.AddLinkedIn(options));
 
-  public static AuthenticationBuilder AddExternalProviders(this AuthenticationBuilder builder, IConfiguration configuration)
-  {
+		return builder;
+	}
 
-    builder.AddExternalProvider("Microsoft", configuration, options => builder.AddMicrosoftAccount(options));
-    builder.AddExternalProvider("GitHub", configuration, options => builder.AddGitHub(options));
-    builder.AddExternalProvider("LinkedIn", configuration, options => builder.AddLinkedIn(options));
+	public static async Task InitializeSecurity(this IServiceProvider services)
+	{
+		using var scope = services.CreateScope();
 
-    return builder;
+		// create database if not exists
+		var dbContext = scope.ServiceProvider.GetRequiredService<SecurityContext>();
+		await dbContext.Database.EnsureCreatedAsync();
 
-  }
+		var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+		if (!(await roleManager.RoleExistsAsync(Security.Role.Admin)))
+		{
+			await roleManager.CreateAsync(new IdentityRole(Security.Role.Admin));
+		}
 
-  public static async Task InitializeSecurity(this IServiceProvider services)
-  {
-
-    using var scope = services.CreateScope();
-
-    // create database if not exists
-    var dbContext = scope.ServiceProvider.GetRequiredService<SecurityContext>();
-    await dbContext.Database.EnsureCreatedAsync();
-
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    if (!(await roleManager.RoleExistsAsync(Security.Role.Admin)))
-    {
-      await roleManager.CreateAsync(new IdentityRole(Security.Role.Admin));
-    }
-
-    if (!(await roleManager.RoleExistsAsync(Security.Role.Moderator)))
-    {
-      await roleManager.CreateAsync(new IdentityRole(Security.Role.Moderator));
-    }
-
-  }
-
+		if (!(await roleManager.RoleExistsAsync(Security.Role.Moderator)))
+		{
+			await roleManager.CreateAsync(new IdentityRole(Security.Role.Moderator));
+		}
+	}
 }

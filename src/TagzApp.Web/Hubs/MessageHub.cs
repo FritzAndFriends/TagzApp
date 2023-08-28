@@ -13,32 +13,26 @@ public class MessageHub : Hub
     _Service = svc;
   }
 
-  public override async Task OnConnectedAsync()
-  {
-
-    var tags = Context.GetHttpContext()?.Request.Query["t"].ToString();
-    if (!string.IsNullOrEmpty(tags))
-    {
-
-      var tagsRequested = tags.Split(',');
-      foreach (var tag in tagsRequested)
-      {
-        await Groups.AddToGroupAsync(Context.ConnectionId, tag.TrimStart('#').ToLowerInvariant());
-      }
-
-    }
+	public override async Task OnConnectedAsync()
+	{
+		var tags = Context.GetHttpContext()?.Request.Query["t"].ToString();
+		if (!string.IsNullOrEmpty(tags))
+		{
+			var tagsRequested = tags.Split(',');
+			foreach (var tag in tagsRequested)
+			{
+				await Groups.AddToGroupAsync(Context.ConnectionId, tag.TrimStart('#').ToLowerInvariant());
+			}
+		}
 
 		var overlay = Context.GetHttpContext()?.Request.Query["ot"].ToString();
 		if (!string.IsNullOrEmpty(overlay))
 		{
-
 			await Groups.AddToGroupAsync(Context.ConnectionId, FormatOverlayGroupname(overlay));
-
 		}
 
 		await base.OnConnectedAsync();
-
-  }
+	}
 
 	internal static string FormatOverlayGroupname(string overlayForTag)
 	{
@@ -56,7 +50,6 @@ public class MessageHub : Hub
 
 	public async Task SendMessageToOverlay(string tag, string provider, string providerId)
 	{
-
 		var formattedTag = Hashtag.ClearFormatting(tag);
 		var message = await _Service.GetContentByIds(provider, providerId);
 
@@ -64,7 +57,5 @@ public class MessageHub : Hub
 
 		await Clients.Group(FormatOverlayGroupname(formattedTag))
 			.SendAsync("DisplayOverlay", (ContentModel)message);
-
 	}
-
 }

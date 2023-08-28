@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using TagzApp.Web.Services;
 
@@ -12,9 +11,9 @@ public class OverlayModel : PageModel
 		Tag = svc.TagsTracked.Any() ? svc.TagsTracked.First() : string.Empty;
 	}
 
-  public string Tag { get; }
+	public string Tag { get; }
 
-  public void OnGet()
+	public void OnGet()
 	{
 	}
 }
