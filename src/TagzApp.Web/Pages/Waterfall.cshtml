@@ -1,4 +1,5 @@
 ﻿@page
+@inject IConfiguration Configuration
 @model TagzApp.Web.Pages.WaterfallModel
 @{
 	Layout = "_WaterfallLayout";
@@ -45,7 +46,10 @@
 	<script src="~/js/masonry.js" asp-append-version="true"></script>
 	<script>
 
-		window.TagzApp.ListenForApprovedContent("@string.Join(',', Model.Tags)");
+		@if (Configuration["ApprovedContentOnly"] == "true")
+		{
+			window.TagzApp.ListenForApprovedContent("@string.Join(',', Model.Tags)");
+		}
 		window.onload = window.Masonry.resizeAllGridItems();
 		window.addEventListener("resize", Masonry.resizeAllGridItems);
 
