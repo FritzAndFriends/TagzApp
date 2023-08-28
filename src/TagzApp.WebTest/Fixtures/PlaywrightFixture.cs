@@ -1,4 +1,6 @@
 ﻿using C3D.Extensions.Playwright.AspNetCore.Xunit;
+using idunno.Authentication.Basic;
+using System.Security.Claims;
 
 namespace TagzApp.WebTest.Fixtures;
 
@@ -27,6 +29,8 @@ public class PlaywrightFixture : PlaywrightFixture<Web.Program>
 		builder.AddTestConfiguration();
 		builder.UseOnlyStubSocialMediaProvider();
 		builder.UseUniqueDb(_Uniqueid);
+		builder.AddBasicAuthentication();
+
 		var host = base.CreateHost(builder);
 
 		return host;
