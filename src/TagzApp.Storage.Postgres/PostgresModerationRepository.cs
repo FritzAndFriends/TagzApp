@@ -1,16 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TagzApp.Web.Services;
 
 namespace TagzApp.Storage.Postgres;
 
 internal class PostgresModerationRepository : IModerationRepository
 {
 	private readonly TagzAppContext _Context;
-	private readonly IModerationSubscriber _Subscriber;
+	private readonly INotifyNewMessages _Notifier;
 
-	public PostgresModerationRepository(TagzAppContext context, IModerationSubscriber subscriber)
+	public PostgresModerationRepository(TagzAppContext context, INotifyNewMessages notifier)
 	{
 		_Context = context;
-		_Subscriber = subscriber;
+		_Notifier = notifier;
 	}
 
 	public async Task<IEnumerable<Content>> GetApprovedContent(DateTimeOffset dateTimeOffset, int limit)
@@ -74,11 +75,14 @@ internal class PostgresModerationRepository : IModerationRepository
 		_Context.ModerationActions.Add(moderationAction);
 		await _Context.SaveChangesAsync();
 
-		_Subscriber.NotifyOfModeration(
-			Hashtag.ClearFormatting(content.HashtagSought), 
-			(ModerationAction)moderationAction, 
-			(Content)content
-		);
+		Action<string, Content> notify = state switch
+		{
+			ModerationState.Rejected => _Notifier.NotifyRejectedContent,
+			ModerationState.Approved => _Notifier.NotifyApprovedContent,
+			_ => _Notifier.Notify
+		};
+
+		notify(Hashtag.ClearFormatting(content.HashtagSought), (Content)content);
 
 	}
 }

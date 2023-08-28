@@ -7,30 +7,15 @@ namespace TagzApp.Storage.Postgres;
 public class PostgresModerationService : IModerationSubscriber, IDisposable
 {
 
-	private Task _Watching = Task.CompletedTask;
 	private CancellationTokenSource _Source = new();
 	private readonly ConcurrentQueue<ActedOnContent> _Events = new();
 	private bool _DisposedValue;
 
-	private readonly ConcurrentDictionary<string, HashSet<Action<ModerationAction, Content>>> _Actions = new();
 
-	public Task RegisterForNotification(string tag, Action<ModerationAction, Content> onContentModerated)
-	{
-
-		var tagText = Hashtag.ClearFormatting(tag);
-		if (tagText is null) return Task.CompletedTask;
-
-		var actions = _Actions.GetOrAdd(tagText, new HashSet<Action<ModerationAction, Content>>());
-		actions.Add(onContentModerated);
-
-		return Task.CompletedTask;
-
-	}
 
 	public Task StartAsync(CancellationToken cancellationToken)
 	{
 
-		_Watching = Task.Run(WatchForModeration, _Source.Token);
 		return Task.CompletedTask;
 
 	}

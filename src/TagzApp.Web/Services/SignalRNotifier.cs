@@ -22,4 +22,24 @@ public class SignalRNotifier : INotifyNewMessages
 			.SendAsync("NewMessage", (ContentModel)content);
 
 	}
+
+	public void NotifyApprovedContent(string hashtag, Content content)
+	{
+
+		_HubContext.Clients
+			.Group(hashtag)
+			.SendAsync("NewApprovedMessage", (ContentModel)content);
+
+		Notify(hashtag, content);
+	}
+
+	public void NotifyRejectedContent(string hashtag, Content content)
+	{
+		_HubContext.Clients
+			.Group(hashtag)
+			.SendAsync("NewRejectedMessage", (ContentModel)content);
+
+		Notify(hashtag, content);
+
+	}
 }
