@@ -5,7 +5,7 @@ public class Content
 	/// <summary>
 	///   Unique identifier for the content
 	/// </summary>
-	public long Id { get; internal set; }
+	public long Id { get; set; }
 
 	/// <summary>
 	///   Provider that the content came from

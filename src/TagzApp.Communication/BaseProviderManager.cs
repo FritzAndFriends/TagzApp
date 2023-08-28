@@ -1,7 +1,10 @@
-﻿using System.Reflection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System.Reflection;
 using TagzApp.Communication.Extensions;
 
-namespace TagzApp.Web.Services.Base;
+namespace TagzApp.Communication;
 
 public class BaseProviderManager
 {
@@ -37,6 +40,9 @@ public class BaseProviderManager
     {
       foreach (string dllPath in Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories))
       {
+
+				if (dllPath.Contains("Microsoft.") || dllPath.Contains("System.")) continue;
+
         try
         {
           var assembly = Assembly.LoadFrom(dllPath);

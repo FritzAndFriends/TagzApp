@@ -5,9 +5,9 @@ namespace TagzApp.Web.Pages;
 
 public class WaterfallModel : PageModel
 {
-	private readonly InMemoryMessagingService _Service;
+	private readonly IMessagingService _Service;
 
-	public WaterfallModel(InMemoryMessagingService service)
+	public WaterfallModel(IMessagingService service)
   {
 		_Service = service;
 	}
@@ -17,9 +17,9 @@ public class WaterfallModel : PageModel
 	public void OnGet()
 	{
 
-		foreach (var item in _Service.Content)
+		foreach (var item in _Service.TagsTracked)
 		{
-			Tags.Add(item.Key);
+			Tags.Add(item);
 		}
 
 	}
