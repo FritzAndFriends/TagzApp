@@ -1,6 +1,4 @@
 ﻿using C3D.Extensions.Playwright.AspNetCore.Xunit;
-using idunno.Authentication.Basic;
-using System.Security.Claims;
 
 namespace TagzApp.WebTest.Fixtures;
 
