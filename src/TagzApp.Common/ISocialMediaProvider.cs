@@ -1,4 +1,6 @@
-﻿namespace TagzApp.Common;
+﻿using TagzApp.Common.Models;
+
+namespace TagzApp.Common;
 
 /// <summary>
 /// Defines the interface for a Social Media Provider that delivers content to TagzApp

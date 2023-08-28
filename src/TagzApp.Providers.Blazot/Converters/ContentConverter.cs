@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using TagzApp.Common.Models;
 using TagzApp.Providers.Blazot.Constants;
 using TagzApp.Providers.Blazot.Formatters;
 using TagzApp.Providers.Blazot.Interfaces;

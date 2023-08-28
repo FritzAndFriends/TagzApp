@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TagzApp.Common.Models;
 using TagzApp.Communication;
 using TagzApp.Web.Services;
 

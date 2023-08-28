@@ -2,6 +2,7 @@
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using TagzApp.Common.Models;
 using TagzApp.Providers.Youtube;
 using TagzApp.Providers.Youtube.Configuration;
 

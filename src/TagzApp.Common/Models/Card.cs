@@ -1,4 +1,4 @@
-﻿namespace TagzApp.Common;
+﻿namespace TagzApp.Common.Models;
 
 /// <summary>
 ///   A card demonstrating image content associated with a message

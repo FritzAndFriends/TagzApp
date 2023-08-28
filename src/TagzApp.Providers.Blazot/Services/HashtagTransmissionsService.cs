@@ -9,6 +9,7 @@ using TagzApp.Providers.Blazot.Events;
 using TagzApp.Providers.Blazot.Interfaces;
 using TagzApp.Providers.Blazot.Models;
 using Timer = System.Timers.Timer;
+using TagzApp.Common.Models;
 
 namespace TagzApp.Providers.Blazot.Services;
 

@@ -1,6 +1,7 @@
 ﻿// Ignore Spelling: Sut
 
 using Microsoft.Extensions.Logging.Abstractions;
+using TagzApp.Common.Models;
 using TagzApp.Providers.Mastodon;
 using IHttpClientFactory = System.Net.Http.IHttpClientFactory;
 
