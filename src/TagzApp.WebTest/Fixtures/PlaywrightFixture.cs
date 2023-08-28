@@ -24,6 +24,7 @@ public class PlaywrightFixture : PlaywrightFixture<Web.Program>
     //ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
     builder.AddTestConfiguration();
     builder.UseOnlyStubSocialMediaProvider();
+		builder.UseOnlyInMemoryService();
     builder.UseUniqueDb(_Uniqueid);
     var host = base.CreateHost(builder);
 

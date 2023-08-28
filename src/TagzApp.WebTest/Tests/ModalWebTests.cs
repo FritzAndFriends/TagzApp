@@ -18,6 +18,7 @@ public class ModalFixture : PlaywrightPageFixture<Web.Program>
     // ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
     builder.AddTestConfiguration();
     builder.UseOnlyStubSocialMediaProvider();
+		builder.UseOnlyInMemoryService();
     builder.UseUniqueDb(_Uniqueid);
     return base.CreateHost(builder);
   }
