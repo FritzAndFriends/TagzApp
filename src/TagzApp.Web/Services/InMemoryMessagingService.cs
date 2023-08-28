@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 using TagzApp.Communication;
 using TagzApp.Web.Hubs;
@@ -6,7 +7,8 @@ namespace TagzApp.Web.Services;
 
 public class InMemoryMessagingService : BaseProviderManager, IMessagingService
 {
-	private InMemoryContentMessaging? _Service = default;
+
+	private InMemoryContentMessaging _Service = default;
 
 	private readonly ILogger<InMemoryMessagingService> _Logger;
 	private readonly INotifyNewMessages _NotifyNewMessages;
@@ -63,16 +65,26 @@ public class InMemoryMessagingService : BaseProviderManager, IMessagingService
 			});
 
 		return Task.CompletedTask;
+
 	}
 
 	public Task<IEnumerable<Content>> GetExistingContentForTag(string tag)
 	{
 
-		if (!_Service._LoadedContent.ContainsKey(tag.TrimStart('#').ToLowerInvariant())) return Enumerable.Empty<Content>();
+		if (!_Service._LoadedContent.ContainsKey(tag.TrimStart('#').ToLowerInvariant())) return Task.FromResult(Enumerable.Empty<Content>());
+
+		return Task.FromResult(_Service._LoadedContent[tag.TrimStart('#').ToLowerInvariant()].AsEnumerable());
+
+	}
+
+	public async Task<Content?> GetContentByIds(string provider, string providerId)
+	{
 
 		return _Content.First().Value
 			.FirstOrDefault(c => c.Provider == provider && c.ProviderId == providerId);
 
 	}
+
+	public IEnumerable<string> TagsTracked => _Content.Keys;
 
 }
