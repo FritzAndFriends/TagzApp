@@ -1,4 +1,7 @@
-﻿namespace TagzApp.WebTest.Fixtures;
+﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+using TagzApp.Web.Services;
+
+namespace TagzApp.WebTest.Fixtures;
 
 public static class FixtureExtensions
 {
@@ -60,3 +63,22 @@ public static class FixtureExtensions
 		}
 	}
 }
+
+
+public static class InMemoryServiceExtensions
+{
+	public static IServiceCollection UseOnlyInMemoryService(this IServiceCollection services)
+	{
+		services.RemoveAll<IMessagingService>();
+		services.AddSingleton<IMessagingService, InMemoryMessagingService>();
+		services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
+		return services;
+	}
+
+	public static IHostBuilder UseOnlyInMemoryService(this IHostBuilder builder) =>
+		builder.ConfigureServices(services => services.UseOnlyInMemoryService());
+
+	public static IWebHostBuilder UseOnlyInMemoryService(this IWebHostBuilder builder) =>
+		builder.ConfigureServices(services => services.UseOnlyInMemoryService());
+}
+

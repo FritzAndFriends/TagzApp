@@ -7,11 +7,23 @@ namespace TagzApp.Web;
 
 public static class ServicesExtensions
 {
-	public static IServiceCollection AddTagzAppHostedServices(this IServiceCollection services,
-		IConfigurationRoot configuration)
-	{
-		services.AddSingleton<InMemoryMessagingService>();
-		services.AddHostedService(s => s.GetRequiredService<InMemoryMessagingService>());
+
+  public static IServiceCollection AddTagzAppHostedServices(this IServiceCollection services, IConfigurationRoot configuration)
+  {
+
+		services.AddSingleton<INotifyNewMessages, SignalRNotifier>();
+
+		if (!string.IsNullOrEmpty(configuration.GetConnectionString("TagzApp")))
+		{
+			services.AddPostgresServices(configuration);
+		}
+		else
+		{
+
+			services.AddSingleton<IMessagingService, InMemoryMessagingService>();
+			services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
+
+		}
 
 		return services;
 	}

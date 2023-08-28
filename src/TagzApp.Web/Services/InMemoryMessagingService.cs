@@ -1,33 +1,33 @@
-﻿using System.Collections.Concurrent;
 using Microsoft.AspNetCore.SignalR;
-using TagzApp.Web.Data;
+using System.Collections.Concurrent;
+using TagzApp.Communication;
 using TagzApp.Web.Hubs;
-using TagzApp.Web.Services.Base;
 
 namespace TagzApp.Web.Services;
 
-public class InMemoryMessagingService : BaseProviderManager, IHostedService
+public class InMemoryMessagingService : BaseProviderManager, IMessagingService
 {
-	private InMemoryContentMessaging? _Service = default;
 
-	private readonly IHubContext<MessageHub> _HubContext;
+	private InMemoryContentMessaging _Service = default;
+
 	private readonly ILogger<InMemoryMessagingService> _Logger;
+	private readonly INotifyNewMessages _NotifyNewMessages;
 
 	public InMemoryMessagingService(
 		IConfiguration configuration,
-		IHubContext<MessageHub> hubContext,
 		ILogger<InMemoryMessagingService> logger,
+		INotifyNewMessages notifyNewMessages,
 		IEnumerable<ISocialMediaProvider>? socialMediaProviders = null
 	) : base(configuration, logger, socialMediaProviders)
 	{
-		_HubContext = hubContext;
 		_Logger = logger;
+		_NotifyNewMessages = notifyNewMessages;
 	}
 
 	/// <summary>
 	/// A collection of the tags and the content found for them.
 	/// </summary>
-	public readonly Dictionary<string, ConcurrentBag<Content>> Content = new();
+	private readonly Dictionary<string, ConcurrentBag<Content>> _Content = new Dictionary<string, ConcurrentBag<Content>>();
 
 	#region Hosted Service Implementation
 
@@ -50,29 +50,41 @@ public class InMemoryMessagingService : BaseProviderManager, IHostedService
 
 	public Task AddHashtagToWatch(string tag)
 	{
-		if (!Content.ContainsKey(Hashtag.ClearFormatting(tag)))
-		{
-			// Check hastag without #
-			Content.Add(Hashtag.ClearFormatting(tag), new ConcurrentBag<Content>());
+
+		if (!_Content.ContainsKey(Hashtag.ClearFormatting(tag)))
+		{   // Check hashtag without #
+			_Content.Add(Hashtag.ClearFormatting(tag), new ConcurrentBag<Content>());
 		}
 
 		_Service.SubscribeToContent(new Hashtag() { Text = tag },
 			c =>
 			{
-				Content[c.HashtagSought.TrimStart('#')].Add(c);
-				_HubContext.Clients
-					.Group(c.HashtagSought.TrimStart('#').ToLowerInvariant())
-					.SendAsync("NewMessage", (ContentModel)c);
+				_Content[c.HashtagSought.TrimStart('#')].Add(c);
+				_NotifyNewMessages.Notify(Hashtag.ClearFormatting(c.HashtagSought), c);
 				//_Logger.LogInformation($"Message found for tag '{c.HashtagSought}': {c.Text}");
 			});
 
 		return Task.CompletedTask;
+
 	}
 
-	public IEnumerable<Content> GetExistingContentForTag(string tag)
+	public Task<IEnumerable<Content>> GetExistingContentForTag(string tag)
 	{
-		if (!_Service._LoadedContent.ContainsKey(tag.TrimStart('#').ToLowerInvariant())) return Enumerable.Empty<Content>();
 
-		return _Service._LoadedContent[tag.TrimStart('#').ToLowerInvariant()];
+		if (!_Service._LoadedContent.ContainsKey(tag.TrimStart('#').ToLowerInvariant())) return Task.FromResult(Enumerable.Empty<Content>());
+
+		return Task.FromResult(_Service._LoadedContent[tag.TrimStart('#').ToLowerInvariant()].AsEnumerable());
+
 	}
+
+	public async Task<Content?> GetContentByIds(string provider, string providerId)
+	{
+
+		return _Content.First().Value
+			.FirstOrDefault(c => c.Provider == provider && c.ProviderId == providerId);
+
+	}
+
+	public IEnumerable<string> TagsTracked => _Content.Keys;
+
 }
