@@ -1,8 +1,10 @@
-﻿using idunno.Authentication.Basic;
+using idunno.Authentication.Basic;
 using Microsoft.AspNetCore.Identity;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using TagzApp.Web.Services;
 
 namespace TagzApp.WebTest.Fixtures;
 
@@ -65,7 +67,6 @@ public static class FixtureExtensions
 			await Task.Delay(delay);
 		}
 	}
-
 	public static IEnumerable<KeyValuePair<string, string>> BasicAuthHeaders(this PlaywrightFixture _, string role)
 	{
 		var rawUserPassword = Encoding.UTF8.GetBytes($"{role}:{role}");
@@ -140,5 +141,22 @@ public static class FixtureExtensions
 					};
 				})
 				.Services;
+}
 
+
+public static class InMemoryServiceExtensions
+{
+	public static IServiceCollection UseOnlyInMemoryService(this IServiceCollection services)
+	{
+		services.RemoveAll<IMessagingService>();
+		services.AddSingleton<IMessagingService, InMemoryMessagingService>();
+		services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
+		return services;
+	}
+
+	public static IHostBuilder UseOnlyInMemoryService(this IHostBuilder builder) =>
+		builder.ConfigureServices(services => services.UseOnlyInMemoryService());
+
+	public static IWebHostBuilder UseOnlyInMemoryService(this IWebHostBuilder builder) =>
+		builder.ConfigureServices(services => services.UseOnlyInMemoryService());
 }

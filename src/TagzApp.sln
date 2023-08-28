@@ -39,6 +39,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Providers.TwitchCha
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Providers.Blazot", "TagzApp.Providers.Blazot\TagzApp.Providers.Blazot.csproj", "{B19CCF63-B77D-4FF0-9F90-D7AB65423748}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Storage.Postgres", "TagzApp.Storage.Postgres\TagzApp.Storage.Postgres.csproj", "{95D763E5-52F5-4155-A888-C66A686BA6EB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,6 +87,10 @@ Global
 		{B19CCF63-B77D-4FF0-9F90-D7AB65423748}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B19CCF63-B77D-4FF0-9F90-D7AB65423748}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B19CCF63-B77D-4FF0-9F90-D7AB65423748}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95D763E5-52F5-4155-A888-C66A686BA6EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95D763E5-52F5-4155-A888-C66A686BA6EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95D763E5-52F5-4155-A888-C66A686BA6EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95D763E5-52F5-4155-A888-C66A686BA6EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -100,6 +106,7 @@ Global
 		{65459852-E2D6-47B9-911F-D3E09BD12816} = {99E0BB3F-9591-4C7A-A8EE-C54B0C3DE7A5}
 		{8D0F679C-307A-4861-8B78-E7BCF95A5750} = {99E0BB3F-9591-4C7A-A8EE-C54B0C3DE7A5}
 		{B19CCF63-B77D-4FF0-9F90-D7AB65423748} = {99E0BB3F-9591-4C7A-A8EE-C54B0C3DE7A5}
+		{95D763E5-52F5-4155-A888-C66A686BA6EB} = {370455D5-6EA6-44C1-B315-B621F7B6A954}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F2AD77A5-5B2D-41FC-AD37-8EF8A4E54410}

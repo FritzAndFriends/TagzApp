@@ -6,12 +6,12 @@ namespace TagzApp.Web.Hubs;
 
 public class MessageHub : Hub
 {
-	private readonly InMemoryMessagingService _Service;
+  private readonly IMessagingService _Service;
 
-	public MessageHub(InMemoryMessagingService svc)
-	{
-		_Service = svc;
-	}
+  public MessageHub(IMessagingService svc)
+  {
+    _Service = svc;
+  }
 
 	public override async Task OnConnectedAsync()
 	{
@@ -39,22 +39,23 @@ public class MessageHub : Hub
 		return "overlay_" + overlayForTag.TrimStart('#').ToLowerInvariant();
 	}
 
-	public IEnumerable<ContentModel> GetExistingContentForTag(string tag)
-	{
-		return _Service.GetExistingContentForTag(tag)
-			.Select(c => (ContentModel)c)
-			.ToArray();
-	}
+	public async Task<IEnumerable<ContentModel>> GetExistingContentForTag(string tag)
+  {
 
-	public void SendMessageToOverlay(string tag, string provider, string providerId)
+    return (await _Service.GetExistingContentForTag(tag))
+      .Select(c => (ContentModel)c)
+      .ToArray();
+
+  }
+
+	public async Task SendMessageToOverlay(string tag, string provider, string providerId)
 	{
 		var formattedTag = Hashtag.ClearFormatting(tag);
-		var message = _Service.Content[formattedTag]
-			.FirstOrDefault(c => c.Provider == provider && c.ProviderId == providerId);
+		var message = await _Service.GetContentByIds(provider, providerId);
 
 		if (message is null) return;
 
-		Clients.Group(FormatOverlayGroupname(formattedTag))
+		await Clients.Group(FormatOverlayGroupname(formattedTag))
 			.SendAsync("DisplayOverlay", (ContentModel)message);
 	}
 }

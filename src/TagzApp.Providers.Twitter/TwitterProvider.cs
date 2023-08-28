@@ -106,7 +106,7 @@ public class TwitterProvider : ISocialMediaProvider
 
 				var c = new Content
 				{
-					Provider = "TWITTER",
+					Provider = this.Id,
 					ProviderId = t.id,
 					Author = new Creator
 					{
@@ -134,7 +134,7 @@ public class TwitterProvider : ISocialMediaProvider
 
 						c.PreviewCard = new Card
 						{
-							AltText = thisUrl.title,
+							AltText = thisUrl?.title ?? "",
 							Height = thisImage.height,
 							Width = thisImage.width,
 							ImageUri = new Uri(thisImage.url),
@@ -153,9 +153,9 @@ public class TwitterProvider : ISocialMediaProvider
 						c.PreviewCard = new Card
 						{
 							AltText = thisMedia.alt_text ?? "",
-							Height = thisMedia.height.Value,
-							Width = thisMedia.width.Value,
-							ImageUri = new Uri(thisMedia.preview_image_url),
+							Height = thisMedia.height ?? 0,
+							Width = thisMedia.width ?? 0,
+							ImageUri = new Uri(thisMedia.preview_image_url ?? "about:blank"),
 						};
 
 					}
