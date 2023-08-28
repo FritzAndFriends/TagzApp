@@ -9,16 +9,18 @@ internal class PostgresMessaging : IDisposable
 {
 	private bool _DisposedValue;
 
-	private CancellationTokenSource _CancellationTokenSource;
+	private CancellationTokenSource _CancellationTokenSource = new();
 	private List<Task> _ProviderTasks = new List<Task>();
 	internal readonly Dictionary<string, ConcurrentQueue<Content>> Queue = new();
 	private readonly Dictionary<string, ConcurrentBag<Action<Content>>> _Actions = new();
 	private static IServiceProvider _Services;
-
+	private readonly Task _QueueWatcher;
 
 	public PostgresMessaging(IServiceProvider services)
 	{
 		_Services = _Services ?? services;
+		_QueueWatcher = Task.Run(DispatchFromQueue);
+
 	}
 
 	internal void StartProviders(IEnumerable<ISocialMediaProvider> providers, CancellationToken cancellationToken)
@@ -55,11 +57,13 @@ internal class PostgresMessaging : IDisposable
 						var providerIds = contentIdentified.Select(c => c.ProviderId).Distinct().ToArray();
 						lastQueryTime = DateTime.UtcNow;
 
+						if (!contentIdentified.Any()) continue;
+
 						// de-dupe with in-database collection
 						var inDb = await context.Content.AsNoTracking()
-							.Where(c => c.Provider == provider.Id && providerIds.Any(i => i == c.ProviderId))
-							.Select(c => c.ProviderId)
-							.ToArrayAsync();
+						.Where(c => c.Provider == provider.Id && providerIds.Any(i => i == c.ProviderId))
+						.Select(c => c.ProviderId)
+						.ToArrayAsync();
 						contentIdentified = contentIdentified
 							.ExceptBy(inDb, c => c.ProviderId)
 							.ToArray();
@@ -92,17 +96,18 @@ internal class PostgresMessaging : IDisposable
 	public Task PublishContentAsync(Hashtag tag, Content newContent)
 	{
 
-		if (!Queue.ContainsKey(tag.Text))
+		var tagText = Hashtag.ClearFormatting(tag.Text);
+
+		if (!Queue.ContainsKey(tagText))
 		{
-			Queue.Add(tag.Text, new ConcurrentQueue<Content>());
+			Queue.Add(tagText, new ConcurrentQueue<Content>());
 		}
 
-		Queue[tag.Text].Enqueue(newContent);
+		Queue[tagText].Enqueue(newContent);
 
 		return Task.CompletedTask;
 
 	}
-
 
 	internal void SubscribeToContent(Hashtag tag, Action<Content> onNewContent)
 	{
@@ -114,6 +119,30 @@ internal class PostgresMessaging : IDisposable
 
 		_Actions[Hashtag.ClearFormatting(tag.Text)].Add(onNewContent);
 
+	}
+
+	private async Task DispatchFromQueue()
+	{
+		var token = _CancellationTokenSource.Token;
+
+		while (!token.IsCancellationRequested)
+		{
+			foreach (var queue in Queue)
+			{
+				if (queue.Value.TryDequeue(out var content))
+				{
+					if (_Actions.ContainsKey(queue.Key))
+					{
+						foreach (var action in _Actions[queue.Key])
+						{
+							action(content);
+						}
+					}
+				}
+			}
+
+			await Task.Delay(100);
+		}
 	}
 
 	#region Dispose Pattern Stuff
