@@ -85,8 +85,17 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 		_TagsTracked.AddRange((await ctx.TagsWatched.ToArrayAsync()).Select(t => t.Text));
 
 		InitProviders();
-		_Service = new PostgresMessaging();
+		_Service = new PostgresMessaging(_Services);
 		_Service.StartProviders(Providers, cancellationToken);
+
+		foreach (var tag in _TagsTracked)
+		{
+			_Service.SubscribeToContent(new Hashtag() { Text = tag },
+				c =>
+				{
+					_NotifyNewMessages.Notify(Hashtag.ClearFormatting(c.HashtagSought), c);
+				});
+		}
 
 	}
 

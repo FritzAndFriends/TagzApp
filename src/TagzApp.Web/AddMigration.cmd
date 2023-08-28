@@ -1,1 +1,0 @@
-dotnet ef migrations add --context TagzApp.Storage.Postgres.TagzAppContext -p ..\TagzApp.Storage.Postgres\ %1

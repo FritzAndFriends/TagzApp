@@ -106,7 +106,7 @@ public class TwitterProvider : ISocialMediaProvider
 
 				var c = new Content
 				{
-					Provider = "TWITTER",
+					Provider = this.Id,
 					ProviderId = t.id,
 					Author = new Creator
 					{

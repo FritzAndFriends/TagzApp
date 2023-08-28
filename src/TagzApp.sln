@@ -39,7 +39,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Providers.TwitchCha
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Providers.Blazot", "TagzApp.Providers.Blazot\TagzApp.Providers.Blazot.csproj", "{B19CCF63-B77D-4FF0-9F90-D7AB65423748}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagzApp.Storage.Postgres", "TagzApp.Storage.Postgres\TagzApp.Storage.Postgres.csproj", "{95D763E5-52F5-4155-A888-C66A686BA6EB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Storage.Postgres", "TagzApp.Storage.Postgres\TagzApp.Storage.Postgres.csproj", "{95D763E5-52F5-4155-A888-C66A686BA6EB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

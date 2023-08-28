@@ -13,10 +13,17 @@ public static class ServicesExtensions
 
 		services.AddSingleton<INotifyNewMessages, SignalRNotifier>();
 
-		services.AddPostgresServices(configuration);
+		if (!string.IsNullOrEmpty(configuration.GetConnectionString("TagzApp")))
+		{
+			services.AddPostgresServices(configuration);
+		}
+		else
+		{
 
-		services.AddSingleton<IMessagingService, InMemoryMessagingService>();
-    services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
+			services.AddSingleton<IMessagingService, InMemoryMessagingService>();
+			services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
+
+		}
 
     return services;
 
