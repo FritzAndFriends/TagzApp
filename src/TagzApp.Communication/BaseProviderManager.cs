@@ -61,7 +61,10 @@ public class BaseProviderManager
               }
             }
           }
-        } catch(Exception ex) {
+				} catch (BadImageFormatException) {
+					_Logger.LogWarning($"Skipping {dllPath} - not a .NET dll");
+				}
+				catch (Exception ex) {
           _Logger.LogWarning(ex, $"Skipping {dllPath} due to error");
         }
       }
