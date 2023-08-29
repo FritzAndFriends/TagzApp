@@ -77,7 +77,7 @@ jobs:
         id: prettier
         uses: creyD/prettier_action@v4.3
         with:
-          prettier_options: --write --end-of-line crlf --use-tabs --tab-width 2 --list-different ${{ needs.get-changed-files.outputs.js_css_files }}
+          prettier_options: --write --config .prettierrc --ignore-path .prettierignore --list-different ${{ needs.get-changed-files.outputs.js_css_files }}
       - name: Get prettier changed count
         id: get-prettier-changed-count
         run: |
