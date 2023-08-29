@@ -17,8 +17,7 @@ a {
   border-color: #1861ac;
 }
 
-.nav-pills .nav-link.active,
-.nav-pills .show > .nav-link {
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
   color: #fff;
   background-color: #1b6ec2;
   border-color: #1861ac;
@@ -32,7 +31,7 @@ a {
 }
 
 .box-shadow {
-  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
+  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
 }
 
 button.accept-policy {
@@ -49,52 +48,52 @@ button.accept-policy {
 }
 
 #floatingHeader {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 1000;
+	position: fixed;
+	top: 0;
+	width: 100%;
+	z-index: 1000;
 }
 
 .scrollOut {
-  animation-name: scrollUp;
-  animation-duration: 2s;
-  animation-fill-mode: forwards;
+	animation-name: scrollUp;
+	animation-duration: 2s;
+	animation-fill-mode: forwards;
 }
 
 .scrollIn {
-  animation-name: scrollIn;
-  animation-duration: 1s;
-  animation-fill-mode: forwards;
+	animation-name: scrollIn;
+	animation-duration: 1s;
+	animation-fill-mode: forwards;
 }
 
 #headerButton {
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  z-index: 900;
+	position: fixed;
+	top: 10px;
+	right: 10px;
+	z-index: 900;
 }
 
 @keyframes scrollUp {
-  from {
-    top: 0;
-  }
+	from {
+		top: 0;
+	}
 
-  to {
-    top: -200px;
-  }
+	to {
+		top: -200px;
+	}
 }
 
 @keyframes scrollIn {
-  from {
-    top: -200px;
-  }
+	from {
+		top: -200px;
+	}
 
-  to {
-    top: 0;
-  }
+	to {
+		top: 0;
+	}
 }
 
 .container {
-  padding-right: 0 !important;
-  padding-left: 0 !important;
+	padding-right: 0 !important;
+	padding-left: 0 !important;
 }
