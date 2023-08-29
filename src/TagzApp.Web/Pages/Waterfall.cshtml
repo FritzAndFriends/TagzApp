@@ -46,10 +46,8 @@
 	<script src="~/js/masonry.js" asp-append-version="true"></script>
 	<script>
 
-		@if (Configuration["ApprovedContentOnly"] == "true")
-		{
-			window.TagzApp.ListenForApprovedContent("@string.Join(',', Model.Tags)");
-		}
+		window.TagzApp.ListenForWaterfallContent("@string.Join(',', Model.Tags)");
+
 		window.onload = window.Masonry.resizeAllGridItems();
 		window.addEventListener("resize", Masonry.resizeAllGridItems);
 

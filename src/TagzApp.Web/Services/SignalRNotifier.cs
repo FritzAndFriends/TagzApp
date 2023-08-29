@@ -7,19 +7,27 @@ namespace TagzApp.Web.Services;
 
 public class SignalRNotifier : INotifyNewMessages
 {
-	private readonly IHubContext<MessageHub> _HubContext;
 
-	public SignalRNotifier(IHubContext<MessageHub> hubContext)
+	private readonly IHubContext<MessageHub> _HubContext;
+	private bool _ModerationEnabled = false;
+
+	public SignalRNotifier(IHubContext<MessageHub> hubContext, IConfiguration configuration)
 	{
 		_HubContext = hubContext;
+		_ModerationEnabled = configuration.GetValue<bool>("ModerationEnabled", false);
 	}
 
 	public void Notify(string hashtag, Content content)
 	{
 
-		_HubContext.Clients
-			.Group(hashtag)
-			.SendAsync("NewMessage", (ContentModel)content);
+		if (!_ModerationEnabled)
+		{
+
+			_HubContext.Clients
+				.Group(hashtag)
+				.SendAsync("NewWaterfallMessage", (ContentModel)content);
+
+		}
 
 	}
 
@@ -31,6 +39,7 @@ public class SignalRNotifier : INotifyNewMessages
 			.SendAsync("NewApprovedMessage", (ContentModel)content);
 
 		Notify(hashtag, content);
+
 	}
 
 	public void NotifyRejectedContent(string hashtag, Content content)
@@ -38,8 +47,6 @@ public class SignalRNotifier : INotifyNewMessages
 		_HubContext.Clients
 			.Group(hashtag)
 			.SendAsync("NewRejectedMessage", (ContentModel)content);
-
-		Notify(hashtag, content);
 
 	}
 }

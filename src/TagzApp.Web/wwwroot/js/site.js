@@ -160,7 +160,7 @@
 
 		Tags: [],
 
-		ListenForApprovedContent: async function (tags, state) {
+		ListenForWaterfallContent: async function (tags) {
 
 			var tagCsv = encodeURI(tags);
 			t.Tags = tags.split(",");
@@ -171,16 +171,9 @@
 				.configureLogging(signalR.LogLevel.Information)
 				.build();
 
-			if (state == "") {
-				connection.on("NewApprovedMessage", (content) => {
-					FormatMessage(content);
-				});
-			}
-			else if (state == "Approved") {
-				connection.on("NewApprovedMessage", (content) => {
-					FormatMessage(content);
-				});
-			}
+			connection.on("NewWaterfallMessage", (content) => {
+				FormatMessage(content);
+			});
 
 			// Start the connection.
 			await start();

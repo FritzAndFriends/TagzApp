@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
+using System.Security.Claims;
 using TagzApp.Common.Models;
 using TagzApp.Web.Data;
 using TagzApp.Web.Services;
@@ -60,4 +62,21 @@ public class MessageHub : Hub
 			.SendAsync("DisplayOverlay", (ContentModel)message);
 	}
 
+}
+
+// TODO: set up authorization to get existing content for tag, for the waterfall
+// docs at:  https://learn.microsoft.com/en-us/aspnet/core/signalr/authn-and-authz?view=aspnetcore-7.0
+
+public class UserIdProvider : IUserIdProvider
+{
+
+	public UserIdProvider(UserManager<IdentityUser> userManager)
+	{
+		
+	}
+
+	public string? GetUserId(HubConnectionContext connection)
+	{
+		return connection.User?
+	}
 }
