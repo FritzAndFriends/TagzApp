@@ -15,7 +15,7 @@ public interface IModerationRepository
 
 	Task<IEnumerable<Content>> GetApprovedContent(DateTimeOffset dateTimeOffset, int limit);
 
-	Task<IEnumerable<Content>> GetPendingContent(DateTimeOffset dateTimeOffset, int limit);
+	Task<IEnumerable<Content>> GetAllContent(DateTimeOffset dateTimeOffset, int limit);
 
 	Task<IEnumerable<Content>> GetRejectedContent(DateTimeOffset dateTimeOffset, int limit);
 

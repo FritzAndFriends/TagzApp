@@ -86,6 +86,18 @@ public class InMemoryMessagingService : BaseProviderManager, IMessagingService
 
 	}
 
+	public Task<IEnumerable<Content>> GetApprovedContentByTag(string tag)
+	{
+
+		return Task.FromResult(Enumerable.Empty<Content>());
+
+	}
+
+	public Task<IEnumerable<(Content, ModerationAction)>> GetContentByTagForModeration(string tag)
+	{
+		throw new NotImplementedException();
+	}
+
 	public IEnumerable<string> TagsTracked => _Content.Keys;
 
 }

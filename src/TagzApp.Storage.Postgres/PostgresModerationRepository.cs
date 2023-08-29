@@ -28,7 +28,7 @@ internal class PostgresModerationRepository : IModerationRepository
 
 	}
 
-	public async Task<IEnumerable<Content>> GetPendingContent(DateTimeOffset dateTimeOffset, int limit)
+	public async Task<IEnumerable<Content>> GetAllContent(DateTimeOffset dateTimeOffset, int limit)
 	{
 
 		return (await _Context.Content.AsNoTracking()
@@ -75,14 +75,13 @@ internal class PostgresModerationRepository : IModerationRepository
 		_Context.ModerationActions.Add(moderationAction);
 		await _Context.SaveChangesAsync();
 
-		Action<string, Content> notify = state switch
+		Action<string, Content, ModerationAction> notify = state switch
 		{
-			ModerationState.Rejected => _Notifier.NotifyRejectedContent,
 			ModerationState.Approved => _Notifier.NotifyApprovedContent,
-			_ => _Notifier.Notify
+			_ => _Notifier.NotifyRejectedContent,
 		};
 
-		notify(Hashtag.ClearFormatting(content.HashtagSought), (Content)content);
+		notify(Hashtag.ClearFormatting(content.HashtagSought), (Content)content, (ModerationAction)moderationAction);
 
 	}
 }

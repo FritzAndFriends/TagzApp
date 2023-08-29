@@ -9,11 +9,14 @@ namespace TagzApp.Web.Hubs;
 
 public class MessageHub : Hub
 {
-  private readonly IMessagingService _Service;
 
-  public MessageHub(IMessagingService svc)
+  private readonly IMessagingService _Service;
+	private bool ModerationEnabled = false;
+
+  public MessageHub(IMessagingService svc, IConfiguration configuration)
   {
     _Service = svc;
+		ModerationEnabled = configuration.GetValue<bool>("ModerationEnabled", false);
   }
 
 	public override async Task OnConnectedAsync()
@@ -44,6 +47,12 @@ public class MessageHub : Hub
 
 	public async Task<IEnumerable<ContentModel>> GetExistingContentForTag(string tag)
   {
+
+		if (ModerationEnabled) {
+			return (await _Service.GetApprovedContentByTag(tag))
+			.Select(c => (ContentModel)c)
+			.ToArray();
+		}
 
     return (await _Service.GetExistingContentForTag(tag))
       .Select(c => (ContentModel)c)

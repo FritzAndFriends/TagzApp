@@ -13,6 +13,10 @@ public interface IMessagingService : IHostedService
 
 	Task<IEnumerable<Content>> GetExistingContentForTag(string tag);
 
+	Task<IEnumerable<(Content, ModerationAction?)>> GetContentByTagForModeration(string tag);
+
+	Task<IEnumerable<Content>> GetApprovedContentByTag(string tag);
+
 	IEnumerable<ISocialMediaProvider> Providers { get; }
 
 }

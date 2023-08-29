@@ -9,11 +9,13 @@ public class SignalRNotifier : INotifyNewMessages
 {
 
 	private readonly IHubContext<MessageHub> _HubContext;
+	private readonly IHubContext<ModerationHub, IModerationClient> _ModContext;
 	private bool _ModerationEnabled = false;
 
-	public SignalRNotifier(IHubContext<MessageHub> hubContext, IConfiguration configuration)
+	public SignalRNotifier(IHubContext<MessageHub> hubContext, IHubContext<ModerationHub, IModerationClient> modContext, IConfiguration configuration)
 	{
 		_HubContext = hubContext;
+		_ModContext = modContext;
 		_ModerationEnabled = configuration.GetValue<bool>("ModerationEnabled", false);
 	}
 
@@ -27,26 +29,31 @@ public class SignalRNotifier : INotifyNewMessages
 				.Group(hashtag)
 				.SendAsync("NewWaterfallMessage", (ContentModel)content);
 
+		} else {
+
+			_ModContext.Clients
+				.Group(hashtag)
+				.NewWaterfallMessage(ModerationContentModel.ToModerationContentModel(content));
+
 		}
 
 	}
 
-	public void NotifyApprovedContent(string hashtag, Content content)
+	public void NotifyApprovedContent(string hashtag, Content content, ModerationAction action)
 	{
 
-		_HubContext.Clients
+		_ModContext.Clients
 			.Group(hashtag)
-			.SendAsync("NewApprovedMessage", (ContentModel)content);
-
-		Notify(hashtag, content);
+			.NewApprovedMessage(ModerationContentModel.ToModerationContentModel(content, action));
 
 	}
 
-	public void NotifyRejectedContent(string hashtag, Content content)
+	public void NotifyRejectedContent(string hashtag, Content content, ModerationAction action)
 	{
-		_HubContext.Clients
+		_ModContext.Clients
 			.Group(hashtag)
-			.SendAsync("NewRejectedMessage", (ContentModel)content);
+			.NewRejectedMessage(ModerationContentModel.ToModerationContentModel(content, action));
 
 	}
+
 }
