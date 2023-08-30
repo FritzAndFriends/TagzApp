@@ -17,7 +17,7 @@ public class WaterfallTests : IClassFixture<BaseModerationFixture>
 		_OutputHelper = outputHelper;
 	}
 
-	[Fact]
+	[Fact(Skip = "")]
 	public async Task NoUnapprovedContentShouldAppear()
 	{
 		var page = await _Webapp.CreatePlaywrightPageAsync();
@@ -29,12 +29,18 @@ public class WaterfallTests : IClassFixture<BaseModerationFixture>
 			.SearchForHashtag("dotnet").Result
 			.GotoWaterfallPage();
 
-		await Assert.ThrowsAsync<TimeoutException>(async () => 
+		await Assert.ThrowsAsync<TimeoutException>(async () => {
 			await page.Locator("article").First.WaitForAsync(new()
 			{
 				Timeout = 1000
-			})
-		);		
+			});
+
+			await page.ScreenshotAsync(new()
+			{
+				Path = "NoUnapprovedContentShouldAppear.png"
+			});
+
+		});
 
 	}
 

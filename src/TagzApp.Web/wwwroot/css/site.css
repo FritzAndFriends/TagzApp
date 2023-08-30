@@ -311,7 +311,7 @@ article.status-approved {
 }
 
 article.status-rejected {
-	background-color: lightcoral !important;
+	background-color: #FF8787 !important;
 }
 
 	article.status-rejected .time::after {
@@ -320,6 +320,10 @@ article.status-rejected {
 		margin-left: 0.5em;
 		color: firebrick;
 		margin-bottom: 1em;
+	}
+
+	article.status-rejected .author, article.status-rejected .authorUserName, article.status-rejected .time {
+		color: #555!important;
 	}
 
 	article.status-approved .time::after {

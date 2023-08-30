@@ -72,21 +72,3 @@ public class MessageHub : Hub
 	}
 
 }
-
-// TODO: set up authorization to get existing content for tag, for the waterfall
-// docs at:  https://learn.microsoft.com/en-us/aspnet/core/signalr/authn-and-authz?view=aspnetcore-7.0
-
-public class UserIdProvider : IUserIdProvider
-{
-
-	public UserIdProvider(UserManager<IdentityUser> userManager)
-	{
-		
-	}
-
-	public string? GetUserId(HubConnectionContext connection)
-	{
-		return "";
-		//return connection.User?
-	}
-}
