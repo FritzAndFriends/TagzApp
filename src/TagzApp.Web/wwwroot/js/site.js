@@ -172,6 +172,13 @@
 
 			hovered.insertBefore(hoverPanel, hovered.firstElementChild);
 
+			//hovered.addEventListener("mouseout", function (ev) {
+
+			//	var thisOne = ev.target.closest('article');
+			//	thisOne.querySelector("#moderationAction").remove();
+
+			//});
+
 		});
 
 
