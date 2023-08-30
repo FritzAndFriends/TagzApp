@@ -1,13 +1,5 @@
 {
   "tabWidth": 2,
   "useTabs": true,
-  "endOfLine": "crlf",
-  "overrides": [
-    {
-      "files": "*.cshtml",
-      "options": {
-        "parser": "html"
-      }
-    }
-  ]
+  "endOfLine": "crlf"
 }
