@@ -172,12 +172,11 @@
 
 			hovered.insertBefore(hoverPanel, hovered.firstElementChild);
 
-			//hovered.addEventListener("mouseout", function (ev) {
+			hoverPanel.addEventListener("mouseleave", function (ev) {
 
-			//	var thisOne = ev.target.closest('article');
-			//	thisOne.querySelector("#moderationAction").remove();
+				hoverPanel.remove();
 
-			//});
+			});
 
 		});
 
