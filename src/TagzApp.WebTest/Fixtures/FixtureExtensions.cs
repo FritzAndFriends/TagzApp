@@ -1,4 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+using idunno.Authentication.Basic;
+using Microsoft.AspNetCore.Identity;
+using System.Net.Http.Headers;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using TagzApp.Web.Services;
 
 namespace TagzApp.WebTest.Fixtures;
@@ -62,6 +67,80 @@ public static class FixtureExtensions
 			await Task.Delay(delay);
 		}
 	}
+	public static IEnumerable<KeyValuePair<string, string>> BasicAuthHeaders(this PlaywrightFixture _, string role)
+	{
+		var rawUserPassword = Encoding.UTF8.GetBytes($"{role}:{role}");
+		var base64UserPassword = Convert.ToBase64String(rawUserPassword);
+		var auth = new AuthenticationHeaderValue(scheme: BasicAuthenticationDefaults.AuthenticationScheme, base64UserPassword);
+		yield return new KeyValuePair<string, string>("Authorization", auth.ToString());
+	}
+
+	public static async Task<C3D.Extensions.Playwright.AspNetCore.Utilities.PlaywrightContextPage> CreateAuthorisedPlaywrightBrowserPageAsync(
+		this PlaywrightFixture fixture, string role) =>
+		await fixture.CreatePlaywrightContextPageAsync(contextOptions: options => options.ExtraHTTPHeaders = fixture.BasicAuthHeaders(role));
+
+	/// <summary>
+	/// Registers a basic authentication scheme that succeeds for password==username and assigns the role of the username
+	/// </summary>
+	public static IHostBuilder AddBasicAuthentication(this IHostBuilder builder) =>
+		builder.ConfigureServices(services => services.AddBasicAuthentication());
+
+	/// <summary>
+	/// Registers a basic authentication scheme that succeeds for password==username and assigns the role of the username
+	/// </summary>
+	public static IServiceCollection AddBasicAuthentication(this IServiceCollection services)
+		=> services
+				.AddAuthentication(BasicAuthenticationDefaults.AuthenticationScheme)
+				.AddBasic(options =>
+				{
+					options.Realm = "Test Realm";
+					options.Events = new BasicAuthenticationEvents
+					{
+						OnValidateCredentials = async context =>
+						{
+							if (context.Username == context.Password)
+							{
+
+								var claims = new[]
+									{
+										// Set UserName
+										new Claim(
+												ClaimTypes.NameIdentifier,
+												context.Username,
+												ClaimValueTypes.String,
+												context.Options.ClaimsIssuer),
+										// Set DisplayName
+										new Claim(
+												ClaimTypes.Name,
+												context.Username,
+												ClaimValueTypes.String,
+												context.Options.ClaimsIssuer)
+									};
+
+								// This bit is probably overkill for our testing needs.
+								// Simply adding the role, regardless of whether it exists, to the claim is enough to get this to work.
+								// But, in case there is anything else added to the system in the future, we lookup the role and any custom claims.
+								var roleManager = context.HttpContext.RequestServices.GetRequiredService<RoleManager<IdentityRole>>();
+								var role = await roleManager.FindByNameAsync(context.Username);
+								IList<Claim> roleClaims = (role is not null ? await roleManager.GetClaimsAsync(role) : null) ?? Enumerable.Empty<Claim>().ToList();
+								if (role is not null)
+								{
+									roleClaims.Add(
+										new Claim(
+												ClaimTypes.Role,
+												context.Username,
+												ClaimValueTypes.String,
+												context.Options.ClaimsIssuer));
+								}
+
+								context.Principal = new ClaimsPrincipal(
+										new ClaimsIdentity(claims.Concat(roleClaims), context.Scheme.Name));
+								context.Success();
+							}
+						}
+					};
+				})
+				.Services;
 }
 
 
@@ -81,4 +160,3 @@ public static class InMemoryServiceExtensions
 	public static IWebHostBuilder UseOnlyInMemoryService(this IWebHostBuilder builder) =>
 		builder.ConfigureServices(services => services.UseOnlyInMemoryService());
 }
-
