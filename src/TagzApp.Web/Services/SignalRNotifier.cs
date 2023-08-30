@@ -22,20 +22,9 @@ public class SignalRNotifier : INotifyNewMessages
 	public void Notify(string hashtag, Content content)
 	{
 
-		if (!_ModerationEnabled)
-		{
-
-			_HubContext.Clients
-				.Group(hashtag)
-				.SendAsync("NewWaterfallMessage", (ContentModel)content);
-
-		} else {
-
-			_ModContext.Clients
-				.Group(hashtag)
-				.NewWaterfallMessage(ModerationContentModel.ToModerationContentModel(content));
-
-		}
+		_HubContext.Clients
+			.Group(hashtag)
+			.SendAsync("NewWaterfallMessage", (ContentModel)content);
 
 	}
 
@@ -50,6 +39,11 @@ public class SignalRNotifier : INotifyNewMessages
 
 	public void NotifyRejectedContent(string hashtag, Content content, ModerationAction action)
 	{
+
+		_HubContext.Clients
+			.Group(hashtag)
+			.SendAsync("RemoveMessage", content.Provider, content.ProviderId);
+
 		_ModContext.Clients
 			.Group(hashtag)
 			.NewRejectedMessage(ModerationContentModel.ToModerationContentModel(content, action));

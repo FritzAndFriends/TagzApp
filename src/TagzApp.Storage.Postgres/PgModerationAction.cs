@@ -2,7 +2,7 @@
 
 namespace TagzApp.Storage.Postgres;
 
-public class PgModerationAction
+internal class PgModerationAction
 {
 
 	public long Id { get; set; }
@@ -22,6 +22,10 @@ public class PgModerationAction
 	public string? Moderator { get; set; }
 
 	public required DateTimeOffset Timestamp { get; set; } = DateTimeOffset.UtcNow;
+
+	public PgContent? Content { get; set; }
+
+	public long ContentId { get; internal set; }
 
 	public static explicit operator PgModerationAction(ModerationAction action)
 	{

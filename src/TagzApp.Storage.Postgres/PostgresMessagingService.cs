@@ -111,10 +111,12 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 
 	public async Task<IEnumerable<Content>> GetApprovedContentByTag(string tag)
 	{
-	
+
+		tag = $"#{tag}";
+
 		using var scope = _Services.CreateScope();
 		var ctx = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
-		return await ctx.Content.AsNoTracking()
+		var outRecords = await ctx.Content.AsNoTracking()
 			.Include(c => c.ModerationAction)
 			.Where(c => c.HashtagSought == tag && 
 					c.ModerationAction != null && 
@@ -123,6 +125,8 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 			.Take(50)
 			.Select(c => (Content)c)
 			.ToListAsync();
+
+		return outRecords;
 
 	}
 
@@ -151,4 +155,5 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 		return outResults;
 
 	}
+
 }

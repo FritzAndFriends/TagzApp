@@ -2,6 +2,12 @@
 
 	var connection;
 
+	const ModerationState = {
+		Pending		: 0,
+		Approved	: 1,
+		Rejected	: 2
+	}
+
 	const taggedContent = document.getElementById("taggedContent");
 	const observer = new MutationObserver(function (mutationsList, observer) {
 		for (const mutation of mutationsList) {
@@ -136,6 +142,10 @@
 
 		const newMessage = document.createElement("article");
 		newMessage.classList.add("moderation");
+
+		if (content.state == ModerationState.Approved) newMessage.classList.add("status-approved");
+		if (content.state == ModerationState.Rejected) newMessage.classList.add("status-rejected");
+
 		newMessage.setAttribute("data-url", content.sourceUri);
 		newMessage.setAttribute("data-provider", content.provider);
 		newMessage.setAttribute("data-providerid", content.providerId);
@@ -160,27 +170,8 @@
 			`
 		}
 
-		newMessage.addEventListener("mouseenter", function (ev) {
-
-			var hovered = ev.target.closest('article');
-			if (hovered.querySelector("#moderationAction")) return;
-
-			var hoverPanel = document.getElementById("moderationAction").cloneNode(true);
-			hoverPanel.style.display = "";
-
-			console.log("found you");
-
-			hovered.insertBefore(hoverPanel, hovered.firstElementChild);
-
-			hoverPanel.addEventListener("mouseleave", function (ev) {
-
-				hoverPanel.remove();
-
-			});
-
-		});
-
-
+		newMessage.addEventListener("mouseenter", showModerationPanel);
+		newMessage.addEventListener("click", showModerationPanel);		// for touch-screen support
 
 		const newest = getDateFromElement(taggedContent.firstElementChild);
 		const oldest = getDateFromElement(taggedContent.lastElementChild);
@@ -193,6 +184,44 @@
 			const index = getIndexForValue(times, newMessageTime);
 			taggedContent.insertBefore(newMessage, taggedContent.children[index]);
 		}
+
+	}
+
+	function showModerationPanel(ev) {
+
+		var hovered = ev.target.closest('article');
+		if (hovered.querySelector("#moderationAction")) return;
+
+		var hoverPanel = document.getElementById("moderationAction").cloneNode(true);
+		hoverPanel.style.display = "";
+		hoverPanel.classList.add("active_panel");
+
+		hoverPanel.querySelector("i.approve").addEventListener("click", function (ev) {
+			connection.invoke("SetStatus", hovered.getAttribute("data-provider"), hovered.getAttribute("data-providerid"), ModerationState.Approved);
+			hoverPanel.remove();
+			hovered.classList.remove("status-rejected");
+			hovered.classList.add("status-approved");
+		});
+
+		hoverPanel.querySelector("i.reject").addEventListener("click", function (ev) {
+			connection.invoke("SetStatus", hovered.getAttribute("data-provider"), hovered.getAttribute("data-providerid"), ModerationState.Rejected);
+			hoverPanel.remove();
+			hovered.classList.remove("status-approved");
+			hovered.classList.add("status-rejected");
+		});
+
+		hovered.insertBefore(hoverPanel, hovered.firstElementChild);
+
+		hoverPanel.addEventListener("mouseleave", function (ev) {
+
+			ev.target.closest("#moderationAction").remove();
+			var panels = document.querySelectorAll(".active_panel");
+			panels.forEach(function (panel) {
+				panel.remove();
+			});
+
+
+		});
 
 	}
 
@@ -243,6 +272,13 @@
 
 			connection.on("NewWaterfallMessage", (content) => {
 				FormatMessage(content);
+			});
+
+			connection.on("RemoveMessage", (provider, providerId) => {
+
+				var item = document.querySelector(`[data-providerid='${providerId}']`);
+				if (item) item.remove();
+
 			});
 
 			// Start the connection.

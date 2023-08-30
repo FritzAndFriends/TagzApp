@@ -277,7 +277,7 @@ span.invisible {
 	}
 
 	.modal-header .btn-close {
-		padding-right: 0!important;
+		padding-right: 0 !important;
 	}
 
 #moderationAction {
@@ -294,14 +294,38 @@ span.invisible {
 	opacity: 0.7;
 }
 
-#moderationAction i {
-	width: 50%;
-	text-align: center;
-	font-size: 4em;
-	color: #777;
+	#moderationAction i {
+		width: 50%;
+		text-align: center;
+		font-size: 4em;
+		color: #777;
+	}
+
+		#moderationAction i:hover {
+			color: #333;
+			cursor: pointer;
+		}
+
+article.status-approved {
+	background-color: lightgreen !important;
 }
 
-	#moderationAction i:hover {
-		color: #333;
-		cursor: pointer;
+article.status-rejected {
+	background-color: lightcoral !important;
+}
+
+	article.status-rejected .time::after {
+		content: "Rejected";
+		font-weight: bold;
+		margin-left: 0.5em;
+		color: firebrick;
+		margin-bottom: 1em;
+	}
+
+	article.status-approved .time::after {
+		content: "Approved";
+		font-weight: bold;
+		margin-left: 0.5em;
+		color: forestgreen;
+		margin-bottom: 1em;
 	}

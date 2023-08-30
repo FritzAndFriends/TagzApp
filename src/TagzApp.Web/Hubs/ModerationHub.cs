@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using TagzApp.Web.Data;
 using TagzApp.Web.Services;
@@ -10,12 +11,17 @@ public class ModerationHub : Hub<IModerationClient>
 {
 
 	private readonly IMessagingService _Service;
+	private readonly IModerationRepository _Repository;
+	private readonly UserManager<IdentityUser> _UserManager;
 	private bool ModerationEnabled = false;
 
-	public ModerationHub(IMessagingService svc, IConfiguration configuration)
+	public ModerationHub(IMessagingService svc, IConfiguration configuration, IModerationRepository repository, UserManager<IdentityUser> userManager)
 	{
 		_Service = svc;
+		_Repository = repository;
+		_UserManager = userManager;
 		ModerationEnabled = configuration.GetValue<bool>("ModerationEnabled", false);
+
 	}
 
 	public override async Task OnConnectedAsync()
@@ -43,12 +49,25 @@ public class ModerationHub : Hub<IModerationClient>
 
 	}
 
+	public async Task SetStatus(string provider, string providerId, ModerationState newState)
+	{
+
+		if (!ModerationEnabled || Context.User is null)
+		{
+			return;
+		}
+
+		var thisUser = await _UserManager.GetUserAsync(Context.User);
+		await _Repository.Moderate(thisUser?.NormalizedUserName ?? thisUser.Email, provider, providerId, newState);
+
+	}
+
 }
 
 public interface IModerationClient
 {
 
-	Task NewWaterfallMessage(ModerationContentModel model);
+	Task NewWaterfallMessage(ContentModel model);
 
 	Task NewApprovedMessage(ModerationContentModel model);
 

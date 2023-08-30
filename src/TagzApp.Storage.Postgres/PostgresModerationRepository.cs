@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.CodeAnalysis;
 using TagzApp.Web.Services;
 
 namespace TagzApp.Storage.Postgres;
@@ -64,15 +65,25 @@ internal class PostgresModerationRepository : IModerationRepository
 			.FirstOrDefaultAsync();
 		if (content is null) throw new ArgumentOutOfRangeException("Unable to find content with ProviderId specified");
 
+		var existingModAction = await _Context.ModerationActions.FirstOrDefaultAsync(m => m.Provider == provider && m.ProviderId == providerId);
+		if (existingModAction is not null)
+		{
+			_Context.ModerationActions.Remove(existingModAction);
+			content.ModerationAction = null;
+			await _Context.SaveChangesAsync();
+		}
+
 		var moderationAction = new PgModerationAction
 		{
 			Moderator = userId,
 			Provider = provider,
 			ProviderId = providerId,
 			State = state,
-			Timestamp = DateTimeOffset.UtcNow
+			Timestamp = DateTimeOffset.UtcNow,
+			ContentId = content.Id
 		};
 		_Context.ModerationActions.Add(moderationAction);
+		content.ModerationAction = moderationAction;
 		await _Context.SaveChangesAsync();
 
 		Action<string, Content, ModerationAction> notify = state switch
@@ -81,7 +92,9 @@ internal class PostgresModerationRepository : IModerationRepository
 			_ => _Notifier.NotifyRejectedContent,
 		};
 
-		notify(Hashtag.ClearFormatting(content.HashtagSought), (Content)content, (ModerationAction)moderationAction);
+		var outContent = (Content)content;
+		notify(Hashtag.ClearFormatting(content.HashtagSought), outContent, (ModerationAction)moderationAction);
+		if (state != ModerationState.Rejected) _Notifier.Notify(Hashtag.ClearFormatting(content.HashtagSought), outContent);
 
 	}
 }
