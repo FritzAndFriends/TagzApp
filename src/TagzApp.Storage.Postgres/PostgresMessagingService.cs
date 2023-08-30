@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TagzApp.Common.Models;
 using TagzApp.Communication;
 using TagzApp.Web.Services;
 
@@ -106,4 +108,52 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 		return Task.CompletedTask;
 
 	}
+
+	public async Task<IEnumerable<Content>> GetApprovedContentByTag(string tag)
+	{
+
+		tag = $"#{tag}";
+
+		using var scope = _Services.CreateScope();
+		var ctx = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
+		var outRecords = await ctx.Content.AsNoTracking()
+			.Include(c => c.ModerationAction)
+			.Where(c => c.HashtagSought == tag && 
+					c.ModerationAction != null && 
+					c.ModerationAction.State == ModerationState.Approved)
+			.OrderByDescending(c => c.Timestamp)
+			.Take(50)
+			.Select(c => (Content)c)
+			.ToListAsync();
+
+		return outRecords;
+
+	}
+
+	public async Task<IEnumerable<(Content, ModerationAction?)>> GetContentByTagForModeration(string tag)
+	{
+
+		tag = $"#{tag}";
+
+		using var scope = _Services.CreateScope();
+		var ctx = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
+		var contentResults = await ctx.Content.AsNoTracking()
+			.Include(c => c.ModerationAction)
+			.Where(c => c.HashtagSought == tag)
+			.OrderByDescending(c => c.Timestamp)
+			.Take(100)
+			.ToListAsync();
+
+		var outResults = new List<(Content, ModerationAction?)> ();
+		foreach (var c in contentResults)
+		{
+
+			outResults.Add(((Content)c, c.ModerationAction is null ? null : (ModerationAction)c.ModerationAction));
+
+		}
+
+		return outResults;
+
+	}
+
 }

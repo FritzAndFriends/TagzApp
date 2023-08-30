@@ -99,12 +99,12 @@ public class Card
 	public string embed_url { get; set; } = string.Empty;
 	public string blurhash { get; set; } = string.Empty;
 
-	public static explicit operator Common.Card?(Card card)
+	public static explicit operator Common.Models.Card?(Card card)
 	{
 
 		if (card?.image is null) return null;
 
-		return new Common.Card
+		return new Common.Models.Card
 		{
 			ImageUri = new Uri(card.image),
 			AltText = card.title,
@@ -145,12 +145,12 @@ public class MediaAttachment
 	public object description { get; set; }
 	public string blurhash { get; set; }
 
-	public static implicit operator Common.Card(MediaAttachment mediaAttachment)
+	public static implicit operator Common.Models.Card(MediaAttachment mediaAttachment)
 	{
 
 		if (mediaAttachment is null) return null;
 
-		return new Common.Card
+		return new Common.Models.Card
 		{
 			ImageUri = new Uri(mediaAttachment.url),
 			AltText = mediaAttachment.description?.ToString(),

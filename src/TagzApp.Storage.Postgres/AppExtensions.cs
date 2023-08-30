@@ -19,6 +19,8 @@ public static class AppExtensions
 		services.AddSingleton<IMessagingService, PostgresMessagingService>();
 		services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
 
+		services.AddScoped<IModerationRepository, PostgresModerationRepository>();
+
 		return services;
 
 	}

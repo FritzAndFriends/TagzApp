@@ -1,4 +1,6 @@
-﻿namespace TagzApp.UnitTest.InMemoryMessaging.GivenNoSubscribers;
+﻿using TagzApp.Common.Models;
+
+namespace TagzApp.UnitTest.InMemoryMessaging.GivenNoSubscribers;
 
 public class WhenPublishingMessages : BaseFixture
 {

@@ -10,18 +10,24 @@
 	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 	<link rel="stylesheet" href="~/TagzApp.Web.styles.css" asp-append-version="true" />
-		<link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
-		<link rel="stylesheet" href="_content/TagzApp.Providers.Blazot/css/blazot.css" />
+	<link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
+	<link rel="stylesheet" href="_content/TagzApp.Providers.Blazot/css/blazot.css" />
 </head>
 <body style="overflow-y: hidden;">
 
-	<div id="floatingHeader" class="scrollOut">
-		<partial name="_Header" />
-	</div>
+	@if (string.IsNullOrEmpty(ViewBag.EnableFloatingHeader?.ToString()) ? false : ViewBag.EnableFloatingHeader)
+	{
+		<div id="floatingHeader" class="scrollOut">
+			<partial name="_Header" />
+		</div>
 
-	<div id="headerButton" class="btn">
-		<i class="bi bi-three-dots"></i>
-	</div>
+		<div id="headerButton" class="btn">
+			<i class="bi bi-three-dots"></i>
+		</div>
+	} else
+	{
+		<partial name="_Header" />
+	}
 
 	<div class="container" style="max-width: 1800px">
 		<main role="main" class="pb-3">
@@ -34,6 +40,8 @@
 	<script src="~/lib/microsoft-signalr/signalr.min.js"></script>
 	<script src="~/js/site.js" asp-append-version="true"></script>
 
+	@if (string.IsNullOrEmpty(ViewBag.EnableFloatingHeader?.ToString()) ? false : ViewBag.EnableFloatingHeader)
+	{
 	<script>
 
 
@@ -52,7 +60,8 @@
 				floatingHeader.classList.add("scrollIn");
 			});
 		});
-		</script>
+	</script>
+	}
 
 	@await RenderSectionAsync("Scripts", required: false)
 </body>

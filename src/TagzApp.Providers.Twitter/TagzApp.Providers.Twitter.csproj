@@ -50,14 +50,16 @@
             Log.LogMessage(MessageImportance.Normal, 
                 "EmbeddedResource Src : " + sourceItemSpec);
                   
-            using (var sourceStream = File.OpenRead(sourcePath))
-            using (var destinationStream = File.OpenWrite(destinationPath))
-            using (var destinationGZip = new GZipStream(destinationStream, 
-              CompressionLevel.Optimal))
-            {
-                sourceStream.CopyTo(destinationGZip);
-            }
-                  
+            using (var sourceStream = File.OpenRead(sourcePath)) {
+							using (var destinationStream = File.OpenWrite(destinationPath)) {
+								using (var destinationGZip = new GZipStream(destinationStream, 
+									CompressionLevel.Optimal))
+								{
+										sourceStream.CopyTo(destinationGZip);
+								}
+							}
+						}
+                                    
             var destinationItem = new TaskItem(destinationItemSpec);
             
             Log.LogMessage(MessageImportance.Normal, 

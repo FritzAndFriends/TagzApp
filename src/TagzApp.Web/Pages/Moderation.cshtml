@@ -1,4 +1,36 @@
 ﻿@page
 @model TagzApp.Web.Pages.ModerationModel
 @{
+	Layout = "_WaterfallLayout";
 }
+
+<div class="row">
+	<div class="col-md-12">
+		<h1 class="text-center">Moderate Content for TagzApp (@Model.Tags.Select(t => $"#{t}").First())</h1>
+	</div>
+</div>
+
+<div id="taggedContent" class="">
+
+</div>
+
+<div id="moderationAction" style="display: none;">
+	<i class="bi bi-check2 approve" title="Approve this content"></i>
+	<i class="bi bi-x-circle-fill reject" title="Reject this content"></i>
+</div>
+
+
+@section Scripts {
+
+	<script src="~/js/masonry.js" asp-append-version="true"></script>
+	<script>
+
+		window.TagzApp.ListenForModerationContent("@Model.Tags.First()");
+
+		window.onload = window.Masonry.resizeAllGridItems();
+		window.addEventListener("resize", Masonry.resizeAllGridItems);
+
+	</script>
+
+}
+
