@@ -4,6 +4,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <UserSecretsId>0f9dd444-11d7-4e93-9078-7afa06b29285</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,6 +21,7 @@
   <ItemGroup>
     <PackageReference Include="C3D.Extensions.Playwright.AspNetCore.Xunit" Version="0.1.25" />
     <PackageReference Include="Xunit.SkippableFact" Version="1.4.13" />
+    <PackageReference Include="idunno.Authentication.Basic" Version="2.3.1" />
   </ItemGroup>
 
   <ItemGroup>

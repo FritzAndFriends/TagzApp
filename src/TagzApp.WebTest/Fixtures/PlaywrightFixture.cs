@@ -28,6 +28,7 @@ public class PlaywrightFixture : PlaywrightFixture<Web.Program>
     builder.UseOnlyStubSocialMediaProvider();
 		builder.UseOnlyInMemoryService();
     builder.UseUniqueDb(_Uniqueid);
+    builder.AddBasicAuthentication();
     var host = base.CreateHost(builder);
 
 		return host;
