@@ -12,11 +12,11 @@ namespace TagzApp.Web.Pages
 
 		public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
-		private readonly ILogger<ErrorModel> _logger;
+		private readonly ILogger<ErrorModel> _Logger;
 
 		public ErrorModel(ILogger<ErrorModel> logger)
 		{
-			_logger = logger;
+			_Logger = logger;
 		}
 
 		public void OnGet()
