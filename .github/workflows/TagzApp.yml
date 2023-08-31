@@ -1,8 +1,12 @@
-name: Build and deploy .NET Core application to Web App TagzApp
+name: Deploy Web to Azure
 on:
   push:
     branches:
     - main
+  workflow_dispatch:
+    branches: [	"main" ]
+ 
+
 env:
   AZURE_WEBAPP_NAME: TagzApp
   AZURE_WEBAPP_PACKAGE_PATH: ./published
