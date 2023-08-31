@@ -8,6 +8,8 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class AppExtensions
 {
 
+	private static Task _MigrateTask = Task.CompletedTask;
+
 	public static IServiceCollection AddPostgresServices(this IServiceCollection services, IConfiguration configuration)
 	{
 
@@ -20,6 +22,10 @@ public static class AppExtensions
 		services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
 
 		services.AddScoped<IModerationRepository, PostgresModerationRepository>();
+
+		using var builtServices = services.BuildServiceProvider();
+		var ctx = builtServices.GetRequiredService<TagzAppContext>();
+		_MigrateTask = ctx.Database.MigrateAsync();
 
 		return services;
 
