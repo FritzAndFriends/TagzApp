@@ -1,66 +1,96 @@
 name: code-style-check
-on: pull_request
+on:
+  pull_request:
+    types: opened
+    branches: main
 
 jobs:
 
-  get-changed-files:
+  code-formatting:
     runs-on: ubuntu-latest
-    outputs:
-      cs_files: ${{ steps.cs.outputs.cs_files }}
-      js_css_files: ${{ steps.js_css.outputs.js_css_files }}
+    permissions:
+      contents: write
+    
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
-      - name: Get diff
-        run: |
-          {
-            echo 'diff<<EOF'
-            git diff origin/main --name-status
-            echo EOF
-          } >> "$GITHUB_ENV"
-      - name: Assign C# files to output
-        id: cs
-        run: |
-          {
-            echo 'cs_files<<EOF'
-            echo "$diff" | grep -E "^[ACMR][0-9]{0,3}[[:space:]]+.+\.cs$" | sed -E "s/.*[[:space:]]+//" | paste -sd " "
-            echo EOF
-          } >> "$GITHUB_OUTPUT"
-      - name: Assign JS/CSS files to output
-        id: js_css
-        run: |
-          {
-            echo 'js_css_files<<EOF'
-            echo "$diff" | grep -E "^[ACMR][0-9]{0,3}[[:space:]]+.+\.(js|css)$" | sed -E "s/.*[[:space:]]+//"
-            echo EOF
-          } >> "$GITHUB_OUTPUT"
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        ref: ${{ github.head_ref }}
+    - name: Get git diff
+      id: diff
+      run: |
+        git fetch origin ${{ github.base_ref }}
+        {
+          echo 'files<<EOF'
+          git diff origin/${{ github.base_ref }} --name-only --diff-filter=d -- "*.css" "*.js" "*.cs"
+          echo EOF
+        } >> "$GITHUB_OUTPUT"
+    
+    - name: Get changed C# files
+      id: changed_cs
+      run: |
+        {
+          echo 'files<<EOF'
+          echo "${{ steps.diff.outputs.files }}" | grep -E "\.cs$" | paste -sd " "
+          echo EOF
+        } >> "$GITHUB_OUTPUT"
+    - name: Add formatting rules to .editorconfig
+      if: steps.changed_cs.outputs.files != ''
+      run: |
+        echo "" >> src/.editorconfig
+        echo "[*.cs]" >> src/.editorconfig
+        echo "dotnet_diagnostic.IDE0005.severity = error" >> src/.editorconfig # Remove unnecessary using directives
+        echo "dotnet_diagnostic.IDE0090.severity = error" >> src/.editorconfig # Simplify new expression
+        echo "dotnet_diagnostic.IDE0003.severity = error" >> src/.editorconfig # this and Me preferences
+        echo "dotnet_diagnostic.IDE0009.severity = error" >> src/.editorconfig # this and Me preferences
+    - name: Setup .NET
+      if: steps.changed_cs.outputs.files != ''
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 7.0.x
+    - name: Run dotnet format
+      if: steps.changed_cs.outputs.files != ''
+      id: dotnet-format
+      run: |
+        echo "Running dotnet format on: ${{ steps.changed_cs.outputs.files }}"
+        result=$(dotnet format src/TagzApp.sln --verbosity normal --exclude src/TagzApp.Web/Migrations --include ${{ steps.changed_cs.outputs.files }})
+        echo "Format result:"
+        echo "$result"
+        count=$(echo "$result" | grep -c "Formatted code file" || true)
+        echo "Number of files Format formatted: $count"
+        echo "count=$count" >> "$GITHUB_OUTPUT"
+      
+    - name: Get changed JS/CSS files
+      id: changed_js_css
+      run: |
+        {
+          echo 'files<<EOF'
+          echo "${{ steps.diff.outputs.files }}" | grep -E "\.(js|css)$" | paste -sd " "
+          echo EOF
+        } >> "$GITHUB_OUTPUT"
+    - name: Setup Node
+      if: steps.changed_js_css.outputs.files != ''
+      uses: actions/setup-node@v3
+      with:
+        node-version: lts/*
+    - name: Run prettier
+      if: steps.changed_js_css.outputs.files != ''
+      id: prettier
+      run: |
+        echo "Running prettier on: ${{ steps.changed_js_css.outputs.files }}"
+        npm install prettier
+        result=$(npx prettier --write --list-different ${{ steps.changed_js_css.outputs.files }})
+        echo "Prettier result:"
+        echo "$result"
+        count=$(echo "$result" | grep -cE "\.(js|css)$" || true)
+        echo "Number of files Prettier formatted: $count"
+        echo "count=$count" >> "$GITHUB_OUTPUT"
 
-  run-dotnet-format:
-    if: needs.get-changed-files.outputs.cs_files != ''
-    runs-on: ubuntu-latest
-    needs: get-changed-files
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
-      - name: dotnet format
-        run: dotnet format src/TagzApp.sln --verbosity detailed --verify-no-changes --include ${{ needs.get-changed-files.outputs.cs_files }}
-
-  run-prettier:
-    if: needs.get-changed-files.outputs.js_css_files != ''
-    runs-on: ubuntu-latest
-    needs: get-changed-files
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
-      - name: prettier
-        uses: creyD/prettier_action@v4.3
-        with:
-          prettier_options: --write ${{ needs.get-changed-files.outputs.js_css_files }}
-          dry: true
+    - name: Commit if changes
+      if: steps.prettier.outputs.count > 0 || steps.dotnet-format.outputs.count > 0
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git add *.cs *.js *.css
+        git commit -m "Applying formatting changes through GitHub Actions"
+        git push
