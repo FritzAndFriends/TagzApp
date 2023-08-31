@@ -42,6 +42,8 @@ jobs:
         echo "[*.cs]" >> src/.editorconfig
         echo "dotnet_diagnostic.IDE0005.severity = error" >> src/.editorconfig # Remove unnecessary using directives
         echo "dotnet_diagnostic.IDE0090.severity = error" >> src/.editorconfig # Simplify new expression
+        echo "dotnet_diagnostic.IDE0003.severity = error" >> src/.editorconfig # this and Me preferences
+        echo "dotnet_diagnostic.IDE0009.severity = error" >> src/.editorconfig # this and Me preferences
     - name: Run dotnet format
       if: steps.changed_cs.outputs.files != ''
       id: dotnet-format
