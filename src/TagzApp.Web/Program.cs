@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TagzApp.Communication.Extensions;
@@ -41,6 +42,11 @@ public class Program
 			options.Conventions.AuthorizePage("/Moderation", Security.Policy.Moderator);
 		});
 
+		builder.Services.Configure<ForwardedHeadersOptions>(options =>
+		{
+			options.ForwardedHeaders = ForwardedHeaders.All;
+		});
+
 		builder.Services.AddTagzAppHostedServices(builder.Configuration);
 
 		builder.Services.AddSignalR();
@@ -55,7 +61,11 @@ public class Program
 		{
 			app.UseExceptionHandler("/Error");
 			// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+			app.UseForwardedHeaders();
 			app.UseHsts();
+		} else {
+			app.UseDeveloperExceptionPage();
+			app.UseForwardedHeaders();
 		}
 
 		//app.UseHttpsRedirection();
