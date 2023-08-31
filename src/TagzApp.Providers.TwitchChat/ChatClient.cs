@@ -1,21 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using Microsoft.Extensions.Logging;
-using System;
-using Microsoft.Extensions.Options;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Net.Http;
 using System.Net.Sockets;
-using System.Net.WebSockets;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace TagzApp.Providers.TwitchChat;
 
@@ -29,13 +15,13 @@ public class ChatClient : IChatClient
 	private StreamWriter _OutputStream;
 	private int _Retries;
 	private Task _ReceiveMassagesTask;
-	private MemoryStream _ReceiveStream = new MemoryStream();
+	private MemoryStream _ReceiveStream = new();
 
-	internal static readonly Regex reUserName = new Regex(@"!([^@]+)@");
-	internal static readonly Regex reBadges = new Regex(@"badges=([^;]*)");
-	internal static readonly Regex reDisplayName = new Regex(@"display-name=([^;]*)");
-	internal static readonly Regex reTimestamp = new Regex(@"tmi-sent-ts=(\d+)");
-	internal static readonly Regex reMessageId = new Regex(@"id=([^;]*)");
+	internal static readonly Regex reUserName = new(@"!([^@]+)@");
+	internal static readonly Regex reBadges = new(@"badges=([^;]*)");
+	internal static readonly Regex reDisplayName = new(@"display-name=([^;]*)");
+	internal static readonly Regex reTimestamp = new(@"tmi-sent-ts=(\d+)");
+	internal static readonly Regex reMessageId = new(@"id=([^;]*)");
 
 	internal static Regex reChatMessage;
 	internal static Regex reWhisperMessage;
@@ -49,10 +35,10 @@ public class ChatClient : IChatClient
 	internal ChatClient(string channelName, string chatBotName, string oauthToken, ILogger logger)
 	{
 
-		this.ChannelName = channelName;
-		this.ChatBotName = chatBotName;
+		ChannelName = channelName;
+		ChatBotName = chatBotName;
 		_OAuthToken = oauthToken;
-		this.Logger = logger;
+		Logger = logger;
 
 		reChatMessage = new Regex($@"PRIVMSG #{channelName} :(.*)$");
 		reWhisperMessage = new Regex($@"WHISPER {chatBotName} :(.*)$");
@@ -221,7 +207,7 @@ public class ChatClient : IChatClient
 				// Reconnect
 				Logger.LogWarning("Disconnected from Twitch.. Reconnecting in 2 seconds");
 				Thread.Sleep(2000);
-				this.Init();
+				Init();
 				return;
 			}
 
