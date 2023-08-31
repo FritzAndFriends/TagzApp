@@ -24,7 +24,7 @@ public class PlaywrightFixture : PlaywrightFixture<Web.Program>
   protected override IHost CreateHost(IHostBuilder builder)
   {
     //ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
-    builder.AddTestConfiguration();
+    builder.AddTestConfiguration(jsonConfiguration: CONFIGURATION);
     builder.UseOnlyStubSocialMediaProvider();
 		builder.UseOnlyInMemoryService();
     builder.UseUniqueDb(_Uniqueid);
@@ -33,6 +33,13 @@ public class PlaywrightFixture : PlaywrightFixture<Web.Program>
 
 		return host;
 	}
+
+	private const string CONFIGURATION = """
+		{
+			"ModerationEnabled": "false"
+		}
+	""";
+
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA1816:Dispose methods should call SuppressFinalize",
 		Justification = "Base class calls SuppressFinalize")]
