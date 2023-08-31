@@ -68,6 +68,12 @@ public class Program
 			app.UseForwardedHeaders();
 		}
 
+		app.UseCookiePolicy(new CookiePolicyOptions()
+		{
+			MinimumSameSitePolicy = SameSiteMode.Lax
+		});
+		app.UseCertificateForwarding();
+
 		//app.UseHttpsRedirection();
 		app.UseStaticFiles();
 
