@@ -97,6 +97,7 @@ jobs:
             Build_Version: ${{ steps.date.outputs.date }}.${{ github.run_attempt }}
 
   code-formatting:
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     permissions:
       contents: write
