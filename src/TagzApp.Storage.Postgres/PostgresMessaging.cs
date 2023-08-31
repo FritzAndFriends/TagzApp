@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Concurrent;
+using TagzApp.Common.Models;
 
 namespace TagzApp.Storage.Postgres;
 

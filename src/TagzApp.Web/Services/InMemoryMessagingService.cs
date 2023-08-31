@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
+using TagzApp.Common.Models;
 using TagzApp.Communication;
 using TagzApp.Web.Hubs;
 
@@ -60,7 +61,7 @@ public class InMemoryMessagingService : BaseProviderManager, IMessagingService
 			c =>
 			{
 				_Content[c.HashtagSought.TrimStart('#')].Add(c);
-				_NotifyNewMessages.Notify(Hashtag.ClearFormatting(c.HashtagSought), c);
+				_NotifyNewMessages.NotifyNewContent(Hashtag.ClearFormatting(c.HashtagSought), c);
 				//_Logger.LogInformation($"Message found for tag '{c.HashtagSought}': {c.Text}");
 			});
 
@@ -83,6 +84,18 @@ public class InMemoryMessagingService : BaseProviderManager, IMessagingService
 		return _Content.First().Value
 			.FirstOrDefault(c => c.Provider == provider && c.ProviderId == providerId);
 
+	}
+
+	public Task<IEnumerable<Content>> GetApprovedContentByTag(string tag)
+	{
+
+		return Task.FromResult(Enumerable.Empty<Content>());
+
+	}
+
+	public Task<IEnumerable<(Content, ModerationAction)>> GetContentByTagForModeration(string tag)
+	{
+		throw new NotImplementedException();
 	}
 
 	public IEnumerable<string> TagsTracked => _Content.Keys;

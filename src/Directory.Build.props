@@ -2,6 +2,7 @@
 
 	<ItemGroup>
 		<Using Include="TagzApp.Common" />
+		<Using Include="TagzApp.Common.Models" />
 	</ItemGroup>
 
 </Project>

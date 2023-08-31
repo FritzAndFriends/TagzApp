@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Reflection;
 using System.Text.Json;
 using System.Web;
+using TagzApp.Common.Models;
 using TagzApp.Providers.Twitter.Models;
 
 namespace TagzApp.Providers.Twitter;
@@ -28,7 +29,7 @@ public class TwitterProvider : ISocialMediaProvider
 		_HttpClient = httpClientFactory.CreateClient(nameof(TwitterProvider));
 	}
 
-	public async Task<IEnumerable<Content>> GetContentForHashtag(Common.Hashtag tag, DateTimeOffset since)
+	public async Task<IEnumerable<Content>> GetContentForHashtag(Common.Models.Hashtag tag, DateTimeOffset since)
 	{
 
 		var tweetQuery = "#" + tag.Text.ToLowerInvariant().TrimStart('#') + " -is:retweet";
@@ -76,7 +77,7 @@ public class TwitterProvider : ISocialMediaProvider
 
 	}
 
-	private IEnumerable<Content> ConvertToContent(TwitterData? recentTweets, Common.Hashtag tag)
+	private IEnumerable<Content> ConvertToContent(TwitterData? recentTweets, Common.Models.Hashtag tag)
 	{
 
 		if (recentTweets is null) return Enumerable.Empty<Content>();

@@ -2,6 +2,7 @@
 @model TagzApp.Web.Pages.WaterfallModel
 @{
 	Layout = "_WaterfallLayout";
+	ViewBag.EnableFloatingHeader = true;
 }
 <div class="row">
 	<div class="col-md-12">
@@ -45,7 +46,8 @@
 	<script src="~/js/masonry.js" asp-append-version="true"></script>
 	<script>
 
-		window.TagzApp.ListenForTags("@string.Join(',', Model.Tags)");
+		window.TagzApp.ListenForWaterfallContent("@string.Join(',', Model.Tags)");
+
 		window.onload = window.Masonry.resizeAllGridItems();
 		window.addEventListener("resize", Masonry.resizeAllGridItems);
 

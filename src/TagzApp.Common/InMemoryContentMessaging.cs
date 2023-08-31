@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using TagzApp.Common.Models;
 
 namespace TagzApp.Common;
 

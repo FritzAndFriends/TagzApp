@@ -2,6 +2,7 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Web;
+using TagzApp.Common.Models;
 
 namespace TagzApp.Providers.Mastodon;
 
@@ -71,7 +72,7 @@ internal class MastodonProvider : ISocialMediaProvider
 			},
 			Text = m.content,
 			HashtagSought = tag.Text,
-			PreviewCard = m.card is null ? m.media_attachments.Any() ? (Common.Card)Message.GetMediaAttachment(m.media_attachments.First().ToString()) : null : (Common.Card)m.card
+			PreviewCard = m.card is null ? m.media_attachments.Any() ? (Common.Models.Card)Message.GetMediaAttachment(m.media_attachments.First().ToString()) : null : (Common.Models.Card)m.card
 		}).ToArray();
 
 	}

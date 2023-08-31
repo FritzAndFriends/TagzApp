@@ -39,7 +39,8 @@ namespace TagzApp.Storage.Postgres.Migrations
 
                     b.Property<string>("HashtagSought")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("PreviewCard")
                         .HasColumnType("text");
@@ -76,14 +77,76 @@ namespace TagzApp.Storage.Postgres.Migrations
                     b.ToTable("Content");
                 });
 
+            modelBuilder.Entity("TagzApp.Storage.Postgres.PgModerationAction", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ContentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Moderator")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("ProviderId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("State")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("Timestamp")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("Provider", "ProviderId");
+
+                    b.HasIndex("ContentId")
+                        .IsUnique();
+
+                    b.ToTable("ModerationActions");
+                });
+
             modelBuilder.Entity("TagzApp.Storage.Postgres.Tag", b =>
                 {
                     b.Property<string>("Text")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.HasKey("Text");
 
                     b.ToTable("TagsWatched");
+                });
+
+            modelBuilder.Entity("TagzApp.Storage.Postgres.PgModerationAction", b =>
+                {
+                    b.HasOne("TagzApp.Storage.Postgres.PgContent", "Content")
+                        .WithOne("ModerationAction")
+                        .HasForeignKey("TagzApp.Storage.Postgres.PgModerationAction", "ContentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Content");
+                });
+
+            modelBuilder.Entity("TagzApp.Storage.Postgres.PgContent", b =>
+                {
+                    b.Navigation("ModerationAction");
                 });
 #pragma warning restore 612, 618
         }

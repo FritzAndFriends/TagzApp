@@ -2,6 +2,12 @@
 
 	var connection;
 
+	const ModerationState = {
+		Pending		: 0,
+		Approved	: 1,
+		Rejected	: 2
+	}
+
 	const taggedContent = document.getElementById("taggedContent");
 	const observer = new MutationObserver(function (mutationsList, observer) {
 		for (const mutation of mutationsList) {
@@ -126,6 +132,99 @@
 
 	}
 
+	function FormatMessageForModeration(content) {
+
+		if (taggedContent.querySelector(".spinner-border")) {
+			taggedContent.querySelector(".spinner-border").remove();
+		}
+
+		if (document.querySelector("[data-providerid='" + content.providerId + "']")) return;
+
+		const newMessage = document.createElement("article");
+		newMessage.classList.add("moderation");
+
+		if (content.state == ModerationState.Approved) newMessage.classList.add("status-approved");
+		if (content.state == ModerationState.Rejected) newMessage.classList.add("status-rejected");
+
+		newMessage.setAttribute("data-url", content.sourceUri);
+		newMessage.setAttribute("data-provider", content.provider);
+		newMessage.setAttribute("data-providerid", content.providerId);
+		const newMessageTime = new Date(content.timestamp);
+		newMessage.setAttribute("data-timestamp", newMessageTime.toISOString());
+		newMessage.innerHTML = `
+		<img class="ProfilePicture" src="${content.authorProfileImageUri}" alt="${content.authorDisplayName}" />
+		<div class="byline">
+			<div class="author">${content.authorDisplayName}</div>
+			<div class="authorUserName" title="${content.authorUserName}">${content.authorUserName}</div>
+		</div>
+		<i class="provider bi bi-${content.provider.toLowerCase()}"></i>
+		<div class="time">${newMessageTime.toLocaleString(undefined, { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' })}</div>
+
+		<div class="content">${content.text}</div>`;
+
+		if (content.previewCard) {
+			newMessage.innerHTML += `
+				<div class="contentcard">
+					<img src="${content.previewCard.imageUri}" class="card-img-top" alt="${content.previewCard.altText}" />
+				</div>
+			`
+		}
+
+		newMessage.addEventListener("mouseenter", showModerationPanel);
+		newMessage.addEventListener("click", showModerationPanel);		// for touch-screen support
+
+		const newest = getDateFromElement(taggedContent.firstElementChild);
+		const oldest = getDateFromElement(taggedContent.lastElementChild);
+		if (newest === null || (newest <= newMessageTime)) {
+			taggedContent.prepend(newMessage);
+		} else if (oldest !== null && (oldest > newMessageTime)) {
+			taggedContent.append(newMessage);
+		} else {
+			const times = [...taggedContent.children].map(article => getDateFromElement(article));
+			const index = getIndexForValue(times, newMessageTime);
+			taggedContent.insertBefore(newMessage, taggedContent.children[index]);
+		}
+
+	}
+
+	function showModerationPanel(ev) {
+
+		var hovered = ev.target.closest('article');
+		if (hovered.querySelector("#moderationAction")) return;
+
+		var hoverPanel = document.getElementById("moderationAction").cloneNode(true);
+		hoverPanel.style.display = "";
+		hoverPanel.classList.add("active_panel");
+
+		hoverPanel.querySelector("i.approve").addEventListener("click", function (ev) {
+			connection.invoke("SetStatus", hovered.getAttribute("data-provider"), hovered.getAttribute("data-providerid"), ModerationState.Approved);
+			hoverPanel.remove();
+			hovered.classList.remove("status-rejected");
+			hovered.classList.add("status-approved");
+		});
+
+		hoverPanel.querySelector("i.reject").addEventListener("click", function (ev) {
+			connection.invoke("SetStatus", hovered.getAttribute("data-provider"), hovered.getAttribute("data-providerid"), ModerationState.Rejected);
+			hoverPanel.remove();
+			hovered.classList.remove("status-approved");
+			hovered.classList.add("status-rejected");
+		});
+
+		hovered.insertBefore(hoverPanel, hovered.firstElementChild);
+
+		hoverPanel.addEventListener("mouseleave", function (ev) {
+
+			ev.target.closest("#moderationAction").remove();
+			var panels = document.querySelectorAll(".active_panel");
+			panels.forEach(function (panel) {
+				panel.remove();
+			});
+
+
+		});
+
+	}
+
 	function getDateFromElement(el) {
 		const timestamp = el?.dataset.timestamp;
 		if (timestamp === undefined || timestamp === null) return null;
@@ -160,7 +259,7 @@
 
 		Tags: [],
 
-		ListenForTags: async function (tags) {
+		ListenForWaterfallContent: async function (tags) {
 
 			var tagCsv = encodeURI(tags);
 			t.Tags = tags.split(",");
@@ -171,8 +270,15 @@
 				.configureLogging(signalR.LogLevel.Information)
 				.build();
 
-			connection.on("NewMessage", (content) => {
+			connection.on("NewWaterfallMessage", (content) => {
 				FormatMessage(content);
+			});
+
+			connection.on("RemoveMessage", (provider, providerId) => {
+
+				var item = document.querySelector(`[data-providerid='${providerId}']`);
+				if (item) item.remove();
+
 			});
 
 			// Start the connection.
@@ -183,6 +289,34 @@
 
 					result.forEach(function (content) {
 						FormatMessage(content);
+					});
+					window.Masonry.resizeAllGridItems();
+				});
+
+		},
+
+		ListenForModerationContent: async function (tag) {
+
+			var tagCsv = encodeURI(tag);
+
+			connection = new signalR.HubConnectionBuilder()
+				.withUrl(`/mod?t=${tagCsv}`)
+				.withAutomaticReconnect()
+				.configureLogging(signalR.LogLevel.Information)
+				.build();
+
+			connection.on("NewWaterfallMessage", (content) => {
+				FormatMessageForModeration(content);
+			});
+
+			// Start the connection.
+			await start();
+
+			connection.invoke("GetContentForTag", tag)
+				.then(function (result) {
+
+					result.forEach(function (content) {
+						FormatMessageForModeration(content);
 					});
 					window.Masonry.resizeAllGridItems();
 				});

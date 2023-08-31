@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Web;
+using TagzApp.Common.Models;
 
 namespace TagzApp.Providers.TwitchChat;
 

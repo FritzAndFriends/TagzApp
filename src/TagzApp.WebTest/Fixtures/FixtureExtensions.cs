@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using TagzApp.Web.Services;
+using System.Text.Json;
 
 namespace TagzApp.WebTest.Fixtures;
 
@@ -46,11 +47,16 @@ public static class FixtureExtensions
 	/// <param name="builder">The IHostBuilder</param>
 	/// <param name="fileName">The filename or null (defaults to appsettings.Test.json)</param>
 	/// <returns>Returns the IHostBuilder to allow chaining</returns>
-	public static IHostBuilder AddTestConfiguration(this IHostBuilder builder, string? fileName = null)
+	public static IHostBuilder AddTestConfiguration(this IHostBuilder builder, string? fileName = null, string jsonConfiguration = "{}")
 	{
 		var testDirectory = System.IO.Directory.GetCurrentDirectory();
 		builder.ConfigureAppConfiguration(host =>
-			host.AddJsonFile(System.IO.Path.Combine(testDirectory, fileName ?? "appsettings.Test.json"), true));
+		{
+			host.AddJsonFile(System.IO.Path.Combine(testDirectory, fileName ?? "appsettings.Test.json"), true);
+			var jsonStream = Encoding.UTF8.GetBytes(jsonConfiguration);
+			host.AddJsonStream(new MemoryStream(jsonStream));
+		});
+
 		return builder;
 	}
 

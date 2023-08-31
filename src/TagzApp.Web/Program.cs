@@ -68,6 +68,7 @@ public class Program
 		app.MapRazorPages();
 
 		app.MapHub<MessageHub>("/messages");
+		app.MapHub<ModerationHub>("/mod");
 
 		if (app.Environment.IsDevelopment())
 		{

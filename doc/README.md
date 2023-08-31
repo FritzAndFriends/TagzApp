@@ -85,7 +85,7 @@ TagzApp includes docker support and docker-compose files for easy deployment. Yo
 git clone https://github.com/FritzAndFriends/TagzApp
 cd TagzApp
 
-# update docker-compose.yml as needed (custom API tokens, etc.)
+# update primarily .env and docker-compose.yml as needed (custom API tokens, etc.)
 docker compose -f docker-compose.yml up
 
 ```
@@ -97,7 +97,7 @@ docker compose -f docker-compose.yml up
 git clone https://github.com/FritzAndFriends/TagzApp
 cd TagzApp
 
-# update docker-compose.local.yml as needed (custom API tokens, etc.)
+# update primarily .env.local and docker-compose.local.yml as needed (custom API tokens, etc.)
 docker compose -f docker-compose.local.yml up --build
 
 # or
@@ -116,6 +116,8 @@ You don't *need* to override any configurations, the app will work out of the bo
 
 In case you do have your own API keys or other values (see the  the [`appsettings.json`](../src/TagzApp.Web/appsettings.json) for what can be supplied), then you can supply them like this:
 
+* any [`appsettings.json`](../src/TagzApp.Web/appsettings.json) can be set in `.env` and `.env.local` files. Please set them this way: `key__subkey__property=value`. See the provided .env files for examples.
+
 * from `docker-compose.yml` - use `key:subkey:property=value` syntax. See the docker-compose files for examples. Ex.
 
 ```
@@ -123,4 +125,4 @@ environment:
 	- providers:twitter:ApiKey=MySecretKey
 ```
 
-* from `docker run` - use `-e "providers:twitter:ApiKey=MySecretKey"`. You need to repeat the `-e ` flag for each override.
+* from `docker run` - use `-e "providers:twitter:ApiKey=MySecretKey"`. You need to repeat the `-e ` flag for each override. 

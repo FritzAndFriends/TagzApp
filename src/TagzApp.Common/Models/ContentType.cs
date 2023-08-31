@@ -1,4 +1,4 @@
-﻿namespace TagzApp.Common;
+﻿namespace TagzApp.Common.Models;
 
 public enum ContentType
 {
