@@ -171,7 +171,7 @@
 		}
 
 		newMessage.addEventListener("mouseenter", showModerationPanel);
-		newMessage.addEventListener("click", showModerationPanel);		// for touch-screen support
+		newMessage.addEventListener("click", showModerationPanel);		// for touch-screen support.
 
 		const newest = getDateFromElement(taggedContent.firstElementChild);
 		const oldest = getDateFromElement(taggedContent.lastElementChild);

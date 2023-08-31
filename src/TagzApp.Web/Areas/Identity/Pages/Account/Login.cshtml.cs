@@ -12,13 +12,13 @@ namespace TagzApp.Web.Areas.Identity.Pages.Account;
 
 public class LoginModel : PageModel
 {
-	private readonly SignInManager<IdentityUser> _signInManager;
-	private readonly ILogger<LoginModel> _logger;
+	private readonly SignInManager<IdentityUser> _SignInManager;
+	private readonly ILogger<LoginModel> _Logger;
 
 	public LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger)
 	{
-		_signInManager = signInManager;
-		_logger = logger;
+		_SignInManager = signInManager;
+		_Logger = logger;
 	}
 
 	/// <summary>
@@ -52,7 +52,7 @@ public class LoginModel : PageModel
 		// Clear the existing external cookie to ensure a clean login process
 		await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
-		ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+		ExternalLogins = (await _SignInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
 		ReturnUrl = returnUrl;
 	}

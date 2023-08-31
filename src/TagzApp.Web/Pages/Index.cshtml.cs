@@ -6,13 +6,13 @@ namespace TagzApp.Web.Pages
 {
 	public class IndexModel : PageModel
 	{
-		private readonly ILogger<IndexModel> _logger;
+		private readonly ILogger<IndexModel> _Logger;
 		public readonly IConfiguration _Configuration;
 		private readonly IMessagingService _Service;
 
 		public IndexModel(ILogger<IndexModel> logger, IConfiguration configuration, IMessagingService service)
 		{
-			_logger = logger;
+			_Logger = logger;
 			_Configuration = configuration;
 			_Service = service;
 		}

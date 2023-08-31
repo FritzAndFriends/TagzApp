@@ -16,13 +16,13 @@ namespace TagzApp.Web.Areas.Identity.Pages.Account;
 
 public class ForgotPasswordModel : PageModel
 {
-	private readonly UserManager<IdentityUser> _userManager;
-	private readonly IEmailSender _emailSender;
+	private readonly UserManager<IdentityUser> _UserManager;
+	private readonly IEmailSender _EmailSender;
 
 	public ForgotPasswordModel(UserManager<IdentityUser> userManager, IEmailSender emailSender)
 	{
-		_userManager = userManager;
-		_emailSender = emailSender;
+		_UserManager = userManager;
+		_EmailSender = emailSender;
 	}
 
 	/// <summary>
@@ -51,8 +51,8 @@ public class ForgotPasswordModel : PageModel
 	{
 		if (ModelState.IsValid)
 		{
-			var user = await _userManager.FindByEmailAsync(Input.Email);
-			if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+			var user = await _UserManager.FindByEmailAsync(Input.Email);
+			if (user == null || !(await _UserManager.IsEmailConfirmedAsync(user)))
 			{
 				// Don't reveal that the user does not exist or is not confirmed
 				return RedirectToPage("./ForgotPasswordConfirmation");
@@ -60,7 +60,7 @@ public class ForgotPasswordModel : PageModel
 
 			// For more information on how to enable account confirmation and password reset please
 			// visit https://go.microsoft.com/fwlink/?LinkID=532713
-			var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+			var code = await _UserManager.GeneratePasswordResetTokenAsync(user);
 			code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 			var callbackUrl = Url.Page(
 				"/Account/ResetPassword",
@@ -68,7 +68,7 @@ public class ForgotPasswordModel : PageModel
 				values: new { area = "Identity", code },
 				protocol: Request.Scheme);
 
-			await _emailSender.SendEmailAsync(
+			await _EmailSender.SendEmailAsync(
 				Input.Email,
 				"Reset Password",
 				$"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");

@@ -80,7 +80,7 @@ public class Program
 			});
 		}
 
-		app.Services.InitializeSecurity().GetAwaiter().GetResult(); // Ensure this runs before we start the app.
+		app.Services.InitializeSecurity().GetAwaiter().GetResult(); // Ensure this runs before we start the app
 
 		app.Run();
 	}

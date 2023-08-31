@@ -12,18 +12,18 @@ namespace TagzApp.Web.Areas.Identity.Pages.Account.Manage;
 
 public class ChangePasswordModel : PageModel
 {
-	private readonly UserManager<IdentityUser> _userManager;
-	private readonly SignInManager<IdentityUser> _signInManager;
-	private readonly ILogger<ChangePasswordModel> _logger;
+	private readonly UserManager<IdentityUser> _UserManager;
+	private readonly SignInManager<IdentityUser> _SignInManager;
+	private readonly ILogger<ChangePasswordModel> _Logger;
 
 	public ChangePasswordModel(
 		UserManager<IdentityUser> userManager,
 		SignInManager<IdentityUser> signInManager,
 		ILogger<ChangePasswordModel> logger)
 	{
-		_userManager = userManager;
-		_signInManager = signInManager;
-		_logger = logger;
+		_UserManager = userManager;
+		_SignInManager = signInManager;
+		_Logger = logger;
 	}
 
 	/// <summary>
@@ -78,13 +78,13 @@ public class ChangePasswordModel : PageModel
 
 	public async Task<IActionResult> OnGetAsync()
 	{
-		var user = await _userManager.GetUserAsync(User);
+		var user = await _UserManager.GetUserAsync(User);
 		if (user == null)
 		{
-			return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+			return NotFound($"Unable to load user with ID '{_UserManager.GetUserId(User)}'.");
 		}
 
-		var hasPassword = await _userManager.HasPasswordAsync(user);
+		var hasPassword = await _UserManager.HasPasswordAsync(user);
 		if (!hasPassword)
 		{
 			return RedirectToPage("./SetPassword");
@@ -100,13 +100,13 @@ public class ChangePasswordModel : PageModel
 			return Page();
 		}
 
-		var user = await _userManager.GetUserAsync(User);
+		var user = await _UserManager.GetUserAsync(User);
 		if (user == null)
 		{
-			return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+			return NotFound($"Unable to load user with ID '{_UserManager.GetUserId(User)}'.");
 		}
 
-		var changePasswordResult = await _userManager.ChangePasswordAsync(user, Input.OldPassword, Input.NewPassword);
+		var changePasswordResult = await _UserManager.ChangePasswordAsync(user, Input.OldPassword, Input.NewPassword);
 		if (!changePasswordResult.Succeeded)
 		{
 			foreach (var error in changePasswordResult.Errors)
@@ -117,8 +117,8 @@ public class ChangePasswordModel : PageModel
 			return Page();
 		}
 
-		await _signInManager.RefreshSignInAsync(user);
-		_logger.LogInformation("User changed their password successfully.");
+		await _SignInManager.RefreshSignInAsync(user);
+		_Logger.LogInformation("User changed their password successfully.");
 		StatusMessage = "Your password has been changed.";
 
 		return RedirectToPage();

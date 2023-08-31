@@ -25,8 +25,8 @@ public class ChatClient : IChatClient
 
 	public const string LOGGER_CATEGORY = "Providers.TwitchChat";
 	private TcpClient _TcpClient;
-	private StreamReader inputStream;
-	private StreamWriter outputStream;
+	private StreamReader _InputStream;
+	private StreamWriter _OutputStream;
 	private int _Retries;
 	private Task _ReceiveMassagesTask;
 	private MemoryStream _ReceiveStream = new MemoryStream();
@@ -96,18 +96,18 @@ public class ChatClient : IChatClient
 
 		_TcpClient = new TcpClient("irc.chat.twitch.tv", 80);
 
-		inputStream = new StreamReader(_TcpClient.GetStream());
-		outputStream = new StreamWriter(_TcpClient.GetStream());
+		_InputStream = new StreamReader(_TcpClient.GetStream());
+		_OutputStream = new StreamWriter(_TcpClient.GetStream());
 
 		Logger.LogTrace("Beginning IRC authentication to Twitch");
-		outputStream.WriteLine("CAP REQ :twitch.tv/tags twitch.tv/commands twitch.tv/membership");
-		outputStream.WriteLine($"PASS oauth:{_OAuthToken}");
-		outputStream.WriteLine($"NICK {ChatBotName}");
-		outputStream.WriteLine($"USER {ChatBotName} 8 * :{ChatBotName}");
-		outputStream.Flush();
+		_OutputStream.WriteLine("CAP REQ :twitch.tv/tags twitch.tv/commands twitch.tv/membership");
+		_OutputStream.WriteLine($"PASS oauth:{_OAuthToken}");
+		_OutputStream.WriteLine($"NICK {ChatBotName}");
+		_OutputStream.WriteLine($"USER {ChatBotName} 8 * :{ChatBotName}");
+		_OutputStream.Flush();
 
-		outputStream.WriteLine($"JOIN #{ChannelName}");
-		outputStream.Flush();
+		_OutputStream.WriteLine($"JOIN #{ChannelName}");
+		_OutputStream.Flush();
 
 		//Connected?.Invoke(this, new ChatConnectedEventArgs());
 
@@ -120,10 +120,10 @@ public class ChatClient : IChatClient
 
 		Thread.Sleep(throttled.GetValueOrDefault(TimeSpan.FromSeconds(0)));
 
-		outputStream.WriteLine(message);
+		_OutputStream.WriteLine(message);
 		if (flush)
 		{
-			outputStream.Flush();
+			_OutputStream.Flush();
 		}
 
 	}
@@ -296,7 +296,7 @@ public class ChatClient : IChatClient
 
 		try
 		{
-			message = inputStream.ReadLine();
+			message = _InputStream.ReadLine();
 		}
 		catch (Exception ex)
 		{
@@ -308,7 +308,7 @@ public class ChatClient : IChatClient
 	}
 
 	#region IDisposable Support
-	private bool disposedValue = false; // To detect redundant calls
+	private bool _DisposedValue = false; // To detect redundant calls
 	private Thread _ReceiveMessagesThread;
 
 	protected virtual void Dispose(bool disposing)
@@ -320,7 +320,7 @@ public class ChatClient : IChatClient
 		}
 		catch { }
 
-		if (!disposedValue)
+		if (!_DisposedValue)
 		{
 			if (disposing)
 			{
@@ -328,7 +328,7 @@ public class ChatClient : IChatClient
 			}
 
 			_TcpClient?.Dispose();
-			disposedValue = true;
+			_DisposedValue = true;
 		}
 	}
 

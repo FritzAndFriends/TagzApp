@@ -291,7 +291,7 @@ span.invisible {
 	justify-content: center;
 	align-items: center;
 	background-color: #ccc;
-	opacity: 0.7;
+	opacity: .7;
 }
 
 	#moderationAction i {

@@ -12,12 +12,12 @@ namespace TagzApp.Web.Areas.Identity.Pages.Account;
 
 public class RegisterModel : PageModel
 {
-	private readonly SignInManager<IdentityUser> _signInManager;
-	private readonly UserManager<IdentityUser> _userManager;
-	private readonly IUserStore<IdentityUser> _userStore;
-	private readonly IUserEmailStore<IdentityUser> _emailStore;
-	private readonly ILogger<RegisterModel> _logger;
-	private readonly IEmailSender _emailSender;
+	private readonly SignInManager<IdentityUser> _SignInManager;
+	private readonly UserManager<IdentityUser> _UserManager;
+	private readonly IUserStore<IdentityUser> _UserStore;
+	private readonly IUserEmailStore<IdentityUser> _EmailStore;
+	private readonly ILogger<RegisterModel> _Logger;
+	private readonly IEmailSender _EmailSender;
 
 	public RegisterModel(
 		UserManager<IdentityUser> userManager,
@@ -26,12 +26,12 @@ public class RegisterModel : PageModel
 		ILogger<RegisterModel> logger,
 		IEmailSender emailSender)
 	{
-		_userManager = userManager;
-		_userStore = userStore;
-		_emailStore = GetEmailStore();
-		_signInManager = signInManager;
-		_logger = logger;
-		_emailSender = emailSender;
+		_UserManager = userManager;
+		_UserStore = userStore;
+		_EmailStore = GetEmailStore();
+		_SignInManager = signInManager;
+		_Logger = logger;
+		_EmailSender = emailSender;
 	}
 
 	/// <summary>
@@ -49,7 +49,7 @@ public class RegisterModel : PageModel
 	public async Task OnGetAsync(string returnUrl = null)
 	{
 		ReturnUrl = returnUrl;
-		ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+		ExternalLogins = (await _SignInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 	}
 
 	private IdentityUser CreateUser()
@@ -68,11 +68,11 @@ public class RegisterModel : PageModel
 
 	private IUserEmailStore<IdentityUser> GetEmailStore()
 	{
-		if (!_userManager.SupportsUserEmail)
+		if (!_UserManager.SupportsUserEmail)
 		{
 			throw new NotSupportedException("The default UI requires a user store with email support.");
 		}
 
-		return (IUserEmailStore<IdentityUser>)_userStore;
+		return (IUserEmailStore<IdentityUser>)_UserStore;
 	}
 }

@@ -36,4 +36,4 @@ public class StartMastodon : IConfigureProvider
 		services.AddTransient<ISocialMediaProvider, MastodonProvider>();
 		return services;
 	}
-}
+} 

@@ -14,12 +14,12 @@ public class AssignRoleModel : PageModel
 	public List<string> UserRoles { get; private set; }
 	public List<IdentityRole> Roles { get; private set; }
 
-	private readonly UserManager<IdentityUser> _userManager; // needed to access roles of a user
+	private readonly UserManager<IdentityUser> _UserManager; // needed to access roles of a user
 	private readonly RoleManager<IdentityRole> _RoleManager;
 
 	public AssignRoleModel(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
 	{
-		_userManager = userManager; // assign user manager to the private variable
+		_UserManager = userManager; // assign user manager to the private variable
 		_RoleManager = roleManager;
 	}
 
@@ -27,9 +27,9 @@ public class AssignRoleModel : PageModel
 	{
 		UserId = userId; // assign user id to the new property
 
-		CurrentUser = await _userManager.FindByIdAsync(userId); // get user by id
+		CurrentUser = await _UserManager.FindByIdAsync(userId); // get user by id
 
-		var roles = await _userManager.GetRolesAsync(CurrentUser); // get roles assigned to the user
+		var roles = await _UserManager.GetRolesAsync(CurrentUser); // get roles assigned to the user
 
 		UserRoles = new List<string>(roles); // store in a list
 
@@ -38,14 +38,14 @@ public class AssignRoleModel : PageModel
 	}
 	public async Task<IActionResult> OnPostAsync(List<string> role, string userId)
 	{
-		var user = await _userManager.FindByIdAsync(userId); // get user by id
+		var user = await _UserManager.FindByIdAsync(userId); // get user by id
 		if (user == null)
 		{
 			return NotFound($"Unable to load user with ID '{userId}'.");
 		}
 
-		var userRoles = await _userManager.GetRolesAsync(user); // get existing roles for user
-		var result = await _userManager.RemoveFromRolesAsync(user, userRoles); // remove existing roles
+		var userRoles = await _UserManager.GetRolesAsync(user); // get existing roles for user
+		var result = await _UserManager.RemoveFromRolesAsync(user, userRoles); // remove existing roles
 
 		if (!result.Succeeded)
 		{
@@ -53,7 +53,7 @@ public class AssignRoleModel : PageModel
 			return Page();
 		}
 
-		result = await _userManager.AddToRolesAsync(user, role); // assign new roles
+		result = await _UserManager.AddToRolesAsync(user, role); // assign new roles
 		if (!result.Succeeded)
 		{
 			ModelState.AddModelError("Error", "Failed to assign role(s)");

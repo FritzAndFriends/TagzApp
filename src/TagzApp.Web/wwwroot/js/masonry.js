@@ -8,7 +8,7 @@
 			rowGap = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-row-gap'));
 			var imageSize = (item.querySelector('.contentcard')?.getBoundingClientRect().height ?? 0) + (item.querySelector('.contentcard') ? 6 : 0);
 			rowSpan = Math.ceil((item.querySelector('.content').getBoundingClientRect().height + imageSize + 100 + rowGap) / (rowHeight + rowGap));
-			item.style.gridRowEnd = "span " + rowSpan;
+			item.style.gridRowEnd = "span " + rowSpan; 
 		},
 
 		resizeAllGridItems: function () {

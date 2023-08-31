@@ -14,11 +14,11 @@ namespace TagzApp.Web.Areas.Identity.Pages.Account;
 
 public class ResetPasswordModel : PageModel
 {
-	private readonly UserManager<IdentityUser> _userManager;
+	private readonly UserManager<IdentityUser> _UserManager;
 
 	public ResetPasswordModel(UserManager<IdentityUser> userManager)
 	{
-		_userManager = userManager;
+		_UserManager = userManager;
 	}
 
 	/// <summary>
@@ -92,14 +92,14 @@ public class ResetPasswordModel : PageModel
 			return Page();
 		}
 
-		var user = await _userManager.FindByEmailAsync(Input.Email);
+		var user = await _UserManager.FindByEmailAsync(Input.Email);
 		if (user == null)
 		{
 			// Don't reveal that the user does not exist
 			return RedirectToPage("./ResetPasswordConfirmation");
 		}
 
-		var result = await _userManager.ResetPasswordAsync(user, Input.Code, Input.Password);
+		var result = await _UserManager.ResetPasswordAsync(user, Input.Code, Input.Password);
 		if (result.Succeeded)
 		{
 			return RedirectToPage("./ResetPasswordConfirmation");

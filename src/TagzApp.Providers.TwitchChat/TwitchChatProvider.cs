@@ -12,7 +12,7 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	private IChatClient? _Client;
 
 	public string Id => "TWITCH";
-	public string DisplayName => "TwitchChat";
+	public string DisplayName => "TwitchChat"; 
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(1);
 
 	private static readonly ConcurrentQueue<Content> _Contents = new();
@@ -84,10 +84,9 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	{
 		
 		var messages = _Contents.ToList();
-		if (messages.Count() == 0) return Task.FromResult(Enumerable.Empty<Content>());
+		if (messages.Count == 0) return Task.FromResult(Enumerable.Empty<Content>());
 
-		var messageCount = messages.Count();
-		for (var i=0; i<messageCount; i++)
+		for (var i=0; i< messages.Count; i++)
 		{
 			_Contents.TryDequeue(out _);
 		}

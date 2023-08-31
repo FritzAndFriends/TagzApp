@@ -5,11 +5,11 @@ namespace TagzApp.Web.Pages
 {
 	public class PrivacyModel : PageModel
 	{
-		private readonly ILogger<PrivacyModel> _logger;
+		private readonly ILogger<PrivacyModel> _Logger;
 
 		public PrivacyModel(ILogger<PrivacyModel> logger)
 		{
-			_logger = logger;
+			_Logger = logger;
 		}
 
 		public void OnGet()

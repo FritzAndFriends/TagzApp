@@ -23,12 +23,12 @@ namespace TagzApp.Web.Areas.Identity.Pages.Account
 	[AllowAnonymous]
 	public class ExternalLoginModel : PageModel
 	{
-		private readonly SignInManager<IdentityUser> _signInManager;
-		private readonly UserManager<IdentityUser> _userManager;
-		private readonly IUserStore<IdentityUser> _userStore;
-		private readonly IUserEmailStore<IdentityUser> _emailStore;
-		private readonly IEmailSender _emailSender;
-		private readonly ILogger<ExternalLoginModel> _logger;
+		private readonly SignInManager<IdentityUser> _SignInManager;
+		private readonly UserManager<IdentityUser> _UserManager;
+		private readonly IUserStore<IdentityUser> _UserStore;
+		private readonly IUserEmailStore<IdentityUser> _EmailStore;
+		private readonly IEmailSender _EmailSender;
+		private readonly ILogger<ExternalLoginModel> _Logger;
 
 		public ExternalLoginModel(
 				SignInManager<IdentityUser> signInManager,
@@ -37,12 +37,12 @@ namespace TagzApp.Web.Areas.Identity.Pages.Account
 				ILogger<ExternalLoginModel> logger,
 				IEmailSender emailSender)
 		{
-			_signInManager = signInManager;
-			_userManager = userManager;
-			_userStore = userStore;
-			_emailStore = GetEmailStore();
-			_logger = logger;
-			_emailSender = emailSender;
+			_SignInManager = signInManager;
+			_UserManager = userManager;
+			_UserStore = userStore;
+			_EmailStore = GetEmailStore();
+			_Logger = logger;
+			_EmailSender = emailSender;
 		}
 
 		/// <summary>
@@ -92,7 +92,7 @@ namespace TagzApp.Web.Areas.Identity.Pages.Account
 		{
 			// Request a redirect to the external login provider.
 			var redirectUrl = Url.Page("./ExternalLogin", pageHandler: "Callback", values: new { returnUrl });
-			var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+			var properties = _SignInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
 			return new ChallengeResult(provider, properties);
 		}
 
@@ -104,7 +104,7 @@ namespace TagzApp.Web.Areas.Identity.Pages.Account
 				ErrorMessage = $"Error from external provider: {remoteError}";
 				return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
 			}
-			var info = await _signInManager.GetExternalLoginInfoAsync();
+			var info = await _SignInManager.GetExternalLoginInfoAsync();
 			if (info == null)
 			{
 				ErrorMessage = "Error loading external login information.";
@@ -112,10 +112,10 @@ namespace TagzApp.Web.Areas.Identity.Pages.Account
 			}
 
 			// Sign in the user with this external login provider if the user already has a login.
-			var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
+			var result = await _SignInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
 			if (result.Succeeded)
 			{
-				_logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name, info.LoginProvider);
+				_Logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name, info.LoginProvider);
 				return LocalRedirect(returnUrl);
 			}
 			if (result.IsLockedOut)
@@ -142,7 +142,7 @@ namespace TagzApp.Web.Areas.Identity.Pages.Account
 		{
 			returnUrl = returnUrl ?? Url.Content("~/");
 			// Get the information about the user from the external login provider
-			var info = await _signInManager.GetExternalLoginInfoAsync();
+			var info = await _SignInManager.GetExternalLoginInfoAsync();
 			if (info == null)
 			{
 				ErrorMessage = "Error loading external login information during confirmation.";
@@ -153,21 +153,21 @@ namespace TagzApp.Web.Areas.Identity.Pages.Account
 			{
 				var user = CreateUser();
 
-				await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
-				await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+				await _UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+				await _EmailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
 
-				var result = await _userManager.CreateAsync(user);
+				var result = await _UserManager.CreateAsync(user);
 				if (result.Succeeded)
 				{
-					result = await _userManager.AddLoginAsync(user, info);
+					result = await _UserManager.AddLoginAsync(user, info);
 					if (result.Succeeded)
 					{
-						_logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
+						_Logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
 
 						await AssignAdminForFirstUser();
 
-						var userId = await _userManager.GetUserIdAsync(user);
-						var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+						var userId = await _UserManager.GetUserIdAsync(user);
+						var code = await _UserManager.GenerateEmailConfirmationTokenAsync(user);
 						code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 						var callbackUrl = Url.Page(
 								"/Account/ConfirmEmail",
@@ -175,17 +175,17 @@ namespace TagzApp.Web.Areas.Identity.Pages.Account
 								values: new { area = "Identity", userId = userId, code = code },
 								protocol: Request.Scheme);
 
-						await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+						await _EmailSender.SendEmailAsync(Input.Email, "Confirm your email",
 								$"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
 						// If account confirmation is required, we need to show the link if we don't have a real email sender
-						if (_userManager.Options.SignIn.RequireConfirmedAccount)
+						if (_UserManager.Options.SignIn.RequireConfirmedAccount)
 						{
 							return RedirectToPage("./RegisterConfirmation", new { Email = Input.Email });
 						}
 
 
-						await _signInManager.SignInAsync(user, isPersistent: false, info.LoginProvider);
+						await _SignInManager.SignInAsync(user, isPersistent: false, info.LoginProvider);
 						return LocalRedirect(returnUrl);
 					}
 				}
@@ -203,11 +203,11 @@ namespace TagzApp.Web.Areas.Identity.Pages.Account
 		private async Task AssignAdminForFirstUser()
 		{
 
-			if (_userManager.Users.Count() == 1)
+			if (_UserManager.Users.Count() == 1)
 			{
 
-				var user = _userManager.Users.First();
-				await _userManager.AddToRoleAsync(user, Security.Role.Admin);
+				var user = _UserManager.Users.First();
+				await _UserManager.AddToRoleAsync(user, Security.Role.Admin);
 
 			}
 
@@ -229,11 +229,11 @@ namespace TagzApp.Web.Areas.Identity.Pages.Account
 
 		private IUserEmailStore<IdentityUser> GetEmailStore()
 		{
-			if (!_userManager.SupportsUserEmail)
+			if (!_UserManager.SupportsUserEmail)
 			{
 				throw new NotSupportedException("The default UI requires a user store with email support.");
 			}
-			return (IUserEmailStore<IdentityUser>)_userStore;
+			return (IUserEmailStore<IdentityUser>)_UserStore;
 		}
 	}
 }
