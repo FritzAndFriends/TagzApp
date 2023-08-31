@@ -40,16 +40,20 @@ jobs:
       run: |
         echo "" >> src/.editorconfig
         echo "[*.cs]" >> src/.editorconfig
-        echo "dotnet_diagnostic.IDE0005.severity = error" >> src/.editorconfig
-        echo "dotnet_diagnostic.IDE0090.severity = error" >> src/.editorconfig
+        echo "dotnet_diagnostic.IDE0005.severity = error" >> src/.editorconfig # Remove unnecessary using directives
+        echo "dotnet_diagnostic.IDE0090.severity = error" >> src/.editorconfig # Simplify new expression
         echo "trim_trailing_whitespace = true" >> src/.editorconfig
         echo "insert_final_newline = true" >> src/.editorconfig
     - name: Run dotnet format
       if: steps.changed_cs.outputs.files != ''
       id: dotnet-format
       run: |
+        echo "Running dotnet format on: ${{ steps.changed_cs.outputs.files }}"
         result=$(dotnet format src/TagzApp.sln --verbosity normal --exclude src/TagzApp.Web/Migrations --include ${{ steps.changed_cs.outputs.files }})
+        echo "Format result:"
+        echo "$result"
         count=$(echo "$result" | grep -c "Formatted code file" || true)
+        echo "Number of files Format formatted: $count"
         echo "count=$count" >> "$GITHUB_OUTPUT"
       
     - name: Get changed JS/CSS files
@@ -69,9 +73,13 @@ jobs:
       if: steps.changed_js_css.outputs.files != ''
       id: prettier
       run: |
+        echo "Running prettier on: ${{ steps.changed_js_css.outputs.files }}"
         npm install prettier
         result=$(npx prettier --write --list-different ${{ steps.changed_js_css.outputs.files }})
+        echo "Prettier result:"
+        echo "$result"
         count=$(echo "$result" | grep -cE "\.(js|css)$" || true)
+        echo "Number of files Prettier formatted: $count"
         echo "count=$count" >> "$GITHUB_OUTPUT"
 
     - name: Commit if changes
