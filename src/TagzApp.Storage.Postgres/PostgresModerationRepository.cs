@@ -94,7 +94,7 @@ internal class PostgresModerationRepository : IModerationRepository
 
 		var outContent = (Content)content;
 		notify(Hashtag.ClearFormatting(content.HashtagSought), outContent, (ModerationAction)moderationAction);
-		if (state != ModerationState.Rejected) _Notifier.Notify(Hashtag.ClearFormatting(content.HashtagSought), outContent);
+		if (state != ModerationState.Rejected) _Notifier.NotifyNewContent(Hashtag.ClearFormatting(content.HashtagSought), outContent);
 
 	}
 }

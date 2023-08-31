@@ -47,7 +47,7 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 		_Service.SubscribeToContent(new Hashtag() { Text = tag },
 			c =>
 			{
-				_NotifyNewMessages.Notify(Hashtag.ClearFormatting(c.HashtagSought), c);
+				_NotifyNewMessages.NotifyNewContent(Hashtag.ClearFormatting(c.HashtagSought), c);
 			});
 
 
@@ -95,7 +95,7 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 			_Service.SubscribeToContent(new Hashtag() { Text = tag },
 				c =>
 				{
-					_NotifyNewMessages.Notify(Hashtag.ClearFormatting(c.HashtagSought), c);
+					_NotifyNewMessages.NotifyNewContent(Hashtag.ClearFormatting(c.HashtagSought), c);
 				});
 		}
 

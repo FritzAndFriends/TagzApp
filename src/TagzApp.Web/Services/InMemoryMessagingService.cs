@@ -61,7 +61,7 @@ public class InMemoryMessagingService : BaseProviderManager, IMessagingService
 			c =>
 			{
 				_Content[c.HashtagSought.TrimStart('#')].Add(c);
-				_NotifyNewMessages.Notify(Hashtag.ClearFormatting(c.HashtagSought), c);
+				_NotifyNewMessages.NotifyNewContent(Hashtag.ClearFormatting(c.HashtagSought), c);
 				//_Logger.LogInformation($"Message found for tag '{c.HashtagSought}': {c.Text}");
 			});
 
