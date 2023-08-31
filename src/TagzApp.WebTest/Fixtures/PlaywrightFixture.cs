@@ -21,7 +21,9 @@ public class PlaywrightFixture : PlaywrightFixture<Web.Program>
 
 	private readonly Guid _Uniqueid = Guid.NewGuid();
 
-  protected override IHost CreateHost(IHostBuilder builder)
+	public override LogLevel MinimumLogLevel => LogLevel.Warning;
+
+	protected override IHost CreateHost(IHostBuilder builder)
   {
     //ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
     builder.AddTestConfiguration(jsonConfiguration: CONFIGURATION);

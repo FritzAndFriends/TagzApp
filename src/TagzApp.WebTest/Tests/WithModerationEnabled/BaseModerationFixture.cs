@@ -15,6 +15,8 @@ public class BaseModerationFixture : PlaywrightPageFixture<Web.Program>
 
 	private readonly Guid _Uniqueid = Guid.NewGuid();
 
+	public override LogLevel MinimumLogLevel => LogLevel.Warning;
+
 	protected override IHost CreateHost(IHostBuilder builder)
 	{
 

@@ -15,15 +15,24 @@ public class ModalFixture : PlaywrightPageFixture<Web.Program>
 
 	private readonly Guid _Uniqueid = Guid.NewGuid();
 
-  protected override IHost CreateHost(IHostBuilder builder)
+	public override LogLevel MinimumLogLevel => LogLevel.Warning;
+
+	protected override IHost CreateHost(IHostBuilder builder)
   {
-    // ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
-    builder.AddTestConfiguration();
+		// ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
+		builder.AddTestConfiguration(jsonConfiguration: CONFIGURATION);
     builder.UseOnlyStubSocialMediaProvider();
 		builder.UseOnlyInMemoryService();
     builder.UseUniqueDb(_Uniqueid);
     return base.CreateHost(builder);
   }
+
+	private const string CONFIGURATION = """
+		{
+			"ModerationEnabled": "false"
+		}
+	""";
+
 
 	// Temp hack to see if it is a timing issue in github actions
 	public async override Task InitializeAsync()
