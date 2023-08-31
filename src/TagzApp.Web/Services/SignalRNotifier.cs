@@ -19,12 +19,25 @@ public class SignalRNotifier : INotifyNewMessages
 		_ModerationEnabled = configuration.GetValue<bool>("ModerationEnabled", false);
 	}
 
-	public void Notify(string hashtag, Content content)
+	public void NotifyNewContent(string hashtag, Content content)
 	{
 
-		_HubContext.Clients
-			.Group(hashtag)
-			.SendAsync("NewWaterfallMessage", (ContentModel)content);
+		if (_ModerationEnabled)
+		{
+
+			_ModContext.Clients
+				.Group(hashtag)
+				.NewWaterfallMessage((ContentModel)content);
+
+		}
+		else
+		{
+
+			_HubContext.Clients
+				.Group(hashtag)
+				.SendAsync("NewWaterfallMessage", (ContentModel)content);
+
+		}
 
 	}
 
@@ -34,6 +47,10 @@ public class SignalRNotifier : INotifyNewMessages
 		_ModContext.Clients
 			.Group(hashtag)
 			.NewApprovedMessage(ModerationContentModel.ToModerationContentModel(content, action));
+
+		_HubContext.Clients
+			.Group(hashtag)
+			.SendAsync("NewWaterfallMessage", (ContentModel)content);
 
 	}
 

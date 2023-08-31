@@ -6,7 +6,7 @@
 
 <div class="row">
 	<div class="col-md-12">
-		<h1 class="text-center">Moderate Content for TagzApp (@Model.Tags.Select(t => $"#{t}").First())</h1>
+		<h1 class="text-center">Moderate Content for TagzApp (@(Model.Tags.Select(t => $"#{t}").FirstOrDefault() ?? ""))</h1>
 	</div>
 </div>
 
@@ -25,7 +25,7 @@
 	<script src="~/js/masonry.js" asp-append-version="true"></script>
 	<script>
 
-		window.TagzApp.ListenForModerationContent("@Model.Tags.First()");
+		window.TagzApp.ListenForModerationContent("@Model.Tags.FirstOrDefault()");
 
 		window.onload = window.Masonry.resizeAllGridItems();
 		window.addEventListener("resize", Masonry.resizeAllGridItems);

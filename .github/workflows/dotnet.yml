@@ -45,7 +45,7 @@ jobs:
                 working-directory: ./src/TagzApp.WebTest
         timeout-minutes: 10
         container:
-            image: mcr.microsoft.com/playwright/dotnet:v1.37.0-jammy
+            image: mcr.microsoft.com/playwright/dotnet:v1.37.1-jammy
             options: --ipc=host
         steps:
             - uses: actions/checkout@v3
