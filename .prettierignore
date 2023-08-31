@@ -1,1 +1,3 @@
-src/wwwroot/lib/**
+src/**/lib/**
+src/**/obj/**
+src/**/bin/**
