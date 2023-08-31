@@ -7,7 +7,7 @@ namespace TagzApp.Providers.TwitchChat;
 public class StartTwitchChat : IConfigureProvider
 {
 
-	private const string ConfigurationKey = "providers:twitchchat";
+	private const string _ConfigurationKey = "providers:twitchchat";
 
 	public IServiceCollection RegisterServices(IServiceCollection services, IConfiguration configuration)
 	{
@@ -15,14 +15,14 @@ public class StartTwitchChat : IConfigureProvider
 		IConfiguration config = null;
 		try
 		{
-			config = configuration.GetSection(ConfigurationKey);
+			config = configuration.GetSection(_ConfigurationKey);
 			services.Configure<TwitchChatConfiguration>(config);
 		}
 		catch (Exception ex)
 		{
 
 			// Was not able to configure the provider
-			throw new InvalidConfigurationException(ex.Message, ConfigurationKey);
+			throw new InvalidConfigurationException(ex.Message, _ConfigurationKey);
 
 		}
 

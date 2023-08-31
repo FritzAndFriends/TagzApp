@@ -38,12 +38,12 @@ jobs:
     - name: Add formatting rules to .editorconfig
       if: steps.changed_cs.outputs.files != ''
       run: |
-        echo "" >> .editorconfig
-        echo "[*.cs]" >> .editorconfig
-        echo "dotnet_diagnostic.IDE0005.severity = error" >> .editorconfig
-        echo "dotnet_diagnostic.IDE0090.severity = error" >> .editorconfig
-        echo "trim_trailing_whitespace = true" >> .editorconfig
-        echo "insert_final_newline = true" >> .editorconfig
+        echo "" >> src/.editorconfig
+        echo "[*.cs]" >> src/.editorconfig
+        echo "dotnet_diagnostic.IDE0005.severity = error" >> src/.editorconfig
+        echo "dotnet_diagnostic.IDE0090.severity = error" >> src/.editorconfig
+        echo "trim_trailing_whitespace = true" >> src/.editorconfig
+        echo "insert_final_newline = true" >> src/.editorconfig
     - name: Run dotnet format
       if: steps.changed_cs.outputs.files != ''
       id: dotnet-format
