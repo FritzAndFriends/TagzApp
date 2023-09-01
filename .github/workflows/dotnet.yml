@@ -182,7 +182,6 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git switch ${{ github.head_ref }}
           git add *.cs *.js *.css
           git commit -m "Applying formatting changes through GitHub Actions"
-          git push
+          git push origin HEAD:${{ github.head_ref }}
