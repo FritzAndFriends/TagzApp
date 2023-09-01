@@ -26,7 +26,9 @@ public class Program
 			.AddRoles<IdentityRole>()
 			.AddEntityFrameworkStores<SecurityContext>();
 
-		_ = builder.Services.AddAuthentication().AddExternalProviders(builder.Configuration);
+		_ = builder.Services.AddAuthentication()
+			.AddCookie()
+			.AddExternalProviders(builder.Configuration);
 
 		builder.Services.AddAuthorization(config =>
 		{
