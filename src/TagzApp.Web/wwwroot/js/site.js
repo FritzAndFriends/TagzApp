@@ -78,7 +78,7 @@
 		<div class="content">${content.text}</div>`;
 
 		if (content.previewCard) {
-			const tag = content.previewCard.imageUri.split('.').pop() == "mp4" ? "video" : "img";
+			const tag = content.previewCard.imageUri.split('.').pop() == "mp4" ? "video autoplay" : "img";
 			newMessage.innerHTML += `
 				<div class="contentcard">
 					<${tag} src="${content.previewCard.imageUri}" class="card-img-top" alt="${content.previewCard.altText}" />
@@ -114,9 +114,10 @@
 				let modalBody = document.querySelector(".modal-body").innerHTML = content.text;
 
 				if (content.previewCard) {
+					const tag = content.previewCard.imageUri.split('.').pop() == "mp4" ? "video autoplay" : "img";
 					document.querySelector(".modal-body").innerHTML += `
 				<div class="contentcard">
-					<img src="${content.previewCard.imageUri}" class="card-img-top" alt="${content.previewCard.altText}" />
+					<${tag} src="${content.previewCard.imageUri}" class="card-img-top" alt="${content.previewCard.altText}" />
 				</div>
 			`
 				}
@@ -152,10 +153,6 @@
 		if (content.state == ModerationState.Rejected) moreClasses.push("status-rejected");
 
 		FormatMessage(content, moreClasses, showModerationPanel, showModerationPanel);
-
-		//newMessage.addEventListener("mouseenter", showModerationPanel);
-		//newMessage.addEventListener("click", showModerationPanel);		// for touch-screen support
-
 
 	}
 
