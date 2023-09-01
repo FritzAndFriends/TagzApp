@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TagzApp.Communication.Extensions;
@@ -41,9 +42,25 @@ public class Program
 			options.Conventions.AuthorizePage("/Moderation", Security.Policy.Moderator);
 		});
 
+		builder.Services.Configure<ForwardedHeadersOptions>(options =>
+		{
+			options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedHost |
+								ForwardedHeaders.XForwardedProto;
+			// Only loopback proxies are allowed by default.
+			// Clear that restriction because forwarders are enabled by explicit
+			// configuration.
+			options.KnownNetworks.Clear();
+			options.KnownProxies.Clear();
+		});
+
 		builder.Services.AddTagzAppHostedServices(builder.Configuration);
 
 		builder.Services.AddSignalR();
+
+		builder.Services.AddHttpLogging(options =>
+		{
+			options.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.RequestPropertiesAndHeaders;
+		});
 
 		// Add the Polly policies
 		builder.Services.AddPolicies(builder.Configuration);
@@ -55,10 +72,21 @@ public class Program
 		{
 			app.UseExceptionHandler("/Error");
 			// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+			app.UseForwardedHeaders();
 			app.UseHsts();
+		} else {
+			app.UseDeveloperExceptionPage();
+			app.UseForwardedHeaders();
+			app.UseHttpLogging();
 		}
 
-		//app.UseHttpsRedirection();
+		app.UseCookiePolicy(new CookiePolicyOptions()
+		{
+			MinimumSameSitePolicy = SameSiteMode.Lax
+		});
+		app.UseCertificateForwarding();
+
+		app.UseHttpsRedirection();
 		app.UseStaticFiles();
 
 		app.UseRouting();
@@ -80,7 +108,7 @@ public class Program
 			});
 		}
 
-		app.Services.InitializeSecurity().GetAwaiter().GetResult(); // Ensure this runs before we start the app
+		app.Services.InitializeSecurity().GetAwaiter().GetResult(); // Ensure this runs before we start the app.
 
 		app.Run();
 	}
