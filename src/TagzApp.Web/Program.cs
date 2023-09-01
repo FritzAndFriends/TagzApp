@@ -44,8 +44,7 @@ public class Program
 
 		builder.Services.Configure<ForwardedHeadersOptions>(options =>
 		{
-			options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedHost |
-								ForwardedHeaders.XForwardedProto;
+			options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedHost;
 			// Only loopback proxies are allowed by default.
 			// Clear that restriction because forwarders are enabled by explicit
 			// configuration.
