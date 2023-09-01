@@ -57,6 +57,11 @@ public class Program
 
 		builder.Services.AddSignalR();
 
+		builder.Services.AddHttpLogging(options =>
+		{
+			options.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.RequestPropertiesAndHeaders;
+		});
+
 		// Add the Polly policies
 		builder.Services.AddPolicies(builder.Configuration);
 
@@ -72,6 +77,7 @@ public class Program
 		} else {
 			app.UseDeveloperExceptionPage();
 			app.UseForwardedHeaders();
+			app.UseHttpLogging();
 		}
 
 		app.UseCookiePolicy(new CookiePolicyOptions()
