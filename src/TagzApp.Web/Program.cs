@@ -66,17 +66,16 @@ public class Program
 
 		var app = builder.Build();
 
+		app.UseForwardedHeaders();
+		app.UseHttpLogging();
 		// Configure the HTTP request pipeline.
 		if (!app.Environment.IsDevelopment())
 		{
 			app.UseExceptionHandler("/Error");
 			// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-			app.UseForwardedHeaders();
 			app.UseHsts();
 		} else {
 			app.UseDeveloperExceptionPage();
-			app.UseForwardedHeaders();
-			app.UseHttpLogging();
 		}
 
 		app.UseCookiePolicy(new CookiePolicyOptions()
