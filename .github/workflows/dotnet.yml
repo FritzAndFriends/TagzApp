@@ -180,8 +180,9 @@ jobs:
       - name: Commit if changes
         if: steps.prettier.outputs.count > 0 || steps.dotnet-format.outputs.count > 0
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git switch ${{ github.event.pull_request.head.sha }}
           git add *.cs *.js *.css
           git commit -m "Applying formatting changes through GitHub Actions"
           git push
