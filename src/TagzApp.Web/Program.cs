@@ -26,7 +26,9 @@ public class Program
 			.AddRoles<IdentityRole>()
 			.AddEntityFrameworkStores<SecurityContext>();
 
-		_ = builder.Services.AddAuthentication().AddExternalProviders(builder.Configuration);
+		_ = builder.Services.AddAuthentication()
+			.AddCookie()
+			.AddExternalProviders(builder.Configuration);
 
 		builder.Services.AddAuthorization(config =>
 		{
@@ -44,8 +46,7 @@ public class Program
 
 		builder.Services.Configure<ForwardedHeadersOptions>(options =>
 		{
-			options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedHost |
-								ForwardedHeaders.XForwardedProto;
+			options.ForwardedHeaders = ForwardedHeaders.All;
 			// Only loopback proxies are allowed by default.
 			// Clear that restriction because forwarders are enabled by explicit
 			// configuration.
@@ -67,17 +68,16 @@ public class Program
 
 		var app = builder.Build();
 
+		app.UseForwardedHeaders();
+		app.UseHttpLogging();
 		// Configure the HTTP request pipeline.
 		if (!app.Environment.IsDevelopment())
 		{
 			app.UseExceptionHandler("/Error");
 			// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-			app.UseForwardedHeaders();
 			app.UseHsts();
 		} else {
 			app.UseDeveloperExceptionPage();
-			app.UseForwardedHeaders();
-			app.UseHttpLogging();
 		}
 
 		app.UseCookiePolicy(new CookiePolicyOptions()
@@ -91,6 +91,7 @@ public class Program
 
 		app.UseRouting();
 
+		app.UseAuthentication();
 		app.UseAuthorization();
 
 		app.MapRazorPages();
