@@ -39,7 +39,7 @@ jobs:
   playwright:
         if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
         name: 'Playwright Tests'
-        runs-on: self-hosted 
+        runs-on: ubuntu-latest
         defaults:
             run:
                 working-directory: ./src/TagzApp.WebTest
