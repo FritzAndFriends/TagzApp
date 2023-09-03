@@ -111,8 +111,7 @@ jobs:
       - name: Get git diff
         id: diff
         run: |
-          git fetch origin main
-          git log origin/main -1
+          git fetch --all
           {
             echo 'files<<EOF'
             git diff origin/main --name-only --diff-filter=d -- "*.css" "*.js" "*.cs"
