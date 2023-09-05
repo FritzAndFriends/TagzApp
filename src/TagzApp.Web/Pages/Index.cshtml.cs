@@ -1,28 +1,33 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using TagzApp.Web.Services;
+using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace TagzApp.Web.Pages
 {
 	public class IndexModel : PageModel
 	{
 		private readonly ILogger<IndexModel> _logger;
-		public readonly IConfiguration _Configuration;
 		private readonly IMessagingService _Service;
+		private readonly Microsoft.AspNetCore.Hosting.IHostingEnvironment _HostingEnvironment;
 
-		public IndexModel(ILogger<IndexModel> logger, IConfiguration configuration, IMessagingService service)
+		public IndexModel(ILogger<IndexModel> logger, IMessagingService service, IHostingEnvironment hostingEnvironment)
 		{
 			_logger = logger;
-			_Configuration = configuration;
 			_Service = service;
+			_HostingEnvironment = hostingEnvironment;
 		}
 
 		public void OnGet()
 		{
 
-			foreach (var item in _Service.TagsTracked)
-			{
-				Tags.Add(item);
+			if (_HostingEnvironment.IsDevelopment()) {
+
+				foreach (var item in _Service.TagsTracked)
+				{
+					TagSearchModel.Tags.Add(item);
+				}
+
 			}
 
 		}
@@ -30,9 +35,9 @@ namespace TagzApp.Web.Pages
 		public IActionResult OnPost()
 		{
 
-			if (!string.IsNullOrEmpty(NewTag))
+			if (_HostingEnvironment.IsDevelopment() && !string.IsNullOrEmpty(TagSearchModel.NewTag) && !_Service.TagsTracked.Any())
 			{
-				_Service.AddHashtagToWatch(NewTag);
+				_Service.AddHashtagToWatch(TagSearchModel.NewTag);
 			}
 
 			return RedirectToPage();
@@ -40,9 +45,8 @@ namespace TagzApp.Web.Pages
 		}
 
 		[BindProperty]
-		public string NewTag { get; set; }
+		public Shared.TagSearchModel TagSearchModel { get; set; } = new();
 
-		public List<string> Tags { get; } = new List<string>();
 
 	}
 }
