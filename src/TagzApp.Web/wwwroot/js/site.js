@@ -78,7 +78,7 @@
 		<div class="content">${content.text}</div>`;
 
 		if (content.previewCard) {
-			const tag = content.previewCard.imageUri.split('.').pop() == "mp4" ? "video autoplay" : "img";
+			const tag = content.previewCard.imageUri.split('.').pop() == "mp4" ? "video muted='muted' controls='controls' autoplay" : "img";
 			newMessage.innerHTML += `
 				<div class="contentcard">
 					<${tag} src="${content.previewCard.imageUri}" class="card-img-top" alt="${content.previewCard.altText}" />
@@ -114,7 +114,7 @@
 				let modalBody = document.querySelector(".modal-body").innerHTML = content.text;
 
 				if (content.previewCard) {
-					const tag = content.previewCard.imageUri.split('.').pop() == "mp4" ? "video autoplay" : "img";
+					const tag = content.previewCard.imageUri.split('.').pop() == "mp4" ? "video muted='muted' controls='controls' autoplay" : "img";
 					document.querySelector(".modal-body").innerHTML += `
 				<div class="contentcard">
 					<${tag} src="${content.previewCard.imageUri}" class="card-img-top" alt="${content.previewCard.altText}" />
