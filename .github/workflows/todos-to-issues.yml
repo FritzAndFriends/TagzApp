@@ -2,7 +2,7 @@ name: Create GitHub Issues from TODOs, FIXMEs, etc.
 
 on:
   push:
-    branches: ["Stelzi79/TODOs_as_GHIssues"]
+    branches: ["main"]
 
 jobs:
   create_issues:
