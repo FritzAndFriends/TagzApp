@@ -44,7 +44,8 @@ internal class PgContent
 		{
 
 			Id = thisContent.Id,
-			Author = author,
+			// TODO: Check if author might be null at any	point because the compiler thinks it might be (Creator? is returned!)
+			Author = author!,
 			Provider = thisContent.Provider,
 			ProviderId = thisContent.ProviderId,
 			HashtagSought = thisContent.HashtagSought,
