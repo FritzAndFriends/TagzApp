@@ -79,7 +79,7 @@ internal class HashtagTransmissionsService : ITransmissionsService, IDisposable
 				exception = null;
 				break;
 			}
-			catch (UnauthorizedAccessException ex)
+			catch (UnauthorizedAccessException)
 			{
 				_Logger.LogInformation("Unauthorized request to Blazot. The app will attempt to refresh the access token. Attempt {count} of {total}", i + 1, maxTryCount);
 				// If token has expired, request a new one.
