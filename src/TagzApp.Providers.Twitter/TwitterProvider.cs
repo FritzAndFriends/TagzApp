@@ -1,9 +1,8 @@
 ﻿using System.IO.Compression;
-using System.Net.Http.Json;
 using System.Reflection;
 using System.Text.Json;
 using System.Web;
-using TagzApp.Common.Models;
+
 using TagzApp.Providers.Twitter.Models;
 
 namespace TagzApp.Providers.Twitter;
@@ -28,8 +27,10 @@ public class TwitterProvider : ISocialMediaProvider
 	{
 		_HttpClient = httpClientFactory.CreateClient(nameof(TwitterProvider));
 	}
-
+	// TODO: Check CS1998: Async method lacks 'await' operators and will run synchronously
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 	public async Task<IEnumerable<Content>> GetContentForHashtag(Common.Models.Hashtag tag, DateTimeOffset since)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 	{
 
 		var tweetQuery = "#" + tag.Text.ToLowerInvariant().TrimStart('#') + " -is:retweet";
