@@ -37,7 +37,7 @@ public class Message
 	public Card? card { get; set; }
 	public object? poll { get; set; }
 
-	public static MediaAttachment GetMediaAttachment(string mediaJson)
+	public static MediaAttachment? GetMediaAttachment(string mediaJson)
 	{
 
 		var rawJson = mediaJson.Substring(mediaJson.IndexOf('{'));
@@ -150,12 +150,12 @@ public class MediaAttachment
 	public static implicit operator Common.Models.Card(MediaAttachment mediaAttachment)
 	{
 
-		if (mediaAttachment is null) return null;
+		if (mediaAttachment is null) return mediaAttachment!;
 
 		return new Common.Models.Card
 		{
 			ImageUri = new Uri(mediaAttachment.url),
-			AltText = mediaAttachment.description?.ToString(),
+			AltText = mediaAttachment.description?.ToString() ?? "",
 			Height = mediaAttachment.meta?.original?.height ?? 0,
 			Width = mediaAttachment.meta?.original?.width ?? 0
 		};
