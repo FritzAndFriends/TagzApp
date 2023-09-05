@@ -1,8 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Collections.Concurrent;
+
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Concurrent;
-using TagzApp.Common.Models;
 
 namespace TagzApp.Storage.Postgres;
 
@@ -14,7 +13,7 @@ internal class PostgresMessaging : IDisposable
 	private List<Task> _ProviderTasks = new List<Task>();
 	internal readonly Dictionary<string, ConcurrentQueue<Content>> Queue = new();
 	private readonly Dictionary<string, ConcurrentBag<Action<Content>>> _Actions = new();
-	private static IServiceProvider _Services;
+	private static IServiceProvider? _Services;
 	private readonly Task _QueueWatcher;
 
 	public PostgresMessaging(IServiceProvider services)
