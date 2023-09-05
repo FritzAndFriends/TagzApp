@@ -1,9 +1,11 @@
-﻿using System.IO.Compression;
+﻿using Microsoft.Extensions.Options;
+using System.IO.Compression;
 using System.Net.Http.Json;
 using System.Reflection;
 using System.Text.Json;
 using System.Web;
 using TagzApp.Common.Models;
+using TagzApp.Providers.Twitter.Configuration;
 using TagzApp.Providers.Twitter.Models;
 
 namespace TagzApp.Providers.Twitter;
@@ -11,7 +13,7 @@ namespace TagzApp.Providers.Twitter;
 public class TwitterProvider : ISocialMediaProvider
 {
 	private readonly HttpClient _HttpClient;
-
+	private readonly TwitterConfiguration _Configuration;
 	private const string _SearchFields = "created_at,author_id,entities";
 	private const int _SearchMaxResults = 100;
 	private const string _SearchExpansions = "author_id,attachments.media_keys";
@@ -24,9 +26,10 @@ public class TwitterProvider : ISocialMediaProvider
 
 	private string _NewestId = string.Empty;
 
-	public TwitterProvider(IHttpClientFactory httpClientFactory)
+	public TwitterProvider(IHttpClientFactory httpClientFactory, IOptions<TwitterConfiguration> options)
 	{
 		_HttpClient = httpClientFactory.CreateClient(nameof(TwitterProvider));
+		_Configuration = options.Value;
 	}
 
 	public async Task<IEnumerable<Content>> GetContentForHashtag(Common.Models.Hashtag tag, DateTimeOffset since)
@@ -41,27 +44,32 @@ public class TwitterProvider : ISocialMediaProvider
 		try
 		{
 
-#if TWITTER_LIVE
-
-			var response = await _HttpClient.GetAsync(targetUri);
-			var rawText = await response.Content.ReadAsStringAsync();
-
-			recentTweets = await _HttpClient.GetFromJsonAsync<TwitterData>(targetUri);
-			_NewestId = recentTweets.meta.newest_id ?? _NewestId;
-#else
-
-			var assembly = Assembly.GetExecutingAssembly();
-			var resourceName = "TagzApp.Providers.Twitter.Models.SampleTweets.json.gz";
-			string sampleJson = string.Empty;
-
-			using var stream = assembly.GetManifestResourceStream(resourceName);
-			if (stream is not null)
+			if (_Configuration.Activated)
 			{
-				using var unzip = new GZipStream(stream, CompressionMode.Decompress);
-				var embeddedTweets = JsonSerializer.Deserialize<TwitterData>(unzip);
-				if (embeddedTweets is not null) recentTweets = embeddedTweets;
+
+				//var response = await _HttpClient.GetAsync(targetUri);
+				//var rawText = await response.Content.ReadAsStringAsync();
+
+				recentTweets = await _HttpClient.GetFromJsonAsync<TwitterData>(targetUri);
+				_NewestId = recentTweets.meta.newest_id ?? _NewestId;
+
 			}
-#endif
+			else
+			{
+
+				var assembly = Assembly.GetExecutingAssembly();
+				var resourceName = "TagzApp.Providers.Twitter.Models.SampleTweets.json.gz";
+				string sampleJson = string.Empty;
+
+				using var stream = assembly.GetManifestResourceStream(resourceName);
+				if (stream is not null)
+				{
+					using var unzip = new GZipStream(stream, CompressionMode.Decompress);
+					var embeddedTweets = JsonSerializer.Deserialize<TwitterData>(unzip);
+					if (embeddedTweets is not null) recentTweets = embeddedTweets;
+				}
+
+			}
 
 		}
 		catch (Exception ex)
