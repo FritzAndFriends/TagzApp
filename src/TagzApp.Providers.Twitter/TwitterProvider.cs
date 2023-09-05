@@ -96,7 +96,7 @@ public class TwitterProvider : ISocialMediaProvider
 
 		var outContent = new List<Content>();
 
-		foreach (var t in recentTweets.data)
+		foreach (var t in recentTweets.data!)
 		{
 
 			var author = recentTweets.includes.users.FirstOrDefault(u => u.id == t.author_id);
