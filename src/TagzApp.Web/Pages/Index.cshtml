@@ -11,18 +11,16 @@
 
 	<div id="tagListPanel" class="col-md-4">
 
-		<form method="post">
-			<input name="NewTag" placeholder="New Hashtag" value="@Model.NewTag" />
-			<input type="submit" aria-role="button" name="Add" value="Add" />
-		</form>
-
-		<ul>
-			@foreach (var tag in Model.Tags)
-			{
-				<li>
-					<a href="#" class="hashtags" onclick="tagClicked('@tag')">@tag</a>
-				</li>
-			}
-		</ul>
+		
 
 	</div>
+</div>
+
+<environment include="Development">
+
+	<hr />
+
+	<h4>DEVELOPMENT MODE - TEST UI</h4>
+
+	<partial name="_TagSearch" model="@Model.TagSearchModel" />
+</environment>
