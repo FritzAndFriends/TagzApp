@@ -30,11 +30,12 @@ internal class PostgresMessaging : IDisposable
 		foreach (var providerItem in providers)
 		{
 
-			_ProviderTasks.Add(Task.Factory.StartNew(async (object state) =>
+			_ProviderTasks.Add(Task.Factory.StartNew(async (object? state) =>
 			{
 
-				var provider = (ISocialMediaProvider)state;
-
+				var provider = state as ISocialMediaProvider;
+				// TODO: Check if this can done another way.
+				if (provider == null) return;
 				var lastQueryTime = DateTimeOffset.UtcNow.AddHours(-1);
 
 				while (!cancellationToken.IsCancellationRequested)
@@ -46,7 +47,7 @@ internal class PostgresMessaging : IDisposable
 						continue;
 					}
 
-					using var scope = _Services.CreateScope();
+					using var scope = _Services!.CreateScope();
 					var context = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
 
 					foreach (var tag in _Actions.Keys.Distinct<string>())
