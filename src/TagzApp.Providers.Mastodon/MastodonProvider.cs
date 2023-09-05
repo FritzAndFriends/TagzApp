@@ -1,8 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Net.Http.Json;
-using System.Text.Json;
+﻿using System.Net.Http.Json;
 using System.Web;
-using TagzApp.Common.Models;
+
+using Microsoft.Extensions.Logging;
 
 namespace TagzApp.Providers.Mastodon;
 
@@ -65,7 +64,7 @@ internal class MastodonProvider : ISocialMediaProvider
 			Author = new Creator
 			{
 				DisplayName = m.account!.display_name,
-				UserName = m.account.acct + (m.account.acct.Contains("@") ? "" : $"@{baseServerAddress}" ),
+				UserName = m.account.acct + (m.account.acct.Contains("@") ? "" : $"@{baseServerAddress}"),
 				ProviderId = Id,
 				ProfileImageUri = new Uri(m.account.avatar_static),
 				ProfileUri = new Uri(m.account.url)
