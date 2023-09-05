@@ -131,7 +131,7 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 
 	}
 
-	public async Task<IEnumerable<(Content, ModerationAction?)>> GetContentByTagForModeration(string tag)
+	public async Task<IEnumerable<(Content, ModerationAction)>> GetContentByTagForModeration(string tag)
 	{
 
 		tag = $"#{tag}";
@@ -145,11 +145,13 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 			.Take(100)
 			.ToListAsync();
 
-		var outResults = new List<(Content, ModerationAction?)>();
+		var outResults = new List<(Content, ModerationAction)>();
 		foreach (var c in contentResults)
 		{
-
+			// TODO: Check CS8620: Argument cannot be used for parameter due to differences in the nullability of reference types.
+#pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
 			outResults.Add(((Content)c, c.ModerationAction is null ? null : (ModerationAction)c.ModerationAction));
+#pragma warning restore CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
 
 		}
 
