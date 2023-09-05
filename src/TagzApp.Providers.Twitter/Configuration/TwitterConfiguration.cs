@@ -7,10 +7,13 @@ namespace TagzApp.Providers.Twitter.Configuration;
 /// </summary>
 public class TwitterConfiguration : HttpClientOptions
 {
+
 	/// <summary>
 	/// Declare the section name used
 	/// </summary>
 	public const string AppSettingsSection = "providers:twitter";
+
+	public bool Activated { get; set; } = false;
 
 	/// <summary>
 	/// Twitter issued API Key for the service
