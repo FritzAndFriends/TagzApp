@@ -1,0 +1,16 @@
+name: Create GitHub Issues from TODOs, FIXMEs, etc.
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  create_issues:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: "actions/checkout@v3"
+      - name: "TODO to Issue"
+        # See https://github.com/marketplace/actions/todo-to-issue for more configuration options
+        uses: "alstr/todo-to-issue-action@v4"
+        with:
+          IDENTIFIERS: '[{"name": "TODO", "labels": ["help wanted"]}, {"name": "FIXME", "labels": ["bug"]}]'
