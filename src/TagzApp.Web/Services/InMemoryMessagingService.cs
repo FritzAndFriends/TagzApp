@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
-using TagzApp.Common.Models;
+
 using TagzApp.Communication;
-using TagzApp.Web.Hubs;
 
 namespace TagzApp.Web.Services;
 
