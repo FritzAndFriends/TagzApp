@@ -151,6 +151,9 @@ internal class HashtagTransmissionsService : ITransmissionsService, IDisposable
 	public void Dispose()
 	{
 		_WindowTimer?.Dispose();
+		// TODO: Check CS8622 -- Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
+#pragma warning disable CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
 		_AuthEvents.AccessTokenUpdated -= UpdateAuthorizationHeader;
+#pragma warning restore CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
 	}
 }
