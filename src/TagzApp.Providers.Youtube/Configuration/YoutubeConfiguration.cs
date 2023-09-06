@@ -5,7 +5,7 @@ namespace TagzApp.Providers.Youtube.Configuration;
 /// <summary>
 /// Defines the Youtube configuration
 /// </summary>
-public class YoutubeConfiguration
+public class YoutubeConfiguration : ISocialMediaProviderConfiguration
 {
 	/// <summary>
 	/// Declare the section name used

@@ -1,6 +1,6 @@
 ﻿namespace TagzApp.Providers.Blazot.Configuration;
 
-internal class BlazotSettings
+internal class BlazotSettings : ISocialMediaProviderConfiguration
 {
 	/// <summary>
 	/// Declare the section name used.

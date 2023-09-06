@@ -18,6 +18,8 @@ internal class TagzAppContext : DbContext
 
 	public DbSet<PgModerationAction> ModerationActions { get; set; }
 
+	public DbSet<ProviderConfiguration> ProviderConfigurations { get; set; }
+
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 

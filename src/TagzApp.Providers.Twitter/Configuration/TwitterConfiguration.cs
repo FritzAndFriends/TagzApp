@@ -5,7 +5,7 @@ namespace TagzApp.Providers.Twitter.Configuration;
 /// <summary>
 /// Defines the Twitter configuration
 /// </summary>
-public class TwitterConfiguration : HttpClientOptions
+public class TwitterConfiguration : HttpClientOptions, ISocialMediaProviderConfiguration
 {
 
 	/// <summary>

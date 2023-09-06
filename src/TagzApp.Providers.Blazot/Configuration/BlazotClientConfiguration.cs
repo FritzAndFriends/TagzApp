@@ -2,7 +2,7 @@
 
 namespace TagzApp.Providers.Blazot.Configuration;
 
-public class BlazotClientConfiguration : HttpClientOptions
+public class BlazotClientConfiguration : HttpClientOptions, ISocialMediaProviderConfiguration
 {
 	/// <summary>
 	/// Declare the section name used.

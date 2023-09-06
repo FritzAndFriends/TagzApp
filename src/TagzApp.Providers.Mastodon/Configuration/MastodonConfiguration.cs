@@ -5,7 +5,7 @@ namespace TagzApp.Providers.Mastodon.Configuration;
 /// <summary>
 /// Defines the Mastondon configuration
 /// </summary>
-internal class MastodonConfiguration : HttpClientOptions
+internal class MastodonConfiguration : HttpClientOptions, ISocialMediaProviderConfiguration
 {
 	/// <summary>
 	/// Declare the section name used
