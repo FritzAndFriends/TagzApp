@@ -162,6 +162,28 @@
 
 	}
 
+	function ApproveMessage(content) {
+
+		var card = document.querySelector(`[data-providerid='${content.providerId}']`);
+
+		if (card) {
+			card.classList.remove("status-rejected");
+			card.classList.add("status-approved");
+		}
+
+	}
+
+	function RejectMessage(content) {
+
+		var card = document.querySelector(`[data-providerid='${content.providerId}']`);
+
+		if (card) {
+			card.classList.remove("status-approved");
+			card.classList.add("status-rejected");
+		}
+
+	}
+
 	function showModerationPanel(ev) {
 
 		var hovered = ev.target.closest('article');
@@ -282,6 +304,14 @@
 
 			connection.on("NewWaterfallMessage", (content) => {
 				FormatMessageForModeration(content);
+			});
+
+			connection.on("NewApprovedMessage", (content) => {
+				ApproveMessage(content);
+			});
+
+			connection.on("NewRejectedMessage", (content) => {
+				RejectMessage(content);
 			});
 
 			// Start the connection.
