@@ -103,19 +103,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-        with:
-          repository: '${{ github.actor }}/TagzApp'
-          ref: ${{ github.head_ref }}
-          fetch-depth: 0
       - name: Get git diff
         id: diff
         run: |
-          git remote add upstream https://github.com/FritzAndFriends/TagzApp/
-          git fetch upstream main --depth=1
-          echo "$(git log upstream/main -1 --oneline)"
+          git fetch origin main
           {
             echo 'files<<EOF'
-            git diff upstream/main --name-only --diff-filter=d -- "*.css" "*.js" "*.cs"
+            git diff origin/main --name-only --diff-filter=d -- "*.css" "*.js" "*.cs"
             echo EOF
           } >> "$GITHUB_OUTPUT"
 
@@ -187,4 +181,4 @@ jobs:
           git add *.cs *.js *.css
           echo "$(git status)"
           git commit -m "Applying formatting changes through GitHub Actions"
-          git push
+          git push origin HEAD:${{ github.head_ref }}
