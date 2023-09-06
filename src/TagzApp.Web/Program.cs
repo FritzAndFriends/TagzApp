@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Npgsql.Replication.PgOutput;
 using TagzApp.Communication.Extensions;
 using TagzApp.Web.Data;
 using TagzApp.Web.Hubs;
@@ -15,11 +16,26 @@ public class Program
 		var builder = WebApplication.CreateBuilder(args);
 
 		// Late bind the connection string so that any changes to the configuration made later on, or in the test fixture can be picked up.
-		builder.Services.AddDbContext<SecurityContext>((services, options) =>
-			options.UseSqlite(
-				services.GetRequiredService<IConfiguration>().GetConnectionString("SecurityContextConnection") ??
-				throw new InvalidOperationException("Connection string 'SecurityContextConnection' not found.")));
+		//if (builder.Configuration.GetConnectionString("TagzAppSecurity") != null)
+		//{
 
+			builder.Services.AddDbContext<SecurityContext>((services, options) =>
+				options.UseNpgsql(
+					services.GetRequiredService<IConfiguration>().GetConnectionString("TagzAppSecurity") ??
+					throw new InvalidOperationException("Connection string 'SecurityContextConnection' not found."), 
+					pg => pg.MigrationsAssembly("TagzApp.Storage.Postgres.Security"))
+				);
+
+		//}
+		//else
+		//{
+
+		//	builder.Services.AddDbContext<SecurityContext>((services, options) =>
+		//		options.UseSqlite(
+		//			services.GetRequiredService<IConfiguration>().GetConnectionString("SecurityContextConnection") ??
+		//			throw new InvalidOperationException("Connection string 'SecurityContextConnection' not found.")));
+
+		//}
 		builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 				options.SignIn.RequireConfirmedAccount = true
 			)
