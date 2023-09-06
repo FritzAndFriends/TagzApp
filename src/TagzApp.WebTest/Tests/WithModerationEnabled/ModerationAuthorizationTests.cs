@@ -10,7 +10,7 @@ public class ModerationAuthorizationTests : TestsBase
 	{
 	}
 
-	[Fact(Skip = "Forcing deploy")]
+	[Fact()]
 	public async Task AnonymousCantModerate()
 	{
 		await using var context = await WebApp.CreatePlaywrightContextPageAsync();
@@ -37,7 +37,7 @@ public class ModerationAuthorizationTests : TestsBase
 		Assert.Equal("about:blank", page.Url);
 	}
 
-	[Fact(Skip = "Forcing deploy")]
+	[Fact()]
 	public async Task NonModeratorCantModerate()
 	{
 		await using var context = await WebApp.CreateAuthorisedPlaywrightBrowserPageAsync("user");
@@ -49,7 +49,7 @@ public class ModerationAuthorizationTests : TestsBase
 		Assert.Equal((int)HttpStatusCode.Forbidden, response.Status);
 	}
 
-	[Fact(Skip = "Forcing deploy")]
+	[Fact()]
 	public async Task ModeratorCanModerate()
 	{
 		await using var context = await WebApp.CreateAuthorisedPlaywrightBrowserPageAsync(Security.Role.Moderator);
@@ -61,7 +61,7 @@ public class ModerationAuthorizationTests : TestsBase
 
 	}
 
-	[Fact(Skip = "Forcing deploy")]
+	[Fact()]
 	public async Task AdminCanModerate()
 	{
 		await using var context = await WebApp.CreateAuthorisedPlaywrightBrowserPageAsync(Security.Role.Admin);
