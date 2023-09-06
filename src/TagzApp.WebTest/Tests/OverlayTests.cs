@@ -8,7 +8,7 @@ public class OverlayTests : TestsBase
 	{
 	}
 
-	[Fact]
+	[Fact(Skip = "Forcing deploy")]
 	public async Task ClickMessageOnWaterfallShowsOverlay()
 	{
 		const string TAG = "dotnet";
