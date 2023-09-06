@@ -73,7 +73,7 @@ public class ModalWebTests : IClassFixture<ModalFixture>
 	// At the start of each test, we check the fixture flag and skip if set, then set it.
 	// At the end of the test (if we complete) we reset the flag.
 
-	[Fact(Skip = "Forcing deploy"), TestPriority(1)]
+	[Fact(), TestPriority(1)]
 	public async Task CanLaunchModal()
 	{
 		Skip.If(_Webapp.SkipTest, "Previous test failed");
@@ -118,7 +118,7 @@ public class ModalWebTests : IClassFixture<ModalFixture>
 		_Webapp.SkipTest = false;
 	}
 
-	[SkippableFact(Skip = "Forcing deploy"), TestPriority(2)]
+	[SkippableFact(), TestPriority(2)]
 	public async Task CloseModal()
 	{
 		Skip.If(_Webapp.SkipTest, "Previous test failed");

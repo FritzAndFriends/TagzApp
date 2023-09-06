@@ -66,7 +66,7 @@ public class WhenFirstSearchingForTags : IClassFixture<WhenFirstSearchingForTags
 		_OutputHelper = outputHelper;
 	}
 
-	[Fact(Skip = "Forcing deploy"), TestPriority(1)]
+	[Fact(), TestPriority(1)]
 	public async Task CanAddHashtags()
 	{
 		var page = await WebApp.CreatePlaywrightPageAsync();
@@ -81,7 +81,7 @@ public class WhenFirstSearchingForTags : IClassFixture<WhenFirstSearchingForTags
 		Assert.Equal("dotnet", firstHashtagContent);
 	}
 
-	[Fact(Skip = "Forcing deploy"), TestPriority(2)]
+	[Fact(), TestPriority(2)]
 	public async Task LoadContentFromSocialMediaProvider()
 	{
 		var page = await WebApp.CreatePlaywrightPageAsync();
@@ -97,7 +97,7 @@ public class WhenFirstSearchingForTags : IClassFixture<WhenFirstSearchingForTags
 		});
 	}
 
-	[Fact(Skip = "Forcing deploy"), TestPriority(3)]
+	[Fact(), TestPriority(3)]
 	public async Task ContentShouldBeInDescendingOrder()
 	{
 		var page = await WebApp.CreatePlaywrightPageAsync();
