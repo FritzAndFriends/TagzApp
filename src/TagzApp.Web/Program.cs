@@ -16,8 +16,8 @@ public class Program
 		var builder = WebApplication.CreateBuilder(args);
 
 		// Late bind the connection string so that any changes to the configuration made later on, or in the test fixture can be picked up.
-		//if (builder.Configuration.GetConnectionString("TagzAppSecurity") != null)
-		//{
+		if (!string.IsNullOrEmpty(builder.Configuration.GetConnectionString("TagzAppSecurity")))
+		{
 
 			builder.Services.AddDbContext<SecurityContext>((services, options) =>
 				options.UseNpgsql(
@@ -26,16 +26,16 @@ public class Program
 					pg => pg.MigrationsAssembly("TagzApp.Storage.Postgres.Security"))
 				);
 
-		//}
-		//else
-		//{
+		}
+		else
+		{
 
-		//	builder.Services.AddDbContext<SecurityContext>((services, options) =>
-		//		options.UseSqlite(
-		//			services.GetRequiredService<IConfiguration>().GetConnectionString("SecurityContextConnection") ??
-		//			throw new InvalidOperationException("Connection string 'SecurityContextConnection' not found.")));
+			builder.Services.AddDbContext<SecurityContext>((services, options) =>
+				options.UseSqlite(
+					services.GetRequiredService<IConfiguration>().GetConnectionString("SecurityContextConnection") ??
+					throw new InvalidOperationException("Connection string 'SecurityContextConnection' not found.")));
 
-		//}
+		}
 		builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 				options.SignIn.RequireConfirmedAccount = true
 			)
