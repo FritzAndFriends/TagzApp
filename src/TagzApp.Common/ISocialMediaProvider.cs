@@ -31,6 +31,4 @@ public interface ISocialMediaProvider
 	/// <returns></returns>
 	Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since);
 
-
-
 }

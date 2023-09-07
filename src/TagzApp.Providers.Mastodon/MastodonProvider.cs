@@ -5,12 +5,11 @@ using Microsoft.Extensions.Logging;
 
 namespace TagzApp.Providers.Mastodon;
 
-internal class MastodonProvider : ISocialMediaProvider
+internal class MastodonProvider : ISocialMediaProvider, IHasNewestId
 {
 
 	private readonly HttpClient _HttpClient;
 	private readonly ILogger _Logger;
-	private string _NewestId = string.Empty;
 
 	public MastodonProvider(IHttpClientFactory httpClientFactory, ILogger<MastodonProvider> logger)
 	{
@@ -22,6 +21,8 @@ internal class MastodonProvider : ISocialMediaProvider
 	public string DisplayName => "Mastodon";
 
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(20);
+
+	public string NewestId { get; set; } = string.Empty;
 
 	public async Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since)
 	{
@@ -79,7 +80,7 @@ internal class MastodonProvider : ISocialMediaProvider
 	private Uri FormatUri(Hashtag tag)
 	{
 
-		var sinceQuery = string.IsNullOrEmpty(_NewestId) ? "" : $"&min_id={_NewestId}";
+		var sinceQuery = string.IsNullOrEmpty(NewestId) ? "" : $"&min_id={NewestId}";
 
 		return new Uri($"/api/v1/timelines/tag/{HttpUtility.UrlEncode(tag.Text)}?limit=20{sinceQuery}", UriKind.Relative);
 	}

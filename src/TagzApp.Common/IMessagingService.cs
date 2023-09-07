@@ -19,4 +19,6 @@ public interface IMessagingService : IHostedService
 
 	IEnumerable<ISocialMediaProvider> Providers { get; }
 
+	string GetLatestProviderIdByTagAndProvider(string tag, string provider);
+
 }

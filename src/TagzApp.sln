@@ -41,6 +41,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Providers.Blazot", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Storage.Postgres", "TagzApp.Storage.Postgres\TagzApp.Storage.Postgres.csproj", "{95D763E5-52F5-4155-A888-C66A686BA6EB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagzApp.Storage.Postgres.Security", "TagzApp.Storage.Postgres.Security\TagzApp.Storage.Postgres.Security.csproj", "{F0F32FC9-C435-4B1D-BB21-61B93633E307}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -91,6 +93,10 @@ Global
 		{95D763E5-52F5-4155-A888-C66A686BA6EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{95D763E5-52F5-4155-A888-C66A686BA6EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{95D763E5-52F5-4155-A888-C66A686BA6EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0F32FC9-C435-4B1D-BB21-61B93633E307}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0F32FC9-C435-4B1D-BB21-61B93633E307}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0F32FC9-C435-4B1D-BB21-61B93633E307}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0F32FC9-C435-4B1D-BB21-61B93633E307}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -107,6 +113,7 @@ Global
 		{8D0F679C-307A-4861-8B78-E7BCF95A5750} = {99E0BB3F-9591-4C7A-A8EE-C54B0C3DE7A5}
 		{B19CCF63-B77D-4FF0-9F90-D7AB65423748} = {99E0BB3F-9591-4C7A-A8EE-C54B0C3DE7A5}
 		{95D763E5-52F5-4155-A888-C66A686BA6EB} = {370455D5-6EA6-44C1-B315-B621F7B6A954}
+		{F0F32FC9-C435-4B1D-BB21-61B93633E307} = {370455D5-6EA6-44C1-B315-B621F7B6A954}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F2AD77A5-5B2D-41FC-AD37-8EF8A4E54410}
