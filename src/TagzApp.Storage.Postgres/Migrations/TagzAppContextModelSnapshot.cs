@@ -74,7 +74,7 @@ namespace TagzApp.Storage.Postgres.Migrations
 
                     b.HasAlternateKey("Provider", "ProviderId");
 
-                    b.ToTable("Content");
+                    b.ToTable("Content", (string)null);
                 });
 
             modelBuilder.Entity("TagzApp.Storage.Postgres.PgModerationAction", b =>
@@ -119,7 +119,7 @@ namespace TagzApp.Storage.Postgres.Migrations
                     b.HasIndex("ContentId")
                         .IsUnique();
 
-                    b.ToTable("ModerationActions");
+                    b.ToTable("ModerationActions", (string)null);
                 });
 
             modelBuilder.Entity("TagzApp.Storage.Postgres.Tag", b =>
@@ -130,7 +130,7 @@ namespace TagzApp.Storage.Postgres.Migrations
 
                     b.HasKey("Text");
 
-                    b.ToTable("TagsWatched");
+                    b.ToTable("TagsWatched", (string)null);
                 });
 
             modelBuilder.Entity("TagzApp.Storage.Postgres.PgModerationAction", b =>

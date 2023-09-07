@@ -6,12 +6,49 @@ namespace TagzApp.Web.Data;
 
 public class SecurityContext : IdentityDbContext<IdentityUser>
 {
-	public SecurityContext(DbContextOptions<SecurityContext> options)
+	private readonly IConfiguration _Configuration;
+
+	public SecurityContext(DbContextOptions<SecurityContext> options, IConfiguration configuration)
 			: base(options)
 	{
+		_Configuration = configuration;
+	}
+
+	public SecurityContext(IConfiguration configuration)
+	{
+		_Configuration = configuration;
 	}
 
 	public DbSet<Settings> Settings => Set<Settings>();
+
+	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+	{
+
+		if (!string.IsNullOrEmpty(_Configuration.GetConnectionString("TagzAppSecurity")))
+		{
+
+			optionsBuilder.UseNpgsql(
+							_Configuration.GetConnectionString("TagzAppSecurity"),
+							pg => pg.MigrationsAssembly("TagzApp.Storage.Postgres.Security"));
+
+		}
+		else if (!string.IsNullOrEmpty(_Configuration.GetConnectionString("SecurityContextConnection")))
+		{
+
+			optionsBuilder.UseSqlite(
+							_Configuration.GetConnectionString("SecurityContextConnection")
+			);
+
+		}
+		else
+		{
+
+			optionsBuilder.UseInMemoryDatabase("InMemoryDatabase");
+
+		}
+
+		base.OnConfiguring(optionsBuilder);
+	}
 
 	protected override void OnModelCreating(ModelBuilder builder)
 	{

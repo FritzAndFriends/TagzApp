@@ -8,8 +8,8 @@ namespace TagzApp.Web;
 public static class ServicesExtensions
 {
 
-  public static IServiceCollection AddTagzAppHostedServices(this IServiceCollection services, IConfigurationRoot configuration)
-  {
+	public static IServiceCollection AddTagzAppHostedServices(this IServiceCollection services, IConfigurationRoot configuration)
+	{
 
 		services.AddSingleton<INotifyNewMessages, SignalRNotifier>();
 
@@ -88,4 +88,14 @@ public static class ServicesExtensions
 			await roleManager.CreateAsync(new IdentityRole(Security.Role.Moderator));
 		}
 	}
+
+	public static IConfigurationBuilder AddApplicationConfiguration(
+			this IConfigurationBuilder builder)
+	{
+		var tempConfig = builder.Build();
+
+		return builder.Add(new ApplicationConfigurationSource(tempConfig));
+
+	}
+
 }
