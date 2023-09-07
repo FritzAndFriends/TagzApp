@@ -98,6 +98,17 @@ public class InMemoryMessagingService : BaseProviderManager, IMessagingService
 		throw new NotImplementedException();
 	}
 
+	public string GetLatestProviderIdByTagAndProvider(string tag, string provider)
+	{
+
+		var content = _Content[tag.TrimStart('#').ToLowerInvariant()]
+			.OrderByDescending(c => c.Timestamp)
+			.FirstOrDefault(c => c.Provider == provider);
+
+		return content?.ProviderId ?? string.Empty;
+
+	}
+
 	public IEnumerable<string> TagsTracked => _Content.Keys;
 
 }
