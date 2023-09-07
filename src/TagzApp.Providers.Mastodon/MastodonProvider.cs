@@ -51,7 +51,7 @@ internal class MastodonProvider : ISocialMediaProvider, IHasNewestId
 			return Enumerable.Empty<Content>();
 		}
 
-		_NewestId = messages!.OrderByDescending(m => m.id).First().id;
+		NewestId = messages!.OrderByDescending(m => m.id).First().id;
 
 		var baseServerAddress = _HttpClient.BaseAddress.Host.ToString();
 
