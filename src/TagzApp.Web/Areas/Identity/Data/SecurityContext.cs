@@ -11,6 +11,8 @@ public class SecurityContext : IdentityDbContext<IdentityUser>
 	{
 	}
 
+	public DbSet<Settings> Settings => Set<Settings>();
+
 	protected override void OnModelCreating(ModelBuilder builder)
 	{
 
@@ -20,3 +22,5 @@ public class SecurityContext : IdentityDbContext<IdentityUser>
 		// Add your customizations after calling base.OnModelCreating(builder);
 	}
 }
+
+public record Settings(string Id, string? Value);
