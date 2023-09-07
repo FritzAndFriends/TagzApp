@@ -156,4 +156,20 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 
 	}
 
+	public string GetLatestProviderIdByTagAndProvider(string tag, string provider)
+	{
+
+		tag = $"#{tag}";
+
+		using var scope = _Services.CreateScope();
+		var ctx = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
+		
+		return ctx.Content.AsNoTracking()
+			.Where(c => c.HashtagSought == tag && c.Provider == provider)
+			.OrderByDescending(c => c.Timestamp)
+			.Select(c => c.ProviderId)
+			.FirstOrDefault() ?? string.Empty;
+
+
+	}
 }

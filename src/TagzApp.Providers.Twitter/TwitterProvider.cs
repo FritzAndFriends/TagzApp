@@ -8,10 +8,11 @@ using Microsoft.Extensions.Options;
 
 using TagzApp.Providers.Twitter.Configuration;
 using TagzApp.Providers.Twitter.Models;
+using TagzApp.Web.Services;
 
 namespace TagzApp.Providers.Twitter;
 
-public class TwitterProvider : ISocialMediaProvider
+public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 {
 	private readonly HttpClient _HttpClient;
 	private readonly TwitterConfiguration _Configuration;
@@ -25,7 +26,7 @@ public class TwitterProvider : ISocialMediaProvider
 
 	public static int MaxContentPerHashtag { get; set; } = 100;
 
-	private string _NewestId = string.Empty;
+	public string NewestId { get; set; } = string.Empty;
 
 	public TwitterProvider(IHttpClientFactory httpClientFactory, IOptions<TwitterConfiguration> options)
 	{
@@ -39,7 +40,7 @@ public class TwitterProvider : ISocialMediaProvider
 	{
 
 		var tweetQuery = "#" + tag.Text.ToLowerInvariant().TrimStart('#') + " -is:retweet";
-		var sinceTerm = string.IsNullOrEmpty(_NewestId) ? "" : $"&since_id={_NewestId}";
+		var sinceTerm = string.IsNullOrEmpty(NewestId) ? "" : $"&since_id={NewestId}";
 
 		var targetUri = FormatUri(tweetQuery, sinceTerm);
 
@@ -54,7 +55,7 @@ public class TwitterProvider : ISocialMediaProvider
 				//var rawText = await response.Content.ReadAsStringAsync();
 
 				recentTweets = await _HttpClient.GetFromJsonAsync<TwitterData>(targetUri);
-				_NewestId = recentTweets.meta.newest_id ?? _NewestId;
+				NewestId = recentTweets.meta.newest_id ?? NewestId;
 
 			}
 			else
@@ -79,8 +80,6 @@ public class TwitterProvider : ISocialMediaProvider
 		{
 			Console.WriteLine(ex.Message);
 		}
-
-		var authorIds = recentTweets?.data.Select(t => t.author_id).Distinct().ToArray() ?? Array.Empty<string>();
 
 		var outTweets = ConvertToContent(recentTweets, tag);
 
