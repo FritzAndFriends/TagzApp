@@ -3,9 +3,9 @@
 	var connection;
 
 	const ModerationState = {
-		Pending		: 0,
-		Approved	: 1,
-		Rejected	: 2
+		Pending: 0,
+		Approved: 1,
+		Rejected: 2
 	}
 
 	const taggedContent = document.getElementById("taggedContent");
@@ -24,7 +24,7 @@
 				} else {
 					window.Masonry.resizeGridItem(node);
 				}
-            }
+			}
 		}
 	});
 	const observerConfig = {
@@ -58,7 +58,13 @@
 		const newMessage = document.createElement("article");
 
 		if (additionalClass) {
-			newMessage.classList.add(additionalClass);
+			if (additionalClass.constructor === Array) {
+				for (const cssClass of additionalClass) {
+					newMessage.classList.add(cssClass);
+				}
+			} else {
+				newMessage.classList.add(additionalClass);
+			}
 		}
 
 		newMessage.setAttribute("data-url", content.sourceUri);
@@ -148,11 +154,33 @@
 
 	function FormatMessageForModeration(content) {
 
-		var moreClasses = [ "moderation" ];
+		var moreClasses = ["moderation"];
 		if (content.state == ModerationState.Approved) moreClasses.push("status-approved");
 		if (content.state == ModerationState.Rejected) moreClasses.push("status-rejected");
 
 		FormatMessage(content, moreClasses, showModerationPanel, showModerationPanel);
+
+	}
+
+	function ApproveMessage(content) {
+
+		var card = document.querySelector(`[data-providerid='${content.providerId}']`);
+
+		if (card) {
+			card.classList.remove("status-rejected");
+			card.classList.add("status-approved");
+		}
+
+	}
+
+	function RejectMessage(content) {
+
+		var card = document.querySelector(`[data-providerid='${content.providerId}']`);
+
+		if (card) {
+			card.classList.remove("status-approved");
+			card.classList.add("status-rejected");
+		}
 
 	}
 
@@ -206,9 +234,9 @@
 
 	function getIndexForValue(list, value) {
 		let low = 0;
-        let high = list.length - 1;
+		let high = list.length - 1;
 
-        while (low <= high) {
+		while (low <= high) {
 			let mid = (low + high) >>> 1;
 			let guess = list[mid];
 
@@ -221,8 +249,8 @@
 			}
 		}
 
-        return low;
-    }
+		return low;
+	}
 
 	const t = {
 
@@ -276,6 +304,14 @@
 
 			connection.on("NewWaterfallMessage", (content) => {
 				FormatMessageForModeration(content);
+			});
+
+			connection.on("NewApprovedMessage", (content) => {
+				ApproveMessage(content);
+			});
+
+			connection.on("NewRejectedMessage", (content) => {
+				RejectMessage(content);
 			});
 
 			// Start the connection.

@@ -50,6 +50,19 @@ internal class PostgresMessaging : IDisposable
 					using var scope = _Services.CreateScope();
 					var context = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
 
+					if (provider is IHasNewestId newestIdProvider)
+					{
+						var newestId = await context.Content.AsNoTracking()
+							.Where(c => c.Provider == provider.Id)
+							.OrderByDescending(c => c.ProviderId)
+							.Select(c => c.ProviderId)
+							.FirstOrDefaultAsync();
+						if (newestId != null)
+						{
+							newestIdProvider.NewestId = newestId;
+						}
+					}
+
 					foreach (var tag in _Actions.Keys.Distinct<string>())
 					{
 
