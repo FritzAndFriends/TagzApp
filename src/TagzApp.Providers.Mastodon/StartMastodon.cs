@@ -1,14 +1,22 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+using System.Text.Json;
 using TagzApp.Common.Exceptions;
 using TagzApp.Communication.Extensions;
 using TagzApp.Providers.Mastodon.Configuration;
+using TagzApp.Storage.Postgres;
 
 namespace TagzApp.Providers.Mastodon;
 
-public class StartMastodon : IConfigureProvider
+public class StartMastodon : BaseConfigurationProvider, IConfigureProvider
 {
+	private MastodonConfiguration? _MastodonConfiguration;
+
+	public StartMastodon(IProviderConfigurationRepository providerConfigurationRepository)
+		: base(providerConfigurationRepository)
+	{
+	}
+
 	public IServiceCollection RegisterServices(IServiceCollection services, IConfiguration configuration)
 	{
 		IConfigurationSection config;
@@ -20,7 +28,6 @@ public class StartMastodon : IConfigureProvider
 		}
 		catch (Exception ex)
 		{
-
 			throw new InvalidConfigurationException(ex.Message, MastodonConfiguration.AppSettingsSection);
 		}
 
@@ -35,5 +42,10 @@ public class StartMastodon : IConfigureProvider
 		services.AddHttpClient<ISocialMediaProvider, MastodonProvider, MastodonConfiguration>(configuration, MastodonConfiguration.AppSettingsSection);
 		services.AddTransient<ISocialMediaProvider, MastodonProvider>();
 		return services;
+	}
+
+	protected override void MapConfigurationValues(JsonDocument configurationValues)
+	{
+		throw new NotImplementedException();
 	}
 }

@@ -1,13 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json;
+﻿using System.Text.Json;
 
-namespace TagzApp.Storage.Postgres;
+namespace TagzApp.Common.Models;
 
 public class ProviderConfiguration
 {
-	[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-	[Key]
 	public int Id { get; set; }
 	public string Name { get; set; } = string.Empty;
 	public string Description { get; set; } = string.Empty;

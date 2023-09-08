@@ -22,6 +22,7 @@ public static class AppExtensions
 		services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
 
 		services.AddScoped<IModerationRepository, PostgresModerationRepository>();
+		services.AddScoped<IProviderConfigurationRepository, PostgresProviderConfigurationRepository>();
 
 		using var builtServices = services.BuildServiceProvider();
 		var ctx = builtServices.GetRequiredService<TagzAppContext>();
