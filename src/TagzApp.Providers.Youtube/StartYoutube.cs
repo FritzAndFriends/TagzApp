@@ -37,6 +37,7 @@ public class StartYoutube : BaseConfigurationProvider, IConfigureProvider
 			return services;
 		}
 
+		services.AddSingleton(_YoutubeConfiguration);
 		services.AddTransient<ISocialMediaProvider, YoutubeProvider>();
 		return services;
 	}

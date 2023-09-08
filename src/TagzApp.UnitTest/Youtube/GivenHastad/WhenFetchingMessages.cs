@@ -47,7 +47,7 @@ public class WhenFetchingMessages : IClassFixture<YouTubeConfigurationFixture>
 		// Place your YouTube API Key for testing in the user secrets associated with this test project.
 
 		var config = youTubeConfiguration.YoutubeConfiguration;
-		_Sut = new YoutubeProvider(Options.Create(config));
+		_Sut = new YoutubeProvider(config);
 		_YouTubeConfiguration = youTubeConfiguration;
 	}
 
