@@ -17,4 +17,11 @@ public interface IConfigureProvider
 	/// <returns></returns>
 	IServiceCollection RegisterServices(IServiceCollection services, IConfiguration configuration);
 
+	/// <summary>
+	/// Register all of the services with dependency injection for the social media provider
+	/// </summary>
+	/// <param name="services">The dependency injection services</param>
+	/// <returns></returns>
+	Task<IServiceCollection> RegisterServices(IServiceCollection services, CancellationToken cancellationToken = default);
+
 }

@@ -40,6 +40,66 @@ public static class IServiceCollectionExtensions
 				.Services;
 	}
 
+	//TODO: Remove above?
+	public static IServiceCollection AddHttpClient<TClient, TImplementation, TClientOptions>(this IServiceCollection services, HttpClientOptions options)
+				where TClient : class
+				where TImplementation : class, TClient
+				where TClientOptions : HttpClientOptions, new()
+	{
+		// Validate the request
+		Ensure.Any.IsNotNull(services, nameof(services));
+		Ensure.Any.IsNotNull(options, nameof(options));
+
+		// Get the client builder with the configuration applied and return it
+		return GetHttpClientBuild<TClient, TImplementation, TClientOptions>(services, options)
+				.Services;
+	}
+
+	//TODO: Remove below?
+	private static IHttpClientBuilder GetHttpClientBuild<TClient, TImplementation, TClientOptions>(this IServiceCollection services, HttpClientOptions options)
+			where TClient : class
+					where TImplementation : class, TClient
+					where TClientOptions : HttpClientOptions, new()
+	{
+		// Validate the request
+		Ensure.Any.IsNotNull(services, nameof(services));
+		Ensure.Any.IsNotNull(options, nameof(options));
+
+		// Return the http client build configured
+		return services
+			 .AddHttpClient(typeof(TImplementation).Name)
+			 .ConfigureHttpClient(
+					 (serviceProvider, httpClient) =>
+					 {
+						 // Validate the base address value and set up the base address for the HTTP request if provided
+						 httpClient.BaseAddress = Ensure.Any.IsNotNull(options.BaseAddress, nameof(options.BaseAddress));
+
+						 // If additional parameters provided, then set them up
+						 if (options.Timeout != TimeSpan.Zero)
+						 {
+							 httpClient.Timeout = options.Timeout;
+						 }
+
+						 if (options.DefaultHeaders?.Keys != null)
+						 {
+							 foreach (string headerName in options.DefaultHeaders.Keys)
+							 {
+								 httpClient.DefaultRequestHeaders.Add(headerName, options.DefaultHeaders[headerName]);
+							 }
+						 }
+
+						 if (options.UseHttp2)
+						 {
+							 httpClient.DefaultRequestVersion = HttpVersion.Version20;
+						 }
+					 })
+
+			 // Add the message handler and policies
+			 .ConfigurePrimaryHttpMessageHandler(_ => new CompressHttpClientHandler())
+			 .AddPolicyHandlerFromRegistry(PolicyConstants.HttpRetry)
+			 .AddPolicyHandlerFromRegistry(PolicyConstants.HttpCircuitBreaker);
+	}
+
 	/// <summary>
 	/// Gets the HTTP client build.
 	/// </summary>

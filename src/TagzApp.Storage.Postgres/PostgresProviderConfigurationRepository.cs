@@ -11,10 +11,17 @@ internal class PostgresProviderConfigurationRepository : IProviderConfigurationR
 		_Context = tagzAppContext;
 	}
 
-	public async Task<Common.Models.ProviderConfiguration> GetConfigurationSettingsAsync(string name, CancellationToken cancellation = default)
+	public async Task<Common.Models.ProviderConfiguration?> GetConfigurationSettingsAsync(string name, CancellationToken cancellation = default)
 	{
-		var configSettings = await _Context.ProviderConfigurations.FirstOrDefaultAsync(x => x.Name == name);
-		//TODO: Map to another freaking model
-		throw new NotImplementedException();
+		var providerConfiguration = await _Context.ProviderConfigurations.FirstOrDefaultAsync(x => x.Name == name);
+
+		return providerConfiguration == null ? null : new Common.Models.ProviderConfiguration
+		{
+			Id = providerConfiguration.Id,
+			Name = name,
+			Activated = providerConfiguration.Activated,
+			Description = providerConfiguration.Description,
+			ConfigurationSettings = providerConfiguration.ConfigurationSettings
+		};
 	}
 }

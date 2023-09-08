@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace TagzApp.Storage.Postgres;
+namespace TagzApp.Communication;
 
 public abstract class BaseConfigurationProvider
 {
@@ -11,16 +11,15 @@ public abstract class BaseConfigurationProvider
 		_ProviderConfigurationRepository = providerConfigurationRepository;
 	}
 
-	protected abstract void MapConfigurationValues(JsonDocument configurationSettings);
+	protected abstract void MapConfigurationValues(ProviderConfiguration providerConfiguration);
 
-	protected async Task LoadConfigurationValues(string providerName, CancellationToken cancellationToken = default)
+	protected async Task LoadConfigurationValuesAsync(string providerName, CancellationToken cancellationToken = default)
 	{
 		var providerConfiguration = await _ProviderConfigurationRepository.GetConfigurationSettingsAsync(providerName, cancellationToken);
 
-		if (providerConfiguration != null &&
-			providerConfiguration.ConfigurationSettings != null)
+		if (providerConfiguration != null)
 		{
-			MapConfigurationValues(providerConfiguration.ConfigurationSettings);
+			MapConfigurationValues(providerConfiguration);
 		}
 	}
 }
