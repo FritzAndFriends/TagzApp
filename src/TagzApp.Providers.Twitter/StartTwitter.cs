@@ -1,14 +1,23 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+using System.Text.Json;
 using TagzApp.Common.Exceptions;
+using TagzApp.Communication;
 using TagzApp.Communication.Extensions;
 using TagzApp.Providers.Twitter.Configuration;
 
 namespace TagzApp.Providers.Twitter;
 
-public class StartTwitter : IConfigureProvider
+public class StartTwitter : BaseConfigurationProvider, IConfigureProvider
 {
+	private const string _DisplayName = "Twitter";
+	private TwitterConfiguration? _TwitterConfiguration;
+
+	public StartTwitter(IProviderConfigurationRepository providerConfigurationRepository)
+		: base(providerConfigurationRepository)
+	{
+	}
+
 	public IServiceCollection RegisterServices(IServiceCollection services, IConfiguration configuration)
 	{
 
@@ -39,4 +48,35 @@ public class StartTwitter : IConfigureProvider
 		return services;
 	}
 
+	public async Task<IServiceCollection> RegisterServices(IServiceCollection services, CancellationToken cancellationToken = default)
+	{
+		await LoadConfigurationValuesAsync(_DisplayName, cancellationToken);
+
+		if (string.IsNullOrEmpty(_TwitterConfiguration?.BaseAddress?.ToString()))
+		{
+			// No configuration provided, no registration to be added
+			return services;
+		}
+
+		services.AddHttpClient<ISocialMediaProvider, TwitterProvider, TwitterConfiguration>(_TwitterConfiguration);
+		services.AddTransient<ISocialMediaProvider, TwitterProvider>();
+		return services;
+	}
+
+	protected override void MapConfigurationValues(ProviderConfiguration providerConfiguration)
+	{
+		var rootElement = providerConfiguration.ConfigurationSettings?.RootElement;
+
+		_TwitterConfiguration = new TwitterConfiguration
+		{
+			Activated = providerConfiguration.Activated,
+			BaseAddress = new Uri(rootElement?.GetProperty("BaseAddress").GetString() ?? string.Empty),
+			Timeout = TimeSpan.Parse(rootElement?.GetProperty("Timeout").GetString() ?? string.Empty),
+			DefaultHeaders = rootElement?.GetProperty("DefaultHeaders").Deserialize<Dictionary<string, string>?>(),
+			ApiKey = rootElement?.GetProperty("ApiKey").GetString() ?? string.Empty,
+			ApiSecretKey = rootElement?.GetProperty("ApiSecretKey").GetString() ?? string.Empty,
+			AccessToken = rootElement?.GetProperty("AccessToken").GetString() ?? string.Empty,
+			AccessTokenSecret = rootElement?.GetProperty("AccessTokenSecret").GetString() ?? string.Empty
+		};
+	}
 }
