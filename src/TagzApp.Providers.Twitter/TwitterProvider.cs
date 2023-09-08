@@ -23,7 +23,7 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 
 	public string Id => "TWITTER";
 	public string DisplayName => "Twitter";
-	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(10);
+	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(30);
 
 	public static int MaxContentPerHashtag { get; set; } = 100;
 
