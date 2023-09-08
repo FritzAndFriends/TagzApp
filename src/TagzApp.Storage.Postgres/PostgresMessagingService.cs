@@ -95,7 +95,7 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 		var ctx = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
 		_TagsTracked.AddRange((await ctx.TagsWatched.ToArrayAsync()).Select(t => t.Text));
 
-		InitProviders();
+		await InitProviders();
 		_Service = new PostgresMessaging(_Services);
 		_Service.StartProviders(Providers, cancellationToken);
 

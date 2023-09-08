@@ -27,15 +27,15 @@ public class BaseProviderManager
       ? socialMediaProviders : new List<ISocialMediaProvider>();
   }
 
-  public void InitProviders()
+  public async Task InitProviders()
   {
     if (!Providers.Any())
     {
-      LoadConfigurationProviders();
+      await LoadConfigurationProviders();
     }
   }
 
-  private void LoadConfigurationProviders()
+  private async Task LoadConfigurationProviders()
   {
     List<IConfigureProvider> configProviders = new List<IConfigureProvider>();
     var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
@@ -73,18 +73,17 @@ public class BaseProviderManager
         }
       }
 
-      ConfigureProviders(configProviders);
+      await ConfigureProviders(configProviders);
     }
   }
 
-  private void ConfigureProviders(IEnumerable<IConfigureProvider> configurationProviders)
+  private async Task ConfigureProviders(IEnumerable<IConfigureProvider> configurationProviders)
   {
     var socialMediaProviders = new List<ISocialMediaProvider>();
 
     foreach (var provider in configurationProviders)
     {
-			//provider.RegisterServices(_Services, _Configuration);
-			provider.RegisterServices(_Services).GetAwaiter().GetResult();
+			await provider.RegisterServices(_Services);
     }
 
     _Services.AddPolicies(_Configuration);
