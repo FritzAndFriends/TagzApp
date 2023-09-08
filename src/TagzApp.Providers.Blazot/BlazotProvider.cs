@@ -20,7 +20,7 @@ internal sealed class BlazotProvider : ISocialMediaProvider
   public string Id => BlazotConstants.ProviderId;
   public string DisplayName => BlazotConstants.DisplayName;
 
-  public BlazotProvider(ILogger<BlazotProvider> logger, IConfiguration configuration, 
+  public BlazotProvider(ILogger<BlazotProvider> logger, BlazotSettings settings, 
     IContentConverter contentConverter, ITransmissionsService transmissionsService, IAuthService authService)
   {
     _ContentConverter = contentConverter ?? throw new ArgumentNullException(nameof(contentConverter));
@@ -28,7 +28,6 @@ internal sealed class BlazotProvider : ISocialMediaProvider
     _AuthService = authService ?? throw new ArgumentNullException(nameof(authService));
     _Logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-    var settings = configuration.GetSection(BlazotSettings.AppSettingsSection).Get<BlazotSettings>();
     _WindowSeconds = settings?.WindowSeconds ?? throw new ArgumentNullException(nameof(settings));
     _WindowRequests = settings.WindowRequests;
   }
