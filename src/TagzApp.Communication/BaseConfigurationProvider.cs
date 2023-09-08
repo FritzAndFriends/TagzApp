@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace TagzApp.Communication;
+﻿namespace TagzApp.Communication;
 
 public abstract class BaseConfigurationProvider
 {
