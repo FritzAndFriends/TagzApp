@@ -20,8 +20,9 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 		INotifyNewMessages notifyNewMessages,
 		IConfiguration configuration,
 		ILogger<BaseProviderManager> logger,
-		IEnumerable<ISocialMediaProvider>? socialMediaProviders) :
-		base(configuration, logger, socialMediaProviders, CreateProviderConfigurationRepository(services))
+		IEnumerable<ISocialMediaProvider>? socialMediaProviders,
+		IProviderConfigurationRepository providerConfigurationRepository) :
+		base(configuration, logger, socialMediaProviders, providerConfigurationRepository)
 	{
 		_Services = services;
 		_NotifyNewMessages = notifyNewMessages;
@@ -31,14 +32,6 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 	private PostgresMessaging _Service;
 
 	public IEnumerable<string> TagsTracked => _TagsTracked;
-
-
-	private static IProviderConfigurationRepository CreateProviderConfigurationRepository(IServiceProvider services)
-	{
-		var scope = services.CreateScope();
-		var ctx = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
-		return new PostgresProviderConfigurationRepository(ctx);
-	}
 
 	public async Task AddHashtagToWatch(string tag)
 	{
