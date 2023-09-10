@@ -14,7 +14,7 @@ internal static class LinkFormatters
     {
       var noHash = m.Value.Trim().TrimStart('#');
       var hashed = m.Value.Trim();
-      return $" <a class=\"b-hashtag-link\" href=\"https://blazot.com/hashtag/{noHash}\">{hashed}</a>";
+      return $" <a class=\"b-hashtag-link\" target=\"_blank\" href=\"https://blazot.com/hashtag/{noHash}\">{hashed}</a>";
     });
   }
 
