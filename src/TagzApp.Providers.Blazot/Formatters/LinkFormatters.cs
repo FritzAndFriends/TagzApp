@@ -5,8 +5,8 @@ namespace TagzApp.Providers.Blazot.Formatters;
 internal static class LinkFormatters
 {
   private static Regex LinkRegex => new(@"(?:(?:https?):\/\/)?[\w/\.-]+(?<!\.)(\.)(?!\.)[a-zA-Z]+(?<!\?)[a-zA-Z0-9/\-&?.=%#_]+(?<!\.)");
-  private static Regex HashTagRegex => new(@"(^|[^&\p{L}\p{M}\p{Nd}_\u200c\u200d\ua67e\u05be\u05f3\u05f4\u309b\u309c\u30a0\u30fb\u3003\u0f0b\u0f0c\u00b7])(#|\uFF03)(?!\uFE0F|\u20E3)([\p{L}\p{M}\p{Nd}_\u200c\u200d\ua67e\u05be\u05f3\u05f4\u309b\u309c\u30a0\u30fb\u3003\u0f0b\u0f0c\u00b7]*[\p{L}\p{M}][\p{L}\p{M}\p{Nd}_\u200c\u200d\ua67e\u05be\u05f3\u05f4\u309b\u309c\u30a0\u30fb\u3003\u0f0b\u0f0c\u00b7]*)");
-  private static Regex UserMentionRegex => new(@"\B@\w+");
+  private static Regex HashTagRegex => new(@"\B#\w\w+");
+	private static Regex UserMentionRegex => new(@"\B@\w+");
 
   public static string AddHashTagLinks(string bodyText)
   {
