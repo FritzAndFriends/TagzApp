@@ -73,21 +73,24 @@ public class StartBlazot : BaseConfigurationProvider, IConfigureProvider
 
 	protected override void MapConfigurationValues(ProviderConfiguration providerConfiguration)
 	{
-		var rootElement = providerConfiguration.ConfigurationSettings?.RootElement;
+		var config = providerConfiguration.ConfigurationSettings;
 
-		_BlazotClientConfiguration = new BlazotClientConfiguration
+		if (config != null)
 		{
-			BaseAddress = new Uri(rootElement?.GetProperty("BaseAddress").GetString() ?? string.Empty),
-			Timeout = TimeSpan.Parse(rootElement?.GetProperty("Timeout").GetString() ?? string.Empty),
-			ApiKey = rootElement?.GetProperty("ApiKey").GetString() ?? string.Empty
-		};
+			_BlazotClientConfiguration = new BlazotClientConfiguration
+			{
+				BaseAddress = new Uri(config["BaseAddress"] ?? string.Empty),
+				Timeout = TimeSpan.Parse(config["Timeout"] ?? string.Empty),
+				ApiKey = config["ApiKey"]?? string.Empty
+			};
 
-		_BlazotSettings = new BlazotSettings
-		{
-			ApiKey = rootElement?.GetProperty("ApiKey").GetString() ?? string.Empty,
-			SecretAuthKey = rootElement?.GetProperty("SecretAuthKey").GetString() ?? string.Empty,
-			WindowSeconds = rootElement?.GetProperty("WindowSeconds").GetInt32() ?? 0,
-			WindowRequests = rootElement?.GetProperty("WindowRequests").GetInt32() ?? 0
-		};
+			_BlazotSettings = new BlazotSettings
+			{
+				ApiKey = config["ApiKey"] ?? string.Empty,
+				SecretAuthKey = config["SecretAuthKey"] ?? string.Empty,
+				WindowSeconds = int.Parse(config["WindowSeconds"]),
+				WindowRequests = int.Parse(config["WindowRequests"])
+			};
+		}
 	}
 }

@@ -44,11 +44,14 @@ public class StartYoutube : BaseConfigurationProvider, IConfigureProvider
 
 	protected override void MapConfigurationValues(ProviderConfiguration providerConfiguration)
 	{
-		var rootElement = providerConfiguration.ConfigurationSettings?.RootElement;
+		var config = providerConfiguration.ConfigurationSettings;
 
-		_YoutubeConfiguration = new YoutubeConfiguration
+		if (config != null)
 		{
-			ApiKey = rootElement?.GetProperty("ApiKey").GetString() ?? string.Empty
-		};
+			_YoutubeConfiguration = new YoutubeConfiguration
+			{
+				ApiKey = config["ApiKey"] ?? string.Empty,
+			};
+		}
 	}
 }

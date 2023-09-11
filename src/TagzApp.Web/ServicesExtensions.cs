@@ -19,10 +19,9 @@ public static class ServicesExtensions
 		}
 		else
 		{
-
+			services.AddSingleton<IProviderConfigurationRepository, InMemoryProviderConfigurationRepository>();
 			services.AddSingleton<IMessagingService, InMemoryMessagingService>();
 			services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
-
 		}
 
 		return services;

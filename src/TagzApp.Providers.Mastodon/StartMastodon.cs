@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using System.Text.Json;
 using TagzApp.Common.Exceptions;
 using TagzApp.Communication;
@@ -63,14 +62,17 @@ public class StartMastodon : BaseConfigurationProvider, IConfigureProvider
 
 	protected override void MapConfigurationValues(ProviderConfiguration providerConfiguration)
 	{
-		var rootElement = providerConfiguration.ConfigurationSettings?.RootElement;
+		var config = providerConfiguration.ConfigurationSettings;
 
-		_MastodonConfiguration = new MastodonConfiguration
+		if (config != null)
 		{
-			BaseAddress = new Uri(rootElement?.GetProperty("BaseAddress").GetString() ?? string.Empty),
-			Timeout = TimeSpan.Parse(rootElement?.GetProperty("Timeout").GetString() ?? string.Empty),
-			DefaultHeaders = rootElement?.GetProperty("DefaultHeaders").Deserialize<Dictionary<string, string>?>(),
-			UseHttp2 = rootElement?.GetProperty("UseHttp2").GetBoolean() ?? false
-		};
+			_MastodonConfiguration = new MastodonConfiguration
+			{
+				BaseAddress = new Uri(config["BaseAddress"] ?? string.Empty),
+				Timeout = TimeSpan.Parse(config["Timeout"] ?? string.Empty),
+				DefaultHeaders = JsonSerializer.Deserialize<Dictionary<string,string>?>(config["DefaultHeaders"]),
+				UseHttp2 = bool.Parse(config["UseHttp2"])
+			};
+		}
 	}
 }

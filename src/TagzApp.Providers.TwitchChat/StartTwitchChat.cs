@@ -64,14 +64,17 @@ public class StartTwitchChat : BaseConfigurationProvider, IConfigureProvider
 
 	protected override void MapConfigurationValues(ProviderConfiguration providerConfiguration)
 	{
-		var rootElement = providerConfiguration.ConfigurationSettings?.RootElement;
+		var config = providerConfiguration.ConfigurationSettings;
 
-		_TwitchChatConfiguration = new TwitchChatConfiguration
+		if (config != null)
 		{
-			ClientId = rootElement?.GetProperty("ClientId").GetString() ?? string.Empty,
-			ClientSecret = rootElement?.GetProperty("ClientSecret").GetString() ?? string.Empty,
-			ChatBotName = rootElement?.GetProperty("ChatBotName").GetString() ?? string.Empty,
-			OAuthToken = rootElement?.GetProperty("OAuthToken").GetString() ?? string.Empty
-		};
+			_TwitchChatConfiguration = new TwitchChatConfiguration
+			{
+				ClientId = config["ClientId"] ?? string.Empty,
+				ClientSecret = config["ClientSecret"] ?? string.Empty,
+				ChatBotName = config["ChatBotName"] ?? string.Empty,
+				OAuthToken = config["OAuthToken"] ?? string.Empty
+			};
+		}
 	}
 }

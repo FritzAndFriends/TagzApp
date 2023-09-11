@@ -65,18 +65,22 @@ public class StartTwitter : BaseConfigurationProvider, IConfigureProvider
 
 	protected override void MapConfigurationValues(ProviderConfiguration providerConfiguration)
 	{
-		var rootElement = providerConfiguration.ConfigurationSettings?.RootElement;
 
-		_TwitterConfiguration = new TwitterConfiguration
+		var config = providerConfiguration.ConfigurationSettings;
+
+		if (config != null)
 		{
-			Activated = providerConfiguration.Activated,
-			BaseAddress = new Uri(rootElement?.GetProperty("BaseAddress").GetString() ?? string.Empty),
-			Timeout = TimeSpan.Parse(rootElement?.GetProperty("Timeout").GetString() ?? string.Empty),
-			DefaultHeaders = rootElement?.GetProperty("DefaultHeaders").Deserialize<Dictionary<string, string>?>(),
-			ApiKey = rootElement?.GetProperty("ApiKey").GetString() ?? string.Empty,
-			ApiSecretKey = rootElement?.GetProperty("ApiSecretKey").GetString() ?? string.Empty,
-			AccessToken = rootElement?.GetProperty("AccessToken").GetString() ?? string.Empty,
-			AccessTokenSecret = rootElement?.GetProperty("AccessTokenSecret").GetString() ?? string.Empty
-		};
+			_TwitterConfiguration = new TwitterConfiguration
+			{
+				Activated = providerConfiguration.Activated,
+				BaseAddress = new Uri(config["BaseAddress"] ?? string.Empty),
+				Timeout = TimeSpan.Parse(config["Timeout"] ?? string.Empty),
+				DefaultHeaders = JsonSerializer.Deserialize<Dictionary<string, string>?>(config["DefaultHeaders"]),
+				ApiKey = config["ApiKey"] ?? string.Empty,
+				ApiSecretKey = config["ApiSecretKey"] ?? string.Empty,
+				AccessToken = config["AccessToken"] ?? string.Empty,
+				AccessTokenSecret = config["AccessTokenSecret"] ?? string.Empty
+			};
+		}
 	}
 }
