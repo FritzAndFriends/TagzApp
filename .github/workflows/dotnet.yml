@@ -99,7 +99,7 @@ jobs:
 
   code-formatting:
     # Because the other jobs depend on this one, we need to make sure it runs on the same conditions,
-    # but I only actually want the steps to run on PR open/sync/reopen.
+    # but we only actually want the steps to run on PR open/sync/reopen.
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
 
@@ -187,7 +187,7 @@ jobs:
 
       - name: Commit if changes
         if: (github.event_name == 'pull_request' && github.event.action != 'closed') && steps.prettier.outputs.count > 0 || steps.dotnet-format.outputs.count > 0
-        continue-on-error: true
+        continue-on-error: true # fail-safe to make sure the build and tests run.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
