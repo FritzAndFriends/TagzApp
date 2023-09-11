@@ -16,36 +16,6 @@ public class StartTwitchChat : BaseConfigurationProvider, IConfigureProvider
 	{
 	}
 
-	public IServiceCollection RegisterServices(IServiceCollection services, IConfiguration configuration)
-	{
-
-		IConfiguration config = null;
-		try
-		{
-			config = configuration.GetSection(ConfigurationKey);
-			services.Configure<TwitchChatConfiguration>(config);
-		}
-		catch (Exception ex)
-		{
-
-			// Was not able to configure the provider
-			throw new InvalidConfigurationException(ex.Message, ConfigurationKey);
-
-		}
-
-		if (config is null || string.IsNullOrEmpty(config.GetValue<string>("ClientId")))
-		{
-			// No configuration provided, no registration to be added
-			return services;
-		}
-
-		services.AddSingleton<ISocialMediaProvider, TwitchChatProvider>();
-
-
-		return services;
-
-	}
-
 	public async Task<IServiceCollection> RegisterServices(IServiceCollection services, CancellationToken cancellationToken = default)
 	{
 		await LoadConfigurationValuesAsync(_DisplayName, cancellationToken);

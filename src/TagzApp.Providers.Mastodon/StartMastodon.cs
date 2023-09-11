@@ -33,33 +33,6 @@ public class StartMastodon : BaseConfigurationProvider, IConfigureProvider
 		return services;
 	}
 
-	public IServiceCollection RegisterServices(IServiceCollection services, IConfiguration configuration)
-	{
-		IConfigurationSection config;
-
-		try
-		{
-			config = configuration.GetSection(MastodonConfiguration.AppSettingsSection);
-			services.Configure<MastodonConfiguration>(config);
-		}
-		catch (Exception ex)
-		{
-			throw new InvalidConfigurationException(ex.Message, MastodonConfiguration.AppSettingsSection);
-		}
-
-		MastodonConfiguration? options = config.Get<MastodonConfiguration>();
-
-		if (string.IsNullOrEmpty(options?.BaseAddress?.ToString()))
-		{
-			// No configuration provided, no registration to be added
-			return services;
-		}
-
-		services.AddHttpClient<ISocialMediaProvider, MastodonProvider, MastodonConfiguration>(configuration, MastodonConfiguration.AppSettingsSection);
-		services.AddTransient<ISocialMediaProvider, MastodonProvider>();
-		return services;
-	}
-
 	protected override void MapConfigurationValues(ProviderConfiguration providerConfiguration)
 	{
 		var config = providerConfiguration.ConfigurationSettings;

@@ -16,17 +16,6 @@ public class StartYoutube : BaseConfigurationProvider, IConfigureProvider
 	{
 	}
 
-	public IServiceCollection RegisterServices(IServiceCollection services, IConfiguration configuration)
-	{
-
-		var config = configuration.GetSection(YoutubeConfiguration.AppSettingsSection)!;
-		if (config is null) throw new InvalidConfigurationException(YoutubeConfiguration.AppSettingsSection);
-		services.Configure<YoutubeConfiguration>(config);
-
-		services.AddTransient<ISocialMediaProvider, YoutubeProvider>();
-		return services;
-	}
-
 	public async Task<IServiceCollection> RegisterServices(IServiceCollection services, CancellationToken cancellationToken)
 	{
 		await LoadConfigurationValuesAsync(_DisplayName, cancellationToken);

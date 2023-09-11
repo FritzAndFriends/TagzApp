@@ -23,36 +23,6 @@ public class StartBlazot : BaseConfigurationProvider, IConfigureProvider
 	{
 	}
 
-  public IServiceCollection RegisterServices(IServiceCollection services, IConfiguration configuration)
-  {
-    IConfigurationSection config;
-
-    try
-    {
-      config = configuration.GetSection(BlazotClientConfiguration.AppSettingsSection);
-      services.Configure<BlazotClientConfiguration>(config);
-    }
-    catch (Exception ex)
-    {
-      throw new InvalidConfigurationException(ex.Message, BlazotClientConfiguration.AppSettingsSection);
-    }
-
-    var settings = config.Get<BlazotClientConfiguration>();
-
-    if (string.IsNullOrWhiteSpace(settings?.BaseAddress?.ToString()) || string.IsNullOrWhiteSpace(settings.ApiKey))
-      return services;
-
-    services.AddSingleton(configuration);
-    services.AddHttpClient<ISocialMediaProvider, BlazotProvider, BlazotClientConfiguration>(configuration, BlazotClientConfiguration.AppSettingsSection);
-    services.AddTransient<ISocialMediaProvider, BlazotProvider>();
-    services.AddSingleton<IContentConverter, ContentConverter>();
-    services.AddSingleton<ITransmissionsService, HashtagTransmissionsService>();
-    services.AddSingleton<IAuthService, AuthService>();
-    services.AddSingleton<IAuthEvents, AuthEvents>();
-
-    return services;
-  }
-
 	public async Task<IServiceCollection> RegisterServices(IServiceCollection services, CancellationToken cancellationToken = default)
 	{
 		await LoadConfigurationValuesAsync(_DisplayName, cancellationToken);

@@ -18,36 +18,6 @@ public class StartTwitter : BaseConfigurationProvider, IConfigureProvider
 	{
 	}
 
-	public IServiceCollection RegisterServices(IServiceCollection services, IConfiguration configuration)
-	{
-
-		IConfigurationSection config;
-
-		try
-		{
-			config = configuration.GetSection(TwitterConfiguration.AppSettingsSection);
-			services.Configure<TwitterConfiguration>(config);
-		}
-		catch (Exception ex)
-		{
-
-			throw new InvalidConfigurationException(ex.Message, TwitterConfiguration.AppSettingsSection);
-		}
-
-		TwitterConfiguration? options = config.Get<TwitterConfiguration>();
-
-		if (string.IsNullOrEmpty(options?.BaseAddress?.ToString()) || string.IsNullOrEmpty(options?.ApiKey))
-		{
-			// No configuration provided, no registration to be added
-			return services;
-		}
-
-		services.AddHttpClient<ISocialMediaProvider, TwitterProvider, TwitterConfiguration>(configuration, TwitterConfiguration.AppSettingsSection);
-		services.AddTransient<ISocialMediaProvider, TwitterProvider>();
-
-		return services;
-	}
-
 	public async Task<IServiceCollection> RegisterServices(IServiceCollection services, CancellationToken cancellationToken = default)
 	{
 		await LoadConfigurationValuesAsync(_DisplayName, cancellationToken);
