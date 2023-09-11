@@ -22,25 +22,8 @@ public static class IServiceCollectionExtensions
 	/// <typeparam name="TImplementation">The implementation of the interface.</typeparam>
 	/// <typeparam name="TClientOptions">The type of the client options.</typeparam>
 	/// <param name="services"><see cref="IServiceCollection"/> reference to add context to</param>
-	/// <param name="configuration">Reference to the application configuration instance</param>
-	/// <param name="configurationSectionName">Section name to use when configuring the Http client</param>
+	/// <param name="options">Http Client Options</param>
 	/// <exception cref="ArgumentNullException">Raised whenever any of the provided arguments is null</exception>
-	public static IServiceCollection AddHttpClient<TClient, TImplementation, TClientOptions>(this IServiceCollection services, IConfiguration configuration, string configurationSectionName)
-					where TClient : class
-					where TImplementation : class, TClient
-					where TClientOptions : HttpClientOptions, new()
-	{
-		// Validate the request
-		Ensure.Any.IsNotNull(services, nameof(services));
-		Ensure.Any.IsNotNull(configuration, nameof(configuration));
-		Ensure.String.IsNotNullOrEmpty(configurationSectionName, nameof(configurationSectionName));
-
-		// Get the client builder with the configuration applied and return it
-		return GetHttpClientBuild<TClient, TImplementation, TClientOptions>(services, configuration, configurationSectionName)
-				.Services;
-	}
-
-	//TODO: Remove above?
 	public static IServiceCollection AddHttpClient<TClient, TImplementation, TClientOptions>(this IServiceCollection services, HttpClientOptions options)
 				where TClient : class
 				where TImplementation : class, TClient
@@ -55,7 +38,6 @@ public static class IServiceCollectionExtensions
 				.Services;
 	}
 
-	//TODO: Remove below?
 	private static IHttpClientBuilder GetHttpClientBuild<TClient, TImplementation, TClientOptions>(this IServiceCollection services, HttpClientOptions options)
 			where TClient : class
 					where TImplementation : class, TClient
