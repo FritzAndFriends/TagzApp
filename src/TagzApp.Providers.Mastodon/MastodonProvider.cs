@@ -1,8 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Net.Http.Json;
-using System.Text.Json;
+﻿using System.Net.Http.Json;
 using System.Web;
-using TagzApp.Common.Models;
+
+using Microsoft.Extensions.Logging;
 
 namespace TagzApp.Providers.Mastodon;
 
@@ -52,7 +51,7 @@ internal class MastodonProvider : ISocialMediaProvider, IHasNewestId
 			return Enumerable.Empty<Content>();
 		}
 
-		NewestId = messages.OrderByDescending(m => m.id).First().id;
+		NewestId = messages!.OrderByDescending(m => m.id).First().id;
 
 		var baseServerAddress = _HttpClient.BaseAddress.Host.ToString();
 
@@ -66,7 +65,7 @@ internal class MastodonProvider : ISocialMediaProvider, IHasNewestId
 			Author = new Creator
 			{
 				DisplayName = m.account!.display_name,
-				UserName = m.account.acct + (m.account.acct.Contains("@") ? "" : $"@{baseServerAddress}" ),
+				UserName = m.account.acct + (m.account.acct.Contains("@") ? "" : $"@{baseServerAddress}"),
 				ProviderId = Id,
 				ProfileImageUri = new Uri(m.account.avatar_static),
 				ProfileUri = new Uri(m.account.url)
