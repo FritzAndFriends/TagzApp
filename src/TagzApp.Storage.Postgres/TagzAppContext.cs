@@ -38,8 +38,8 @@ internal class TagzAppContext : DbContext
 		{
 
 			optionsBuilder.UseNpgsql(
-							_Configuration.GetConnectionString("TagzApp"),
-							pg => pg.MigrationsAssembly("TagzApp.Storage.Postgres.Security"));
+							_Configuration.GetConnectionString("TagzApp")
+							);
 
 		}
 		else
@@ -61,7 +61,7 @@ internal class TagzAppContext : DbContext
 		modelBuilder.Entity<PgContent>().HasOne(c => c.ModerationAction).WithOne(m => m.Content).HasForeignKey<PgModerationAction>(m => m.ContentId);
 
 		modelBuilder.Entity<PgModerationAction>().HasAlternateKey(c => new { c.Provider, c.ProviderId });
-		
+
 		modelBuilder.Entity<Tag>().Property(t => t.Text)
 			.HasMaxLength(50)
 			.IsRequired();

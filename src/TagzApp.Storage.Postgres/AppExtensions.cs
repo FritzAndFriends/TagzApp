@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using TagzApp.Storage.Postgres;
 using TagzApp.Web.Services;
+using AppConfig = TagzApp.Storage.Postgres.ApplicationConfiguration;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -23,13 +24,24 @@ public static class AppExtensions
 
 		services.AddScoped<IModerationRepository, PostgresModerationRepository>();
 
-		using var builtServices = services.BuildServiceProvider();
+		var builtServices = services.BuildServiceProvider();
 		var ctx = builtServices.GetRequiredService<TagzAppContext>();
 		_MigrateTask = ctx.Database.MigrateAsync();
 
 		return services;
 
 	}
-	
+
+	public static IConfigurationBuilder AddApplicationConfiguration(
+			this IConfigurationBuilder builder)
+	{
+		var tempConfig = builder.Build();
+
+		return builder.Add(new AppConfig.ConfigurationSource(tempConfig));
+
+	}
+
+
+
 
 }

@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace TagzApp.Storage.Postgres.Security.Migrations
+namespace TagzApp.Storage.Postgres.Migrations
 {
     /// <inheritdoc />
     public partial class AddApplicationConfiguration : Migration

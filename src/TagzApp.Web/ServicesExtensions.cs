@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using TagzApp.Web.Data;
 using TagzApp.Web.Services;
 
@@ -89,12 +91,28 @@ public static class ServicesExtensions
 		}
 	}
 
-	public static IConfigurationBuilder AddApplicationConfiguration(
-			this IConfigurationBuilder builder)
+	public static void AddSecurityContext(this IServiceCollection services, IConfiguration configuration)
 	{
-		var tempConfig = builder.Build();
 
-		return builder.Add(new ApplicationConfigurationSource(tempConfig));
+		if (!string.IsNullOrEmpty(configuration.GetConnectionString("TagzAppSecurity")))
+		{
+
+			services.AddDbContext<SecurityContext>(options =>
+						{
+							options.UseNpgsql(configuration.GetConnectionString("TagzAppSecurity"),
+							pg => pg.MigrationsAssembly("TagzApp.Storage.Postgres.Security"));
+						});
+
+		}
+		else if (!string.IsNullOrEmpty(configuration.GetConnectionString("SecurityContextConnection")))
+		{
+
+			services.AddDbContext<SecurityContext>(options =>
+			{
+				options.UseSqlite(configuration.GetConnectionString("SecurityContextConnection"));
+			});
+
+		}
 
 	}
 

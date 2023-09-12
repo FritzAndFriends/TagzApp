@@ -8,39 +8,12 @@ public class SecurityContext : IdentityDbContext<IdentityUser>
 {
 	private readonly IConfiguration _Configuration;
 
+	public SecurityContext() { }
+
 	public SecurityContext(DbContextOptions<SecurityContext> options, IConfiguration configuration)
 			: base(options)
 	{
 		_Configuration = configuration;
-	}
-
-	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-	{
-
-		if (!string.IsNullOrEmpty(_Configuration.GetConnectionString("TagzAppSecurity")))
-		{
-
-			optionsBuilder.UseNpgsql(
-							_Configuration.GetConnectionString("TagzAppSecurity"),
-							pg => pg.MigrationsAssembly("TagzApp.Storage.Postgres.Security"));
-
-		}
-		else if (!string.IsNullOrEmpty(_Configuration.GetConnectionString("SecurityContextConnection")))
-		{
-
-			optionsBuilder.UseSqlite(
-							_Configuration.GetConnectionString("SecurityContextConnection")
-			);
-
-		}
-		else
-		{
-
-			optionsBuilder.UseInMemoryDatabase("InMemoryDatabase");
-
-		}
-
-		base.OnConfiguring(optionsBuilder);
 	}
 
 	protected override void OnModelCreating(ModelBuilder builder)
@@ -51,5 +24,7 @@ public class SecurityContext : IdentityDbContext<IdentityUser>
 		// For example, you can rename the ASP.NET Identity table names and more.
 		// Add your customizations after calling base.OnModelCreating(builder);
 	}
-}
 
+	public DbSet<Settings> Settings => Set<Settings>();
+
+}
