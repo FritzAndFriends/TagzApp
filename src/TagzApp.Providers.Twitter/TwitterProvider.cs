@@ -1,11 +1,13 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
+
 using System.IO.Compression;
 using System.Net.Http.Json;
 using System.Reflection;
 using System.Text.Json;
 using System.Web;
-using TagzApp.Common.Models;
+
+using Microsoft.Extensions.Options;
+
 using TagzApp.Providers.Twitter.Configuration;
 using TagzApp.Providers.Twitter.Models;
 using TagzApp.Web.Services;
@@ -35,8 +37,10 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 		_Configuration = options.Value;
 		_Logger = logger;
 	}
-
+	// TODO: Check CS1998: Async method lacks 'await' operators and will run synchronously
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 	public async Task<IEnumerable<Content>> GetContentForHashtag(Common.Models.Hashtag tag, DateTimeOffset since)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 	{
 
 		var tweetQuery = "#" + tag.Text.ToLowerInvariant().TrimStart('#') + " -is:retweet";
@@ -96,7 +100,7 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 
 		var outContent = new List<Content>();
 
-		foreach (var t in recentTweets.data)
+		foreach (var t in recentTweets.data!)
 		{
 
 			var author = recentTweets.includes.users.FirstOrDefault(u => u.id == t.author_id);
