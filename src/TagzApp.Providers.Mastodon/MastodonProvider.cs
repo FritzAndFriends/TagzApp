@@ -53,8 +53,9 @@ internal class MastodonProvider : ISocialMediaProvider, IHasNewestId
 
 		NewestId = messages!.OrderByDescending(m => m.id).First().id;
 
-		var baseServerAddress = _HttpClient.BaseAddress.Host.ToString();
+		var baseServerAddress = _HttpClient.BaseAddress?.Host.ToString();
 
+#pragma warning disable CS8604 // Possible null reference argument.
 		return messages!.Select(m => new Content
 		{
 			Provider = Id,
@@ -72,8 +73,12 @@ internal class MastodonProvider : ISocialMediaProvider, IHasNewestId
 			},
 			Text = m.content,
 			HashtagSought = tag.Text,
-			PreviewCard = m.card is null ? m.media_attachments.Any() ? (Common.Models.Card)Message.GetMediaAttachment(m.media_attachments.First().ToString()) : null : (Common.Models.Card)m.card
+			// TODO: Check for CS8604 -- Possible null reference argument in m.media_attachments! Possibly it is connected with the missing Null annotations in Messages.cs! This whole assignment makes the compiler "mad" in several parts with multiple different Warnings. At a first glance I wasn't clear how to fix these warnings!
+			PreviewCard = m.card is null ? m.media_attachments.Any()
+				? (Common.Models.Card)Message.GetMediaAttachment(m.media_attachments.First().ToString())
+				: null : (Common.Models.Card)m.card!
 		}).ToArray();
+#pragma warning restore CS8604 // Possible null reference argument.
 
 	}
 
