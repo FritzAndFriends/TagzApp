@@ -11,8 +11,8 @@
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
 		<PackageReference Include="System.Net.Http.Json" Version="7.0.1" />
-		<PackageReference Include="Google.Apis" Version="1.61.0" />
-		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.61.0.3113" />
+		<PackageReference Include="Google.Apis" Version="1.62.0" />
+		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.62.0.3169" />
 		<InternalsVisibleTo Include="TagzApp.UnitTest" />
 	</ItemGroup>
 

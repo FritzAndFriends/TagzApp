@@ -14,13 +14,6 @@ public class SecurityContext : IdentityDbContext<IdentityUser>
 		_Configuration = configuration;
 	}
 
-	public SecurityContext(IConfiguration configuration)
-	{
-		_Configuration = configuration;
-	}
-
-	public DbSet<Settings> Settings => Set<Settings>();
-
 	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 	{
 
@@ -60,4 +53,3 @@ public class SecurityContext : IdentityDbContext<IdentityUser>
 	}
 }
 
-public record Settings(string Id, string? Value);
