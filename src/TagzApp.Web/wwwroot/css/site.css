@@ -332,3 +332,10 @@ article.status-approved .time::after {
 a {
 	color: var(--bs-cyan);
 }
+
+.waterfallHeader {
+
+	min-height: 3em;
+	padding: 5px;
+
+}
