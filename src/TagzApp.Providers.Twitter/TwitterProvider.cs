@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.IO.Compression;
 using System.Net.Http.Json;
 using System.Reflection;
@@ -15,6 +16,7 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 {
 	private readonly HttpClient _HttpClient;
 	private readonly TwitterConfiguration _Configuration;
+	private readonly ILogger<TwitterProvider> _Logger;
 	private const string _SearchFields = "created_at,author_id,entities";
 	private const int _SearchMaxResults = 100;
 	private const string _SearchExpansions = "author_id,attachments.media_keys";
@@ -27,10 +29,11 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 
 	public string NewestId { get; set; } = string.Empty;
 
-	public TwitterProvider(IHttpClientFactory httpClientFactory, IOptions<TwitterConfiguration> options)
+	public TwitterProvider(IHttpClientFactory httpClientFactory, IOptions<TwitterConfiguration> options, ILogger<TwitterProvider> logger)
 	{
 		_HttpClient = httpClientFactory.CreateClient(nameof(TwitterProvider));
 		_Configuration = options.Value;
+		_Logger = logger;
 	}
 
 	public async Task<IEnumerable<Content>> GetContentForHashtag(Common.Models.Hashtag tag, DateTimeOffset since)
@@ -75,7 +78,8 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 		}
 		catch (Exception ex)
 		{
-			Console.WriteLine(ex.Message);
+			Console.WriteLine($"Error retrieving tweets: {ex.Message}");
+			_Logger.LogError(ex, $"Error retrieving tweets");
 		}
 
 		var outTweets = ConvertToContent(recentTweets, tag);
@@ -174,7 +178,8 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine(ex.Message);
+				Console.WriteLine($"Error formatting twee ('{t.text}'): ${ex.Message}");
+				_Logger.LogError(ex, $"Error formatting tweet: {t.text}");
 			}
 
 		}

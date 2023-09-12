@@ -17,6 +17,14 @@
 				"font/bootstrap-icons.json",
 				"font/bootstrap-icons.min.css"
 			]
+		},
+		{
+			"provider": "jsdelivr",
+			"library": "bootstrap-dark-5@1.1.3",
+			"destination": "wwwroot/lib/bootstrap-dark-5/",
+			"files": [
+				"dist/css/bootstrap-dark.min.css"
+			]
 		}
 	]
 }
