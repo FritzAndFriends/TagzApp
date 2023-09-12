@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.Replication.PgOutput;
 using TagzApp.Communication.Extensions;
@@ -20,6 +21,7 @@ public class Program
 		builder.Services.Configure<ApplicationConfiguration>(
 			builder.Configuration.GetSection("ApplicationConfiguration")
 		);
+		builder.Services.AddSingleton<IConfigurationRoot>(builder.Configuration);
 
 		// Late bind the connection string so that any changes to the configuration made later on, or in the test fixture can be picked up.
 		builder.Services.AddSecurityContext(builder.Configuration);

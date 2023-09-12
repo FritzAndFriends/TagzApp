@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using TagzApp.Storage.Postgres;
+using TagzApp.Storage.Postgres.ApplicationConfiguration;
 using TagzApp.Web.Services;
 using AppConfig = TagzApp.Storage.Postgres.ApplicationConfiguration;
 
@@ -27,6 +28,8 @@ public static class AppExtensions
 		var builtServices = services.BuildServiceProvider();
 		var ctx = builtServices.GetRequiredService<TagzAppContext>();
 		_MigrateTask = ctx.Database.MigrateAsync();
+
+		services.AddTransient<IApplicationConfigurationRepository, AppConfig.Repository>();
 
 		return services;
 

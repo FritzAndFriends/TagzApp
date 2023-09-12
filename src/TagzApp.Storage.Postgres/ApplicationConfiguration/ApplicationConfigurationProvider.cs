@@ -2,7 +2,7 @@
 
 namespace TagzApp.Storage.Postgres.ApplicationConfiguration;
 
-internal class ApplicationConfigurationProvider : ConfigurationProvider
+public class ApplicationConfigurationProvider : ConfigurationProvider
 {
 	private readonly IConfiguration _Configuration;
 
@@ -36,7 +36,11 @@ internal class ApplicationConfigurationProvider : ConfigurationProvider
 		return settings;
 	}
 
-
+	public void Reload()
+	{
+		Load();
+		this.OnReload();
+	}
 }
 
 
