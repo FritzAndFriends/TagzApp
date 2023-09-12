@@ -39,4 +39,10 @@ public class InMemoryProviderConfigurationRepository : IProviderConfigurationRep
 
 		return await Task.FromResult(providerConfig);
 	}
+
+	public Task<IEnumerable<ProviderConfiguration?>> GetConfigurationSettingsAsync(CancellationToken cancellationToken = default)
+	{
+		//TODO
+		throw new NotImplementedException();
+	}
 }

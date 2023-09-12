@@ -3,4 +3,5 @@
 public interface IProviderConfigurationRepository
 {
 	Task<ProviderConfiguration?> GetConfigurationSettingsAsync(string name, CancellationToken cancellationToken = default);
+	Task<IEnumerable<ProviderConfiguration?>> GetConfigurationSettingsAsync(CancellationToken cancellationToken = default);
 }

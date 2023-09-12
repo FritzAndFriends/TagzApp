@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.ComponentModel;
+using TagzApp.Common.Attributes;
 
 namespace TagzApp.Web.Services;
 
@@ -47,5 +48,11 @@ public class ViewModelUtilitiesService
 	{
 		var displayNameAttribute = propertyInfo.GetCustomAttribute(typeof(DisplayNameAttribute)) as DisplayNameAttribute;
 		return displayNameAttribute?.DisplayName ?? string.Empty;
+	}
+
+	public string GetInputType(PropertyInfo propertyInfo)
+	{
+		var inputTypeAttribute = propertyInfo.GetCustomAttribute(typeof(InputTypeAttribute)) as InputTypeAttribute;
+		return inputTypeAttribute?.InputType ?? string.Empty;
 	}
 }
