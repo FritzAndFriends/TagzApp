@@ -6,14 +6,15 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="color-scheme" content="light dark">
 	<title>@ViewData["Title"] - TagzApp.Web</title>
-	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="~/lib/bootstrap-dark-5/dist/css/bootstrap-dark.min.css">
 	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 	<link rel="stylesheet" href="~/TagzApp.Web.styles.css" asp-append-version="true" />
 	<link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
 	<link rel="stylesheet" href="_content/TagzApp.Providers.Blazot/css/blazot.css" />
 </head>
-<body style="overflow-y: hidden;">
+<body style="overflow: hidden;">
 
 	@if (string.IsNullOrEmpty(ViewBag.EnableFloatingHeader?.ToString()) ? false : ViewBag.EnableFloatingHeader)
 	{
