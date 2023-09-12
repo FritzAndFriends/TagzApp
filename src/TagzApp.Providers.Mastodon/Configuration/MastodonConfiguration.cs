@@ -11,4 +11,6 @@ internal class MastodonConfiguration : HttpClientOptions
 	/// Declare the section name used
 	/// </summary>
 	public const string AppSettingsSection = "providers:mastodon";
+
+	public string Description { get; set; } = string.Empty;
 }

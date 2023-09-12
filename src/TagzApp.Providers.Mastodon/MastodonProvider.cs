@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Web;
 using TagzApp.Common.Models;
+using TagzApp.Providers.Mastodon.Configuration;
 
 namespace TagzApp.Providers.Mastodon;
 
@@ -12,14 +13,17 @@ internal class MastodonProvider : ISocialMediaProvider, IHasNewestId
 	private readonly HttpClient _HttpClient;
 	private readonly ILogger _Logger;
 
-	public MastodonProvider(IHttpClientFactory httpClientFactory, ILogger<MastodonProvider> logger)
+	public MastodonProvider(IHttpClientFactory httpClientFactory, ILogger<MastodonProvider> logger,
+		MastodonConfiguration configuration)
 	{
 		_HttpClient = httpClientFactory.CreateClient(nameof(MastodonProvider));
 		_Logger = logger;
+		Description = configuration.Description;
 	}
 
 	public string Id => "MASTODON";
 	public string DisplayName => "Mastodon";
+	public string Description { get; init; }
 
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(20);
 

@@ -1,22 +1,67 @@
 ﻿@page
 @using TagzApp.Web.Areas.Admin.Pages;
+@using TagzApp.Web.Services;
 @model TagzApp.Web.Areas.Admin.Pages.ProvidersModel
+@inject ViewModelUtilitiesService vmUtilities
+
 @{
     ViewData["ActivePage"] = ManageNavPages.Providers;
+    var vm = vmUtilities.LoadViewModel("Mastodon");
 }
 
 <h2>Provider Management</h2>
 
-<article>
+<article class="mt-3">
     @foreach(var provider in Model.Providers)
     {
-        <ul>
-            <li class="card">
-                <div class="card-body">
-                    <i class="bi bi-@provider.Id.ToLower()"></i>
-                    @provider.DisplayName
-                </div>
-            </li>
-        </ul>
+        <div class="accordion" id="providerAccordion">
+            <div class="accordion-item">
+                <h3 class="accordion-header" id="heading-@provider.Id">
+                    <button class="accordion-button collapsed" 
+                            type="button"
+                            data-bs-toggle="collapse" 
+                            data-bs-target="#@provider.Id" 
+                            aria-expanded="false" 
+                            aria-controls="@provider.Id">
+                        <i class="bi bi-@provider.Id.ToLower()"></i>
+                        @provider.DisplayName
+                    </button>
+                </h3>
+                <div id="@provider.Id" 
+                     class="accordion-collapse collapse"
+                     aria-labelledby="heading-@provider.Id"
+                     data-bs-parent="#providerAccordion">
+                    <p class="ps-3 pt-3 mb-1">@provider.Description</p>
+                    <p class="ps-3 pt-3 mb-0 fst-italic">Please fill in the configuration values below:</p>
+                    <form method="post" class="p-3">
+                        @foreach(var property in vmUtilities.LoadViewModel(provider.DisplayName)!)
+                        {
+                            var displayName = @vmUtilities.GetDisplayName(property);
+                            displayName = string.IsNullOrWhiteSpace(displayName) ? property.Name : displayName;
+
+                            switch (property.PropertyType)
+                            {
+                                case Type _ when typeof(string).IsAssignableFrom(property.PropertyType):
+                                    <label for="@property.Name"
+                                           class="form-label">@displayName</label>
+                                    <input name="@property.Name" class="form-control" />
+                                    break;
+                                case Type _ when typeof(bool).IsAssignableFrom(property.PropertyType):
+                                    <div class="input-group pt-3">
+                                        <input type="checkbox" class="btn-check" name="@property.Name" id="@property.Name" autocomplete="off">
+                                        <label class="btn btn-outline-success" for="@property.Name">@displayName</label>
+                                        @if(property.Name == "Activated")
+                                        {
+                                            <div id="@property.Name" class="form-text text-danger ms-2">Toggling this will enable the provider. Please validate provider code for security concerns prior to activation!</div>
+                                        }
+                                    </div>
+                                    break;
+                            }
+                        }
+                        <button type="submit" class="btn btn-primary mt-3">Save</button>
+                    </form>
+                 </div>
+            </div>
+        </div>
     }
 </article>

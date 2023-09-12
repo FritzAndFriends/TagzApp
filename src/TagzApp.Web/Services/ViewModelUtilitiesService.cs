@@ -1,0 +1,51 @@
+﻿using System.Reflection;
+using System.ComponentModel;
+
+namespace TagzApp.Web.Services;
+
+public class ViewModelUtilitiesService
+{
+	private readonly ILogger<ViewModelUtilitiesService> _Logger;
+
+	public ViewModelUtilitiesService(ILogger<ViewModelUtilitiesService> logger)
+	{
+		_Logger = logger;
+	}
+
+	public PropertyInfo[]? LoadViewModel(string providerName)
+	{
+		var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
+
+		if (!string.IsNullOrWhiteSpace(path))
+		{
+			string dllPath = Directory.GetFiles(path, $"TagzApp.Providers.{providerName}.dll", SearchOption.AllDirectories).FirstOrDefault() ?? string.Empty;
+
+			try
+			{
+				var assembly = Assembly.LoadFrom(dllPath);
+				var viewModelAssembly = assembly.GetTypes()
+					.FirstOrDefault(t => typeof(IProviderConfigurationViewModel).IsAssignableFrom(t) && !t.IsInterface);
+
+				var properties = viewModelAssembly?.GetProperties();
+
+				return properties;
+			}
+			catch (BadImageFormatException)
+			{
+				_Logger.LogWarning($"Skipping {dllPath} - not a .NET dll");
+			}
+			catch (Exception ex)
+			{
+				_Logger.LogWarning(ex, $"Skipping {dllPath} due to error");
+			}
+		}
+
+		throw new Exception("Guess what vm was null"); //TODO : Cleanup
+	}
+
+	public string GetDisplayName(PropertyInfo propertyInfo)
+	{
+		var displayNameAttribute = propertyInfo.GetCustomAttribute(typeof(DisplayNameAttribute)) as DisplayNameAttribute;
+		return displayNameAttribute?.DisplayName ?? string.Empty;
+	}
+}

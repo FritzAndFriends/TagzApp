@@ -28,6 +28,7 @@ public class StartMastodon : BaseConfigurationProvider, IConfigureProvider
 			return services;
 		}
 
+		services.AddSingleton(_MastodonConfiguration);
 		services.AddHttpClient<ISocialMediaProvider, MastodonProvider, MastodonConfiguration>(_MastodonConfiguration);
 		services.AddTransient<ISocialMediaProvider, MastodonProvider>();
 		return services;
@@ -44,7 +45,8 @@ public class StartMastodon : BaseConfigurationProvider, IConfigureProvider
 				BaseAddress = new Uri(config["BaseAddress"] ?? string.Empty),
 				Timeout = TimeSpan.Parse(config["Timeout"] ?? string.Empty),
 				DefaultHeaders = JsonSerializer.Deserialize<Dictionary<string,string>?>(config["DefaultHeaders"]),
-				UseHttp2 = bool.Parse(config["UseHttp2"])
+				UseHttp2 = bool.Parse(config["UseHttp2"]),
+				Description = providerConfiguration.Description
 			};
 		}
 	}

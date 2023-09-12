@@ -6,6 +6,7 @@ using Npgsql.Replication.PgOutput;
 using TagzApp.Communication.Extensions;
 using TagzApp.Web.Data;
 using TagzApp.Web.Hubs;
+using TagzApp.Web.Services;
 
 namespace TagzApp.Web;
 
@@ -56,7 +57,7 @@ public class Program
 		// Add services to the container.
 		builder.Services.AddRazorPages(options =>
 		{
-			options.Conventions.AuthorizeAreaFolder("Admin", "/", Security.Policy.AdminRoleOnly);
+		  options.Conventions.AuthorizeAreaFolder("Admin", "/", Security.Policy.AdminRoleOnly);
 			options.Conventions.AuthorizePage("/Moderation", Security.Policy.Moderator);
 		});
 
@@ -81,6 +82,8 @@ public class Program
 
 		// Add the Polly policies
 		builder.Services.AddPolicies(builder.Configuration);
+
+		builder.Services.AddSingleton<ViewModelUtilitiesService>();
 
 		var app = builder.Build();
 
