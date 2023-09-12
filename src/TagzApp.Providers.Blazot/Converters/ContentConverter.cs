@@ -67,7 +67,7 @@ public class ContentConverter : IContentConverter
 					.Combine(BlazotConstants.BaseAppAddress, "transmission", transmission.TransmissionId.ToString())
 					.Replace(@"\", "/")),
 				Text = body,
-				Timestamp = new DateTimeOffset(transmission.DateTransmitted, TimeSpan.Zero).ToLocalTime(),
+				Timestamp = new DateTimeOffset(transmission.DateTransmitted, TimeSpan.Zero),
 				HashtagSought = tag?.Text ?? string.Empty,
 				Type = ContentType.Message
 			};
