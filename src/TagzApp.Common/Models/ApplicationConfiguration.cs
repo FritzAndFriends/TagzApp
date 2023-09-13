@@ -13,7 +13,8 @@ public class ApplicationConfiguration
 	private string _WaterfallHeaderCss = string.Empty;
 
 	[Required, MaxLength(30)]
-	public string SiteName {
+	public string SiteName
+	{
 		get => _SiteName;
 		set
 		{
@@ -23,7 +24,8 @@ public class ApplicationConfiguration
 	}
 
 	[Required]
-	public string WaterfallHeaderMarkdown {
+	public string WaterfallHeaderMarkdown
+	{
 		get => _WaterfallHeaderMarkdown;
 		set
 		{
@@ -33,15 +35,17 @@ public class ApplicationConfiguration
 	}
 
 	[Required]
-	public string WaterfallHeaderCss {
+	public string WaterfallHeaderCss
+	{
 		get => _WaterfallHeaderCss;
-		set {
+		set
+		{
 			_WaterfallHeaderCss = value;
 			ChangedSettings.Add(new Settings(SettingsKeys.WaterfallHeaderCss, value));
 		}
 	}
 
-	public static implicit operator Dictionary<string,string?> (ApplicationConfiguration config)
+	public static implicit operator Dictionary<string, string?>(ApplicationConfiguration config)
 	{
 
 		return new Dictionary<string, string?>
@@ -53,7 +57,8 @@ public class ApplicationConfiguration
 
 	}
 
-	private class SettingsKeys {
+	private class SettingsKeys
+	{
 
 		public const string SiteName = "ApplicationConfiguration:SiteName";
 		public const string WaterfallHeaderMarkdown = "ApplicationConfiguration:WaterfallHeaderMarkdown";

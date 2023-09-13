@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Options;
 using TagzApp.Storage.Postgres.ApplicationConfiguration;
 
@@ -35,7 +34,8 @@ namespace TagzApp.Web.Areas.Admin.Pages
 		{
 
 			// Save the settings to the repository
-			if (!ModelState.IsValid) {
+			if (!ModelState.IsValid)
+			{
 				return Page();
 			}
 
@@ -48,7 +48,7 @@ namespace TagzApp.Web.Areas.Admin.Pages
 			var thisProvider = _ConfigurationRoot.Providers.OfType<ApplicationConfigurationProvider>().First();
 			thisProvider.Reload();
 
-			return RedirectToPage("uicustomization", new { Area="Admin" });
+			return RedirectToPage("uicustomization", new { Area = "Admin" });
 
 		}
 
