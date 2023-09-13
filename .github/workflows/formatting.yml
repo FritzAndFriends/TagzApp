@@ -1,0 +1,95 @@
+name: Code formatting
+on:
+  push:
+    paths:
+      - src/**.cs
+      - src/**.js
+      - src/**.css
+permissions:
+  contents: write
+
+jobs:
+  code-formatting:
+    if: github.ref != 'refs/heads/main' && github.repository != 'FritzAndFriends/TagzApp'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Get git diff
+        id: diff
+        run: |
+          git remote add upstream https://github.com/FritzAndFriends/TagzApp.git
+          git fetch upstream main
+          {
+            echo 'files<<EOF'
+            git diff upstream/main --name-only --diff-filter=d -- "*.css" "*.js" "*.cs"
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Get changed C# files
+        id: changed_cs
+        run: |
+          {
+            echo 'files<<EOF'
+            echo "${{ steps.diff.outputs.files }}" | grep -E "\.cs$" | paste -sd " "
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+      - name: Add formatting rules to .editorconfig
+        if: steps.changed_cs.outputs.files != ''
+        run: |
+          echo "" >> src/.editorconfig
+          echo "[*.cs]" >> src/.editorconfig
+          echo "dotnet_diagnostic.IDE0005.severity = error" >> src/.editorconfig # Remove unnecessary using directives
+          echo "dotnet_diagnostic.IDE0090.severity = error" >> src/.editorconfig # Simplify new expression
+          echo "dotnet_diagnostic.IDE0003.severity = error" >> src/.editorconfig # this and Me preferences
+          echo "dotnet_diagnostic.IDE0009.severity = error" >> src/.editorconfig # this and Me preferences
+      - name: Setup .NET
+        if: steps.changed_cs.outputs.files != ''
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 7.0.x
+      - name: Run dotnet format
+        if: steps.changed_cs.outputs.files != ''
+        id: dotnet-format
+        run: |
+          echo -e "\033[36mRunning dotnet format on:\033[0m ${{ steps.changed_cs.outputs.files }}"
+          result=$(dotnet format src/TagzApp.sln --verbosity normal --exclude src/**/Migrations/ --include ${{ steps.changed_cs.outputs.files }})
+          echo -e "\033[36mdotnet-format result:\033[0m"
+          echo "$result"
+          count=$(echo "$result" | grep -c "Formatted code file" || true)
+          echo -e "\033[36mNumber of files formatted: $count\033[0m"
+
+      - name: Get changed JS/CSS files
+        id: changed_js_css
+        run: |
+          {
+            echo 'files<<EOF'
+            echo "${{ steps.diff.outputs.files }}" | grep -E "\.(js|css)$" | paste -sd " "
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+      - name: Setup Node
+        if: steps.changed_js_css.outputs.files != ''
+        uses: actions/setup-node@v3
+        with:
+          node-version: lts/*
+      - name: Run prettier
+        if: steps.changed_js_css.outputs.files != ''
+        id: prettier
+        run: |
+          echo -e "\033[36mRunning prettier on:\033[0m ${{ steps.changed_js_css.outputs.files }}"
+          npm install prettier
+          result=$(npx prettier --write --list-different ${{ steps.changed_js_css.outputs.files }})
+          echo -e "\033[36mprettier result:\033[0m"
+          echo "$result"
+          count=$(echo "$result" | grep -cE "\.(js|css)$" || true)
+          echo -e "\033[36mNumber of files formatted: $count\033[0m"
+
+      - name: Commit
+        continue-on-error: true
+        run: |
+          echo -e "\033[33mNote: This step will fail if there are no formatted files, but that's ok.\033[0m"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add *.cs *.js *.css
+          git commit -m "Applying formatting changes through GitHub Actions"
+          git push
