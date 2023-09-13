@@ -17,7 +17,6 @@ on:
 jobs:
   build:
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
-    needs: [code-formatting]
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -38,7 +37,6 @@ jobs:
 
   playwright:
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
-    needs: [code-formatting]
     name: "Playwright Tests"
     runs-on: ubuntu-latest
     defaults:
@@ -95,104 +93,3 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           build-args: |
             Build_Version: ${{ steps.date.outputs.date }}.${{ github.run_attempt }}
-
-  code-formatting:
-    # Because the other jobs depend on this one, we need to make sure it runs on the same conditions,
-    # but we only actually want the steps to run on PR open/sync/reopen.
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Setup checkout
-        if: github.event_name == 'pull_request' && github.event.action != 'closed'
-        uses: actions/checkout@v3
-        with:
-          repository: ${{ github.actor }}/TagzApp
-          ref: ${{ github.head_ref }}
-          fetch-depth: 0
-      - name: Get git diff
-        if: github.event_name == 'pull_request' && github.event.action != 'closed'
-        id: diff
-        run: |
-          git remote add upstream https://github.com/FritzAndFriends/TagzApp.git
-          git fetch upstream main
-          {
-            echo 'files<<EOF'
-            git diff upstream/main --name-only --diff-filter=d -- "*.css" "*.js" "*.cs"
-            echo EOF
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Get changed C# files
-        if: github.event_name == 'pull_request' && github.event.action != 'closed'
-        id: changed_cs
-        run: |
-          {
-            echo 'files<<EOF'
-            echo "${{ steps.diff.outputs.files }}" | grep -E "\.cs$" | paste -sd " "
-            echo EOF
-          } >> "$GITHUB_OUTPUT"
-      - name: Add formatting rules to .editorconfig
-        if: (github.event_name == 'pull_request' && github.event.action != 'closed') && steps.changed_cs.outputs.files != ''
-        run: |
-          echo "" >> src/.editorconfig
-          echo "[*.cs]" >> src/.editorconfig
-          echo "dotnet_diagnostic.IDE0005.severity = error" >> src/.editorconfig # Remove unnecessary using directives
-          echo "dotnet_diagnostic.IDE0090.severity = error" >> src/.editorconfig # Simplify new expression
-          echo "dotnet_diagnostic.IDE0003.severity = error" >> src/.editorconfig # this and Me preferences
-          echo "dotnet_diagnostic.IDE0009.severity = error" >> src/.editorconfig # this and Me preferences
-      - name: Setup .NET
-        if: (github.event_name == 'pull_request' && github.event.action != 'closed') && steps.changed_cs.outputs.files != ''
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 7.0.x
-      - name: Run dotnet format
-        if: (github.event_name == 'pull_request' && github.event.action != 'closed') && steps.changed_cs.outputs.files != ''
-        id: dotnet-format
-        run: |
-          echo "Running dotnet format on: ${{ steps.changed_cs.outputs.files }}"
-          result=$(dotnet format src/TagzApp.sln --verbosity normal --exclude src/TagzApp.Web/Migrations --include ${{ steps.changed_cs.outputs.files }})
-          echo "Format result:"
-          echo "$result"
-          count=$(echo "$result" | grep -c "Formatted code file" || true)
-          echo "Number of files Format formatted: $count"
-          echo "count=$count" >> "$GITHUB_OUTPUT"
-
-      - name: Get changed JS/CSS files
-        if: github.event_name == 'pull_request' && github.event.action != 'closed'
-        id: changed_js_css
-        run: |
-          {
-            echo 'files<<EOF'
-            echo "${{ steps.diff.outputs.files }}" | grep -E "\.(js|css)$" | paste -sd " "
-            echo EOF
-          } >> "$GITHUB_OUTPUT"
-      - name: Setup Node
-        if: (github.event_name == 'pull_request' && github.event.action != 'closed') && steps.changed_js_css.outputs.files != ''
-        uses: actions/setup-node@v3
-        with:
-          node-version: lts/*
-      - name: Run prettier
-        if: (github.event_name == 'pull_request' && github.event.action != 'closed') && steps.changed_js_css.outputs.files != ''
-        id: prettier
-        run: |
-          echo "Running prettier on: ${{ steps.changed_js_css.outputs.files }}"
-          npm install prettier
-          result=$(npx prettier --write --list-different ${{ steps.changed_js_css.outputs.files }})
-          echo "Prettier result:"
-          echo "$result"
-          count=$(echo "$result" | grep -cE "\.(js|css)$" || true)
-          echo "Number of files Prettier formatted: $count"
-          echo "count=$count" >> "$GITHUB_OUTPUT"
-
-      - name: Commit if changes
-        if: (github.event_name == 'pull_request' && github.event.action != 'closed') && steps.prettier.outputs.count > 0 || steps.dotnet-format.outputs.count > 0
-        continue-on-error: true # fail-safe to make sure the build and tests run.
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add *.cs *.js *.css
-          echo "$(git status)"
-          git commit -m "Applying formatting changes through GitHub Actions"
-          git push
