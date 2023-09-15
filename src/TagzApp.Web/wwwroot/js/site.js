@@ -31,7 +31,10 @@
 		childList: true
 	};
 
-	observer.observe(taggedContent, observerConfig);
+	if (taggedContent !== null) {
+		observer.observe(taggedContent, observerConfig);
+	}
+
 	async function start() {
 		try {
 			await connection.start();

@@ -25,6 +25,11 @@
 			"files": [
 				"dist/css/bootstrap-dark.min.css"
 			]
+		},
+		{
+			"provider": "cdnjs",
+			"library": "simplemde@1.11.2",
+			"destination": "wwwroot/lib/simplemde/"
 		}
 	]
 }

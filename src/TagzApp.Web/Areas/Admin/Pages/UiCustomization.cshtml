@@ -14,10 +14,30 @@
 		<dd><textarea name="WaterfallHeaderCss">@Model.WaterfallHeaderCss</textarea></dd>
 
 		<dt><label for="WaterfallHeaderMarkdown">Waterfall Header (markdown):</label></dt>
-		<dd><textarea name="WaterfallHeaderMarkdown">@Model.WaterfallHeaderMarkdown</textarea></dd>
+		<dd><textarea name="WaterfallHeaderMarkdown" id="WaterfallHeaderMarkdown">@Model.WaterfallHeaderMarkdown</textarea></dd>
 
 	</dl>
 
 	<input type="submit" value="Save Changes" class="btn btn-primary" />
 
 </form>
+
+@section Styles {
+	<style>
+		.editor-toolbar {
+			background-color: #FFF;
+		}
+	</style>
+
+}
+
+@section Scripts {
+	<script src="~/js/admin.js"></script>
+
+	<script><!--
+
+		window.Admin.ConfigureUserCustomization();
+
+	//--></script>
+
+}
