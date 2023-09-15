@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using TagzApp.Common.Exceptions;
+﻿using Microsoft.Extensions.DependencyInjection;
 using TagzApp.Providers.Youtube.Configuration;
 using TagzApp.Communication;
 
@@ -20,7 +18,7 @@ public class StartYoutube : BaseConfigurationProvider, IConfigureProvider
 	{
 		await LoadConfigurationValuesAsync(_DisplayName, cancellationToken);
 
-		if(string.IsNullOrEmpty(_YoutubeConfiguration?.ApiKey))
+		if (string.IsNullOrEmpty(_YoutubeConfiguration?.ApiKey))
 		{
 			// No configuration provided, no registration to be added
 			return services;

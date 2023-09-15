@@ -8,8 +8,8 @@ namespace TagzApp.Web;
 public static class ServicesExtensions
 {
 
-  public static IServiceCollection AddTagzAppHostedServices(this IServiceCollection services, IConfigurationRoot configuration)
-  {
+	public static IServiceCollection AddTagzAppHostedServices(this IServiceCollection services, IConfigurationRoot configuration)
+	{
 
 		services.AddSingleton<INotifyNewMessages, SignalRNotifier>();
 

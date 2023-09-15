@@ -1,7 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
-using TagzApp.Common.Exceptions;
 using TagzApp.Communication;
 using TagzApp.Communication.Extensions;
 using TagzApp.Providers.Mastodon.Configuration;
@@ -44,7 +42,7 @@ public class StartMastodon : BaseConfigurationProvider, IConfigureProvider
 			{
 				BaseAddress = new Uri(config["BaseAddress"] ?? string.Empty),
 				Timeout = TimeSpan.Parse(config["Timeout"] ?? string.Empty),
-				DefaultHeaders = JsonSerializer.Deserialize<Dictionary<string,string>?>(config["DefaultHeaders"]),
+				DefaultHeaders = JsonSerializer.Deserialize<Dictionary<string, string>?>(config["DefaultHeaders"]),
 				UseHttp2 = bool.Parse(config["UseHttp2"]),
 				Description = providerConfiguration.Description
 			};

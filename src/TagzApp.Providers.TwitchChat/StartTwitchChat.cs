@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using TagzApp.Common.Exceptions;
+﻿using Microsoft.Extensions.DependencyInjection;
 using TagzApp.Communication;
 
 namespace TagzApp.Providers.TwitchChat;

@@ -3,6 +3,7 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using TagzApp.Common.Models;
 using TagzApp.Providers.Mastodon;
+using TagzApp.Providers.Mastodon.Configuration;
 using IHttpClientFactory = System.Net.Http.IHttpClientFactory;
 
 namespace TagzApp.UnitTest.Mastodon.GivenHashtag;
@@ -26,7 +27,7 @@ public class WhenFetchingMessages
 
 		_HttpClientFactory = new StubHttpClientFactory(client);
 
-		_Sut = new MastodonProvider(_HttpClientFactory, NullLogger<MastodonProvider>.Instance);
+		_Sut = new MastodonProvider(_HttpClientFactory, NullLogger<MastodonProvider>.Instance, new MastodonConfiguration());
 	}
 
 	[Fact]

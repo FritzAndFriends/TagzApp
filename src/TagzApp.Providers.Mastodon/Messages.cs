@@ -1,10 +1,10 @@
-﻿using System;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
 using System.Text.Json;
 
 namespace TagzApp.Providers.Mastodon;
 
+// TODO: Check for CS8618 -- Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 public class Messages
 {
 	public Message[]? ReceivedMessages { get; set; }
@@ -37,7 +37,7 @@ public class Message
 	public Card? card { get; set; }
 	public object? poll { get; set; }
 
-	public static MediaAttachment GetMediaAttachment(string mediaJson)
+	public static MediaAttachment? GetMediaAttachment(string mediaJson)
 	{
 
 		var rawJson = mediaJson.Substring(mediaJson.IndexOf('{'));
@@ -57,7 +57,9 @@ public class Account
 	public string display_name { get; set; } = string.Empty;
 	public bool locked { get; set; }
 	public bool bot { get; set; }
+
 	public object discoverable { get; set; }
+
 	public bool group { get; set; }
 	public DateTime created_at { get; set; }
 	public string note { get; set; } = string.Empty;
@@ -148,12 +150,12 @@ public class MediaAttachment
 	public static implicit operator Common.Models.Card(MediaAttachment mediaAttachment)
 	{
 
-		if (mediaAttachment is null) return null;
+		if (mediaAttachment is null) return mediaAttachment!;
 
 		return new Common.Models.Card
 		{
 			ImageUri = new Uri(mediaAttachment.url),
-			AltText = mediaAttachment.description?.ToString(),
+			AltText = mediaAttachment.description?.ToString() ?? "",
 			Height = mediaAttachment.meta?.original?.height ?? 0,
 			Width = mediaAttachment.meta?.original?.width ?? 0
 		};
@@ -183,3 +185,4 @@ public class Small
 	public string size { get; set; }
 	public float aspect { get; set; }
 }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
