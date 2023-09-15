@@ -25,7 +25,6 @@ body {
 	width: 100%;
 	height: calc(100vh - 66px);
 	overflow-y: scroll;
-	background-color: #f5f5f5;
 	padding: 0.3em;
 	display: grid;
 	grid-gap: 5px;
@@ -38,7 +37,6 @@ body {
 		/*font-size: 0.6em;*/
 		border: 1px solid #E2E8ED;
 		border-radius: 20px;
-		background-color: #FFF;
 		padding: 8px 16px 16px 16px;
 		overflow: hidden;
 		cursor: pointer;
@@ -78,12 +76,13 @@ body {
 
 #taggedContent .time, #overlayDisplay .time, #overlayDisplay.showPreview .time {
 	grid-area: 2 / 1 / 3 / 4;
-	color: #697882;
+	color: var(--bs-body-color);
 	font-family: Helvetica;
 	font-size: 14px;
 	font-style: normal;
 	font-weight: 400;
 	line-height: normal;
+	opacity: 0.7;
 }
 
 #taggedContent .content, #overlayDisplay .content, #overlayDisplay.showPreview .content {
@@ -134,7 +133,6 @@ span.invisible {
 	}
 
 #overlayDisplay .author {
-	color: #000;
 	font-family: Helvetica;
 	font-size: 16px;
 	font-style: normal;
@@ -143,7 +141,6 @@ span.invisible {
 }
 
 #taggedContent .authorUserName {
-	color: #697882;
 	font-family: Helvetica;
 	font-size: 14px;
 	font-style: normal;
@@ -151,6 +148,7 @@ span.invisible {
 	line-height: normal;
 	text-overflow: ellipsis;
 	overflow: hidden;
+	opacity: 0.7;
 }
 
 /** Overlay Display **/
@@ -215,7 +213,7 @@ span.invisible {
 
 /** Modal display on Waterfall */
 .modal-content {
-	border: 1px solid #E2E8ED;
+	border: 1px solid var(--bs-gray-600);
 	border-radius: 20px;
 	box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.04);
 }
@@ -240,7 +238,6 @@ span.invisible {
 	.modal-header .author {
 		grid-column: 2 / 3;
 		grid-row: 1 / 2;
-		color: #000;
 		font-family: Helvetica;
 		font-size: 16px;
 		font-style: normal;
@@ -251,7 +248,7 @@ span.invisible {
 	.modal-header .authorUserName {
 		grid-column: 2 / 3;
 		grid-row: 2 / 3;
-		color: #697882;
+		color: var(--bs-body-color);
 		font-family: Helvetica;
 		font-size: 14px;
 		font-style: normal;
@@ -259,6 +256,7 @@ span.invisible {
 		line-height: normal;
 		text-overflow: ellipsis;
 		overflow: hidden;
+		opacity: 0.7;
 	}
 
 	.modal-header .provider {
@@ -268,12 +266,13 @@ span.invisible {
 	.modal-header .time {
 		grid-column: 1 / 3;
 		grid-row: 3 / 4;
-		color: #697882;
+		color: var(--bs-body-color);
 		font-family: Helvetica;
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 400;
 		line-height: normal;
+		opacity: 0.7;
 	}
 
 	.modal-header .btn-close {
@@ -307,29 +306,29 @@ span.invisible {
 		}
 
 article.status-approved {
-	background-color: lightgreen !important;
+	background-color: rgba(var(--bs-success-rgb),.4);
 }
 
 article.status-rejected {
-	background-color: #FF8787 !important;
+	background-color: rgba(var(--bs-danger-rgb),.4);
 }
 
 	article.status-rejected .time::after {
 		content: "Rejected";
 		font-weight: bold;
 		margin-left: 0.5em;
-		color: firebrick;
+		color: var(--bs-red);
 		margin-bottom: 1em;
 	}
 
-	article.status-rejected .author, article.status-rejected .authorUserName, article.status-rejected .time {
-		color: #555!important;
-	}
+article.status-approved .time::after {
+	content: "Approved";
+	font-weight: bold;
+	margin-left: 0.5em;
+	color: var(--bs-green);
+	margin-bottom: 1em;
+}
 
-	article.status-approved .time::after {
-		content: "Approved";
-		font-weight: bold;
-		margin-left: 0.5em;
-		color: forestgreen;
-		margin-bottom: 1em;
-	}
+a {
+	color: var(--bs-cyan);
+}

@@ -4,7 +4,6 @@ using TagzApp.Providers.Blazot.Constants;
 using TagzApp.Providers.Blazot.Interfaces;
 using TagzApp.Providers.Blazot.Models;
 using TagzApp.Providers.Blazot.Configuration;
-using TagzApp.Common.Models;
 
 namespace TagzApp.Providers.Blazot;
 

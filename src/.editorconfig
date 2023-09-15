@@ -111,6 +111,8 @@ csharp_style_prefer_index_operator = true:suggestion
 csharp_style_prefer_range_operator = true:suggestion
 csharp_style_prefer_primary_constructors = true:suggestion
 
+# VSSpell001: Spell Check
+dotnet_diagnostic.VSSpell001.severity = suggestion
 trim_trailing_whitespace = true
 insert_final_newline = true
 

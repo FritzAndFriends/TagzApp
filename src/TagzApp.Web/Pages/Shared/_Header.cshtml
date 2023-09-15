@@ -3,7 +3,7 @@
 @inject IConfiguration Configuration
 
 <header>
-	<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+	<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3 bg-body">
 		<div class="container">
 			<a class="navbar-brand" asp-area="" asp-page="/Index">TagzApp.Web</a>
 			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -13,24 +13,24 @@
 			<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
 				<ul class="navbar-nav flex-grow-1">
 					<li class="nav-item">
-						<a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+						<a class="nav-link" asp-area="" asp-page="/Index">Home</a>
 					</li>
 
 					<li class="nav-item">
-						<a class="nav-link text-dark" asp-area="" asp-page="/Waterfall">Waterfall</a>
+						<a class="nav-link" asp-area="" asp-page="/Waterfall">Waterfall</a>
 					</li>
 
 					@if (Configuration.GetValue<bool>("ModerationEnabled", false) && (await AuthorizationService.AuthorizeAsync(User, Security.Policy.Moderator)).Succeeded)
 					{
 						<li class="nav-item">
-							<a class="nav-link text-dark" asp-area="" asp-page="/Moderation">Moderation</a>
+							<a class="nav-link" asp-area="" asp-page="/Moderation">Moderation</a>
 						</li>
 					}
 					<li class="nav-item">
-						<a class="nav-link text-dark" asp-area="" asp-page="/Overlay">Overlay</a>
+						<a class="nav-link" asp-area="" asp-page="/Overlay">Overlay</a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
+						<a class="nav-link" asp-area="" asp-page="/Privacy">Privacy</a>
 					</li>
 				</ul>
 
