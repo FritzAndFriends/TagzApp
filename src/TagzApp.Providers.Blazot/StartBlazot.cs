@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using TagzApp.Common.Exceptions;
+﻿using Microsoft.Extensions.DependencyInjection;
 using TagzApp.Communication;
 using TagzApp.Communication.Extensions;
 using TagzApp.Providers.Blazot.Configuration;
@@ -51,7 +49,7 @@ public class StartBlazot : BaseConfigurationProvider, IConfigureProvider
 			{
 				BaseAddress = new Uri(config["BaseAddress"] ?? string.Empty),
 				Timeout = TimeSpan.Parse(config["Timeout"] ?? string.Empty),
-				ApiKey = config["ApiKey"]?? string.Empty
+				ApiKey = config["ApiKey"] ?? string.Empty
 			};
 
 			_BlazotSettings = new BlazotSettings

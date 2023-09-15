@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace TagzApp.Common.Models;
+﻿namespace TagzApp.Common.Models;
 
 public class ProviderConfiguration
 {

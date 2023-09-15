@@ -5,7 +5,6 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using TagzApp.Web.Services;
-using System.Text.Json;
 
 namespace TagzApp.WebTest.Fixtures;
 

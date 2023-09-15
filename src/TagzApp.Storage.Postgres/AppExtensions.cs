@@ -17,8 +17,8 @@ public static class AppExtensions
 
 		services.AddDbContext<TagzAppContext>(options =>
 				{
-			options.UseNpgsql(configuration.GetConnectionString("TagzApp"));
-		});
+					options.UseNpgsql(configuration.GetConnectionString("TagzApp"));
+				});
 
 		services.AddScoped<IProviderConfigurationRepository, PostgresProviderConfigurationRepository>();
 		services.AddSingleton<IMessagingService>(sp =>
@@ -41,6 +41,6 @@ public static class AppExtensions
 		return services;
 
 	}
-	
+
 
 }

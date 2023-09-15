@@ -1,7 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
-using TagzApp.Common.Exceptions;
 using TagzApp.Communication;
 using TagzApp.Communication.Extensions;
 using TagzApp.Providers.Twitter.Configuration;

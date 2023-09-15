@@ -1,6 +1,5 @@
 ﻿using Bogus;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using TagzApp.Common.Models;
 
 namespace TagzApp.WebTest;
 
