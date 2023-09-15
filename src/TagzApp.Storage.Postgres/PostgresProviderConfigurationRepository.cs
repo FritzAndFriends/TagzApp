@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace TagzApp.Storage.Postgres;
 
@@ -47,7 +45,7 @@ internal static class ProviderConfigurationTranslations
 		return providerConfigurations == null ?
 			new List<Common.Models.ProviderConfiguration>() :
 			providerConfigurations.Select(x => x.AsProviderConfigurationCommon())
-															.Where(y => y!= null);
+															.Where(y => y != null);
 	}
 }
 
