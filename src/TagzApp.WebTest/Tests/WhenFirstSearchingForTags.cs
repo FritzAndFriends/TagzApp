@@ -60,7 +60,7 @@ public class WhenFirstSearchingForTags : IClassFixture<WhenFirstSearchingForTags
 	private readonly WhenFirstSearchingForTagsFixture WebApp;
 	private readonly ITestOutputHelper _OutputHelper;
 
-	public WhenFirstSearchingForTags(WhenFirstSearchingForTagsFixture webapp, ITestOutputHelper outputHelper) 
+	public WhenFirstSearchingForTags(WhenFirstSearchingForTagsFixture webapp, ITestOutputHelper outputHelper)
 	{
 		WebApp = webapp;
 		_OutputHelper = outputHelper;
