@@ -39,7 +39,7 @@ public class ApplicationConfigurationProvider : ConfigurationProvider
 	public void Reload()
 	{
 		Load();
-		this.OnReload();
+		OnReload();
 	}
 }
 
