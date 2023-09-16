@@ -1,21 +1,31 @@
 ﻿using System.Text.RegularExpressions;
+using System.Web;
 
 namespace TagzApp.Providers.Blazot.Formatters;
 
 internal static class LinkFormatters
 {
   private static Regex LinkRegex => new(@"(?:(?:https?):\/\/)?[\w/\.-]+(?<!\.)(\.)(?!\.)[a-zA-Z]+(?<!\?)[a-zA-Z0-9/\-&?.=%#_]+(?<!\.)");
-  private static Regex HashTagRegex => new(@"(^|[^&\p{L}\p{M}\p{Nd}_\u200c\u200d\ua67e\u05be\u05f3\u05f4\u309b\u309c\u30a0\u30fb\u3003\u0f0b\u0f0c\u00b7])(#|\uFF03)(?!\uFE0F|\u20E3)([\p{L}\p{M}\p{Nd}_\u200c\u200d\ua67e\u05be\u05f3\u05f4\u309b\u309c\u30a0\u30fb\u3003\u0f0b\u0f0c\u00b7]*[\p{L}\p{M}][\p{L}\p{M}\p{Nd}_\u200c\u200d\ua67e\u05be\u05f3\u05f4\u309b\u309c\u30a0\u30fb\u3003\u0f0b\u0f0c\u00b7]*)");
-  private static Regex UserMentionRegex => new(@"\B@\w+");
+  private static Regex HashTagRegex => new(@"\B#\w\w+");
+	private static Regex UserMentionRegex => new(@"\B@\w+");
 
+	// This must be performed first, since it involves HTML Decoding and Encoding.
   public static string AddHashTagLinks(string bodyText)
   {
-    return HashTagRegex.Replace(bodyText, delegate(Match m)
-    {
-      var noHash = m.Value.Trim().TrimStart('#');
-      var hashed = m.Value.Trim();
-      return $" <a class=\"b-hashtag-link\" href=\"https://blazot.com/hashtag/{noHash}\">{hashed}</a>";
-    });
+		bodyText = HttpUtility.HtmlDecode(bodyText);
+		var matches = HashTagRegex.Matches(bodyText);
+		bodyText = HttpUtility.HtmlEncode(bodyText);
+
+		foreach (var match in matches)
+		{
+			if (match == null) continue;
+
+			var m = match.ToString()!.Trim();
+			var noHash = m.TrimStart('#');
+			bodyText = bodyText.Replace(m, $"<a class=\"b-hashtag-link\" target=\"_blank\" href=\"https://blazot.com/hashtag/{noHash}\">{m}</a>");
+		}
+
+		return bodyText;
   }
 
   public static string AddWebLinks(string bodyText)

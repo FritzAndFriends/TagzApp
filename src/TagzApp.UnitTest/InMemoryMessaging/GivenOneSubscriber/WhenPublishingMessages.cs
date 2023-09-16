@@ -1,6 +1,4 @@
-﻿using TagzApp.Common.Models;
-
-namespace TagzApp.UnitTest.InMemoryMessaging.GivenOneSubscriber;
+﻿namespace TagzApp.UnitTest.InMemoryMessaging.GivenOneSubscriber;
 public class WhenPublishingMessages
 {
 
@@ -28,7 +26,7 @@ public class WhenPublishingMessages
 	{
 
 		// Arrange
-		Content published = null;
+		Content published = null!;
 		_Sut.SubscribeToContent(_Tag, (content) => published = content);
 
 		// Act
