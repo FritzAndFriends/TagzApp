@@ -60,7 +60,7 @@ public class WhenFirstSearchingForTags : IClassFixture<WhenFirstSearchingForTags
 	private readonly WhenFirstSearchingForTagsFixture WebApp;
 	private readonly ITestOutputHelper _OutputHelper;
 
-	public WhenFirstSearchingForTags(WhenFirstSearchingForTagsFixture webapp, ITestOutputHelper outputHelper) 
+	public WhenFirstSearchingForTags(WhenFirstSearchingForTagsFixture webapp, ITestOutputHelper outputHelper)
 	{
 		WebApp = webapp;
 		_OutputHelper = outputHelper;
@@ -73,9 +73,8 @@ public class WhenFirstSearchingForTags : IClassFixture<WhenFirstSearchingForTags
 
 		// await using var trace = await page.TraceAsync("Can Add Hashtags", true, true, true);
 
-		await page
-			.GotoHashtagSearchPage().Result
-			.SearchForHashtag("dotnet");
+		var searchPage = await page.GotoHashtagSearchPage();
+		await searchPage.SearchForHashtag("dotnet");
 
 		var firstHashtagContent = await page.Locator(".hashtags").First.TextContentAsync();
 		Assert.Equal("dotnet", firstHashtagContent);

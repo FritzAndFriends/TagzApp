@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UserSecretsId>0f9dd444-11d7-4e93-9078-7afa06b29285</UserSecretsId>
@@ -9,10 +9,11 @@
 
   <ItemGroup>
     <PackageReference Include="Bogus" Version="34.0.2" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0-preview-23424-02" />
     <PackageReference Include="Microsoft.Playwright" Version="1.37.1" />
-    <PackageReference Include="xunit" Version="2.5.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0">
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0-rc.1.23421.29" />
+    <PackageReference Include="xunit" Version="2.5.1-pre.33" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.1-pre.15">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
