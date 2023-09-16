@@ -1,18 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="7.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
-		<PackageReference Include="System.Net.Http.Json" Version="7.0.1" />
-		<PackageReference Include="Google.Apis" Version="1.61.0" />
-		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.61.0.3113" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0-rc.1.23419.4" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0-rc.1.23419.4" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0-rc.1.23419.4" />
+		<PackageReference Include="System.Net.Http.Json" Version="8.0.0-rc.1.23419.4" />
+		<PackageReference Include="Google.Apis" Version="1.62.0" />
+		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.62.0.3169" />
 		<InternalsVisibleTo Include="TagzApp.UnitTest" />
 	</ItemGroup>
 
