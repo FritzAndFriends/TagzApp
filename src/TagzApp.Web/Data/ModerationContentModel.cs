@@ -1,4 +1,4 @@
-﻿namespace TagzApp.Web.Data;
+namespace TagzApp.Web.Data;
 
 /// <summary>
 /// Content to be shared with the web client
@@ -30,7 +30,7 @@ public record ModerationContentModel(
 )
 {
 
-	public static ModerationContentModel ToModerationContentModel(Content content, ModerationAction action = null)
+	public static ModerationContentModel ToModerationContentModel(Content content, ModerationAction? action = null)
 	{
 		return new ModerationContentModel(
 			content.Provider,

@@ -1,13 +1,16 @@
-﻿using System.Net;
-using System.Timers;
+using System.Net;
 using System.Text.Json;
-using Microsoft.Extensions.Logging;
+using System.Timers;
+
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+
 using TagzApp.Providers.Blazot.Configuration;
 using TagzApp.Providers.Blazot.Constants;
 using TagzApp.Providers.Blazot.Events;
 using TagzApp.Providers.Blazot.Interfaces;
 using TagzApp.Providers.Blazot.Models;
+
 using Timer = System.Timers.Timer;
 
 namespace TagzApp.Providers.Blazot.Services;
@@ -33,10 +36,13 @@ internal class HashtagTransmissionsService : ITransmissionsService, IDisposable
 		_WindowSeconds = settings?.WindowSeconds ?? throw new ArgumentNullException(nameof(settings));
 
 		_WindowTimer = new Timer { Interval = TimeSpan.FromSeconds(_WindowSeconds).TotalMilliseconds, AutoReset = true };
+		// TODO: Check CS8622 -- Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
+#pragma warning disable CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
 		_WindowTimer.Elapsed += HandleWindowTimerElapsed;
 
 		_AuthEvents = authEvents ?? throw new ArgumentNullException(nameof(authEvents));
 		_AuthEvents.AccessTokenUpdated += UpdateAuthorizationHeader;
+#pragma warning restore CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
 	}
 
 	public bool HasMadeTooManyRequests { get; private set; }
@@ -73,7 +79,7 @@ internal class HashtagTransmissionsService : ITransmissionsService, IDisposable
 				exception = null;
 				break;
 			}
-			catch (UnauthorizedAccessException ex)
+			catch (UnauthorizedAccessException)
 			{
 				_Logger.LogInformation("Unauthorized request to Blazot. The app will attempt to refresh the access token. Attempt {count} of {total}", i + 1, maxTryCount);
 				// If token has expired, request a new one.
@@ -145,6 +151,9 @@ internal class HashtagTransmissionsService : ITransmissionsService, IDisposable
 	public void Dispose()
 	{
 		_WindowTimer?.Dispose();
+		// TODO: Check CS8622 -- Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
+#pragma warning disable CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
 		_AuthEvents.AccessTokenUpdated -= UpdateAuthorizationHeader;
+#pragma warning restore CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
 	}
 }
