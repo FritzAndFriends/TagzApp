@@ -5,7 +5,7 @@ services:
     hostname: tagzappweb
     image: ghcr.io/fritzandfriends/tagzapp:latest
     ports:
-      - "80" # runs on a random local port. Change to "8080:80" if you want to run on localhost:8080
+      - "8080:8080" # runs on a random local port. Change to "8080:80" if you want to run on localhost:8080
     env_file:
       # when .env values are used in this docker-compose file like 'hostname: $hostname' for example it is strongly recommended to inject them by referencing them like 'docker compose up --env-file .env' or 'docker compose up --env-file .env.local'
       - .env
