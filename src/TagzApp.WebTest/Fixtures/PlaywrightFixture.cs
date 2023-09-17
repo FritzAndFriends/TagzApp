@@ -13,7 +13,7 @@ namespace TagzApp.WebTest.Fixtures;
 /// </summary>
 public class PlaywrightFixture : PlaywrightFixture<Web.Program>
 {
-	public override string? Environment { get; } = "Development";
+	public override string? Environment { get; } = "Test";
 
 	public PlaywrightFixture(IMessageSink output) : base(output)
 	{
