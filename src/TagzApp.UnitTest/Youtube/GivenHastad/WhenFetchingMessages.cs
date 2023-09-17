@@ -24,11 +24,11 @@ public class YouTubeConfigurationFixture
 	public IConfigurationRoot Config => _Config;
 
 	private YoutubeConfiguration _YoutubeConfiguration = new()
-		{
-			ApiKey = "",
-			MaxResults = 1
-		};
-	
+	{
+		ApiKey = "",
+		MaxResults = 1
+	};
+
 	public YoutubeConfiguration YoutubeConfiguration => _YoutubeConfiguration;
 }
 

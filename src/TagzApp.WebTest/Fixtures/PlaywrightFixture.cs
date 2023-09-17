@@ -24,14 +24,14 @@ public class PlaywrightFixture : PlaywrightFixture<Web.Program>
 	public override LogLevel MinimumLogLevel => LogLevel.Warning;
 
 	protected override IHost CreateHost(IHostBuilder builder)
-  {
-    //ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
-    builder.AddTestConfiguration(jsonConfiguration: CONFIGURATION);
-    builder.UseOnlyStubSocialMediaProvider();
+	{
+		//ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
+		builder.AddTestConfiguration(jsonConfiguration: CONFIGURATION);
+		builder.UseOnlyStubSocialMediaProvider();
 		builder.UseOnlyInMemoryService();
-    builder.UseUniqueDb(_Uniqueid);
-    builder.AddBasicAuthentication();
-    var host = base.CreateHost(builder);
+		builder.UseUniqueDb(_Uniqueid);
+		builder.AddBasicAuthentication();
+		var host = base.CreateHost(builder);
 
 		return host;
 	}

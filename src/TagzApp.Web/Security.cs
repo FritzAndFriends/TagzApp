@@ -3,7 +3,8 @@
 /// <summary>
 /// A collection of string constants used to define the Roles and Policies used in the application.
 /// </summary>
-public static class Security {
+public static class Security
+{
 
 	public static class Role
 	{

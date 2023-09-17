@@ -8,7 +8,7 @@ public class WaterfallModel : PageModel
 	private readonly IMessagingService _Service;
 
 	public WaterfallModel(IMessagingService service)
-  {
+	{
 		_Service = service;
 	}
 

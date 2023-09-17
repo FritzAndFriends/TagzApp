@@ -11,11 +11,11 @@ public class UsersModel : PageModel
 	private readonly UserManager<IdentityUser> _UserManager;
 
 	public UsersModel(UserManager<IdentityUser> userManager)
-  {
+	{
 		_UserManager = userManager;
 	}
 
-  public List<IdentityUser> Users { get; set; }
+	public List<IdentityUser> Users { get; set; }
 
 	public void OnGet()
 	{

@@ -21,7 +21,8 @@ namespace TagzApp.Web.Pages
 		public void OnGet()
 		{
 
-			if (_HostingEnvironment.IsDevelopment()) {
+			if (_HostingEnvironment.IsDevelopment())
+			{
 
 				foreach (var item in _Service.TagsTracked)
 				{

@@ -14,21 +14,22 @@ namespace TagzApp.Web.Data;
 /// <param name="AuthorProfileImageUri">Profile Image URI of the author of the content</param>
 /// <param name="Text">Text of the content</param>
 public record ContentModel(
-	string Provider, 
+	string Provider,
 	string ProviderId,
-	string Type, 
-	string SourceUri, 
-	DateTimeOffset Timestamp, 
-	string AuthorDisplayName, 
+	string Type,
+	string SourceUri,
+	DateTimeOffset Timestamp,
+	string AuthorDisplayName,
 	string AuthorUserName,
-	string AuthorProfileUri, 
-	string AuthorProfileImageUri, 
+	string AuthorProfileUri,
+	string AuthorProfileImageUri,
 	string Text,
 	Card? PreviewCard
 )
 {
 
-	public static implicit operator ContentModel(Content content) {
+	public static implicit operator ContentModel(Content content)
+	{
 		return new ContentModel(
 			content.Provider,
 			content.ProviderId,

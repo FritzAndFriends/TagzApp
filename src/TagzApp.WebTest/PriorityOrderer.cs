@@ -20,9 +20,9 @@ public class PriorityOrderer : ITestCaseOrderer
 		}
 
 		foreach (TTestCase testCase in
-		         sortedMethods.Keys.SelectMany(
-			         priority => sortedMethods[priority].OrderBy(
-				         testCase => testCase.TestMethod.Method.Name)))
+						 sortedMethods.Keys.SelectMany(
+							 priority => sortedMethods[priority].OrderBy(
+								 testCase => testCase.TestMethod.Method.Name)))
 		{
 			yield return testCase;
 		}
