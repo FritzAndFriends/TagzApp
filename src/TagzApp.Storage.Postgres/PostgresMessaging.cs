@@ -1,8 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Collections.Concurrent;
+
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Concurrent;
-using TagzApp.Common.Models;
 
 namespace TagzApp.Storage.Postgres;
 
@@ -14,7 +13,7 @@ internal class PostgresMessaging : IDisposable
 	private List<Task> _ProviderTasks = new List<Task>();
 	internal readonly Dictionary<string, ConcurrentQueue<Content>> Queue = new();
 	private readonly Dictionary<string, ConcurrentBag<Action<Content>>> _Actions = new();
-	private static IServiceProvider _Services;
+	private static IServiceProvider? _Services;
 	private readonly Task _QueueWatcher;
 
 	public PostgresMessaging(IServiceProvider services)
@@ -31,11 +30,12 @@ internal class PostgresMessaging : IDisposable
 		foreach (var providerItem in providers)
 		{
 
-			_ProviderTasks.Add(Task.Factory.StartNew(async (object state) =>
+			_ProviderTasks.Add(Task.Factory.StartNew(async (object? state) =>
 			{
 
-				var provider = (ISocialMediaProvider)state;
-
+				var provider = state as ISocialMediaProvider;
+				// TODO: Check if this can done another way.
+				if (provider == null) return;
 				var lastQueryTime = DateTimeOffset.UtcNow.AddHours(-1);
 
 				while (!cancellationToken.IsCancellationRequested)
@@ -47,7 +47,7 @@ internal class PostgresMessaging : IDisposable
 						continue;
 					}
 
-					using var scope = _Services.CreateScope();
+					using var scope = _Services!.CreateScope();
 					var context = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
 
 					if (provider is IHasNewestId newestIdProvider)

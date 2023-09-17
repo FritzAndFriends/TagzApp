@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
-using TagzApp.Common.Models;
 
 namespace TagzApp.Storage.Postgres;
 
@@ -14,7 +12,7 @@ internal class PgContent
 	public required string Provider { get; set; }
 
 	[MaxLength(50)]
-	public string ProviderId { get; set; }
+	public required string ProviderId { get; set; }
 
 	[MaxLength(50)]
 	public string HashtagSought { get; set; } = string.Empty;
@@ -36,7 +34,7 @@ internal class PgContent
 
 	public PgModerationAction? ModerationAction { get; internal set; }
 
-	public static explicit operator Content(PgContent thisContent)	
+	public static explicit operator Content(PgContent thisContent)
 	{
 
 		var author = JsonSerializer.Deserialize<Creator>(thisContent.Author);
@@ -46,7 +44,8 @@ internal class PgContent
 		{
 
 			Id = thisContent.Id,
-			Author = author,
+			// TODO: Check if author might be null at any	point because the compiler thinks it might be (Creator? is returned!)
+			Author = author!,
 			Provider = thisContent.Provider,
 			ProviderId = thisContent.ProviderId,
 			HashtagSought = thisContent.HashtagSought,
@@ -61,8 +60,8 @@ internal class PgContent
 
 	}
 
-	public static explicit operator PgContent(Content content) {
- 		
+	public static explicit operator PgContent(Content content)
+	{
 		return new PgContent
 		{
 			Author = JsonSerializer.Serialize(content.Author),
@@ -76,7 +75,7 @@ internal class PgContent
 			PreviewCard = content.PreviewCard == null ? null : JsonSerializer.Serialize(content.PreviewCard),
 			Emotes = content.Emotes == null ? null : JsonSerializer.Serialize(content.Emotes),
 			Id = content.Id
-			
+
 		};
 
 	}
