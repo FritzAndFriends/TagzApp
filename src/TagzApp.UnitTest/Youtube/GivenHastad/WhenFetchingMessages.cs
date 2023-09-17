@@ -2,7 +2,6 @@
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using TagzApp.Common.Models;
 using TagzApp.Providers.Youtube;
 using TagzApp.Providers.Youtube.Configuration;
 
@@ -16,7 +15,7 @@ public class YouTubeConfigurationFixture
 	{
 		var configBuilder = new ConfigurationBuilder();
 		configBuilder.AddUserSecrets<YouTubeConfigurationFixture>();
-		this._Config = configBuilder.Build();
+		_Config = configBuilder.Build();
 
 		_Config.GetSection(YoutubeConfiguration.AppSettingsSection).Bind(_YoutubeConfiguration);
 	}
@@ -35,7 +34,7 @@ public class YouTubeConfigurationFixture
 public class WhenFetchingMessages : IClassFixture<YouTubeConfigurationFixture>
 {
 
-	public readonly Hashtag Given = new Hashtag()
+	public readonly Hashtag Given = new()
 	{
 		Text = "dotnet"
 	};

@@ -1,4 +1,3 @@
-using Azure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using TagzApp.Web.Pages.Shared;

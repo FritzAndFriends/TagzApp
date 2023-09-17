@@ -49,7 +49,7 @@ public class PlaywrightFixture : PlaywrightFixture<Web.Program>
 	{
 		await base.DisposeAsync();
 
-		var logger = this.MessageSink.CreateLogger<PlaywrightFixture>();
+		var logger = MessageSink.CreateLogger<PlaywrightFixture>();
 		await _Uniqueid.CleanUpDbFilesAsync(logger);
 	}
 

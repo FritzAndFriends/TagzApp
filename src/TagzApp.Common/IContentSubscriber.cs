@@ -1,6 +1,4 @@
-﻿using TagzApp.Common.Models;
-
-namespace TagzApp.Common;
+﻿namespace TagzApp.Common;
 
 public interface IContentSubscriber
 {

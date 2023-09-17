@@ -33,7 +33,7 @@ public class BaseProviderManager
 
 	private void LoadConfigurationProviders()
 	{
-		List<IConfigureProvider> configProviders = new List<IConfigureProvider>();
+		List<IConfigureProvider> configProviders = new();
 		var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
 
 		if (!string.IsNullOrWhiteSpace(path))

@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Web;
-using TagzApp.Common.Models;
 
 namespace TagzApp.Providers.TwitchChat;
 
@@ -56,7 +55,7 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 
 			_Contents.Enqueue(new Content
 			{
-				Provider = this.Id,
+				Provider = Id,
 				ProviderId = args.MessageId,
 				SourceUri = new Uri($"https://twitch.tv/{Channel}"),
 				Author = new Creator

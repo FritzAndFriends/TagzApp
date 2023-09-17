@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Diagnostics.CodeAnalysis;
 using TagzApp.Web.Services;
 
 namespace TagzApp.Storage.Postgres;

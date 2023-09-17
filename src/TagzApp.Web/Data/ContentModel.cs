@@ -1,6 +1,4 @@
-﻿using TagzApp.Common.Models;
-
-namespace TagzApp.Web.Data;
+﻿namespace TagzApp.Web.Data;
 
 /// <summary>
 /// Content to be shared with the web client
