@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 
 namespace TagzApp.Storage.Postgres;
@@ -12,7 +12,7 @@ internal class PgContent
 	public required string Provider { get; set; }
 
 	[MaxLength(50)]
-	public string ProviderId { get; set; }
+	public required string ProviderId { get; set; }
 
 	[MaxLength(50)]
 	public string HashtagSought { get; set; } = string.Empty;
@@ -44,7 +44,8 @@ internal class PgContent
 		{
 
 			Id = thisContent.Id,
-			Author = author,
+			// TODO: Check if author might be null at any	point because the compiler thinks it might be (Creator? is returned!)
+			Author = author!,
 			Provider = thisContent.Provider,
 			ProviderId = thisContent.ProviderId,
 			HashtagSought = thisContent.HashtagSought,
@@ -59,8 +60,7 @@ internal class PgContent
 
 	}
 
-	public static explicit operator PgContent(Content content)
-	{
+	public static explicit operator PgContent(Content content) {
 
 		return new PgContent
 		{

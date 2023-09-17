@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting;
 
 namespace TagzApp.Web.Services;
 
@@ -11,8 +11,8 @@ public interface IMessagingService : IHostedService
 	Task<Content?> GetContentByIds(string provider, string providerId);
 
 	Task<IEnumerable<Content>> GetExistingContentForTag(string tag);
-
-	Task<IEnumerable<(Content, ModerationAction?)>> GetContentByTagForModeration(string tag);
+	// TODO: Needs checking if a non-nullable ModerationAction makes problems!
+	Task<IEnumerable<(Content, ModerationAction)>> GetContentByTagForModeration(string tag);
 
 	Task<IEnumerable<Content>> GetApprovedContentByTag(string tag);
 
