@@ -39,6 +39,8 @@ namespace TagzApp.Web.Areas.Admin.Pages
 				return Page();
 			}
 
+			_AppConfig.ForgetChanges();
+
 			_AppConfig.SiteName = SiteName;
 			_AppConfig.WaterfallHeaderCss = WaterfallHeaderCss;
 			_AppConfig.WaterfallHeaderMarkdown = WaterfallHeaderMarkdown;

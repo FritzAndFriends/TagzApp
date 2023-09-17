@@ -1,13 +1,12 @@
 ﻿@page
 @model TagzApp.Web.Pages.WaterfallModel
-@inject IOptions<ApplicationConfiguration> AppConfiguration
 @{
 	Layout = "_WaterfallLayout";
 	ViewBag.EnableFloatingHeader = true;
 }
 <div class="waterfallHeader">
 		
-		@Html.Raw(Markdig.Markdown.ToHtml(AppConfiguration.Value.WaterfallHeaderMarkdown))
+		@Html.Raw(Model.WaterfallHeaderContent)
 
 </div>
 
@@ -60,7 +59,7 @@
 {
 
 	<style>
-		@AppConfiguration.Value.WaterfallHeaderCss
+		@Html.Raw(Model.WaterfallHeaderCss)
 	</style>
 
 }

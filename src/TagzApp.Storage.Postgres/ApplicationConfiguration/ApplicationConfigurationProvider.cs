@@ -19,9 +19,10 @@ public class ApplicationConfigurationProvider : ConfigurationProvider
 		Data = dbContext.Settings.Any()
 				? dbContext.Settings.ToDictionary(c => c.Id, c => c.Value, StringComparer.OrdinalIgnoreCase)
 				: CreateAndSaveDefaultValues(dbContext);
+
 	}
 
-	static IDictionary<string, string?> CreateAndSaveDefaultValues(
+	IDictionary<string, string?> CreateAndSaveDefaultValues(
 			TagzAppContext context)
 	{
 
@@ -31,7 +32,12 @@ public class ApplicationConfigurationProvider : ConfigurationProvider
 				settings.Select(kvp => new Settings(kvp.Key, kvp.Value))
 								.ToArray());
 
-		context.SaveChanges();
+		try
+		{
+			context.SaveChanges();
+		} catch {
+			// Fail silently... this should only happen at startup on the first load of the application
+		}
 
 		return settings;
 	}

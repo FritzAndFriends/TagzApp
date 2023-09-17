@@ -57,6 +57,11 @@ public class ApplicationConfiguration
 
 	}
 
+	public void ForgetChanges()
+	{
+		ChangedSettings.Clear();
+	}
+
 	private class SettingsKeys
 	{
 
