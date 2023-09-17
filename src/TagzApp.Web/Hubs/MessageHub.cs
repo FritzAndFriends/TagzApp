@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.SignalR;
-using System.Security.Claims;
-using TagzApp.Common.Models;
+﻿using Microsoft.AspNetCore.SignalR;
 using TagzApp.Web.Data;
 using TagzApp.Web.Services;
 

@@ -1,5 +1,4 @@
-﻿using TagzApp.Common.Models;
-using TagzApp.Providers.Blazot.Models;
+﻿using TagzApp.Providers.Blazot.Models;
 
 namespace TagzApp.Providers.Blazot.Interfaces;
 

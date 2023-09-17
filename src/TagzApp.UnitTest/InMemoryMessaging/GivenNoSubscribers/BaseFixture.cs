@@ -3,6 +3,6 @@
 public class BaseFixture
 {
 
-	protected InMemoryContentMessaging _Sut = new InMemoryContentMessaging();
+	protected InMemoryContentMessaging _Sut = new();
 
 }
