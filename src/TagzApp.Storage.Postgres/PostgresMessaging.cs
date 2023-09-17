@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 using System.Collections.Concurrent;
-using TagzApp.Common.Models;
 
 namespace TagzApp.Storage.Postgres;
 
@@ -11,7 +9,7 @@ internal class PostgresMessaging : IDisposable
 	private bool _DisposedValue;
 
 	private CancellationTokenSource _CancellationTokenSource = new();
-	private List<Task> _ProviderTasks = new List<Task>();
+	private List<Task> _ProviderTasks = new();
 	internal readonly Dictionary<string, ConcurrentQueue<Content>> Queue = new();
 	private readonly Dictionary<string, ConcurrentBag<Action<Content>>> _Actions = new();
 	private static IServiceProvider _Services;
@@ -66,7 +64,7 @@ internal class PostgresMessaging : IDisposable
 					foreach (var tag in _Actions.Keys.Distinct<string>())
 					{
 
-						Hashtag thisTag = new Hashtag() { Text = tag };
+						Hashtag thisTag = new() { Text = tag };
 						var contentIdentified = await provider.GetContentForHashtag(thisTag, lastQueryTime);
 						var providerIds = contentIdentified.Select(c => c.ProviderId).Distinct().ToArray();
 						lastQueryTime = DateTime.UtcNow;

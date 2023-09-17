@@ -1,6 +1,4 @@
-﻿using Xunit.Abstractions;
-
-namespace TagzApp.WebTest.Tests.WithModerationEnabled;
+﻿namespace TagzApp.WebTest.Tests.WithModerationEnabled;
 
 
 
@@ -29,7 +27,8 @@ public class WaterfallTests : IClassFixture<BaseModerationFixture>
 			.SearchForHashtag("dotnet").Result
 			.GotoWaterfallPage();
 
-		await Assert.ThrowsAsync<TimeoutException>(async () => {
+		await Assert.ThrowsAsync<TimeoutException>(async () =>
+		{
 			await page.Locator("article").First.WaitForAsync(new()
 			{
 				Timeout = 1000

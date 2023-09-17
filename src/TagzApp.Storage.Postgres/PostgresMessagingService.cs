@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using TagzApp.Common.Models;
 using TagzApp.Communication;
 using TagzApp.Web.Services;
 
@@ -118,8 +116,8 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 		var ctx = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
 		var outRecords = await ctx.Content.AsNoTracking()
 			.Include(c => c.ModerationAction)
-			.Where(c => c.HashtagSought == tag && 
-					c.ModerationAction != null && 
+			.Where(c => c.HashtagSought == tag &&
+					c.ModerationAction != null &&
 					c.ModerationAction.State == ModerationState.Approved)
 			.OrderByDescending(c => c.Timestamp)
 			.Take(50)
@@ -144,7 +142,7 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 			.Take(100)
 			.ToListAsync();
 
-		var outResults = new List<(Content, ModerationAction?)> ();
+		var outResults = new List<(Content, ModerationAction?)>();
 		foreach (var c in contentResults)
 		{
 
@@ -163,7 +161,7 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 
 		using var scope = _Services.CreateScope();
 		var ctx = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
-		
+
 		return ctx.Content.AsNoTracking()
 			.Where(c => c.HashtagSought == tag && c.Provider == provider)
 			.OrderByDescending(c => c.Timestamp)

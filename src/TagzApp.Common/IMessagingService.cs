@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Hosting;
-using TagzApp.Common.Models;
 
 namespace TagzApp.Web.Services;
 

@@ -1,8 +1,5 @@
-using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
-using TagzApp.Common.Models;
 using TagzApp.Communication;
-using TagzApp.Web.Hubs;
 
 namespace TagzApp.Web.Services;
 
@@ -28,7 +25,7 @@ public class InMemoryMessagingService : BaseProviderManager, IMessagingService
 	/// <summary>
 	/// A collection of the tags and the content found for them.
 	/// </summary>
-	private readonly Dictionary<string, ConcurrentBag<Content>> _Content = new Dictionary<string, ConcurrentBag<Content>>();
+	private readonly Dictionary<string, ConcurrentBag<Content>> _Content = new();
 
 	#region Hosted Service Implementation
 

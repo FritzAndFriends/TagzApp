@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using TagzApp.Common.Models;
 
 namespace TagzApp.Common;
 
@@ -97,7 +96,7 @@ public class InMemoryContentMessaging : IContentPublisher, IContentSubscriber, I
 							_LoadedContent.TryAdd(formattedTag, new());
 						}
 
-						Hashtag thisTag = new Hashtag() { Text = tag };
+						Hashtag thisTag = new() { Text = tag };
 						var contentIdentified = await provider.GetContentForHashtag(thisTag, lastQueryTime);
 						lastQueryTime = DateTime.UtcNow;
 
