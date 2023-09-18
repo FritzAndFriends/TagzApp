@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using TagzApp.Web.Data;
 using TagzApp.Web.Services;
 
@@ -8,8 +9,8 @@ namespace TagzApp.Web;
 public static class ServicesExtensions
 {
 
-  public static IServiceCollection AddTagzAppHostedServices(this IServiceCollection services, IConfigurationRoot configuration)
-  {
+	public static IServiceCollection AddTagzAppHostedServices(this IServiceCollection services, IConfigurationRoot configuration)
+	{
 
 		services.AddSingleton<INotifyNewMessages, SignalRNotifier>();
 
@@ -88,4 +89,30 @@ public static class ServicesExtensions
 			await roleManager.CreateAsync(new IdentityRole(Security.Role.Moderator));
 		}
 	}
+
+	public static void AddSecurityContext(this IServiceCollection services, IConfiguration configuration)
+	{
+
+		if (!string.IsNullOrEmpty(configuration.GetConnectionString("TagzAppSecurity")))
+		{
+
+			services.AddDbContext<SecurityContext>(options =>
+						{
+							options.UseNpgsql(configuration.GetConnectionString("TagzAppSecurity"),
+							pg => pg.MigrationsAssembly("TagzApp.Storage.Postgres.Security"));
+						});
+
+		}
+		else if (!string.IsNullOrEmpty(configuration.GetConnectionString("SecurityContextConnection")))
+		{
+
+			services.AddDbContext<SecurityContext>(options =>
+			{
+				options.UseSqlite(configuration.GetConnectionString("SecurityContextConnection"));
+			});
+
+		}
+
+	}
+
 }

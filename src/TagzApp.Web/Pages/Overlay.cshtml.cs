@@ -7,7 +7,7 @@ public class OverlayModel : PageModel
 {
 
 	public OverlayModel(IMessagingService svc)
-  {
+	{
 		Tag = svc.TagsTracked.Any() ? svc.TagsTracked.First() : string.Empty;
 	}
 

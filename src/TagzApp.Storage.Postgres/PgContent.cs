@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 
 namespace TagzApp.Storage.Postgres;
@@ -62,6 +62,7 @@ internal class PgContent
 
 	public static explicit operator PgContent(Content content)
 	{
+
 		return new PgContent
 		{
 			Author = JsonSerializer.Serialize(content.Author),

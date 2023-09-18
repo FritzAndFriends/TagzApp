@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.SignalR;
-using System.Security.Claims;
-using TagzApp.Common.Models;
+﻿using Microsoft.AspNetCore.SignalR;
 using TagzApp.Web.Data;
 using TagzApp.Web.Services;
 
@@ -10,14 +7,14 @@ namespace TagzApp.Web.Hubs;
 public class MessageHub : Hub
 {
 
-  private readonly IMessagingService _Service;
+	private readonly IMessagingService _Service;
 	private bool ModerationEnabled = false;
 
-  public MessageHub(IMessagingService svc, IConfiguration configuration)
-  {
-    _Service = svc;
+	public MessageHub(IMessagingService svc, IConfiguration configuration)
+	{
+		_Service = svc;
 		ModerationEnabled = configuration.GetValue<bool>("ModerationEnabled", false);
-  }
+	}
 
 	public override async Task OnConnectedAsync()
 	{
@@ -46,19 +43,20 @@ public class MessageHub : Hub
 	}
 
 	public async Task<IEnumerable<ContentModel>> GetExistingContentForTag(string tag)
-  {
+	{
 
-		if (ModerationEnabled) {
+		if (ModerationEnabled)
+		{
 			return (await _Service.GetApprovedContentByTag(tag))
 			.Select(c => (ContentModel)c)
 			.ToArray();
 		}
 
-    return (await _Service.GetExistingContentForTag(tag))
-      .Select(c => (ContentModel)c)
-      .ToArray();
+		return (await _Service.GetExistingContentForTag(tag))
+			.Select(c => (ContentModel)c)
+			.ToArray();
 
-  }
+	}
 
 	public async Task SendMessageToOverlay(string tag, string provider, string providerId)
 	{
@@ -67,7 +65,7 @@ public class MessageHub : Hub
 
 		if (message is null) return;
 
-		await Clients.Group(FormatOverlayGroupname(formattedTag))
+		await Clients.All
 			.SendAsync("DisplayOverlay", (ContentModel)message);
 	}
 

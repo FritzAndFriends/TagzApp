@@ -1,6 +1,4 @@
-﻿using TagzApp.Common.Models;
-
-namespace TagzApp.Web.Services;
+﻿namespace TagzApp.Web.Services;
 
 public interface INotifyNewMessages
 {

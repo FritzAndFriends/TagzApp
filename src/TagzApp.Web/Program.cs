@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Npgsql.Replication.PgOutput;
 using TagzApp.Communication.Extensions;
 using TagzApp.Web.Data;
 using TagzApp.Web.Hubs;
@@ -13,29 +11,18 @@ public class Program
 {
 	private static void Main(string[] args)
 	{
+
 		var builder = WebApplication.CreateBuilder(args);
 
+		builder.Configuration.AddApplicationConfiguration();
+		builder.Services.Configure<ApplicationConfiguration>(
+			builder.Configuration.GetSection("ApplicationConfiguration")
+		);
+		builder.Services.AddSingleton<IConfigurationRoot>(builder.Configuration);
+
 		// Late bind the connection string so that any changes to the configuration made later on, or in the test fixture can be picked up.
-		if (!string.IsNullOrEmpty(builder.Configuration.GetConnectionString("TagzAppSecurity")))
-		{
+		builder.Services.AddSecurityContext(builder.Configuration);
 
-			builder.Services.AddDbContext<SecurityContext>((services, options) =>
-				options.UseNpgsql(
-					services.GetRequiredService<IConfiguration>().GetConnectionString("TagzAppSecurity") ??
-					throw new InvalidOperationException("Connection string 'SecurityContextConnection' not found."), 
-					pg => pg.MigrationsAssembly("TagzApp.Storage.Postgres.Security"))
-				);
-
-		}
-		else
-		{
-
-			builder.Services.AddDbContext<SecurityContext>((services, options) =>
-				options.UseSqlite(
-					services.GetRequiredService<IConfiguration>().GetConnectionString("SecurityContextConnection") ??
-					throw new InvalidOperationException("Connection string 'SecurityContextConnection' not found.")));
-
-		}
 		builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 				options.SignIn.RequireConfirmedAccount = true
 			)
@@ -92,7 +79,9 @@ public class Program
 			app.UseExceptionHandler("/Error");
 			// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 			app.UseHsts();
-		} else {
+		}
+		else
+		{
 			app.UseDeveloperExceptionPage();
 		}
 

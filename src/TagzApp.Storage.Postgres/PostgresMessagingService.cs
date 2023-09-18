@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -164,7 +164,7 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 
 		using var scope = _Services.CreateScope();
 		var ctx = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
-		
+
 		return ctx.Content.AsNoTracking()
 			.Where(c => c.HashtagSought == tag && c.Provider == provider)
 			.OrderByDescending(c => c.Timestamp)

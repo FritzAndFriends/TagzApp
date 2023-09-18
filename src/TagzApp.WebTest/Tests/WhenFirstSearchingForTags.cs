@@ -17,6 +17,8 @@ public class WhenFirstSearchingForTagsFixture : PlaywrightPageFixture<Web.Progra
 
 	public override LogLevel MinimumLogLevel => LogLevel.Warning;
 
+	public override string? Environment => "Test";
+
 	protected override IHost CreateHost(IHostBuilder builder)
 	{
 		// ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
@@ -71,13 +73,14 @@ public class WhenFirstSearchingForTags : IClassFixture<WhenFirstSearchingForTags
 	{
 		var page = await WebApp.CreatePlaywrightPageAsync();
 
-		// await using var trace = await page.TraceAsync("Can Add Hashtags", true, true, true);
+		await using var trace = await page.TraceAsync("Can Add Hashtags", true, true, true);
 
 		var searchPage = await page.GotoHashtagSearchPage();
 		await searchPage.SearchForHashtag("dotnet");
 
 		var firstHashtagContent = await page.Locator(".hashtags").First.TextContentAsync();
 		Assert.Equal("dotnet", firstHashtagContent);
+
 	}
 
 	[Fact(), TestPriority(2)]

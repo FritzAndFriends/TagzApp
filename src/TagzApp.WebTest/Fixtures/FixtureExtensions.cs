@@ -5,7 +5,6 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using TagzApp.Web.Services;
-using System.Text.Json;
 
 namespace TagzApp.WebTest.Fixtures;
 
@@ -16,7 +15,9 @@ public static class FixtureExtensions
 		{
 			var testConfiguration = new Dictionary<string, string?>()
 			{
-				{ "ConnectionStrings:SecurityContextConnection", $"Data Source=TagzApp.Web.{id:N}.db" }
+				{ "ConnectionStrings:SecurityContextConnection", $"Data Source=TagzApp.Web.{id:N}.db" },
+				{ "ConnectionStrings:TagzAppSecurity", "" },
+				{ "ConnectionStrings:TagzApp", "" }
 			};
 			configuration.AddInMemoryCollection(testConfiguration);
 		});
