@@ -60,7 +60,8 @@ internal class PgContent
 
 	}
 
-	public static explicit operator PgContent(Content content) {
+	public static explicit operator PgContent(Content content)
+	{
 
 		return new PgContent
 		{

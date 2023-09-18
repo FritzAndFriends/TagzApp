@@ -17,6 +17,8 @@ public class ModalFixture : PlaywrightPageFixture<Web.Program>
 
 	public override LogLevel MinimumLogLevel => LogLevel.Warning;
 
+	public override string? Environment => "Test";
+
 	protected override IHost CreateHost(IHostBuilder builder)
 	{
 		// ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };

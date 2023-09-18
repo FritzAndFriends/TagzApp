@@ -35,7 +35,9 @@ public class ApplicationConfigurationProvider : ConfigurationProvider
 		try
 		{
 			context.SaveChanges();
-		} catch {
+		}
+		catch
+		{
 			// Fail silently... this should only happen at startup on the first load of the application
 		}
 
