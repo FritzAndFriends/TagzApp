@@ -65,7 +65,7 @@ public class MessageHub : Hub
 
 		if (message is null) return;
 
-		await Clients.Group(FormatOverlayGroupname(formattedTag))
+		await Clients.All
 			.SendAsync("DisplayOverlay", (ContentModel)message);
 	}
 

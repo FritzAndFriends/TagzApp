@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="C3D.Extensions.Playwright.AspNetCore.Xunit" Version="0.1.26" />
+    <PackageReference Include="C3D.Extensions.Playwright.AspNetCore.Xunit" Version="0.1.28" />
     <PackageReference Include="Xunit.SkippableFact" Version="1.4.13" />
     <PackageReference Include="idunno.Authentication.Basic" Version="2.3.1" />
   </ItemGroup>
