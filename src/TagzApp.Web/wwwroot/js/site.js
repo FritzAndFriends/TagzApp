@@ -318,16 +318,14 @@
 	}
 
 	function AddModerator(moderator) {
+		var moderatorList = document.querySelector('.currentModerators');
 
-		var moderatorList = document.querySelector(".currentModerators");
-
-		var newMod = document.createElement("img");
-		newMod.id = "moderator-" + moderator.email;
+		var newMod = document.createElement('img');
+		newMod.id = 'moderator-' + moderator.email;
 		newMod.title = moderator.displayName;
 		newMod.src = moderator.avatarImageSource;
 
 		moderatorList.appendChild(newMod);
-
 	}
 
 	const t = {
@@ -386,12 +384,12 @@
 				RejectMessage(content);
 			});
 
-			connection.on("NewModerator", (moderator) => {
+			connection.on('NewModerator', (moderator) => {
 				AddModerator(moderator);
 			});
 
-			connection.on("RemoveModerator", (moderatorEmail) => {
-				document.getElementById("moderator-" + moderatorEmail).remove();
+			connection.on('RemoveModerator', (moderatorEmail) => {
+				document.getElementById('moderator-' + moderatorEmail).remove();
 			});
 
 			// Start the connection.
