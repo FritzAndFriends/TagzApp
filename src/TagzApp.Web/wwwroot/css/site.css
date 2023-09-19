@@ -361,3 +361,12 @@ a {
 	border-radius: 25px;
 	border: 2px solid steelblue;
 }
+
+.currentModerators img {
+	height: 50px;
+	width: 50px;
+	margin: 0.3em;
+	padding: 0.2em;
+	border-radius: 25px;
+	border: 2px solid royalBlue;
+}

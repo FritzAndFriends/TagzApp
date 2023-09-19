@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Gravatar;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
+using TagzApp.Common.Models;
 using TagzApp.Web.Data;
 using TagzApp.Web.Services;
 
@@ -14,6 +16,8 @@ public class ModerationHub : Hub<IModerationClient>
 	private readonly IModerationRepository _Repository;
 	private readonly UserManager<TagzAppUser> _UserManager;
 	private bool ModerationEnabled = false;
+
+	private readonly Dictionary<string, string> _CurrentUsersModerating = new();
 
 	public ModerationHub(
 		IMessagingService svc,
@@ -41,8 +45,29 @@ public class ModerationHub : Hub<IModerationClient>
 			}
 		}
 
+		var thisUser = await _UserManager.GetUserAsync(Context.User);
+		if (thisUser is not null)
+		{
+			_CurrentUsersModerating.Add(thisUser.Email, thisUser.DisplayName);
+			await Clients.All.NewModerator(new NewModerator(thisUser.Email, thisUser.Email.ToGravatar(), thisUser.DisplayName));
+		}
+
 		await base.OnConnectedAsync();
 	}
+
+	public override async Task OnDisconnectedAsync(Exception? exception)
+	{
+
+		var thisUser = await _UserManager.GetUserAsync(Context.User);
+		if (thisUser is not null)
+		{
+			_CurrentUsersModerating.Remove(thisUser.Email);
+			await Clients.All.RemoveModerator(thisUser.Email);
+		}
+
+		await base.OnDisconnectedAsync(exception);
+	}
+
 
 	public async Task<IEnumerable<ModerationContentModel>> GetContentForTag(string tag)
 	{
@@ -77,4 +102,10 @@ public interface IModerationClient
 
 	Task NewRejectedMessage(ModerationContentModel model);
 
+	Task NewModerator(NewModerator newModerator);
+
+	Task RemoveModerator(string email);
+
 }
+
+public record NewModerator(string Email, string AvatarImageSource, string DisplayName);
