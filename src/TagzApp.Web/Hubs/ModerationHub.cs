@@ -12,10 +12,14 @@ public class ModerationHub : Hub<IModerationClient>
 
 	private readonly IMessagingService _Service;
 	private readonly IModerationRepository _Repository;
-	private readonly UserManager<IdentityUser> _UserManager;
+	private readonly UserManager<TagzAppUser> _UserManager;
 	private bool ModerationEnabled = false;
 
-	public ModerationHub(IMessagingService svc, IConfiguration configuration, IModerationRepository repository, UserManager<IdentityUser> userManager)
+	public ModerationHub(
+		IMessagingService svc,
+		IConfiguration configuration,
+		IModerationRepository repository,
+		UserManager<TagzAppUser> userManager)
 	{
 		_Service = svc;
 		_Repository = repository;

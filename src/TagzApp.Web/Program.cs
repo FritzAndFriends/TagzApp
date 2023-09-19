@@ -23,7 +23,7 @@ public class Program
 		// Late bind the connection string so that any changes to the configuration made later on, or in the test fixture can be picked up.
 		builder.Services.AddSecurityContext(builder.Configuration);
 
-		builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+		builder.Services.AddDefaultIdentity<TagzAppUser>(options =>
 				options.SignIn.RequireConfirmedAccount = true
 			)
 			.AddRoles<IdentityRole>()

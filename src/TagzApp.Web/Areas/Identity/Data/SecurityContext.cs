@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TagzApp.Web.Data;
 
-public class SecurityContext : IdentityDbContext<IdentityUser>
+public class SecurityContext : IdentityDbContext<TagzAppUser>
 {
 	private readonly IConfiguration _Configuration;
 
