@@ -317,6 +317,17 @@
 		return low;
 	}
 
+	function AddModerator(moderator) {
+		var moderatorList = document.querySelector('.currentModerators');
+
+		var newMod = document.createElement('img');
+		newMod.id = 'moderator-' + moderator.email;
+		newMod.title = moderator.displayName;
+		newMod.src = moderator.avatarImageSource;
+
+		moderatorList.appendChild(newMod);
+	}
+
 	const t = {
 		Tags: [],
 
@@ -371,6 +382,14 @@
 
 			connection.on('NewRejectedMessage', (content) => {
 				RejectMessage(content);
+			});
+
+			connection.on('NewModerator', (moderator) => {
+				AddModerator(moderator);
+			});
+
+			connection.on('RemoveModerator', (moderatorEmail) => {
+				document.getElementById('moderator-' + moderatorEmail).remove();
 			});
 
 			// Start the connection.

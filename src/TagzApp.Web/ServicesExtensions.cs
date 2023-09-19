@@ -76,7 +76,7 @@ public static class ServicesExtensions
 
 		// create database if not exists
 		var dbContext = scope.ServiceProvider.GetRequiredService<SecurityContext>();
-		await dbContext.Database.EnsureCreatedAsync();
+		if (dbContext.Database.ProviderName!.Equals("Microsoft.EntityFrameworkCore.Sqlite", StringComparison.InvariantCultureIgnoreCase)) await dbContext.Database.EnsureCreatedAsync();
 
 		var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 		if (!(await roleManager.RoleExistsAsync(Security.Role.Admin)))

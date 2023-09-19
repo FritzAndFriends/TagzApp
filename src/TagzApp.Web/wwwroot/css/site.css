@@ -353,3 +353,20 @@ a {
 	min-height: 3em;
 	padding: 5px;
 }
+
+.gravatar {
+	height: 50px;
+	width: 50px;
+	margin: 1em;
+	border-radius: 25px;
+	border: 2px solid steelblue;
+}
+
+.currentModerators img {
+	height: 50px;
+	width: 50px;
+	margin: 0.3em;
+	padding: 0.2em;
+	border-radius: 25px;
+	border: 2px solid royalBlue;
+}

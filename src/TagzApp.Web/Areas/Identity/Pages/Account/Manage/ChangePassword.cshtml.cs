@@ -7,18 +7,19 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using TagzApp.Web.Data;
 
 namespace TagzApp.Web.Areas.Identity.Pages.Account.Manage;
 
 public class ChangePasswordModel : PageModel
 {
-	private readonly UserManager<IdentityUser> _userManager;
-	private readonly SignInManager<IdentityUser> _signInManager;
+	private readonly UserManager<TagzAppUser> _userManager;
+	private readonly SignInManager<TagzAppUser> _signInManager;
 	private readonly ILogger<ChangePasswordModel> _logger;
 
 	public ChangePasswordModel(
-		UserManager<IdentityUser> userManager,
-		SignInManager<IdentityUser> signInManager,
+		UserManager<TagzAppUser> userManager,
+		SignInManager<TagzAppUser> signInManager,
 		ILogger<ChangePasswordModel> logger)
 	{
 		_userManager = userManager;

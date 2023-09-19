@@ -1,18 +1,19 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using TagzApp.Web.Data;
 
 namespace TagzApp.Web.Areas.Admin.Pages;
 
 public class UsersModel : PageModel
 {
-	private readonly UserManager<IdentityUser> _UserManager;
+	private readonly UserManager<TagzAppUser> _UserManager;
 
-	public UsersModel(UserManager<IdentityUser> userManager)
+	public UsersModel(UserManager<TagzAppUser> userManager)
 	{
 		_UserManager = userManager;
 	}
 
-	public List<IdentityUser> Users { get; set; }
+	public List<TagzAppUser> Users { get; set; }
 
 	public void OnGet()
 	{
