@@ -246,17 +246,7 @@ public class ChatClient : IChatClient
 			var badges = ChatClient.reBadges.Match(msg).Groups[1].Value.Split(',');
 
 			// Handle Emotes
-			var emotesRaw = ChatClient.reEmotes.Match(msg).Groups[1].Value.Replace(';', ' ').Split('/', StringSplitOptions.TrimEntries);
-			var emotes = new List<Emote>(emotesRaw.Length);
-			if ((emotesRaw?.Any() ?? false) && !string.IsNullOrEmpty(emotesRaw.First()))
-			{
-				foreach (var emote in emotesRaw)
-				{
-					var parts = emote.Split(":");
-					var positions = parts[1].Split("-");
-					emotes.Add(new Emote(int.Parse(positions[0]), int.Parse(positions[1]) - int.Parse(positions[0]) + 1, $"https://static-cdn.jtvnw.net/emoticons/v2/{parts[0]}/static/light/2.0"));
-				}
-			}
+			List<Emote> emotes = IdentifyEmotes(msg);
 
 			message = ChatClient.reChatMessage.Match(msg).Groups[1].Value;
 			Logger.LogTrace($"Message received from '{userName}': {message}");
@@ -288,6 +278,23 @@ public class ChatClient : IChatClient
 
 		//}
 
+	}
+
+	internal static List<Emote> IdentifyEmotes(string msg)
+	{
+		var emotesRaw = ChatClient.reEmotes.Match(msg).Groups[1].Value.Replace(';', ' ').Split('/', StringSplitOptions.TrimEntries);
+		var emotes = new List<Emote>(emotesRaw.Length);
+		if ((emotesRaw?.Any() ?? false) && !string.IsNullOrEmpty(emotesRaw.First()))
+		{
+			foreach (var emote in emotesRaw)
+			{
+				var parts = emote.Split(":");
+				var positions = parts[1].Split("-");
+				emotes.Add(new Emote(int.Parse(positions[0]), int.Parse(positions[1]) - int.Parse(positions[0]) + 1, $"https://static-cdn.jtvnw.net/emoticons/v2/{parts[0]}/static/light/2.0"));
+			}
+		}
+
+		return emotes;
 	}
 
 	private string ReadMessage()
