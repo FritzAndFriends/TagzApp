@@ -15,7 +15,7 @@ public class GivenMessageWithoutEmotes
 
 		var outEmotes = SUT.IdentifyEmotes(RawMessage);
 
-		Assert.Equal(0, outEmotes.Count);
+		Assert.Empty(outEmotes);
 
 	}
 
