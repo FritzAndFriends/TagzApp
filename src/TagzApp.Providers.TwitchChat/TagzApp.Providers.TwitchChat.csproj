@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+		<InternalsVisibleTo Include="TagzApp.UnitTest" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0-rc.1.23419.4" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0-rc.1.23419.4" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0-rc.1.23419.4" />
