@@ -22,7 +22,8 @@ public record ContentModel(
 	string AuthorProfileUri,
 	string AuthorProfileImageUri,
 	string Text,
-	Card? PreviewCard
+	Card? PreviewCard,
+	Emote[] Emotes
 )
 {
 
@@ -39,7 +40,8 @@ public record ContentModel(
 			content.Author.ProfileUri.ToString(),
 			content.Author.ProfileImageUri.ToString(),
 			content.Text,
-			content.PreviewCard
+			content.PreviewCard,
+			content.Emotes ?? new Emote[0]
 		);
 	}
 

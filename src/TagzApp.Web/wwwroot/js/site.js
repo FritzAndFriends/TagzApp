@@ -102,7 +102,7 @@
 			minute: '2-digit',
 		})}</div>
 
-		<div class="content">${content.text}</div>`;
+		<div class="content">${FormatContextWithEmotes(content)}</div>`;
 
 		if (content.previewCard) {
 			const tag =
@@ -214,6 +214,33 @@
 			showModerationPanel,
 			showModerationPanel,
 		);
+	}
+
+	function FormatContextWithEmotes(content) {
+		var text = content.text;
+		if (!content.emotes) return text;
+
+		var toReplace = [];
+		console.log(content.emotes);
+
+		for (var e in content.emotes) {
+			var emote = content.emotes[e];
+			console.log(emote);
+			var emoteUrl = emote.imageUrl;
+
+			var emoteName = text
+				.substring(emote.pos, emote.length + emote.pos + 1)
+				.trim();
+			var emoteHtml = `<img class="emote" src="${emoteUrl}" alt="${emoteName}" />`;
+			toReplace.push({ name: emoteName, html: emoteHtml });
+		}
+
+		for (var r in toReplace) {
+			var item = toReplace[r];
+			text = text.replace(item.name, item.html);
+		}
+
+		return text;
 	}
 
 	function ApproveMessage(content) {

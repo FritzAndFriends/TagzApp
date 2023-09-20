@@ -17,4 +17,6 @@ public class NewMessageEventArgs : EventArgs
 
 	public bool IsWhisper { get; set; } = false;
 
+	public Emote[] Emotes { get; set; } = new Emote[0];
+
 }

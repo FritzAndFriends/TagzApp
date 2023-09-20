@@ -1,21 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using Microsoft.Extensions.Logging;
-using System;
-using Microsoft.Extensions.Options;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Net.Http;
 using System.Net.Sockets;
-using System.Net.WebSockets;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace TagzApp.Providers.TwitchChat;
 
@@ -29,13 +15,14 @@ public class ChatClient : IChatClient
 	private StreamWriter outputStream;
 	private int _Retries;
 	private Task _ReceiveMassagesTask;
-	private MemoryStream _ReceiveStream = new MemoryStream();
+	private MemoryStream _ReceiveStream = new();
 
-	internal static readonly Regex reUserName = new Regex(@"!([^@]+)@");
-	internal static readonly Regex reBadges = new Regex(@"badges=([^;]*)");
-	internal static readonly Regex reDisplayName = new Regex(@"display-name=([^;]*)");
-	internal static readonly Regex reTimestamp = new Regex(@"tmi-sent-ts=(\d+)");
-	internal static readonly Regex reMessageId = new Regex(@"id=([^;]*)");
+	internal static readonly Regex reUserName = new(@"!([^@]+)@");
+	internal static readonly Regex reBadges = new(@"badges=([^;]*)");
+	internal static readonly Regex reDisplayName = new(@"display-name=([^;]*)");
+	internal static readonly Regex reTimestamp = new(@"tmi-sent-ts=(\d+)");
+	internal static readonly Regex reMessageId = new(@"id=([^;]*)");
+	internal static readonly Regex reEmotes = new("emotes=([^;]+;)");
 
 	internal static Regex reChatMessage;
 	internal static Regex reWhisperMessage;
@@ -49,10 +36,10 @@ public class ChatClient : IChatClient
 	internal ChatClient(string channelName, string chatBotName, string oauthToken, ILogger logger)
 	{
 
-		this.ChannelName = channelName;
-		this.ChatBotName = chatBotName;
+		ChannelName = channelName;
+		ChatBotName = chatBotName;
 		_OAuthToken = oauthToken;
-		this.Logger = logger;
+		Logger = logger;
 
 		reChatMessage = new Regex($@"PRIVMSG #{channelName} :(.*)$");
 		reWhisperMessage = new Regex($@"WHISPER {chatBotName} :(.*)$");
@@ -221,7 +208,7 @@ public class ChatClient : IChatClient
 				// Reconnect
 				Logger.LogWarning("Disconnected from Twitch.. Reconnecting in 2 seconds");
 				Thread.Sleep(2000);
-				this.Init();
+				Init();
 				return;
 			}
 
@@ -258,6 +245,19 @@ public class ChatClient : IChatClient
 
 			var badges = ChatClient.reBadges.Match(msg).Groups[1].Value.Split(',');
 
+			// Handle Emotes
+			var emotesRaw = ChatClient.reEmotes.Match(msg).Groups[1].Value.Replace(';', ' ').Split('/', StringSplitOptions.TrimEntries);
+			var emotes = new List<Emote>(emotesRaw.Length);
+			if ((emotesRaw?.Any() ?? false) && !string.IsNullOrEmpty(emotesRaw.First()))
+			{
+				foreach (var emote in emotesRaw)
+				{
+					var parts = emote.Split(":");
+					var positions = parts[1].Split("-");
+					emotes.Add(new Emote(int.Parse(positions[0]), int.Parse(positions[1]) - int.Parse(positions[0]) + 1, $"https://static-cdn.jtvnw.net/emoticons/v2/{parts[0]}/static/light/2.0"));
+				}
+			}
+
 			message = ChatClient.reChatMessage.Match(msg).Groups[1].Value;
 			Logger.LogTrace($"Message received from '{userName}': {message}");
 			NewMessage?.Invoke(this, new NewMessageEventArgs
@@ -267,7 +267,8 @@ public class ChatClient : IChatClient
 				DisplayName = displayName,
 				Message = message,
 				Badges = badges,
-				Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(timestamp)
+				Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(timestamp),
+				Emotes = emotes.ToArray()
 			});
 
 		}
