@@ -370,3 +370,7 @@ a {
 	border-radius: 25px;
 	border: 2px solid royalBlue;
 }
+
+.emote {
+	height: 1.6em;
+}

@@ -36,6 +36,7 @@ public class ChatClient : IChatClient
 	internal static readonly Regex reDisplayName = new Regex(@"display-name=([^;]*)");
 	internal static readonly Regex reTimestamp = new Regex(@"tmi-sent-ts=(\d+)");
 	internal static readonly Regex reMessageId = new Regex(@"id=([^;]*)");
+	internal static readonly Regex reEmotes = new Regex("emotes=([^;]+;)");
 
 	internal static Regex reChatMessage;
 	internal static Regex reWhisperMessage;
@@ -258,6 +259,19 @@ public class ChatClient : IChatClient
 
 			var badges = ChatClient.reBadges.Match(msg).Groups[1].Value.Split(',');
 
+			// Handle Emotes
+			var emotesRaw = ChatClient.reEmotes.Match(msg).Groups[1].Value.Replace(';',' ').Split('/', StringSplitOptions.TrimEntries);
+			var emotes = new List<Emote>(emotesRaw.Length);
+			if ((emotesRaw?.Any() ?? false) && !string.IsNullOrEmpty(emotesRaw.First()))
+			{
+				foreach (var emote in emotesRaw)
+				{
+					var parts = emote.Split(":");
+					var positions = parts[1].Split("-");
+					emotes.Add(new Emote(int.Parse(positions[0]), int.Parse(positions[1]) - int.Parse(positions[0]) + 1, $"https://static-cdn.jtvnw.net/emoticons/v2/{parts[0]}/static/light/2.0"));
+				}
+			}
+
 			message = ChatClient.reChatMessage.Match(msg).Groups[1].Value;
 			Logger.LogTrace($"Message received from '{userName}': {message}");
 			NewMessage?.Invoke(this, new NewMessageEventArgs
@@ -267,7 +281,8 @@ public class ChatClient : IChatClient
 				DisplayName = displayName,
 				Message = message,
 				Badges = badges,
-				Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(timestamp)
+				Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(timestamp),
+				Emotes = emotes.ToArray()
 			});
 
 		}
