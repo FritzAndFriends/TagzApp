@@ -217,7 +217,6 @@
 	}
 
 	function FormatContextWithEmotes(content) {
-
 		var text = content.text;
 		if (!content.emotes) return text;
 
@@ -225,15 +224,15 @@
 		console.log(content.emotes);
 
 		for (var e in content.emotes) {
-
 			var emote = content.emotes[e];
-			 console.log(emote);
+			console.log(emote);
 			var emoteUrl = emote.imageUrl;
 
-			var emoteName = text.substring(emote.pos, emote.length + emote.pos + 1).trim();
+			var emoteName = text
+				.substring(emote.pos, emote.length + emote.pos + 1)
+				.trim();
 			var emoteHtml = `<img class="emote" src="${emoteUrl}" alt="${emoteName}" />`;
 			toReplace.push({ name: emoteName, html: emoteHtml });
-
 		}
 
 		for (var r in toReplace) {
@@ -242,7 +241,6 @@
 		}
 
 		return text;
-
 	}
 
 	function ApproveMessage(content) {
