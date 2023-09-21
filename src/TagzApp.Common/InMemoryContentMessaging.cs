@@ -81,6 +81,8 @@ public class InMemoryContentMessaging : IContentPublisher, IContentSubscriber, I
 
 				var lastQueryTime = DateTimeOffset.UtcNow.AddHours(-1);
 
+				await provider.StartAsync();
+
 				while (!cancellationToken.IsCancellationRequested)
 				{
 					if (!_Actions.Any())

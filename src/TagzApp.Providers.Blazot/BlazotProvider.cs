@@ -70,4 +70,9 @@ internal sealed class BlazotProvider : ISocialMediaProvider
 
 		return _ContentConverter.ConvertToContent(transmissions, tag);
 	}
+
+	public Task StartAsync()
+	{
+		return Task.CompletedTask;
+	}
 }

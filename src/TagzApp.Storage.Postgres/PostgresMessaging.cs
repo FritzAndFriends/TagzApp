@@ -38,6 +38,8 @@ internal class PostgresMessaging : IDisposable
 				if (provider == null) return;
 				var lastQueryTime = DateTimeOffset.UtcNow.AddHours(-1);
 
+				await provider.StartAsync();
+
 				while (!cancellationToken.IsCancellationRequested)
 				{
 
