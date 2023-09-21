@@ -65,7 +65,7 @@ public class MessageHub : Hub
 
 		if (message is null) return;
 
-		await Clients.All
+		await Clients.User(Context.UserIdentifier)
 			.SendAsync("DisplayOverlay", (ContentModel)message);
 	}
 

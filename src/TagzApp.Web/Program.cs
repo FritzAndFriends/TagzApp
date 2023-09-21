@@ -14,6 +14,8 @@ public class Program
 
 		var builder = WebApplication.CreateBuilder(args);
 
+		//var connectionString = builder.Configuration.GetConnectionString("SecurityContextConnection") ?? throw new InvalidOperationException("Connection string 'SecurityContextConnection' not found.");
+
 		builder.Configuration.AddApplicationConfiguration();
 		builder.Services.Configure<ApplicationConfiguration>(
 			builder.Configuration.GetSection("ApplicationConfiguration")
@@ -29,7 +31,10 @@ public class Program
 			.AddRoles<IdentityRole>()
 			.AddEntityFrameworkStores<SecurityContext>();
 
-		_ = builder.Services.AddAuthentication()
+		_ = builder.Services.AddAuthentication(options =>
+		{
+			//options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+		})
 			.AddCookie()
 			.AddExternalProviders(builder.Configuration);
 

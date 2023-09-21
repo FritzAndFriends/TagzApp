@@ -1,7 +1,6 @@
 ﻿using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using Microsoft.Extensions.Options;
-using TagzApp.Common.Models;
 using TagzApp.Providers.Youtube.Configuration;
 
 namespace TagzApp.Providers.Youtube;
@@ -25,7 +24,7 @@ internal class YoutubeProvider : ISocialMediaProvider
 		var youtubeService = new YouTubeService(new BaseClientService.Initializer()
 		{
 			ApiKey = _Configuration.ApiKey,
-			ApplicationName = "MyTagg"
+			ApplicationName = "TagzApp"
 		});
 
 		var searchListRequest = youtubeService.Search.List("snippet");
@@ -58,5 +57,10 @@ internal class YoutubeProvider : ISocialMediaProvider
 			},
 			Text = m.Snippet.Title
 		});
+	}
+
+	public Task StartAsync()
+	{
+		return Task.CompletedTask;
 	}
 }

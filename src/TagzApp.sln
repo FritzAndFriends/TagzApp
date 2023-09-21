@@ -43,7 +43,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Storage.Postgres", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Storage.Postgres.Security", "TagzApp.Storage.Postgres.Security\TagzApp.Storage.Postgres.Security.csproj", "{F0F32FC9-C435-4B1D-BB21-61B93633E307}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagzApp.Providers.YouTubeChat", "TagzApp.Providers.YouTubeChat\TagzApp.Providers.YouTubeChat.csproj", "{3562DD07-36C6-4729-A0B7-5DD119AEC7CD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Providers.YouTubeChat", "TagzApp.Providers.YouTubeChat\TagzApp.Providers.YouTubeChat.csproj", "{3562DD07-36C6-4729-A0B7-5DD119AEC7CD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -15,14 +15,17 @@
     <ProjectReference Include="..\TagzApp.Providers.TwitchChat\TagzApp.Providers.TwitchChat.csproj" />
     <ProjectReference Include="..\TagzApp.Providers.Twitter\TagzApp.Providers.Twitter.csproj" />
     <ProjectReference Include="..\TagzApp.Providers.Blazot\TagzApp.Providers.Blazot.csproj" />
+    <ProjectReference Include="..\TagzApp.Providers.YouTubeChat\TagzApp.Providers.YouTubeChat.csproj" />
     <ProjectReference Include="..\TagzApp.Storage.Postgres\TagzApp.Storage.Postgres.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AspNet.Security.OAuth.GitHub" Version="7.0.4" />
     <PackageReference Include="AspNet.Security.OAuth.LinkedIn" Version="7.0.4" />
+    <PackageReference Include="Google.Apis.Auth.AspNetCore3" Version="1.62.1" />
     <PackageReference Include="gravatar" Version="1.1.0" />
     <PackageReference Include="Markdig" Version="0.33.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.0-rc.1.23421.29" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="8.0.0-rc.1.23421.29" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0-rc.1.23421.29" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.0-rc.1.23421.29" />

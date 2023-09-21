@@ -221,17 +221,15 @@
 		if (!content.emotes) return text;
 
 		var toReplace = [];
-		console.log(content.emotes);
 
 		for (var e in content.emotes) {
 			var emote = content.emotes[e];
-			console.log(emote);
 			var emoteUrl = emote.imageUrl;
 
 			var emoteName = text
 				.substring(emote.pos, emote.length + emote.pos + 1)
 				.trim();
-			var emoteHtml = `<img class="emote" src="${emoteUrl}" alt="${emoteName}" />`;
+			var emoteHtml = `<img class="emote" src="${emoteUrl}"  />`;
 			toReplace.push({ name: emoteName, html: emoteHtml });
 		}
 
