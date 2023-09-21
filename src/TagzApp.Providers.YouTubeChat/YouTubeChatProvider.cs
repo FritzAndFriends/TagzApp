@@ -1,4 +1,4 @@
-﻿namespace TagzApp.Providers.YouTubeChat;
+namespace TagzApp.Providers.YouTubeChat;
 
 public class YouTubeChatProvider : ISocialMediaProvider
 {

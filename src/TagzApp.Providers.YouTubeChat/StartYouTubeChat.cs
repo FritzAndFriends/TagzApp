@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using TagzApp.Common.Exceptions;
 
 namespace TagzApp.Providers.YouTubeChat;
@@ -32,5 +32,5 @@ public class StartYouTubeChat : IConfigureProvider
 		return services;
 
 	}
-}
+
 }
