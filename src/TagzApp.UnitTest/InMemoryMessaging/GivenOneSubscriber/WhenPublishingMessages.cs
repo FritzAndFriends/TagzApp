@@ -2,7 +2,7 @@
 public class WhenPublishingMessages
 {
 
-	protected InMemoryContentMessaging _Sut = new InMemoryContentMessaging();
+	protected InMemoryContentMessaging _Sut = new();
 
 	private readonly Hashtag _Tag = new() { Text = "Test" };
 
