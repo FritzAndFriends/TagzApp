@@ -15,6 +15,7 @@ public class WhenPublishingMessages
 			ProfileUri = new Uri("http://myta.gg"),
 		},
 		Provider = "TEST",
+		ProviderId = "test-id",
 		SourceUri = new Uri("http://myta.gg/1"),
 		Text = "This is a test",
 		Timestamp = DateTimeOffset.Now,
