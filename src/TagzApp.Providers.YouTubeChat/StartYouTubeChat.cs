@@ -13,7 +13,7 @@ public class StartYouTubeChat : IConfigureProvider
 		try
 		{
 			config = configuration.GetSection(YouTubeChatConfiguration.AppSettingsSection);
-			services.Configure<YouTubeChatConfiguration>(config);
+			if (config is not null) services.Configure<YouTubeChatConfiguration>(config);
 		}
 		catch (Exception ex)
 		{
@@ -21,13 +21,13 @@ public class StartYouTubeChat : IConfigureProvider
 			throw new InvalidConfigurationException(ex.Message, YouTubeChatConfiguration.AppSettingsSection);
 		}
 
-		YouTubeChatConfiguration? options = config.Get<YouTubeChatConfiguration>();
+		// No configuration provided, no registration to be added
+		if (config is null) return services;
 
-		if (string.IsNullOrEmpty(options?.ApiKey))
-		{
-			// No configuration provided, no registration to be added
-			return services;
-		}
+		YouTubeChatConfiguration? options = config.Get<YouTubeChatConfiguration>();
+		if (string.IsNullOrEmpty(options?.ClientId)) return services;
+
+		services.AddTransient<ISocialMediaProvider, YouTubeChatProvider>();
 
 		return services;
 
