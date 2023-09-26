@@ -1,12 +1,9 @@
-using Google.Apis.Auth.AspNetCore3;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using TagzApp.Communication.Extensions;
 using TagzApp.Web.Data;
 using TagzApp.Web.Hubs;
-using Microsoft.EntityFrameworkCore;
 
 namespace TagzApp.Web;
 
