@@ -106,6 +106,23 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		GC.SuppressFinalize(this);
 	}
 
+	public string GetChannelForUser(string accessToken)
+	{
+
+		var credential = GoogleCredential.FromAccessToken(accessToken);
+		var service = new YouTubeService(new BaseClientService.Initializer
+		{
+			HttpClientInitializer = credential
+		});
+
+		var channelRequest = service.Channels.List("snippet");
+		channelRequest.Mine = true;
+		var channels = channelRequest.Execute();
+
+		return channels.Items.First().Snippet.Title;
+
+	}
+
 	public IEnumerable<YouTubeBroadcast> GetBroadcastsForUser(string accessToken)
 	{
 
@@ -114,6 +131,7 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		{
 			HttpClientInitializer = credential
 		});
+
 		var listRequest = service.LiveBroadcasts.List("snippet");
 		listRequest.Mine = true;
 		listRequest.BroadcastType = LiveBroadcastsResource.ListRequest.BroadcastTypeEnum.Event__;
@@ -122,7 +140,7 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 
 		//var credential = GoogleWebAuthorizationBroker.AuthorizeAsync()
 		return broadcasts.Items
-			.Select(i => new YouTubeBroadcast(i.Id, i.Snippet.Title, i.Snippet.ActualStartTimeDateTimeOffset ?? i.Snippet.ScheduledStartTimeDateTimeOffset))
+			.Select(i => new YouTubeBroadcast(i.Id, i.Snippet.Title, i.Snippet.ActualStartTimeDateTimeOffset ?? i.Snippet.ScheduledStartTimeDateTimeOffset, i.Snippet.LiveChatId))
 			.OrderBy(b => b.BroadcastTime);
 
 	}
@@ -130,4 +148,4 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 
 }
 
-public record YouTubeBroadcast(string Id, string Title, DateTimeOffset? BroadcastTime);
+public record YouTubeBroadcast(string Id, string Title, DateTimeOffset? BroadcastTime, string LiveChatId);

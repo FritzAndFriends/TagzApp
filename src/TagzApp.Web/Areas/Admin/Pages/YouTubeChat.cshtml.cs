@@ -29,12 +29,19 @@ namespace TagzApp.Web.Areas.Admin.Pages
 
 		public IEnumerable<YouTubeBroadcast> Broadcasts { get; set; }
 
+		public string ChannelTitle { get; set; }
+
 		[Authorize]
 		public async Task OnGetAsync()
 		{
 
 			var user = await _UserManager.GetUserAsync(User);
 			var access_token = await _UserManager.GetAuthenticationTokenAsync(user, "Google", "access_token");
+
+			// TODO: Error handle if there is no access token
+			// TODO: Handle a shared access token definition for the system
+
+			ChannelTitle = _Provider.GetChannelForUser(access_token);
 
 			Broadcasts = _Provider.GetBroadcastsForUser(access_token);
 
