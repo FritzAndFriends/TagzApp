@@ -66,29 +66,28 @@ public static class ServicesExtensions
 		builder.AddExternalProvider("Microsoft", configuration, options => builder.AddMicrosoftAccount(options));
 		builder.AddExternalProvider("GitHub", configuration, options => builder.AddGitHub(options));
 		builder.AddExternalProvider("LinkedIn", configuration, options => builder.AddLinkedIn(options));
-		builder.AddGoogle(options =>
+
+		if (!string.IsNullOrEmpty(configuration["Authentication:Google:ClientId"]))
 		{
-			options.ClientId = configuration["Authentication:Google:ClientId"];
-			options.ClientSecret = configuration["Authentication:Google:ClientSecret"];
-			options.SaveTokens = true;
-			options.Scope.Add("https://www.googleapis.com/auth/youtube");
-			options.Events.OnCreatingTicket = ctx =>
+			builder.AddGoogle(options =>
 			{
-				var tokens = ctx.Properties.GetTokens().ToList();
-				tokens.Add(new AuthenticationToken
+				options.ClientId = configuration["Authentication:Google:ClientId"];
+				options.ClientSecret = configuration["Authentication:Google:ClientSecret"];
+				options.SaveTokens = true;
+				options.Scope.Add("https://www.googleapis.com/auth/youtube");
+				options.Events.OnCreatingTicket = ctx =>
 				{
-					Name = "Ticket Created",
-					Value = DateTime.UtcNow.ToString()
-				});
-				ctx.Properties.StoreTokens(tokens);
-				return Task.CompletedTask;
-			};
-		});
-		//builder.AddGoogleOpenIdConnect(options =>
-		//{
-		//	options.ClientId = configuration["Authentication:Google:ClientId"];
-		//	options.ClientSecret = configuration["Authentication:Google:ClientSecret"];
-		//});
+					var tokens = ctx.Properties.GetTokens().ToList();
+					tokens.Add(new AuthenticationToken
+					{
+						Name = "Ticket Created",
+						Value = DateTime.UtcNow.ToString()
+					});
+					ctx.Properties.StoreTokens(tokens);
+					return Task.CompletedTask;
+				};
+			});
+		}
 
 		return builder;
 	}
