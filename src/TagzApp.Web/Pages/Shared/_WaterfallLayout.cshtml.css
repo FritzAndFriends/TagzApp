@@ -66,13 +66,6 @@ button.accept-policy {
 	animation-fill-mode: forwards;
 }
 
-#headerButton {
-	position: fixed;
-	top: 10px;
-	right: 10px;
-	z-index: 900;
-}
-
 @keyframes scrollUp {
 	from {
 		top: 0;

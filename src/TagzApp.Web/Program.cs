@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using TagzApp.Communication.Extensions;
 using TagzApp.Web.Data;
 using TagzApp.Web.Hubs;
+using Microsoft.EntityFrameworkCore;
 
 namespace TagzApp.Web;
 
@@ -13,6 +14,7 @@ public class Program
 	{
 
 		var builder = WebApplication.CreateBuilder(args);
+		//var connectionString = builder.Configuration.GetConnectionString("SecurityContextConnection") ?? throw new InvalidOperationException("Connection string 'SecurityContextConnection' not found.");
 
 		builder.Configuration.AddApplicationConfiguration();
 		builder.Services.Configure<ApplicationConfiguration>(
