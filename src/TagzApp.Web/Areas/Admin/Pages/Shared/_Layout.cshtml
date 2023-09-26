@@ -23,6 +23,16 @@
 		</div>
 </div>
 
+@section Styles {
+	<link rel="stylesheet" href="/lib/simplemde/simplemde.min.css">
+
+	@RenderSection("Styles", required: false)
+
+}
+
 @section Scripts {
-		@RenderSection("Scripts", required: false)
+	<script src="/lib/simplemde/simplemde.min.js"></script>
+
+	@RenderSection("Scripts", required: false)
+
 }

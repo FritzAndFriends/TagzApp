@@ -1,4 +1,4 @@
-﻿namespace TagzApp.Web.Data;
+namespace TagzApp.Web.Data;
 
 /// <summary>
 /// Content to be shared with the web client
@@ -26,7 +26,8 @@ public record ModerationContentModel(
 	ModerationState State,
 	string? Reason,
 	string? Moderator,
-	DateTimeOffset? ModerationTimestamp
+	DateTimeOffset? ModerationTimestamp,
+	Emote[] Emotes
 )
 {
 
@@ -47,7 +48,8 @@ public record ModerationContentModel(
 			action?.State ?? ModerationState.Pending,
 			action?.Reason,
 			action?.Moderator,
-			action?.Timestamp
+			action?.Timestamp,
+			content.Emotes ?? new Emote[0]
 		);
 	}
 

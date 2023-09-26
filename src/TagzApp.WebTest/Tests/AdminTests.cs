@@ -24,14 +24,14 @@ public class AdminTests : TestsBase
 
 	}
 
-	[Fact(Skip="Don't run tests that require the UI on test servers")]
+	[Fact(Skip = "Don't run tests that require the UI on test servers")]
 	public async Task AnonymousCantAdminUI()
 	{
-		await using var context = await WebApp.CreateCustomPlaywrightBrowserPageAsync(browserOptions: browser=>browser.Headless=false);
+		await using var context = await WebApp.CreateCustomPlaywrightBrowserPageAsync(browserOptions: browser => browser.Headless = false);
 		var page = context.Page;
 
 		// N.B. These tests work differently if the browser is not headless!
-		await Assert.ThrowsAsync<PlaywrightException>(async ()=> await page.GotoAsync("/Admin"));
+		await Assert.ThrowsAsync<PlaywrightException>(async () => await page.GotoAsync("/Admin"));
 
 		Assert.NotEqual(WebApp.Uri + "/Admin", page.Url);
 		Assert.Equal("about:blank", page.Url);
@@ -43,7 +43,7 @@ public class AdminTests : TestsBase
 		await using var context = await WebApp.CreateAuthorisedPlaywrightBrowserPageAsync("user");
 		var page = context.Page;
 
-		IResponse? response= await page.GotoAsync("/Admin");
+		IResponse? response = await page.GotoAsync("/Admin");
 
 		Assert.NotNull(response);
 		Assert.Equal((int)HttpStatusCode.Forbidden, response.Status);

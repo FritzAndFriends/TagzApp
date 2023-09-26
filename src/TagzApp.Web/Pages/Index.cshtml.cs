@@ -21,7 +21,8 @@ namespace TagzApp.Web.Pages
 		public void OnGet()
 		{
 
-			if (_HostingEnvironment.IsDevelopment()) {
+			if (_HostingEnvironment.IsDevelopment() || _HostingEnvironment.IsEnvironment("Test"))
+			{
 
 				foreach (var item in _Service.TagsTracked)
 				{
@@ -35,7 +36,7 @@ namespace TagzApp.Web.Pages
 		public IActionResult OnPost()
 		{
 
-			if (_HostingEnvironment.IsDevelopment() && !string.IsNullOrEmpty(TagSearchModel.NewTag) && !_Service.TagsTracked.Any())
+			if ((_HostingEnvironment.IsDevelopment() || _HostingEnvironment.IsEnvironment("Test")) && !string.IsNullOrEmpty(TagSearchModel.NewTag) && !_Service.TagsTracked.Any())
 			{
 				_Service.AddHashtagToWatch(TagSearchModel.NewTag);
 			}

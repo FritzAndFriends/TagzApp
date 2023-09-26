@@ -1,11 +1,9 @@
-﻿using TagzApp.Common.Models;
-
-namespace TagzApp.UnitTest.InMemoryMessaging.GivenNoSubscribers;
+﻿namespace TagzApp.UnitTest.InMemoryMessaging.GivenNoSubscribers;
 
 public class WhenPublishingMessages : BaseFixture
 {
 
-	private Hashtag _Tag = new Hashtag() { Text = "test" };
+	private Hashtag _Tag = new() { Text = "test" };
 
 	// Arrange - PUBLISH SOME MESSAGES
 	private async Task Arrange()
@@ -20,6 +18,7 @@ public class WhenPublishingMessages : BaseFixture
 				ProfileUri = new Uri("http://myta.gg"),
 			},
 			Provider = "TEST",
+			ProviderId = "test-id",
 			SourceUri = new Uri("http://myta.gg/1"),
 			Text = "This is a test",
 			Timestamp = DateTimeOffset.Now,

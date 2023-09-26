@@ -41,7 +41,8 @@ public class StartTwitchChat : BaseConfigurationProvider, IConfigureProvider
 				ClientId = config["ClientId"] ?? string.Empty,
 				ClientSecret = config["ClientSecret"] ?? string.Empty,
 				ChatBotName = config["ChatBotName"] ?? string.Empty,
-				OAuthToken = config["OAuthToken"] ?? string.Empty
+				OAuthToken = config["OAuthToken"] ?? string.Empty,
+				ChannelName = config["ChannelName"] ?? string.Empty
 			};
 		}
 	}

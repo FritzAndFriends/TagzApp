@@ -17,6 +17,8 @@ public class WhenFirstSearchingForTagsFixture : PlaywrightPageFixture<Web.Progra
 
 	public override LogLevel MinimumLogLevel => LogLevel.Warning;
 
+	public override string? Environment => "Test";
+
 	protected override IHost CreateHost(IHostBuilder builder)
 	{
 		// ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
@@ -60,7 +62,7 @@ public class WhenFirstSearchingForTags : IClassFixture<WhenFirstSearchingForTags
 	private readonly WhenFirstSearchingForTagsFixture WebApp;
 	private readonly ITestOutputHelper _OutputHelper;
 
-	public WhenFirstSearchingForTags(WhenFirstSearchingForTagsFixture webapp, ITestOutputHelper outputHelper) 
+	public WhenFirstSearchingForTags(WhenFirstSearchingForTagsFixture webapp, ITestOutputHelper outputHelper)
 	{
 		WebApp = webapp;
 		_OutputHelper = outputHelper;
@@ -71,14 +73,14 @@ public class WhenFirstSearchingForTags : IClassFixture<WhenFirstSearchingForTags
 	{
 		var page = await WebApp.CreatePlaywrightPageAsync();
 
-		// await using var trace = await page.TraceAsync("Can Add Hashtags", true, true, true);
+		await using var trace = await page.TraceAsync("Can Add Hashtags", true, true, true);
 
-		await page
-			.GotoHashtagSearchPage().Result
-			.SearchForHashtag("dotnet");
+		var searchPage = await page.GotoHashtagSearchPage();
+		await searchPage.SearchForHashtag("dotnet");
 
 		var firstHashtagContent = await page.Locator(".hashtags").First.TextContentAsync();
 		Assert.Equal("dotnet", firstHashtagContent);
+
 	}
 
 	[Fact(), TestPriority(2)]

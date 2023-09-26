@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -12,8 +12,10 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 
 	private readonly IServiceProvider _Services;
 	private readonly INotifyNewMessages _NotifyNewMessages;
-
+	// TODO: Check if _services actually can be null. The compiler is complaining about it.
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 	public PostgresMessagingService(
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 		IServiceProvider services,
 		INotifyNewMessages notifyNewMessages,
 		IConfiguration configuration,

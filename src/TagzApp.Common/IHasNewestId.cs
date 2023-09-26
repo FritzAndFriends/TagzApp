@@ -1,6 +1,7 @@
 ﻿namespace TagzApp.Common;
 
-public interface IHasNewestId {
+public interface IHasNewestId
+{
 
 	string NewestId { get; set; }
 

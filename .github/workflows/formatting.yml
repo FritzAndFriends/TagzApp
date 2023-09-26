@@ -15,14 +15,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Get git diff
         id: diff
         run: |
-          git remote add upstream https://github.com/FritzAndFriends/TagzApp.git
-          git fetch upstream main
           {
             echo 'files<<EOF'
-            git diff upstream/main --name-only --diff-filter=d -- "*.css" "*.js" "*.cs"
+            git diff origin/main...HEAD --name-only --diff-filter=d -- "*.css" "*.js" "*.cs"
             echo EOF
           } >> "$GITHUB_OUTPUT"
 
@@ -47,7 +47,7 @@ jobs:
         if: steps.changed_cs.outputs.files != ''
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 7.0.x
+          dotnet-version: 8.0.x
       - name: Run dotnet format
         if: steps.changed_cs.outputs.files != ''
         id: dotnet-format

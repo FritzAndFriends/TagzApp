@@ -12,64 +12,64 @@ namespace TagzApp.Providers.Blazot.Services;
 
 internal class AuthService : IAuthService
 {
-  private readonly string? _ApiKey;
-  private readonly string? _SecretAuthKey;
-  private readonly HttpClient _HttpClient;
-  private readonly IAuthEvents _AuthEvents;
-  private readonly ILogger<AuthService> _Logger;
+	private readonly string? _ApiKey;
+	private readonly string? _SecretAuthKey;
+	private readonly HttpClient _HttpClient;
+	private readonly IAuthEvents _AuthEvents;
+	private readonly ILogger<AuthService> _Logger;
 
-  public AuthService(ILogger<AuthService> logger, IHttpClientFactory httpClientFactory, IAuthEvents authEvents, IConfiguration configuration)
-  {
-    _Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    _HttpClient = httpClientFactory.CreateClient(nameof(BlazotProvider));
-    _AuthEvents = authEvents ?? throw new ArgumentNullException(nameof(authEvents));
+	public AuthService(ILogger<AuthService> logger, IHttpClientFactory httpClientFactory, IAuthEvents authEvents, IConfiguration configuration)
+	{
+		_Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+		_HttpClient = httpClientFactory.CreateClient(nameof(BlazotProvider));
+		_AuthEvents = authEvents ?? throw new ArgumentNullException(nameof(authEvents));
 
-    var settings = configuration.GetSection(BlazotSettings.AppSettingsSection).Get<BlazotSettings>();
-    _ApiKey = settings?.ApiKey ?? throw new ArgumentNullException(nameof(settings));
-    _HttpClient.DefaultRequestHeaders.Add("x-api-key", _ApiKey);
-    _SecretAuthKey = settings.SecretAuthKey;
-  }
+		var settings = configuration.GetSection(BlazotSettings.AppSettingsSection).Get<BlazotSettings>();
+		_ApiKey = settings?.ApiKey ?? throw new ArgumentNullException(nameof(settings));
+		_HttpClient.DefaultRequestHeaders.Add("x-api-key", _ApiKey);
+		_SecretAuthKey = settings.SecretAuthKey;
+	}
 
-  public string? AccessToken { get; private set; }
+	public string? AccessToken { get; private set; }
 
-  public async Task<(bool? isSuccessStatusCode, HttpStatusCode? httpStatusCode)> GetAccessTokenAsync()
-  {
-    HttpResponseMessage? response = null;
+	public async Task<(bool? isSuccessStatusCode, HttpStatusCode? httpStatusCode)> GetAccessTokenAsync()
+	{
+		HttpResponseMessage? response = null;
 
-    try
-    {
-      if (string.IsNullOrEmpty(_ApiKey))
-        throw new InvalidOperationException("Blazot API Key is missing from app settings.");
+		try
+		{
+			if (string.IsNullOrEmpty(_ApiKey))
+				throw new InvalidOperationException("Blazot API Key is missing from app settings.");
 
-      if (string.IsNullOrWhiteSpace(_SecretAuthKey))
-        throw new InvalidOperationException("Blazot Secret Auth Key is missing from app settings.");
+			if (string.IsNullOrWhiteSpace(_SecretAuthKey))
+				throw new InvalidOperationException("Blazot Secret Auth Key is missing from app settings.");
 
-      var address = Path.Combine(BlazotConstants.BaseAddress, "auth/token").Replace(@"\", "/");
-      var uri = new Uri(address);
+			var address = Path.Combine(BlazotConstants.BaseAddress, "auth/token").Replace(@"\", "/");
+			var uri = new Uri(address);
 
-      _HttpClient.DefaultRequestHeaders.Add("x-secret-auth-key", _SecretAuthKey);
-      response = await _HttpClient.GetAsync(uri);
-      if (response.IsSuccessStatusCode)
-      {
-        var serializedResult = await response.Content.ReadAsStringAsync();
-        var token = JsonSerializer.Deserialize<Token>(serializedResult, new JsonSerializerOptions {PropertyNameCaseInsensitive = true});
-        AccessToken = $"Bearer {token?.AccessToken}";
-        _AuthEvents.NotifyAccessTokenUpdated();
-      }
-      else
-      {
-        _Logger.LogWarning("Blazot access token request failed: {reason}", response.ReasonPhrase);
-      }
-    }
-    catch (Exception ex)
-    {
-      _Logger.LogError(ex, "Failed to get Blazot Access Token: {message}", ex.Message);
-    }
-    finally
-    {
-      _HttpClient.DefaultRequestHeaders.Remove("x-secret-auth-key");
-    }
+			_HttpClient.DefaultRequestHeaders.Add("x-secret-auth-key", _SecretAuthKey);
+			response = await _HttpClient.GetAsync(uri);
+			if (response.IsSuccessStatusCode)
+			{
+				var serializedResult = await response.Content.ReadAsStringAsync();
+				var token = JsonSerializer.Deserialize<Token>(serializedResult, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+				AccessToken = $"Bearer {token?.AccessToken}";
+				_AuthEvents.NotifyAccessTokenUpdated();
+			}
+			else
+			{
+				_Logger.LogWarning("Blazot access token request failed: {reason}", response.ReasonPhrase);
+			}
+		}
+		catch (Exception ex)
+		{
+			_Logger.LogError(ex, "Failed to get Blazot Access Token: {message}", ex.Message);
+		}
+		finally
+		{
+			_HttpClient.DefaultRequestHeaders.Remove("x-secret-auth-key");
+		}
 
-    return (response?.IsSuccessStatusCode, response?.StatusCode);
-  }
+		return (response?.IsSuccessStatusCode, response?.StatusCode);
+	}
 }

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using TagzApp.Web.Data;
 
 namespace TagzApp.Web.Areas.Admin.Pages;
 
@@ -10,14 +11,14 @@ public class AssignRoleModel : PageModel
 {
 
 	public string UserId { get; set; } // new property for user id
-	public IdentityUser? CurrentUser { get; private set; }
+	public TagzAppUser? CurrentUser { get; private set; }
 	public List<string> UserRoles { get; private set; }
 	public List<IdentityRole> Roles { get; private set; }
 
-	private readonly UserManager<IdentityUser> _userManager; // needed to access roles of a user
+	private readonly UserManager<TagzAppUser> _userManager; // needed to access roles of a user
 	private readonly RoleManager<IdentityRole> _RoleManager;
 
-	public AssignRoleModel(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+	public AssignRoleModel(UserManager<TagzAppUser> userManager, RoleManager<IdentityRole> roleManager)
 	{
 		_userManager = userManager; // assign user manager to the private variable
 		_RoleManager = roleManager;
