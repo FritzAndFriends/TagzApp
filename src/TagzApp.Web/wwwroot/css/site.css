@@ -165,7 +165,6 @@ span.invisible {
 	opacity: 0.7;
 }
 
-
 #headerButton {
 	position: absolute;
 	top: 10px;
@@ -370,7 +369,8 @@ a {
 	border: 2px solid steelblue;
 }
 
-.currentModerators img, .gravatar {
+.currentModerators img,
+.gravatar {
 	height: 50px;
 	width: 50px;
 	margin: 0.3em;

@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity;
 using TagzApp.Communication.Extensions;
 using TagzApp.Web.Data;
 using TagzApp.Web.Hubs;
-using Microsoft.EntityFrameworkCore;
 
 namespace TagzApp.Web;
 
