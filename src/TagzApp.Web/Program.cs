@@ -13,6 +13,7 @@ public class Program
 	{
 
 		var builder = WebApplication.CreateBuilder(args);
+		//var connectionString = builder.Configuration.GetConnectionString("SecurityContextConnection") ?? throw new InvalidOperationException("Connection string 'SecurityContextConnection' not found.");
 
 		builder.Configuration.AddApplicationConfiguration();
 		builder.Services.Configure<ApplicationConfiguration>(
