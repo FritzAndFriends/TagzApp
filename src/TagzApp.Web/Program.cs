@@ -1,9 +1,12 @@
+using Google.Apis.Auth.AspNetCore3;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using TagzApp.Communication.Extensions;
 using TagzApp.Web.Data;
 using TagzApp.Web.Hubs;
+using Microsoft.EntityFrameworkCore;
 
 namespace TagzApp.Web;
 
@@ -13,6 +16,7 @@ public class Program
 	{
 
 		var builder = WebApplication.CreateBuilder(args);
+
 		//var connectionString = builder.Configuration.GetConnectionString("SecurityContextConnection") ?? throw new InvalidOperationException("Connection string 'SecurityContextConnection' not found.");
 
 		builder.Configuration.AddApplicationConfiguration();
@@ -30,7 +34,10 @@ public class Program
 			.AddRoles<IdentityRole>()
 			.AddEntityFrameworkStores<SecurityContext>();
 
-		_ = builder.Services.AddAuthentication()
+		_ = builder.Services.AddAuthentication(options =>
+		{
+			//options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+		})
 			.AddCookie()
 			.AddExternalProviders(builder.Configuration);
 

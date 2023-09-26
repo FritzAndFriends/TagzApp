@@ -22,6 +22,11 @@ namespace TagzApp.Web.Areas.Admin.Pages
 		public static string UiCustomization => "UiCustomization";
 
 		/// <summary>
+		/// NOTE: Temporary placeholder while we finish application configuration
+		/// </summary>
+		public static string YouTubeChat => "YouTubeChat";
+
+		/// <summary>
 		///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
 		///     directly from your code. This API may change or be removed in future releases.
 		/// </summary>

@@ -1,0 +1,15 @@
+﻿@page
+@using TagzApp.Web.Areas.Admin.Pages;
+@model TagzApp.Web.Areas.Admin.Pages.YouTubeChatModel
+@{
+	ViewData["ActivePage"] = ManageNavPages.YouTubeChat;
+}
+
+<h2>Connect to a YouTube Live Event</h2>
+
+<ul>
+	@foreach (var b in Model.Broadcasts)
+	{
+	 <li>@b.Title - @b.BroadcastTime (@b.Id)</li>	
+	}
+</ul>
