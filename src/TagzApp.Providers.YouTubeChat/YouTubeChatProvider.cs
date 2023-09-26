@@ -1,10 +1,7 @@
 using Google.Apis.Auth.OAuth2;
-using Google.Apis.Requests;
 using Google.Apis.Services;
-using Google.Apis.Util.Store;
 using Google.Apis.YouTube.v3;
 using Microsoft.Extensions.Options;
-using System.IO;
 
 namespace TagzApp.Providers.YouTubeChat;
 
