@@ -9,7 +9,5 @@ public class YouTubeChatConfiguration
 
 	public required string ClientSecret { get; set; }
 
-	public string BroadcastId { get; set; }
-
 
 }
