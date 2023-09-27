@@ -69,7 +69,7 @@ internal class TagzAppContext : DbContext
 			.HasMaxLength(50)
 			.IsRequired();
 
-		if(_InMemory)
+		if (_InMemory)
 		{
 			modelBuilder.Entity<ProviderConfiguration>(c => c.Ignore(nameof(ProviderConfiguration.ConfigurationSettings)));
 		}
