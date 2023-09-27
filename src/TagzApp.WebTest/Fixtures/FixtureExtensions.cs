@@ -156,6 +156,7 @@ public static class InMemoryServiceExtensions
 	public static IServiceCollection UseOnlyInMemoryService(this IServiceCollection services)
 	{
 		services.RemoveAll<IMessagingService>();
+		services.AddSingleton<IProviderConfigurationRepository, InMemoryProviderConfigurationRepository>();
 		services.AddSingleton<IMessagingService, InMemoryMessagingService>();
 		services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
 		return services;

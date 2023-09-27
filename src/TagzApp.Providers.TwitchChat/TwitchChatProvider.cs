@@ -20,10 +20,10 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	private readonly ILogger<TwitchChatProvider> _Logger;
 	private readonly TwitchProfileRepository _ProfileRepository;
 
-	public TwitchChatProvider(IOptions<TwitchChatConfiguration> settings, ILogger<TwitchChatProvider> logger, IHttpClientFactory clientFactory)
+	public TwitchChatProvider(TwitchChatConfiguration settings, ILogger<TwitchChatProvider> logger, IHttpClientFactory clientFactory)
 	{
 
-		_Settings = settings.Value;
+		_Settings = settings;
 		_Logger = logger;
 		_ProfileRepository = new TwitchProfileRepository(_Settings.ClientId, _Settings.ClientSecret, clientFactory.CreateClient("TwitchProfile"));
 		ListenForMessages();

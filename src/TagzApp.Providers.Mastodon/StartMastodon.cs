@@ -1,39 +1,49 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using TagzApp.Common.Exceptions;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System.Text.Json;
+using TagzApp.Communication;
 using TagzApp.Communication.Extensions;
 using TagzApp.Providers.Mastodon.Configuration;
 
 namespace TagzApp.Providers.Mastodon;
 
-public class StartMastodon : IConfigureProvider
+public class StartMastodon : BaseConfigurationProvider, IConfigureProvider
 {
-	public IServiceCollection RegisterServices(IServiceCollection services, IConfiguration configuration)
+	private const string _DisplayName = "Mastodon";
+	private MastodonConfiguration? _MastodonConfiguration;
+
+	public StartMastodon(IProviderConfigurationRepository providerConfigurationRepository)
+		: base(providerConfigurationRepository)
 	{
-		IConfigurationSection config;
+	}
 
-		try
-		{
-			config = configuration.GetSection(MastodonConfiguration.AppSettingsSection);
-			services.Configure<MastodonConfiguration>(config);
-		}
-		catch (Exception ex)
-		{
+	public async Task<IServiceCollection> RegisterServices(IServiceCollection services, CancellationToken cancellationToken = default)
+	{
+		await LoadConfigurationValuesAsync(_DisplayName, cancellationToken);
 
-			throw new InvalidConfigurationException(ex.Message, MastodonConfiguration.AppSettingsSection);
-		}
-
-		MastodonConfiguration? options = config.Get<MastodonConfiguration>();
-
-		if (string.IsNullOrEmpty(options?.BaseAddress?.ToString()))
+		if (string.IsNullOrEmpty(_MastodonConfiguration?.BaseAddress?.ToString()))
 		{
 			// No configuration provided, no registration to be added
 			return services;
 		}
 
-		services.AddHttpClient<ISocialMediaProvider, MastodonProvider, MastodonConfiguration>(configuration, MastodonConfiguration.AppSettingsSection);
+		services.AddHttpClient<ISocialMediaProvider, MastodonProvider, MastodonConfiguration>(_MastodonConfiguration);
 		services.AddTransient<ISocialMediaProvider, MastodonProvider>();
 		return services;
+	}
+
+	protected override void MapConfigurationValues(ProviderConfiguration providerConfiguration)
+	{
+		var config = providerConfiguration.ConfigurationSettings;
+
+		if (config != null)
+		{
+			_MastodonConfiguration = new MastodonConfiguration
+			{
+				BaseAddress = new Uri(config["BaseAddress"] ?? string.Empty),
+				Timeout = TimeSpan.Parse(config["Timeout"] ?? string.Empty),
+				DefaultHeaders = JsonSerializer.Deserialize<Dictionary<string, string>?>(config["DefaultHeaders"]),
+				UseHttp2 = bool.Parse(config["UseHttp2"])
+			};
+		}
 	}
 }

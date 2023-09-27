@@ -55,4 +55,11 @@ public class StartStubSocialMediaProvider : IConfigureProvider
 
 		return services;
 	}
+
+	public async Task<IServiceCollection> RegisterServices(IServiceCollection services, CancellationToken cancellationToken = default)
+	{
+		services.AddSingleton<ISocialMediaProvider, StubSocialMediaProvider>();
+
+		return await Task.FromResult(services);
+	}
 }

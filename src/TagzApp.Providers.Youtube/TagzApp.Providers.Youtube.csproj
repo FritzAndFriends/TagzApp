@@ -18,6 +18,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
+		<ProjectReference Include="..\TagzApp.Communication\TagzApp.Communication.csproj" />
 	</ItemGroup>
 
 </Project>
