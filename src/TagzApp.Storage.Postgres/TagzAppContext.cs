@@ -6,6 +6,7 @@ namespace TagzApp.Storage.Postgres;
 internal class TagzAppContext : DbContext
 {
 	private readonly IConfiguration _Configuration;
+	private bool _InMemory;
 
 	public TagzAppContext() { }
 
@@ -46,7 +47,7 @@ internal class TagzAppContext : DbContext
 		{
 
 			optionsBuilder.UseInMemoryDatabase("InMemoryDatabase");
-
+			_InMemory = true;
 		}
 
 		base.OnConfiguring(optionsBuilder);
@@ -67,6 +68,11 @@ internal class TagzAppContext : DbContext
 		modelBuilder.Entity<Tag>().Property(t => t.Text)
 			.HasMaxLength(50)
 			.IsRequired();
+
+		if(_InMemory)
+		{
+			modelBuilder.Entity<ProviderConfiguration>(c => c.Ignore(nameof(ProviderConfiguration.ConfigurationSettings)));
+		}
 
 		base.OnModelCreating(modelBuilder);
 
