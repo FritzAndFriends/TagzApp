@@ -1,6 +1,8 @@
 using Google.Apis.Auth.OAuth2;
+using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace TagzApp.Providers.YouTubeChat;
@@ -8,34 +10,80 @@ namespace TagzApp.Providers.YouTubeChat;
 public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 {
 	private readonly YouTubeChatConfiguration _ChatConfig;
+	private readonly string? _ClientId;
+	private readonly string? _ClientSecret;
+	public const string ProviderName = "YouTubeChat";
 
 	public string Id => "YOUTUBE-CHAT";
-	public string DisplayName => "YouTube Chat";
+	public string DisplayName => ProviderName;
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(10);
 
 	public string NewestId { get; set; }
+	public string LiveChatId { get; set; }
+	public string RefreshToken { get; set; }
+	public string YouTubeEmailId { get; set; }
 
 	private CancellationTokenSource _TokenSource = new();
-	private string _LiveChatId = string.Empty;
 	private YouTubeService _Service;
 	private bool _DisposedValue;
-	private Stream _ChatStream;
+	private string _NextPageToken;
 
-	public YouTubeChatProvider(IOptions<YouTubeChatConfiguration> chatConfig)
+	public YouTubeChatProvider(YouTubeChatConfiguration config)
 	{
-		_ChatConfig = chatConfig.Value;
+		_ChatConfig = config;
 	}
 
 	public async Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since)
 	{
 
-		var content = new List<Content>();
+		if (string.IsNullOrEmpty(LiveChatId)) return null;
+		var liveChatListRequest = new LiveChatMessagesResource.ListRequest(_Service, LiveChatId, new(new[] { "id", "snippet", "authorDetails" }));
 
-		// liveChatListRequest.
+		if (!string.IsNullOrEmpty(_NextPageToken)) liveChatListRequest.PageToken = _NextPageToken;
+		var contents = await liveChatListRequest.ExecuteAsync();
+		_NextPageToken = contents.NextPageToken;
 
-		return content;
+		return contents.Items.Select(i => new Content
+		{
+			Author = new Creator
+			{
+				DisplayName = i.AuthorDetails.DisplayName,
+				ProfileImageUri = new Uri(i.AuthorDetails.ProfileImageUrl),
+				ProfileUri = new Uri($"https://www.youtube.com/channel/{i.AuthorDetails.ChannelId}")
+			},
+			Provider = Id,
+			ProviderId = i.Id,
+			Text = i.Snippet.DisplayMessage,
+			SourceUri = new Uri($"https://youtube.com/livechat/{LiveChatId}"),
+			Timestamp = i.Snippet.PublishedAtDateTimeOffset.Value,
+			Type = ContentType.Message,
+			HashtagSought = tag.Text
+		}).ToArray();
 
+	}
 
+	private async Task<YouTubeService> GetGoogleService()
+	{
+
+		if (_Service is not null) return _Service;
+
+		var flow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer
+		{
+			ClientSecrets = new ClientSecrets
+			{
+				ClientId = _ChatConfig.ClientId,
+				ClientSecret = _ChatConfig.ClientSecret
+			},
+			Scopes = new[] { YouTubeChatConfiguration.Scope_YouTube }
+		});
+		var token = await flow.RefreshTokenAsync(YouTubeEmailId, RefreshToken, CancellationToken.None);
+		var credential = new UserCredential(flow, "me", token);
+
+		_Service = new YouTubeService(new BaseClientService.Initializer
+		{
+			HttpClientInitializer = credential
+		});
+		return _Service;
 	}
 
 	public async Task StartAsync()
@@ -69,11 +117,48 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 
 		//}
 
-		if (string.IsNullOrEmpty(_LiveChatId)) return;
-		var liveChatListRequest = new LiveChatMessagesResource.ListRequest(_Service, _LiveChatId, new(new[] { "id", "snippet", "authorDetails" }));
-		_ChatStream = await liveChatListRequest.ExecuteAsStreamAsync(_TokenSource.Token);
+	}
+
+	public async Task<string> GetChannelForUserAsync()
+	{
+
+		var service = await GetGoogleService();
+
+		var channelRequest = service.Channels.List("snippet");
+		channelRequest.Mine = true;
+		var channels = channelRequest.Execute();
+
+		return channels.Items.First().Snippet.Title;
 
 	}
+
+	public async Task<IEnumerable<YouTubeBroadcast>> GetBroadcastsForUser()
+	{
+
+		var service = await GetGoogleService();
+
+		var listRequest = service.LiveBroadcasts.List("snippet");
+		listRequest.Mine = true;
+		listRequest.BroadcastType = LiveBroadcastsResource.ListRequest.BroadcastTypeEnum.Event__;
+		var broadcasts = listRequest.Execute();
+
+		var outBroadcasts = new List<YouTubeBroadcast>();
+		outBroadcasts.AddRange(broadcasts.Items
+			.Select(i => new YouTubeBroadcast(i.Id, i.Snippet.Title, i.Snippet.ActualStartTimeDateTimeOffset ?? i.Snippet.ScheduledStartTimeDateTimeOffset, i.Snippet.LiveChatId)));
+
+		while (!string.IsNullOrEmpty(broadcasts.NextPageToken) && outBroadcasts.Count < 20)
+		{
+			listRequest.PageToken = broadcasts.NextPageToken;
+			broadcasts = listRequest.Execute();
+			outBroadcasts.AddRange(broadcasts.Items
+				.Select(i => new YouTubeBroadcast(i.Id, i.Snippet.Title, i.Snippet.ActualStartTimeDateTimeOffset ?? i.Snippet.ScheduledStartTimeDateTimeOffset, i.Snippet.LiveChatId)));
+		}
+
+		return outBroadcasts.OrderBy(b => b.BroadcastTime);
+
+	}
+
+	#region Dispose Pattern
 
 	protected virtual void Dispose(bool disposing)
 	{
@@ -105,45 +190,7 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		GC.SuppressFinalize(this);
 	}
 
-	public string GetChannelForUser(string accessToken)
-	{
-
-		var credential = GoogleCredential.FromAccessToken(accessToken);
-		var service = new YouTubeService(new BaseClientService.Initializer
-		{
-			HttpClientInitializer = credential
-		});
-
-		var channelRequest = service.Channels.List("snippet");
-		channelRequest.Mine = true;
-		var channels = channelRequest.Execute();
-
-		return channels.Items.First().Snippet.Title;
-
-	}
-
-	public IEnumerable<YouTubeBroadcast> GetBroadcastsForUser(string accessToken)
-	{
-
-		var credential = GoogleCredential.FromAccessToken(accessToken);
-		var service = new YouTubeService(new BaseClientService.Initializer
-		{
-			HttpClientInitializer = credential
-		});
-
-		var listRequest = service.LiveBroadcasts.List("snippet");
-		listRequest.Mine = true;
-		listRequest.BroadcastType = LiveBroadcastsResource.ListRequest.BroadcastTypeEnum.Event__;
-		var broadcasts = listRequest.Execute();
-
-
-		//var credential = GoogleWebAuthorizationBroker.AuthorizeAsync()
-		return broadcasts.Items
-			.Select(i => new YouTubeBroadcast(i.Id, i.Snippet.Title, i.Snippet.ActualStartTimeDateTimeOffset ?? i.Snippet.ScheduledStartTimeDateTimeOffset, i.Snippet.LiveChatId))
-			.OrderBy(b => b.BroadcastTime);
-
-	}
-
+	#endregion
 
 }
 

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using TagzApp.Providers.YouTubeChat;
 using TagzApp.Web.Data;
 using TagzApp.Web.Services;
 
@@ -20,10 +22,10 @@ public static class ServicesExtensions
 		}
 		else
 		{
-			services.AddSingleton<IProviderConfigurationRepository, InMemoryProviderConfigurationRepository>();
 			services.AddSingleton<IMessagingService, InMemoryMessagingService>();
 			services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
 		}
+			services.AddSingleton<IProviderConfigurationRepository, InMemoryProviderConfigurationRepository>();
 
 		return services;
 	}
@@ -70,17 +72,23 @@ public static class ServicesExtensions
 		{
 			builder.AddGoogle(options =>
 			{
-				options.ClientId = configuration["Authentication:Google:ClientId"];
-				options.ClientSecret = configuration["Authentication:Google:ClientSecret"];
+				options.ClientId = configuration[YouTubeChatConfiguration.Key_Google_ClientId];
+				options.ClientSecret = configuration[YouTubeChatConfiguration.Key_Google_ClientSecret];
 				options.SaveTokens = true;
-				options.Scope.Add("https://www.googleapis.com/auth/youtube");
-				options.Events.OnCreatingTicket = ctx =>
+				options.AccessType = "offline";  // Allow a refresh token to be delivered
+				options.Scope.Add(YouTubeChatConfiguration.Scope_YouTube);
+				options.Events.OnTicketReceived = ctx =>
 				{
 					var tokens = ctx.Properties.GetTokens().ToList();
 					tokens.Add(new AuthenticationToken
 					{
 						Name = "Ticket Created",
 						Value = DateTime.UtcNow.ToString()
+					});
+					tokens.Add(new AuthenticationToken
+					{
+						Name = "Email",
+						Value = ctx.Principal.Claims.First(c => c.Type == ClaimTypes.Email).Value
 					});
 					ctx.Properties.StoreTokens(tokens);
 					return Task.CompletedTask;

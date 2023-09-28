@@ -1,35 +1,43 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using TagzApp.Communication;
 
 namespace TagzApp.Providers.YouTubeChat;
 
-public class StartYouTubeChat : IConfigureProvider
+public class StartYouTubeChat : BaseConfigurationProvider, IConfigureProvider, INeedConfiguration
 {
-	public IServiceCollection RegisterServices(IServiceCollection services, IConfiguration configuration)
+	private YouTubeChatConfiguration _Config;
+
+	public StartYouTubeChat(IProviderConfigurationRepository providerConfigurationRepository) : base(providerConfigurationRepository)
 	{
-		//IConfigurationSection config;
+	}
 
-		//try
-		//{
-		//	config = configuration.GetSection(YouTubeChatConfiguration.AppSettingsSection);
-		//	if (config is not null) services.Configure<YouTubeChatConfiguration>(config);
-		//}
-		//catch (Exception ex)
-		//{
+	public async Task<IServiceCollection> RegisterServices(IServiceCollection services, CancellationToken cancellationToken = default)
+	{
 
-		//	throw new InvalidConfigurationException(ex.Message, YouTubeChatConfiguration.AppSettingsSection);
-		//}
+		// Exit not if we don't have a clientid
+		if (string.IsNullOrEmpty(_Config.ClientId)) return services;
 
-		//// No configuration provided, no registration to be added
-		//if (config is null) return services;
+		await LoadConfigurationValuesAsync(YouTubeChatProvider.ProviderName, cancellationToken);
 
-		//YouTubeChatConfiguration? options = config.Get<YouTubeChatConfiguration>();
-		//if (string.IsNullOrEmpty(options?.ClientId)) return services;
-
+		services.AddSingleton(_Config);
 		services.AddTransient<ISocialMediaProvider, YouTubeChatProvider>();
-
 		return services;
 
+	}
+
+	public void SetConfiguration(IConfiguration configuration)
+	{
+		_Config = new YouTubeChatConfiguration
+		{
+			ClientId = configuration[YouTubeChatConfiguration.Key_Google_ClientId],
+			ClientSecret = configuration[YouTubeChatConfiguration.Key_Google_ClientSecret]
+		};
+	}
+
+	protected override void MapConfigurationValues(ProviderConfiguration providerConfiguration)
+	{
+		// do nothing... yet
 	}
 
 }

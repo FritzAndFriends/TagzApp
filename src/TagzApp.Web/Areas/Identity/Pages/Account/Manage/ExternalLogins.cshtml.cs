@@ -93,6 +93,7 @@ namespace TagzApp.Web.Areas.Identity.Pages.Account.Manage
 			await _userManager.RemoveAuthenticationTokenAsync(user, loginProvider, "access_token");
 			await _userManager.RemoveAuthenticationTokenAsync(user, loginProvider, "expires_at");
 			await _userManager.RemoveAuthenticationTokenAsync(user, loginProvider, "token_type");
+			await _userManager.RemoveAuthenticationTokenAsync(user, loginProvider, "Email");
 
 			await _signInManager.RefreshSignInAsync(user);
 			StatusMessage = "The external login was removed.";

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using TagzApp.Communication;
 using TagzApp.Providers.YouTubeChat;
@@ -27,20 +28,43 @@ namespace TagzApp.Web.Areas.Admin.Pages
 
 		public string ChannelTitle { get; set; }
 
+		[BindProperty]
+		public string MonitoredChatId { get; set; }
+
 		[Authorize]
 		public async Task OnGetAsync()
 		{
 
+			MonitoredChatId = _Provider.LiveChatId;
+
 			var user = await _UserManager.GetUserAsync(User);
-			var access_token = await _UserManager.GetAuthenticationTokenAsync(user, "Google", "access_token");
+			var refresh_token = await _UserManager.GetAuthenticationTokenAsync(user, "Google", "refresh_token");
+			var email  = await _UserManager.GetAuthenticationTokenAsync(user, "Google", "Email");
+
+			_Provider.YouTubeEmailId = email;
+			_Provider.RefreshToken = refresh_token;
 
 			// TODO: Error handle if there is no access token
 			// TODO: Handle a shared access token definition for the system
 
-			ChannelTitle = _Provider.GetChannelForUser(access_token);
+			ChannelTitle = await _Provider.GetChannelForUserAsync();
 
-			Broadcasts = _Provider.GetBroadcastsForUser(access_token);
+			Broadcasts = await _Provider.GetBroadcastsForUser();
 
 		}
+
+		[Authorize]
+		public async Task<IActionResult> OnPostAsync()
+		{
+
+			// do something with the value submitted
+			_Provider.LiveChatId = MonitoredChatId;
+
+			_ = _Provider.GetContentForHashtag(null, DateTimeOffset.UtcNow);
+
+			return RedirectToPage("youtubechat", new { Area = "Admin" });
+
+		}
+
 	}
 }

@@ -8,9 +8,14 @@
 <h2>Connect to a YouTube Live Event</h2>
 <h3>Events for channel: '@Model.ChannelTitle'</h3>
 
+<form method="post">
 <ul>
 	@foreach (var b in Model.Broadcasts)
 	{
-	 <li>@b.Title - @b.BroadcastTime (@b.Id)</li>	
+	 <li><input type="radio" name="MonitoredChatId" value="@b.LiveChatId" @if (Model.MonitoredChatId == b.LiveChatId) { <text>checked="checked"</text> } /> @b.Title - @b.BroadcastTime.Value.UtcDateTime.ToShortDateString() (@b.Id)</li>	
 	}
 </ul>
+
+	<input type="submit" value="Connect" />
+
+</form>
