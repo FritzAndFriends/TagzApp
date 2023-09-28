@@ -25,7 +25,7 @@ public static class ServicesExtensions
 			services.AddSingleton<IMessagingService, InMemoryMessagingService>();
 			services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
 		}
-			services.AddSingleton<IProviderConfigurationRepository, InMemoryProviderConfigurationRepository>();
+		services.AddSingleton<IProviderConfigurationRepository, InMemoryProviderConfigurationRepository>();
 
 		return services;
 	}
