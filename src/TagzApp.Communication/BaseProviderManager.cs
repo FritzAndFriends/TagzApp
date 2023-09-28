@@ -11,27 +11,31 @@ public class BaseProviderManager
 	private readonly IServiceCollection _Services;
 	private readonly IConfiguration _Configuration;
 	private readonly ILogger<BaseProviderManager> _Logger;
+	private readonly IProviderConfigurationRepository? _ProviderConfigurationRepository;
+
 	public IEnumerable<ISocialMediaProvider> Providers { get; private set; }
 
 	public BaseProviderManager(IConfiguration configuration, ILogger<BaseProviderManager> logger,
-		IEnumerable<ISocialMediaProvider>? socialMediaProviders)
+		IEnumerable<ISocialMediaProvider>? socialMediaProviders,
+		IProviderConfigurationRepository? providerConfigurationRepository)
 	{
 		_Services = new ServiceCollection();
 		_Configuration = configuration;
 		_Logger = logger;
+		_ProviderConfigurationRepository = providerConfigurationRepository;
 		Providers = socialMediaProviders != null && socialMediaProviders.Count() > 0
 			? socialMediaProviders : new List<ISocialMediaProvider>();
 	}
 
-	public void InitProviders()
+	public async Task InitProviders()
 	{
 		if (!Providers.Any())
 		{
-			LoadConfigurationProviders();
+			await LoadConfigurationProviders();
 		}
 	}
 
-	private void LoadConfigurationProviders()
+	private async Task LoadConfigurationProviders()
 	{
 		List<IConfigureProvider> configProviders = new();
 		var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
@@ -41,7 +45,7 @@ public class BaseProviderManager
 			foreach (string dllPath in Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories))
 			{
 
-				if (dllPath.Contains("Microsoft.") || dllPath.Contains("System.")) continue;
+				if (dllPath.Contains("Microsoft.") || dllPath.Contains("System.") || dllPath.Contains("AspNet.") || dllPath.Contains("Azure.")) continue;
 
 				try
 				{
@@ -53,7 +57,7 @@ public class BaseProviderManager
 					{
 						foreach (var provider in providerAssemblies)
 						{
-							var providerInstance = Activator.CreateInstance(provider) as IConfigureProvider;
+							var providerInstance = Activator.CreateInstance(provider, _ProviderConfigurationRepository) as IConfigureProvider;
 
 							if (providerInstance != null)
 							{
@@ -72,17 +76,17 @@ public class BaseProviderManager
 				}
 			}
 
-			ConfigureProviders(configProviders);
+			await ConfigureProviders(configProviders);
 		}
 	}
 
-	private void ConfigureProviders(IEnumerable<IConfigureProvider> configurationProviders)
+	private async Task ConfigureProviders(IEnumerable<IConfigureProvider> configurationProviders)
 	{
 		var socialMediaProviders = new List<ISocialMediaProvider>();
 
 		foreach (var provider in configurationProviders)
 		{
-			provider.RegisterServices(_Services, _Configuration);
+			await provider.RegisterServices(_Services);
 		}
 
 		_Services.AddPolicies(_Configuration);

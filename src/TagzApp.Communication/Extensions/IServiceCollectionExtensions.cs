@@ -22,22 +22,64 @@ public static class IServiceCollectionExtensions
 	/// <typeparam name="TImplementation">The implementation of the interface.</typeparam>
 	/// <typeparam name="TClientOptions">The type of the client options.</typeparam>
 	/// <param name="services"><see cref="IServiceCollection"/> reference to add context to</param>
-	/// <param name="configuration">Reference to the application configuration instance</param>
-	/// <param name="configurationSectionName">Section name to use when configuring the Http client</param>
+	/// <param name="options">Http Client Options</param>
 	/// <exception cref="ArgumentNullException">Raised whenever any of the provided arguments is null</exception>
-	public static IServiceCollection AddHttpClient<TClient, TImplementation, TClientOptions>(this IServiceCollection services, IConfiguration configuration, string configurationSectionName)
-					where TClient : class
+	public static IServiceCollection AddHttpClient<TClient, TImplementation, TClientOptions>(this IServiceCollection services, HttpClientOptions options)
+				where TClient : class
+				where TImplementation : class, TClient
+				where TClientOptions : HttpClientOptions, new()
+	{
+		// Validate the request
+		Ensure.Any.IsNotNull(services, nameof(services));
+		Ensure.Any.IsNotNull(options, nameof(options));
+
+		// Get the client builder with the configuration applied and return it
+		return GetHttpClientBuild<TClient, TImplementation, TClientOptions>(services, options)
+				.Services;
+	}
+
+	private static IHttpClientBuilder GetHttpClientBuild<TClient, TImplementation, TClientOptions>(this IServiceCollection services, HttpClientOptions options)
+			where TClient : class
 					where TImplementation : class, TClient
 					where TClientOptions : HttpClientOptions, new()
 	{
 		// Validate the request
 		Ensure.Any.IsNotNull(services, nameof(services));
-		Ensure.Any.IsNotNull(configuration, nameof(configuration));
-		Ensure.String.IsNotNullOrEmpty(configurationSectionName, nameof(configurationSectionName));
+		Ensure.Any.IsNotNull(options, nameof(options));
 
-		// Get the client builder with the configuration applied and return it
-		return GetHttpClientBuild<TClient, TImplementation, TClientOptions>(services, configuration, configurationSectionName)
-				.Services;
+		// Return the http client build configured
+		return services
+			 .AddHttpClient(typeof(TImplementation).Name)
+			 .ConfigureHttpClient(
+					 (serviceProvider, httpClient) =>
+					 {
+						 // Validate the base address value and set up the base address for the HTTP request if provided
+						 httpClient.BaseAddress = Ensure.Any.IsNotNull(options.BaseAddress, nameof(options.BaseAddress));
+
+						 // If additional parameters provided, then set them up
+						 if (options.Timeout != TimeSpan.Zero)
+						 {
+							 httpClient.Timeout = options.Timeout;
+						 }
+
+						 if (options.DefaultHeaders?.Keys != null)
+						 {
+							 foreach (string headerName in options.DefaultHeaders.Keys)
+							 {
+								 httpClient.DefaultRequestHeaders.Add(headerName, options.DefaultHeaders[headerName]);
+							 }
+						 }
+
+						 if (options.UseHttp2)
+						 {
+							 httpClient.DefaultRequestVersion = HttpVersion.Version20;
+						 }
+					 })
+
+			 // Add the message handler and policies
+			 .ConfigurePrimaryHttpMessageHandler(_ => new CompressHttpClientHandler())
+			 .AddPolicyHandlerFromRegistry(PolicyConstants.HttpRetry)
+			 .AddPolicyHandlerFromRegistry(PolicyConstants.HttpCircuitBreaker);
 	}
 
 	/// <summary>

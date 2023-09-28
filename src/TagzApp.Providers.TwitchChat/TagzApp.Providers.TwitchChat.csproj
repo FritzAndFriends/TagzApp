@@ -14,6 +14,7 @@
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0-rc.1.23419.4" />
 		<PackageReference Include="System.Net.Http.Json" Version="8.0.0-rc.1.23419.4" />
 		<ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
+		<ProjectReference Include="..\TagzApp.Communication\TagzApp.Communication.csproj" />
   </ItemGroup>
 
 </Project>

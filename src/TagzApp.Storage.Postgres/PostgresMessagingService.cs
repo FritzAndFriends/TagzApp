@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-
 using TagzApp.Communication;
 using TagzApp.Web.Services;
 
@@ -21,7 +20,9 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 		INotifyNewMessages notifyNewMessages,
 		IConfiguration configuration,
 		ILogger<BaseProviderManager> logger,
-		IEnumerable<ISocialMediaProvider>? socialMediaProviders) : base(configuration, logger, socialMediaProviders)
+		IEnumerable<ISocialMediaProvider>? socialMediaProviders,
+		IProviderConfigurationRepository providerConfigurationRepository) :
+		base(configuration, logger, socialMediaProviders, providerConfigurationRepository)
 	{
 		_Services = services;
 		_NotifyNewMessages = notifyNewMessages;
@@ -87,7 +88,7 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 		var ctx = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
 		_TagsTracked.AddRange((await ctx.TagsWatched.ToArrayAsync()).Select(t => t.Text));
 
-		InitProviders();
+		await InitProviders();
 		_Service = new PostgresMessaging(_Services);
 		_Service.StartProviders(Providers, cancellationToken);
 

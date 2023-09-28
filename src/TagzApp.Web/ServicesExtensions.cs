@@ -20,10 +20,9 @@ public static class ServicesExtensions
 		}
 		else
 		{
-
+			services.AddSingleton<IProviderConfigurationRepository, InMemoryProviderConfigurationRepository>();
 			services.AddSingleton<IMessagingService, InMemoryMessagingService>();
 			services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
-
 		}
 
 		return services;
@@ -119,10 +118,10 @@ public static class ServicesExtensions
 		{
 
 			services.AddDbContext<SecurityContext>(options =>
-						{
-							options.UseNpgsql(configuration.GetConnectionString("TagzAppSecurity"),
-							pg => pg.MigrationsAssembly("TagzApp.Storage.Postgres.Security"));
-						});
+			{
+				options.UseNpgsql(configuration.GetConnectionString("TagzAppSecurity"),
+				pg => pg.MigrationsAssembly("TagzApp.Storage.Postgres.Security"));
+			});
 
 		}
 		else if (!string.IsNullOrEmpty(configuration.GetConnectionString("SecurityContextConnection")))

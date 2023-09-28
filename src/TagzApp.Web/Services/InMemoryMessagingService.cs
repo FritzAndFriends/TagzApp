@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-
 using TagzApp.Communication;
 
 namespace TagzApp.Web.Services;
@@ -16,8 +15,9 @@ public class InMemoryMessagingService : BaseProviderManager, IMessagingService
 		IConfiguration configuration,
 		ILogger<InMemoryMessagingService> logger,
 		INotifyNewMessages notifyNewMessages,
+		IProviderConfigurationRepository providerConfigurationRepository,
 		IEnumerable<ISocialMediaProvider>? socialMediaProviders = null
-	) : base(configuration, logger, socialMediaProviders)
+	) : base(configuration, logger, socialMediaProviders, providerConfigurationRepository)
 	{
 		_Logger = logger;
 		_NotifyNewMessages = notifyNewMessages;
@@ -30,13 +30,11 @@ public class InMemoryMessagingService : BaseProviderManager, IMessagingService
 
 	#region Hosted Service Implementation
 
-	public Task StartAsync(CancellationToken cancellationToken)
+	public async Task StartAsync(CancellationToken cancellationToken)
 	{
-		InitProviders();
+		await InitProviders();
 		_Service = new InMemoryContentMessaging();
 		_Service.StartProviders(Providers, cancellationToken);
-
-		return Task.CompletedTask;
 	}
 
 	public Task StopAsync(CancellationToken cancellationToken)
