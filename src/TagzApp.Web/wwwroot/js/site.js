@@ -163,7 +163,10 @@
 				let modalBody = (document.querySelector('.modal-body').innerHTML =
 					content.text);
 
-				if (content.previewCard && content.previewCard.imageUri.trim() != 'about:blank') {
+				if (
+					content.previewCard &&
+					content.previewCard.imageUri.trim() != 'about:blank'
+				) {
 					const tag =
 						content.previewCard.imageUri.split('.').pop() == 'mp4'
 							? "video muted='muted' controls='controls' autoplay"
