@@ -3,8 +3,6 @@ using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 
 namespace TagzApp.Providers.YouTubeChat;
 
@@ -49,7 +47,8 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		{
 			contents = await liveChatListRequest.ExecuteAsync();
 			_NextPageToken = contents.NextPageToken;
-		} catch (Exception ex)
+		}
+		catch (Exception ex)
 		{
 			Console.WriteLine($"Exception while fetching YouTubeChat: {ex.Message}");
 			if (ex.Message.Contains("live chat is no longer live")) _GoogleException = $"{LiveChatId}:{ex.Message}";

@@ -217,21 +217,19 @@
 	}
 
 	function MapProviderToIcon(provider) {
-
 		var cssClass = provider.toLowerCase().trim();
 		switch (cssClass) {
-			case "twitter":
-				cssClass = "twitter-x";
+			case 'twitter':
+				cssClass = 'twitter-x';
 				break;
-			case "youtube-chat":
-				cssClass = "youtube";
+			case 'youtube-chat':
+				cssClass = 'youtube';
 				break;
 			default:
 				break;
 		}
 
-		return "bi-" + cssClass;
-
+		return 'bi-' + cssClass;
 	}
 
 	function FormatContextWithEmotes(content) {

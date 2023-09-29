@@ -21,7 +21,9 @@ public class Program
 				builder.Configuration.GetSection("ApplicationConfiguration")
 			);
 			builder.Services.AddSingleton<IConfigurationRoot>(builder.Configuration);
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 			Console.WriteLine("This should fail when applying EF migrations");
 		}
 
