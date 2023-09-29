@@ -5,7 +5,7 @@ namespace TagzApp.Common.Attributes;
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Event | AttributeTargets.Class | AttributeTargets.Method)]
 public class InputTypeAttribute : Attribute
 {
-	public static readonly InputTypeAttribute Default = new InputTypeAttribute();
+	public static readonly InputTypeAttribute Default = new();
 
 	public InputTypeAttribute() : this(string.Empty)
 	{

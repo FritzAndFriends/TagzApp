@@ -10,7 +10,6 @@ using Microsoft.Extensions.Options;
 
 using TagzApp.Providers.Twitter.Configuration;
 using TagzApp.Providers.Twitter.Models;
-using TagzApp.Web.Services;
 
 namespace TagzApp.Providers.Twitter;
 
@@ -50,7 +49,7 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 
 		var targetUri = FormatUri(tweetQuery, sinceTerm);
 
-		TwitterData recentTweets = new TwitterData();
+		TwitterData recentTweets = new();
 		try
 		{
 
@@ -124,7 +123,7 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 
 				var c = new Content
 				{
-					Provider = this.Id,
+					Provider = Id,
 					ProviderId = t.id,
 					Author = new Creator
 					{
