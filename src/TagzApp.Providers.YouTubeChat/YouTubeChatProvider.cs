@@ -2,6 +2,7 @@ using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
+using Google.Apis.YouTube.v3.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
@@ -23,6 +24,8 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 	public string RefreshToken { get; set; }
 	public string YouTubeEmailId { get; set; }
 
+	private string _GoogleException = string.Empty;
+
 	private CancellationTokenSource _TokenSource = new();
 	private YouTubeService _Service;
 	private bool _DisposedValue;
@@ -36,12 +39,22 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 	public async Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since)
 	{
 
-		if (string.IsNullOrEmpty(LiveChatId)) return null;
+		if (string.IsNullOrEmpty(LiveChatId) || (!string.IsNullOrEmpty(_GoogleException) && _GoogleException.StartsWith(LiveChatId))) return Enumerable.Empty<Content>();
 		var liveChatListRequest = new LiveChatMessagesResource.ListRequest(_Service, LiveChatId, new(new[] { "id", "snippet", "authorDetails" }));
 
 		if (!string.IsNullOrEmpty(_NextPageToken)) liveChatListRequest.PageToken = _NextPageToken;
-		var contents = await liveChatListRequest.ExecuteAsync();
-		_NextPageToken = contents.NextPageToken;
+
+		LiveChatMessageListResponse contents;
+		try
+		{
+			contents = await liveChatListRequest.ExecuteAsync();
+			_NextPageToken = contents.NextPageToken;
+		} catch (Exception ex)
+		{
+			Console.WriteLine($"Exception while fetching YouTubeChat: {ex.Message}");
+			if (ex.Message.Contains("live chat is no longer live")) _GoogleException = $"{LiveChatId}:{ex.Message}";
+			return Enumerable.Empty<Content>();
+		}
 
 		return contents.Items.Select(i => new Content
 		{
@@ -55,9 +68,9 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 			ProviderId = i.Id,
 			Text = i.Snippet.DisplayMessage,
 			SourceUri = new Uri($"https://youtube.com/livechat/{LiveChatId}"),
-			Timestamp = i.Snippet.PublishedAtDateTimeOffset.Value,
+			Timestamp = DateTimeOffset.Parse(i.Snippet.PublishedAtRaw),
 			Type = ContentType.Message,
-			HashtagSought = tag.Text
+			HashtagSought = tag?.Text ?? ""
 		}).ToArray();
 
 	}

@@ -12,7 +12,10 @@
 <ul>
 	@foreach (var b in Model.Broadcasts)
 	{
-	 <li><input type="radio" name="MonitoredChatId" value="@b.LiveChatId" @if (Model.MonitoredChatId == b.LiveChatId) { <text>checked="checked"</text> } /> @b.Title - @b.BroadcastTime.Value.UtcDateTime.ToShortDateString() (@b.Id)</li>	
+	 <li><input type="radio" name="MonitoredChatId" 
+			value="@b.LiveChatId" 
+			@if (Model.MonitoredChatId == b.LiveChatId) { <text>checked="checked"</text> } /> 
+			@b.Title - @(b.BroadcastTime.HasValue ? b.BroadcastTime.Value.UtcDateTime.ToShortDateString() : "Just Starting...") (@b.Id)</li>	
 	}
 </ul>
 

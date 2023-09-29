@@ -93,7 +93,7 @@
 				content.authorUserName
 			}</div>
 		</div>
-		<i class="provider bi bi-${content.provider.toLowerCase()}"></i>
+		<i class="provider bi ${MapProviderToIcon(content.provider)}"></i>
 		<div class="time">${newMessageTime.toLocaleString(undefined, {
 			day: 'numeric',
 			month: 'long',
@@ -214,6 +214,24 @@
 			showModerationPanel,
 			showModerationPanel,
 		);
+	}
+
+	function MapProviderToIcon(provider) {
+
+		var cssClass = provider.toLowerCase().trim();
+		switch (cssClass) {
+			case "twitter":
+				cssClass = "twitter-x";
+				break;
+			case "youtube-chat":
+				cssClass = "youtube";
+				break;
+			default:
+				break;
+		}
+
+		return "bi-" + cssClass;
+
 	}
 
 	function FormatContextWithEmotes(content) {

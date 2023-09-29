@@ -93,7 +93,7 @@ public class BaseProviderManager
 		}
 
 		_Services.AddPolicies(_Configuration);
-
+		_Services.AddSingleton<IConfiguration>(_Configuration);
 		var sp = _Services.BuildServiceProvider();
 		socialMediaProviders.AddRange(sp.GetServices<ISocialMediaProvider>());
 		Providers = socialMediaProviders;

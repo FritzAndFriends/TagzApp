@@ -29,7 +29,7 @@ namespace TagzApp.Web.Areas.Admin.Pages
 		public string ChannelTitle { get; set; }
 
 		[BindProperty]
-		public string MonitoredChatId { get; set; }
+		public string MonitoredChatId { get; set; } = string.Empty;
 
 		[Authorize]
 		public async Task OnGetAsync()

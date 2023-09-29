@@ -14,13 +14,16 @@ public class Program
 
 		var builder = WebApplication.CreateBuilder(args);
 
-		//var connectionString = builder.Configuration.GetConnectionString("SecurityContextConnection") ?? throw new InvalidOperationException("Connection string 'SecurityContextConnection' not found.");
-
-		builder.Configuration.AddApplicationConfiguration();
-		builder.Services.Configure<ApplicationConfiguration>(
-			builder.Configuration.GetSection("ApplicationConfiguration")
-		);
-		builder.Services.AddSingleton<IConfigurationRoot>(builder.Configuration);
+		try
+		{
+			builder.Configuration.AddApplicationConfiguration();
+			builder.Services.Configure<ApplicationConfiguration>(
+				builder.Configuration.GetSection("ApplicationConfiguration")
+			);
+			builder.Services.AddSingleton<IConfigurationRoot>(builder.Configuration);
+		} catch (Exception ex) {
+			Console.WriteLine("This should fail when applying EF migrations");
+		}
 
 		// Late bind the connection string so that any changes to the configuration made later on, or in the test fixture can be picked up.
 		builder.Services.AddSecurityContext(builder.Configuration);
