@@ -1,7 +1,7 @@
 # TagzApp
-A new website that searches social media for hashtags.
+A new website tool that searches social media for hashtags, and tracks chat interaction on several live streaming services
 
-![Sample Screenshot from August 7, 2023](doc/img/Screenshot-2023-08-07.png)
+![Sample Screenshot from August 7, 2023](doc/img/Screenshot-2023-09-26.png)
 
 ### Overlay display
 
@@ -12,6 +12,20 @@ When some content is selected on the waterfall display, we have an overlay avail
 
 ## Current Status
 
-We are working towards a website minimum-viable-product that searches Mastodon and shows matching messages on screen.  At this time we're setting up for one service and one in memory queue to use as a pub sub mechanism with signalr to push new messages on screen. 
+We have completed an initial minimum viable product and stress tested the application by capturing tweets during the NFL kickoff grame on September 7, 2023 between Kansas City and Detroit using the hashtag #DETvsKC
 
-### Overlay
+Data is stored in a combination of Sqlite and Postgres databases.  We have configured an extensive provider model so that we can add new social media services in the future.
+
+Live chat integration (TwitchChat, YouTubeChat, etc) captures all messages that are delivered over that service.
+
+We also have a simple moderation capability.
+
+### Currently Supported Services
+
+ - [Blazot](https://www.blazot.com/)
+ - Mastodon
+ - Twitter / X
+ - TwitchChat
+ - YouTube (search for videos that have a given hashtag in the description)
+
+

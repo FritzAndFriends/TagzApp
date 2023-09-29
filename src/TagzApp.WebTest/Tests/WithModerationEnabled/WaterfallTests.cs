@@ -1,6 +1,4 @@
-﻿using Xunit.Abstractions;
-
-namespace TagzApp.WebTest.Tests.WithModerationEnabled;
+﻿namespace TagzApp.WebTest.Tests.WithModerationEnabled;
 
 
 
@@ -24,12 +22,12 @@ public class WaterfallTests : IClassFixture<BaseModerationFixture>
 
 		await using var trace = await page.TraceAsync("No Unapproved content should appear", true, true, true);
 
-		await page
-			.GotoHashtagSearchPage().Result
-			.SearchForHashtag("dotnet").Result
-			.GotoWaterfallPage();
+		var searchpage = await page.GotoHashtagSearchPage();
+		var searchedHashtag = await searchpage.SearchForHashtag("dotnet");
+		await searchedHashtag.GotoWaterfallPage();
 
-		await Assert.ThrowsAsync<TimeoutException>(async () => {
+		await Assert.ThrowsAsync<TimeoutException>(async () =>
+		{
 			await page.Locator("article").First.WaitForAsync(new()
 			{
 				Timeout = 1000

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+docker run -d --name pgTagz -e POSTGRES_USER=tagz -e POSTGRES_PASSWORD=tagz -p 5432:5432 postgres

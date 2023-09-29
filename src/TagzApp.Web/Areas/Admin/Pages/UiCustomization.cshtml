@@ -1,0 +1,43 @@
+﻿@page
+@model TagzApp.Web.Areas.Admin.Pages.UiCustomizationModel
+@{
+}
+
+<form method="post" class="form">
+
+	<dl>
+
+		<dt><label for="SiteName">Site Name:</label></dt>
+		<dd><input name="SiteName" value="@Model.SiteName" /></dd>
+
+		<dt><label for="WaterfallHeaderCss">Waterfall header CSS:</label></dt>
+		<dd><textarea name="WaterfallHeaderCss" style="width: 40em; height: 10em">@Model.WaterfallHeaderCss</textarea></dd>
+
+		<dt><label for="WaterfallHeaderMarkdown">Waterfall Header (markdown):</label></dt>
+		<dd><textarea name="WaterfallHeaderMarkdown" id="WaterfallHeaderMarkdown">@Model.WaterfallHeaderMarkdown</textarea></dd>
+
+	</dl>
+
+	<input type="submit" value="Save Changes" class="btn btn-primary" />
+
+</form>
+
+@section Styles {
+	<style>
+		.editor-toolbar {
+			background-color: #FFF;
+		}
+	</style>
+
+}
+
+@section Scripts {
+	<script src="~/js/admin.js"></script>
+
+	<script><!--
+
+		window.Admin.ConfigureUserCustomization();
+
+	//--></script>
+
+}

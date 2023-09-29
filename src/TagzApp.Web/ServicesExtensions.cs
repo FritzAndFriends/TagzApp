@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using TagzApp.Web.Data;
 using TagzApp.Web.Services;
 
@@ -74,7 +75,7 @@ public static class ServicesExtensions
 
 		// create database if not exists
 		var dbContext = scope.ServiceProvider.GetRequiredService<SecurityContext>();
-		await dbContext.Database.EnsureCreatedAsync();
+		if (dbContext.Database.ProviderName!.Equals("Microsoft.EntityFrameworkCore.Sqlite", StringComparison.InvariantCultureIgnoreCase)) await dbContext.Database.EnsureCreatedAsync();
 
 		var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 		if (!(await roleManager.RoleExistsAsync(Security.Role.Admin)))
@@ -86,5 +87,30 @@ public static class ServicesExtensions
 		{
 			await roleManager.CreateAsync(new IdentityRole(Security.Role.Moderator));
 		}
+	}
+
+	public static void AddSecurityContext(this IServiceCollection services, IConfiguration configuration)
+	{
+
+		if (!string.IsNullOrEmpty(configuration.GetConnectionString("TagzAppSecurity")))
+		{
+
+			services.AddDbContext<SecurityContext>(options =>
+			{
+				options.UseNpgsql(configuration.GetConnectionString("TagzAppSecurity"),
+				pg => pg.MigrationsAssembly("TagzApp.Storage.Postgres.Security"));
+			});
+
+		}
+		else if (!string.IsNullOrEmpty(configuration.GetConnectionString("SecurityContextConnection")))
+		{
+
+			services.AddDbContext<SecurityContext>(options =>
+			{
+				options.UseSqlite(configuration.GetConnectionString("SecurityContextConnection"));
+			});
+
+		}
+
 	}
 }

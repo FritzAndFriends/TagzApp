@@ -17,15 +17,17 @@ public class ModalFixture : PlaywrightPageFixture<Web.Program>
 
 	public override LogLevel MinimumLogLevel => LogLevel.Warning;
 
+	public override string? Environment => "Test";
+
 	protected override IHost CreateHost(IHostBuilder builder)
-  {
+	{
 		// ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
 		builder.AddTestConfiguration(jsonConfiguration: CONFIGURATION);
-    builder.UseOnlyStubSocialMediaProvider();
+		builder.UseOnlyStubSocialMediaProvider();
 		builder.UseOnlyInMemoryService();
-    builder.UseUniqueDb(_Uniqueid);
-    return base.CreateHost(builder);
-  }
+		builder.UseUniqueDb(_Uniqueid);
+		return base.CreateHost(builder);
+	}
 
 	private const string CONFIGURATION = """
 		{

@@ -1,14 +1,18 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace TagzApp.Web.Data;
 
-public class SecurityContext : IdentityDbContext<IdentityUser>
+public class SecurityContext : IdentityDbContext<TagzAppUser>
 {
-	public SecurityContext(DbContextOptions<SecurityContext> options)
+	private readonly IConfiguration _Configuration;
+
+	public SecurityContext() { }
+
+	public SecurityContext(DbContextOptions<SecurityContext> options, IConfiguration configuration)
 			: base(options)
 	{
+		_Configuration = configuration;
 	}
 
 	protected override void OnModelCreating(ModelBuilder builder)
@@ -19,4 +23,7 @@ public class SecurityContext : IdentityDbContext<IdentityUser>
 		// For example, you can rename the ASP.NET Identity table names and more.
 		// Add your customizations after calling base.OnModelCreating(builder);
 	}
+
+	public DbSet<Settings> Settings => Set<Settings>();
+
 }
