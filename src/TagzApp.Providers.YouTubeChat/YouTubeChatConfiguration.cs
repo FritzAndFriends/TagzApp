@@ -1,6 +1,4 @@
-﻿using System.Reflection.Metadata;
-
-namespace TagzApp.Providers.YouTubeChat;
+﻿namespace TagzApp.Providers.YouTubeChat;
 
 public class YouTubeChatConfiguration
 {

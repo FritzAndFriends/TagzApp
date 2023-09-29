@@ -86,7 +86,8 @@ public class BaseProviderManager
 
 		foreach (var provider in configurationProviders)
 		{
-			if (provider is INeedConfiguration) {
+			if (provider is INeedConfiguration)
+			{
 				((INeedConfiguration)provider).SetConfiguration(_Configuration);
 			}
 			await provider.RegisterServices(_Services);

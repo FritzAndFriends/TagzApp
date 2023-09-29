@@ -39,7 +39,7 @@ namespace TagzApp.Web.Areas.Admin.Pages
 
 			var user = await _UserManager.GetUserAsync(User);
 			var refresh_token = await _UserManager.GetAuthenticationTokenAsync(user, "Google", "refresh_token");
-			var email  = await _UserManager.GetAuthenticationTokenAsync(user, "Google", "Email");
+			var email = await _UserManager.GetAuthenticationTokenAsync(user, "Google", "Email");
 
 			_Provider.YouTubeEmailId = email;
 			_Provider.RefreshToken = refresh_token;
