@@ -60,7 +60,7 @@ namespace TagzApp.Web.Areas.Admin.Pages
 			// do something with the value submitted
 			_Provider.LiveChatId = MonitoredChatId;
 
-			_ = _Provider.GetContentForHashtag(null, DateTimeOffset.UtcNow);
+			// _ = _Provider.GetContentForHashtag(null, DateTimeOffset.UtcNow);
 
 			return RedirectToPage("youtubechat", new { Area = "Admin" });
 

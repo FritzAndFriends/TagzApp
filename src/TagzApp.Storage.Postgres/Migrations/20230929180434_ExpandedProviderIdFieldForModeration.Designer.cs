@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TagzApp.Storage.Postgres;
@@ -12,9 +13,11 @@ using TagzApp.Storage.Postgres;
 namespace TagzApp.Storage.Postgres.Migrations
 {
     [DbContext(typeof(TagzAppContext))]
-    partial class TagzAppContextModelSnapshot : ModelSnapshot
+    [Migration("20230929180434_ExpandedProviderIdFieldForModeration")]
+    partial class ExpandedProviderIdFieldForModeration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

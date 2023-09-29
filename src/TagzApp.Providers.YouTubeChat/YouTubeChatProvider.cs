@@ -52,7 +52,11 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		} catch (Exception ex)
 		{
 			Console.WriteLine($"Exception while fetching YouTubeChat: {ex.Message}");
-			if (ex.Message.Contains("live chat is no longer live")) _GoogleException = $"{LiveChatId}:{ex.Message}";
+			if (ex.Message.Contains("live chat is no longer live"))
+			{
+				_GoogleException = $"{LiveChatId}:{ex.Message}";
+				LiveChatId = string.Empty;
+			}
 			return Enumerable.Empty<Content>();
 		}
 

@@ -108,7 +108,7 @@
 			const tag =
 				content.previewCard.imageUri.split('.').pop() == 'mp4'
 					? "video muted='muted' controls='controls' autoplay"
-					: 'img';
+					: 'img onerror="this.onerror=null; this.style.display=\'none\';"';
 			newMessage.innerHTML += `
 				<div class="contentcard">
 					<${tag} src="${content.previewCard.imageUri}" class="card-img-top" alt="${content.previewCard.altText}" />
@@ -147,7 +147,7 @@
 				modalProvider.classList.add(
 					'provider',
 					'bi',
-					`bi-${content.provider.toLowerCase()}`,
+					`${MapProviderToIcon(content.provider)}`,
 				);
 
 				document.querySelector(
@@ -163,11 +163,11 @@
 				let modalBody = (document.querySelector('.modal-body').innerHTML =
 					content.text);
 
-				if (content.previewCard) {
+				if (content.previewCard && content.previewCard.imageUri.trim() != 'about:blank') {
 					const tag =
 						content.previewCard.imageUri.split('.').pop() == 'mp4'
 							? "video muted='muted' controls='controls' autoplay"
-							: 'img';
+							: 'img onerror="this.onerror=null; this.parentElement.style.display = \'none\';"';
 					document.querySelector('.modal-body').innerHTML += `
 				<div class="contentcard">
 					<${tag} src="${content.previewCard.imageUri}" class="card-img-top" alt="${content.previewCard.altText}" />
