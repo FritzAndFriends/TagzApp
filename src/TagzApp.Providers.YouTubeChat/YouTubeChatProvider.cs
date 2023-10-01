@@ -15,7 +15,7 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 
 	public string Id => "YOUTUBE-CHAT";
 	public string DisplayName => ProviderName;
-	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(10);
+	public TimeSpan NewContentRetrievalFrequency { get; set; } = TimeSpan.FromMinutes(1);
 
 	public string NewestId { get; set; }
 	public string LiveChatId { get; set; }
@@ -39,6 +39,8 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 
 		if (string.IsNullOrEmpty(LiveChatId) || (!string.IsNullOrEmpty(_GoogleException) && _GoogleException.StartsWith(LiveChatId))) return Enumerable.Empty<Content>();
 		var liveChatListRequest = new LiveChatMessagesResource.ListRequest(_Service, LiveChatId, new(new[] { "id", "snippet", "authorDetails" }));
+		liveChatListRequest.MaxResults = 2000;
+		liveChatListRequest.ProfileImageSize = 36;
 
 		if (!string.IsNullOrEmpty(_NextPageToken)) liveChatListRequest.PageToken = _NextPageToken;
 
@@ -47,6 +49,7 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		{
 			contents = await liveChatListRequest.ExecuteAsync();
 			_NextPageToken = contents.NextPageToken;
+			//NewContentRetrievalFrequency = TimeSpan.FromMilliseconds(contents.PollingIntervalMillis.HasValue ? contents.PollingIntervalMillis.Value : 45000);
 		}
 		catch (Exception ex)
 		{
