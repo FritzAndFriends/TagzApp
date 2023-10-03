@@ -24,9 +24,9 @@ namespace TagzApp.Web.Areas.Admin.Pages
 			_UserManager = userManager;
 		}
 
-		public IEnumerable<YouTubeBroadcast> Broadcasts { get; set; }
+		public IEnumerable<YouTubeBroadcast> Broadcasts { get; set; } = Enumerable.Empty<YouTubeBroadcast>();
 
-		public string ChannelTitle { get; set; }
+		public string ChannelTitle { get; set; } = string.Empty;
 
 		[BindProperty]
 		public string MonitoredChatId { get; set; } = string.Empty;
@@ -37,19 +37,30 @@ namespace TagzApp.Web.Areas.Admin.Pages
 
 			MonitoredChatId = _Provider.LiveChatId;
 
-			var user = await _UserManager.GetUserAsync(User);
-			var refresh_token = await _UserManager.GetAuthenticationTokenAsync(user, "Google", "refresh_token");
-			var email = await _UserManager.GetAuthenticationTokenAsync(user, "Google", "Email");
+			// Get the RefreshToken and email configured for the Application
+			var refresh_token = ""; // Get from application configuration
+			var email = ""; // Get from application configuration
 
-			_Provider.YouTubeEmailId = email;
-			_Provider.RefreshToken = refresh_token;
+			if (string.IsNullOrEmpty(refresh_token) || string.IsNullOrEmpty(email))
+			{
 
-			// TODO: Error handle if there is no access token
-			// TODO: Handle a shared access token definition for the system
+				var user = await _UserManager.GetUserAsync(User);
+				refresh_token = await _UserManager.GetAuthenticationTokenAsync(user, "Google", "refresh_token");
+				email = await _UserManager.GetAuthenticationTokenAsync(user, "Google", "Email");
 
-			ChannelTitle = await _Provider.GetChannelForUserAsync();
+			}
 
-			Broadcasts = await _Provider.GetBroadcastsForUser();
+			if (!string.IsNullOrEmpty(refresh_token) && !string.IsNullOrEmpty(email))
+			{
+
+				_Provider.YouTubeEmailId = email;
+				_Provider.RefreshToken = refresh_token;
+
+				ChannelTitle = await _Provider.GetChannelForUserAsync();
+
+				Broadcasts = await _Provider.GetBroadcastsForUser();
+
+			}
 
 		}
 
@@ -59,8 +70,6 @@ namespace TagzApp.Web.Areas.Admin.Pages
 
 			// do something with the value submitted
 			_Provider.LiveChatId = MonitoredChatId;
-
-			// _ = _Provider.GetContentForHashtag(null, DateTimeOffset.UtcNow);
 
 			return RedirectToPage("youtubechat", new { Area = "Admin" });
 

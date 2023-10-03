@@ -17,11 +17,18 @@ internal class Repository : IApplicationConfigurationRepository
 	public async Task SetValues(Common.Models.ApplicationConfiguration config)
 	{
 
-		using var ctx = new TagzAppContext(_Configuration);
+		try
+		{
+			using var ctx = new TagzAppContext(_Configuration);
 
-		ctx.Settings.UpdateRange(config.ChangedSettings);
-		await ctx.SaveChangesAsync();
-
+			ctx.Settings.UpdateRange(config.ChangedSettings);
+			await ctx.SaveChangesAsync();
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Error saving settings: {ex.Message}");
+			throw new Exception("Error saving settings", ex);
+		}
 	}
 
 
