@@ -37,6 +37,6 @@ public class InMemoryProviderConfigurationRepository : IProviderConfigurationRep
 			providerConfig.ConfigurationSettings!.Add(configSetting.Key, configSetting.Value ?? string.Empty);
 		}
 
-		return await Task.FromResult(providerConfig);
+		return providerConfig;
 	}
 }

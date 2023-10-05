@@ -29,6 +29,11 @@ public class StubSocialMediaProvider : ISocialMediaProvider
 
 		return Task.FromResult(testContent.Generate(10).AsEnumerable());
 	}
+
+	public Task StartAsync()
+	{
+		return Task.CompletedTask;
+	}
 }
 
 public static class StubSocialMediaProviderExtensions

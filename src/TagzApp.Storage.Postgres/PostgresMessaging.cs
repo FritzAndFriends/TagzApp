@@ -38,6 +38,8 @@ internal class PostgresMessaging : IDisposable
 				if (provider == null) return;
 				var lastQueryTime = DateTimeOffset.UtcNow.AddHours(-1);
 
+				await provider.StartAsync();
+
 				while (!cancellationToken.IsCancellationRequested)
 				{
 
@@ -68,10 +70,10 @@ internal class PostgresMessaging : IDisposable
 
 						Hashtag thisTag = new() { Text = tag };
 						var contentIdentified = await provider.GetContentForHashtag(thisTag, lastQueryTime);
+						if (!contentIdentified.Any()) continue;
+
 						var providerIds = contentIdentified.Select(c => c.ProviderId).Distinct().ToArray();
 						lastQueryTime = DateTime.UtcNow;
-
-						if (!contentIdentified.Any()) continue;
 
 						// de-dupe with in-database collection
 						var inDb = await context.Content.AsNoTracking()

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Apis.YouTube.v3" Version="1.62.0.3169" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0-rc.1.23419.4" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0-rc.1.23419.4" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0-rc.1.23419.4" />
+	</ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
+    <ProjectReference Include="..\TagzApp.Communication\TagzApp.Communication.csproj" />
+  </ItemGroup>
+
+</Project>

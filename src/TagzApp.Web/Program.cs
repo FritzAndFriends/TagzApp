@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
 using TagzApp.Communication.Extensions;
 using TagzApp.Web.Data;
 using TagzApp.Web.Hubs;
@@ -13,13 +14,19 @@ public class Program
 	{
 
 		var builder = WebApplication.CreateBuilder(args);
-		//var connectionString = builder.Configuration.GetConnectionString("SecurityContextConnection") ?? throw new InvalidOperationException("Connection string 'SecurityContextConnection' not found.");
 
-		builder.Configuration.AddApplicationConfiguration();
-		builder.Services.Configure<ApplicationConfiguration>(
-			builder.Configuration.GetSection("ApplicationConfiguration")
-		);
-		builder.Services.AddSingleton<IConfigurationRoot>(builder.Configuration);
+		try
+		{
+			builder.Configuration.AddApplicationConfiguration();
+			builder.Services.Configure<ApplicationConfiguration>(
+				builder.Configuration.GetSection("ApplicationConfiguration")
+			);
+			builder.Services.AddSingleton<IConfigurationRoot>(builder.Configuration);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine("This should fail when applying EF migrations");
+		}
 
 		// Late bind the connection string so that any changes to the configuration made later on, or in the test fixture can be picked up.
 		builder.Services.AddSecurityContext(builder.Configuration);
@@ -30,7 +37,10 @@ public class Program
 			.AddRoles<IdentityRole>()
 			.AddEntityFrameworkStores<SecurityContext>();
 
-		_ = builder.Services.AddAuthentication()
+		_ = builder.Services.AddAuthentication(options =>
+		{
+			//options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+		})
 			.AddCookie()
 			.AddExternalProviders(builder.Configuration);
 
@@ -66,6 +76,9 @@ public class Program
 		{
 			options.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.RequestPropertiesAndHeaders;
 		});
+
+		// configure TempData serialization with System.Text.Json
+		builder.Services.AddSingleton<TempDataSerializer, JsonTempDataSerializer>();
 
 		// Add the Polly policies
 		builder.Services.AddPolicies(builder.Configuration);

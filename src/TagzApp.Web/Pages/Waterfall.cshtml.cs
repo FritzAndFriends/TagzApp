@@ -33,6 +33,10 @@ public class WaterfallModel : PageModel
 		get
 		{
 			var theCSS = _AppConfiguration.Value.WaterfallHeaderCss;
+			if (string.IsNullOrWhiteSpace(theCSS))
+			{
+				return "";
+			}
 
 			var theRules = theCSS.Split('}', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 			var outCSS = new StringBuilder();

@@ -23,7 +23,7 @@ internal class YoutubeProvider : ISocialMediaProvider
 		var youtubeService = new YouTubeService(new BaseClientService.Initializer()
 		{
 			ApiKey = _Configuration.ApiKey,
-			ApplicationName = "MyTagg"
+			ApplicationName = "TagzApp"
 		});
 
 		var searchListRequest = youtubeService.Search.List("snippet");
@@ -56,5 +56,10 @@ internal class YoutubeProvider : ISocialMediaProvider
 			},
 			Text = m.Snippet.Title
 		});
+	}
+
+	public Task StartAsync()
+	{
+		return Task.CompletedTask;
 	}
 }

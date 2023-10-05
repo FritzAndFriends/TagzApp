@@ -29,4 +29,10 @@ public interface ISocialMediaProvider
 	/// <returns></returns>
 	Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since);
 
+	/// <summary>
+	/// Start the provider
+	/// </summary>
+	/// <returns></returns>
+	Task StartAsync();
+
 }

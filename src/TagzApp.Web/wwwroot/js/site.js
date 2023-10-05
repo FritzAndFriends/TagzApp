@@ -93,7 +93,7 @@
 				content.authorUserName
 			}</div>
 		</div>
-		<i class="provider bi bi-${content.provider.toLowerCase()}"></i>
+		<i class="provider bi ${MapProviderToIcon(content.provider)}"></i>
 		<div class="time">${newMessageTime.toLocaleString(undefined, {
 			day: 'numeric',
 			month: 'long',
@@ -108,7 +108,7 @@
 			const tag =
 				content.previewCard.imageUri.split('.').pop() == 'mp4'
 					? "video muted='muted' controls='controls' autoplay"
-					: 'img';
+					: 'img onerror="this.onerror=null; this.style.display=\'none\';"';
 			newMessage.innerHTML += `
 				<div class="contentcard">
 					<${tag} src="${content.previewCard.imageUri}" class="card-img-top" alt="${content.previewCard.altText}" />
@@ -147,7 +147,7 @@
 				modalProvider.classList.add(
 					'provider',
 					'bi',
-					`bi-${content.provider.toLowerCase()}`,
+					`${MapProviderToIcon(content.provider)}`,
 				);
 
 				document.querySelector(
@@ -163,11 +163,14 @@
 				let modalBody = (document.querySelector('.modal-body').innerHTML =
 					content.text);
 
-				if (content.previewCard) {
+				if (
+					content.previewCard &&
+					content.previewCard.imageUri.trim() != 'about:blank'
+				) {
 					const tag =
 						content.previewCard.imageUri.split('.').pop() == 'mp4'
 							? "video muted='muted' controls='controls' autoplay"
-							: 'img';
+							: 'img onerror="this.onerror=null; this.parentElement.style.display = \'none\';"';
 					document.querySelector('.modal-body').innerHTML += `
 				<div class="contentcard">
 					<${tag} src="${content.previewCard.imageUri}" class="card-img-top" alt="${content.previewCard.altText}" />
@@ -216,22 +219,36 @@
 		);
 	}
 
+	function MapProviderToIcon(provider) {
+		var cssClass = provider.toLowerCase().trim();
+		switch (cssClass) {
+			case 'twitter':
+				cssClass = 'twitter-x';
+				break;
+			case 'youtube-chat':
+				cssClass = 'youtube';
+				break;
+			default:
+				break;
+		}
+
+		return 'bi-' + cssClass;
+	}
+
 	function FormatContextWithEmotes(content) {
 		var text = content.text;
 		if (!content.emotes) return text;
 
 		var toReplace = [];
-		console.log(content.emotes);
 
 		for (var e in content.emotes) {
 			var emote = content.emotes[e];
-			console.log(emote);
 			var emoteUrl = emote.imageUrl;
 
 			var emoteName = text
 				.substring(emote.pos, emote.length + emote.pos + 1)
 				.trim();
-			var emoteHtml = `<img class="emote" src="${emoteUrl}" alt="${emoteName}" />`;
+			var emoteHtml = `<img class="emote" src="${emoteUrl}"  />`;
 			toReplace.push({ name: emoteName, html: emoteHtml });
 		}
 

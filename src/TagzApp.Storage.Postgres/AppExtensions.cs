@@ -21,7 +21,7 @@ public static class AppExtensions
 					options.UseNpgsql(configuration.GetConnectionString("TagzApp"));
 				});
 
-		services.AddScoped<IProviderConfigurationRepository, PostgresProviderConfigurationRepository>();
+		//services.AddScoped<IProviderConfigurationRepository, PostgresProviderConfigurationRepository>();
 		services.AddSingleton<IMessagingService>(sp =>
 		{
 			var scope = sp.CreateScope();

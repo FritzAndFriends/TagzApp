@@ -152,6 +152,8 @@ span.invisible {
 	font-style: normal;
 	font-weight: 700;
 	line-height: normal;
+	text-overflow: ellipsis;
+	overflow: hidden;
 }
 
 #taggedContent .authorUserName {
@@ -163,6 +165,11 @@ span.invisible {
 	text-overflow: ellipsis;
 	overflow: hidden;
 	opacity: 0.7;
+}
+
+#taggedContent .author {
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 #headerButton {

@@ -26,7 +26,6 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 		_Settings = settings;
 		_Logger = logger;
 		_ProfileRepository = new TwitchProfileRepository(_Settings.ClientId, _Settings.ClientSecret, clientFactory.CreateClient("TwitchProfile"));
-		ListenForMessages();
 	}
 
 	internal TwitchChatProvider(IOptions<TwitchChatConfiguration> settings, ILogger<TwitchChatProvider> logger, IChatClient chatClient)
@@ -121,5 +120,11 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 		// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
 		Dispose(disposing: true);
 		GC.SuppressFinalize(this);
+	}
+
+	public Task StartAsync()
+	{
+		ListenForMessages();
+		return Task.CompletedTask;
 	}
 }
