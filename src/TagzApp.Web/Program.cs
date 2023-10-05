@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
 using TagzApp.Communication.Extensions;
 using TagzApp.Web.Data;
 using TagzApp.Web.Hubs;
@@ -75,6 +76,9 @@ public class Program
 		{
 			options.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.RequestPropertiesAndHeaders;
 		});
+
+		// configure TempData serialization with System.Text.Json
+		builder.Services.AddSingleton<TempDataSerializer, JsonTempDataSerializer>();
 
 		// Add the Polly policies
 		builder.Services.AddPolicies(builder.Configuration);

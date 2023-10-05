@@ -12,6 +12,8 @@ public class ApplicationConfiguration
 	private string _WaterfallHeaderMarkdown = "# Welcome to TagzApp";
 	private string _WaterfallHeaderCss = string.Empty;
 
+	private string _YouTubeChatConfig = "{}";
+
 	[Required, MaxLength(30)]
 	public string SiteName
 	{
@@ -45,6 +47,15 @@ public class ApplicationConfiguration
 		}
 	}
 
+	public string YouTubeChatConfiguration
+	{
+		get { return _YouTubeChatConfig; }
+		set {
+			_YouTubeChatConfig = value;
+			ChangedSettings.Add(new Settings(SettingsKeys.YouTubeChatConfiguration, value));
+		}
+	}
+
 	public static implicit operator Dictionary<string, string?>(ApplicationConfiguration config)
 	{
 
@@ -52,7 +63,8 @@ public class ApplicationConfiguration
 		{
 			{ SettingsKeys.SiteName, config.SiteName },
 			{ SettingsKeys.WaterfallHeaderMarkdown, config.WaterfallHeaderMarkdown },
-			{ SettingsKeys.WaterfallHeaderCss, config.WaterfallHeaderCss }
+			{ SettingsKeys.WaterfallHeaderCss, config.WaterfallHeaderCss },
+			{ SettingsKeys.YouTubeChatConfiguration, config.YouTubeChatConfiguration }
 		};
 
 	}
@@ -68,6 +80,7 @@ public class ApplicationConfiguration
 		public const string SiteName = "ApplicationConfiguration:SiteName";
 		public const string WaterfallHeaderMarkdown = "ApplicationConfiguration:WaterfallHeaderMarkdown";
 		public const string WaterfallHeaderCss = "ApplicationConfiguration:WaterfallHeaderCss";
+		public const string YouTubeChatConfiguration = "ApplicationConfiguration:YouTubeChatConfiguration";
 
 	}
 

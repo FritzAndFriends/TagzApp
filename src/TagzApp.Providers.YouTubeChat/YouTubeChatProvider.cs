@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Services;
@@ -213,4 +214,7 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 
 }
 
+[JsonSerializable(typeof(YouTubeBroadcast))]
 public record YouTubeBroadcast(string Id, string Title, DateTimeOffset? BroadcastTime, string LiveChatId);
+
+

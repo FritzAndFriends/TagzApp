@@ -14,6 +14,37 @@ internal class Repository : IApplicationConfigurationRepository
 		_Options = options;
 	}
 
+	public Task SetValue(string key, string value)
+	{
+
+		try
+		{
+			using var ctx = new TagzAppContext(_Configuration);
+
+			var exists = ctx.Settings.Any(s => s.Id == key);
+			var setting = new Settings(key, value);
+			if (exists)
+			{
+				ctx.Settings.Update(setting);
+			}
+			else
+			{
+				ctx.Settings.Add(setting);
+			}
+
+			ctx.SaveChanges();
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Error saving setting: {ex.Message}");
+			throw new Exception("Error saving setting", ex);
+		}
+
+		return Task.CompletedTask;
+
+
+	}
+
 	public async Task SetValues(Common.Models.ApplicationConfiguration config)
 	{
 
@@ -30,6 +61,8 @@ internal class Repository : IApplicationConfigurationRepository
 			throw new Exception("Error saving settings", ex);
 		}
 	}
+
+
 
 
 }
