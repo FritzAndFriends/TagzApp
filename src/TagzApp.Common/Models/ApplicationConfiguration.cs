@@ -50,7 +50,8 @@ public class ApplicationConfiguration
 	public string YouTubeChatConfiguration
 	{
 		get { return _YouTubeChatConfig; }
-		set {
+		set
+		{
 			_YouTubeChatConfig = value;
 			ChangedSettings.Add(new Settings(SettingsKeys.YouTubeChatConfiguration, value));
 		}

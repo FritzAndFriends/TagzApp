@@ -1,5 +1,4 @@
 using System.Text.Json;
-using System.Threading.Channels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -47,9 +46,11 @@ namespace TagzApp.Web.Areas.Admin.Pages
 
 		}
 
-		public IEnumerable<YouTubeBroadcast> Broadcasts {
+		public IEnumerable<YouTubeBroadcast> Broadcasts
+		{
 			get => _Broadcasts;
-			set {
+			set
+			{
 				_Broadcasts = value;
 				TempData["Broadcasts"] = _Broadcasts;
 			}
