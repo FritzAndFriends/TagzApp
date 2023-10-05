@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace TagzApp.Storage.Postgres.ApplicationConfiguration;
@@ -52,7 +53,19 @@ internal class Repository : IApplicationConfigurationRepository
 		{
 			using var ctx = new TagzAppContext(_Configuration);
 
-			ctx.Settings.UpdateRange(config.ChangedSettings);
+			var settingsIds = config.ChangedSettings.Select(s => s.Id).ToList();
+			var missingSettings = ctx.Settings.AsNoTracking().Where(s => !settingsIds.Any(cs => cs == s.Id)).ToList();
+			if (missingSettings.Any())
+			{
+				ctx.Settings.AddRange(missingSettings);
+			}
+
+			var changedSettings = ctx.Settings.AsNoTracking().Where(s => settingsIds.Any(cs => cs == s.Id)).ToList();
+			if (changedSettings.Any())
+			{
+				ctx.Settings.UpdateRange(changedSettings);
+			}
+
 			await ctx.SaveChangesAsync();
 		}
 		catch (Exception ex)
