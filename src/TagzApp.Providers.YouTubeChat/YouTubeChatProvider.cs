@@ -1,17 +1,17 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
+using Microsoft.Extensions.Options;
 
 namespace TagzApp.Providers.YouTubeChat;
 
 public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 {
 	private readonly YouTubeChatConfiguration _ChatConfig;
-	private readonly string? _ClientId;
-	private readonly string? _ClientSecret;
 	public const string ProviderName = "YouTubeChat";
 
 	public string Id => "YOUTUBE-CHAT";
@@ -30,9 +30,17 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 	private bool _DisposedValue;
 	private string _NextPageToken;
 
-	public YouTubeChatProvider(YouTubeChatConfiguration config)
+	public YouTubeChatProvider(YouTubeChatConfiguration config, IOptions<ApplicationConfiguration> appConfig)
 	{
 		_ChatConfig = config;
+
+		if (appConfig.Value.YouTubeChatConfiguration == "{}") return;
+
+		var youtubeConfig = JsonSerializer.Deserialize<YouTubeChatApplicationConfiguration>(appConfig.Value.YouTubeChatConfiguration);
+		RefreshToken = youtubeConfig.RefreshToken;
+		LiveChatId = youtubeConfig.LiveChatId;
+		YouTubeEmailId = youtubeConfig.ChannelEmail;
+
 	}
 
 	public async Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since)
@@ -109,33 +117,9 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 	public async Task StartAsync()
 	{
 
-		//var initializer = new BaseClientService.Initializer()
-		//{
-		//	ApplicationName = "TagzApp",
-		//	HttpClientInitializer = credential
-		//};
+		if (string.IsNullOrEmpty(LiveChatId) || string.IsNullOrEmpty(RefreshToken)) return;
 
-		//_Service = new YouTubeService(initializer);
-		//var list = new LiveBroadcastsResource(_Service);
-		//var listRequest = list.List(new Google.Apis.Util.Repeatable<string>(new[] { "snippet" }));
-		//listRequest.Id = _ChatConfig.BroadcastId;
-
-		//try
-		//{
-		//	var response = listRequest.Execute();
-
-		//	if (response is not null)
-		//	{
-		//		_LiveChatId = response.Items.FirstOrDefault()?.Snippet?.LiveChatId ?? string.Empty;
-		//	}
-
-		//}
-		//catch (Exception ex)
-		//{
-
-		//	Console.WriteLine(ex);
-
-		//}
+		_Service = await GetGoogleService();
 
 	}
 
