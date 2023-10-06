@@ -235,10 +235,18 @@
 			var card = document.querySelector(
 				`[data-providerid='${content.providerId}']`,
 			);
-			card.querySelector(
-				'.autoModReason',
-			).innerText = `Automod reason: ${content.reason}`;
+			FormatAutomodReason(content, card);
 		}
+	}
+
+	function FormatAutomodReason(content, card) {
+		content.reason = content.reason.replace('2', 'Low');
+		content.reason = content.reason.replace('4', 'Medium');
+		content.reason = content.reason.replace('6', 'High');
+		content.reason = content.reason.replace('.', '');
+		card.querySelector(
+			'.autoModReason',
+		).innerText = `AI Reason ( ${content.reason} )`;
 	}
 
 	function MapProviderToIcon(provider) {
@@ -307,9 +315,7 @@
 
 		if (content.moderator == 'AZURE-CONTENTSAFETY') {
 			card.classList.add('status-automod');
-			card.querySelector(
-				'.autoModReason',
-			).innerText = `Automod reason: ${content.reason}`;
+			FormatAutomodReason(content, card);
 		} else {
 			card.classList.add('status-humanmod');
 		}

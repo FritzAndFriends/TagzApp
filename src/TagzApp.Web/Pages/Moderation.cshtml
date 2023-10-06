@@ -11,34 +11,33 @@
 </div>
 
 <div class="row" style="padding: 10px!important;">
-    <div class="col-md-12 d-flex align-items-center" style="">
-					<span class="col-form-label-sm">Current Moderators:</span>
-	<span class="col-md-10 currentModerators">
+	<div class="col-md-12 d-flex align-items-center" style="">
+		<span class="col-form-label-sm">Current Moderators:</span>
+		<span class="col-md-10 currentModerators">
 
-	</span>
-</div>
+		</span>
+	</div>
 
-<div id="taggedContent" class="">
+	<div id="taggedContent" class="">
+	</div>
 
-</div>
-
-<div id="moderationAction" style="display: none;">
-	<i class="bi bi-check2 approve" title="Approve this content"></i>
-	<i class="bi bi-x-circle-fill reject" title="Reject this content"></i>
-</div>
+	<div id="moderationAction" style="display: none;">
+		<i class="bi bi-check2 approve" title="Approve this content"></i>
+		<i class="bi bi-x-circle-fill reject" title="Reject this content"></i>
+	</div>
 
 
-@section Scripts {
+	@section Scripts {
 
-	<script src="~/js/masonry.js" asp-append-version="true"></script>
-	<script>
+		<script src="~/js/masonry.js" asp-append-version="true"></script>
+		<script>
 
-		window.TagzApp.ListenForModerationContent("@Model.Tags.FirstOrDefault()");
+			window.TagzApp.ListenForModerationContent("@Model.Tags.FirstOrDefault()");
 
-		window.onload = window.Masonry.resizeAllGridItems();
-		window.addEventListener("resize", Masonry.resizeAllGridItems);
+			window.onload = window.Masonry.resizeAllGridItems();
+			window.addEventListener("resize", Masonry.resizeAllGridItems);
 
-	</script>
+		</script>
 
-}
+	}
 
