@@ -96,4 +96,36 @@ internal class PostgresModerationRepository : IModerationRepository
 		if (state != ModerationState.Rejected) _Notifier.NotifyNewContent(Hashtag.ClearFormatting(content.HashtagSought), outContent);
 
 	}
+
+	public async Task ModerateWithReason(string userId, string provider, string providerId, ModerationState state, string reason)
+	{
+
+		var content = await _Context.Content.AsNoTracking()
+			.Where(c => c.Provider == provider && c.ProviderId == providerId)
+			.FirstOrDefaultAsync();
+		if (content is null) throw new ArgumentOutOfRangeException("Unable to find content with ProviderId specified");
+
+		var existingModAction = await _Context.ModerationActions.FirstOrDefaultAsync(m => m.Provider == provider && m.ProviderId == providerId);
+		if (existingModAction is not null)
+		{
+			_Context.ModerationActions.Remove(existingModAction);
+			content.ModerationAction = null;
+			await _Context.SaveChangesAsync();
+		}
+
+		var moderationAction = new PgModerationAction
+		{
+			Moderator = userId,
+			Provider = provider,
+			ProviderId = providerId,
+			Reason = reason,
+			State = state,
+			Timestamp = DateTimeOffset.UtcNow,
+			ContentId = content.Id
+		};
+		_Context.ModerationActions.Add(moderationAction);
+		content.ModerationAction = moderationAction;
+		await _Context.SaveChangesAsync();
+
+	}
 }

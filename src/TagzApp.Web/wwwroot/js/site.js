@@ -88,7 +88,7 @@
 			content.authorDisplayName
 		}" />
 		<div class="byline">
-			<div class="author">${content.authorDisplayName}</div>
+			<div class="author">${content.authorDisplayName} <i class="autoMod"></i></div>
 			<div class="authorUserName" title="${content.authorUserName}">${
 				content.authorUserName
 			}</div>
@@ -100,7 +100,7 @@
 			year: 'numeric',
 			hour: 'numeric',
 			minute: '2-digit',
-		})}</div>
+		})}<div class="autoModReason"></div></div>
 
 		<div class="content">${FormatContextWithEmotes(content)}</div>`;
 
@@ -217,6 +217,20 @@
 			showModerationPanel,
 			showModerationPanel,
 		);
+
+		if (content.state == ModerationState.Rejected && content.moderator != "AZURE-CONTENTSAFETY") {
+			var card = document.querySelector(
+				`[data-providerid='${content.providerId}']`,
+			);
+			card.querySelector(".autoMod").style.display = "none";
+		} else if (content.moderator == "AZURE-CONTENTSAFETY") {
+			var card = document.querySelector(
+				`[data-providerid='${content.providerId}']`,
+			);
+			card.querySelector(".autoModReason").style.display = "block";
+			card.querySelector('.autoModReason').innerText = `Automod reason: ${content.reason}`;
+		}
+
 	}
 
 	function MapProviderToIcon(provider) {
@@ -280,6 +294,14 @@
 			card.classList.remove('status-approved');
 			card.classList.add('status-rejected');
 		}
+
+		if (content.moderator != "AZURE-CONTENTSAFETY") {
+			card.querySelector(".autoMod").style.display = "none";
+		} else {
+			card.querySelector(".autoModReason").style.display = "block";
+			card.querySelector('autoModReason').innerText = content.reason;
+		}
+
 	}
 
 	function showModerationPanel(ev) {
