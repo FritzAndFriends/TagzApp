@@ -3,7 +3,6 @@ using Azure.AI.ContentSafety;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Text.RegularExpressions;
 using System.Text;
 using System.Web;
@@ -99,7 +98,8 @@ public class AzureSafetyModeration : INotifyNewMessages
 			moderationRepository.ModerateWithReason("AZURE-CONTENTSAFETY", content.Provider, content.ProviderId, ModerationState.Rejected, reason).GetAwaiter().GetResult();
 
 			_NotifyNewMessages.NotifyNewContent(hashtag, content);
-			_NotifyNewMessages.NotifyRejectedContent(hashtag, content, new ModerationAction {
+			_NotifyNewMessages.NotifyRejectedContent(hashtag, content, new ModerationAction
+			{
 				Provider = content.Provider,
 				ProviderId = content.ProviderId,
 				State = ModerationState.Rejected,
@@ -108,7 +108,9 @@ public class AzureSafetyModeration : INotifyNewMessages
 				Reason = reason
 			});
 
-		} else {
+		}
+		else
+		{
 
 			_NotifyNewMessages.NotifyNewContent(hashtag, content);
 
@@ -124,10 +126,10 @@ public class AzureSafetyModeration : INotifyNewMessages
 	private class HtmlCleaner
 	{
 
-		private static readonly Regex _tags_ = new Regex(@"<[^>]+?>", RegexOptions.Multiline | RegexOptions.Compiled);
+		private static readonly Regex _tags_ = new(@"<[^>]+?>", RegexOptions.Multiline | RegexOptions.Compiled);
 
 		//add characters that are should not be removed to this regex
-		private static readonly Regex _notOkCharacter_ = new Regex(@"[^\w;&#@.:/\\?=|%!() -]", RegexOptions.Compiled);
+		private static readonly Regex _notOkCharacter_ = new(@"[^\w;&#@.:/\\?=|%!() -]", RegexOptions.Compiled);
 
 		public static String UnHtml(String html)
 		{
@@ -166,7 +168,7 @@ public class AzureSafetyModeration : INotifyNewMessages
 
 		private static String SingleSpacedTrim(String inString)
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 			Boolean inBlanks = false;
 			foreach (Char c in inString)
 			{

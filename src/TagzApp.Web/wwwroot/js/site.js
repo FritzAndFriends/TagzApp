@@ -218,19 +218,23 @@
 			showModerationPanel,
 		);
 
-		if (content.state == ModerationState.Rejected && content.moderator != "AZURE-CONTENTSAFETY") {
+		if (
+			content.state == ModerationState.Rejected &&
+			content.moderator != 'AZURE-CONTENTSAFETY'
+		) {
 			var card = document.querySelector(
 				`[data-providerid='${content.providerId}']`,
 			);
-			card.querySelector(".autoMod").style.display = "none";
-		} else if (content.moderator == "AZURE-CONTENTSAFETY") {
+			card.querySelector('.autoMod').style.display = 'none';
+		} else if (content.moderator == 'AZURE-CONTENTSAFETY') {
 			var card = document.querySelector(
 				`[data-providerid='${content.providerId}']`,
 			);
-			card.querySelector(".autoModReason").style.display = "block";
-			card.querySelector('.autoModReason').innerText = `Automod reason: ${content.reason}`;
+			card.querySelector('.autoModReason').style.display = 'block';
+			card.querySelector(
+				'.autoModReason',
+			).innerText = `Automod reason: ${content.reason}`;
 		}
-
 	}
 
 	function MapProviderToIcon(provider) {
@@ -295,13 +299,12 @@
 			card.classList.add('status-rejected');
 		}
 
-		if (content.moderator != "AZURE-CONTENTSAFETY") {
-			card.querySelector(".autoMod").style.display = "none";
+		if (content.moderator != 'AZURE-CONTENTSAFETY') {
+			card.querySelector('.autoMod').style.display = 'none';
 		} else {
-			card.querySelector(".autoModReason").style.display = "block";
+			card.querySelector('.autoModReason').style.display = 'block';
 			card.querySelector('autoModReason').innerText = content.reason;
 		}
-
 	}
 
 	function showModerationPanel(ev) {

@@ -343,13 +343,13 @@ article.status-rejected {
 	background-color: rgba(var(--bs-danger-rgb), 0.4);
 }
 
-	article.status-rejected .content a {
-		color: var(--bs-white);
-	}
+article.status-rejected .content a {
+	color: var(--bs-white);
+}
 
-	article.status-approved .content a {
-		color: var(--bs-white);
-	}
+article.status-approved .content a {
+	color: var(--bs-white);
+}
 
 article.status-rejected .autoModReason::after {
 	content: 'Rejected';
@@ -371,9 +371,7 @@ article.status-rejected .autoMod {
 
 article .autoModReason {
 	display: none;
-
 }
-
 
 article.status-approved .time::after {
 	content: 'Approved';

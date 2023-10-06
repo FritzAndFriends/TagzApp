@@ -111,7 +111,8 @@ public static class ServicesExtensions
 			try
 			{
 				await dbContext.Database.MigrateAsync();
-			} catch { }
+			}
+			catch { }
 		}
 
 		var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
