@@ -240,11 +240,13 @@
 	}
 
 	function FormatAutomodReason(content, card) {
-		content.reason = content.reason.replace("2", "Low");
-		content.reason = content.reason.replace("4", "Medium");
-		content.reason = content.reason.replace("6", "High");
-		content.reason = content.reason.replace(".", "");
-		card.querySelector('.autoModReason').innerText = `AI Reason ( ${content.reason} )`;
+		content.reason = content.reason.replace('2', 'Low');
+		content.reason = content.reason.replace('4', 'Medium');
+		content.reason = content.reason.replace('6', 'High');
+		content.reason = content.reason.replace('.', '');
+		card.querySelector(
+			'.autoModReason',
+		).innerText = `AI Reason ( ${content.reason} )`;
 	}
 
 	function MapProviderToIcon(provider) {
