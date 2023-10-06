@@ -210,11 +210,16 @@
 			moreClasses.push('status-approved');
 		if (content.state == ModerationState.Rejected)
 			moreClasses.push('status-rejected');
-		if (content.state == ModerationState.Rejected && content.moderator == "AZURE-CONTENTSAFETY")
+		if (
+			content.state == ModerationState.Rejected &&
+			content.moderator == 'AZURE-CONTENTSAFETY'
+		)
 			moreClasses.push('status-automod');
-		if (content.state == ModerationState.Rejected && content.moderator != "AZURE-CONTENTSAFETY")
+		if (
+			content.state == ModerationState.Rejected &&
+			content.moderator != 'AZURE-CONTENTSAFETY'
+		)
 			moreClasses.push('status-humanmod');
-
 
 		FormatMessage(
 			content,
@@ -223,11 +228,16 @@
 			showModerationPanel,
 		);
 
-		if (content.state == ModerationState.Rejected && content.moderator == "AZURE-CONTENTSAFETY") {
+		if (
+			content.state == ModerationState.Rejected &&
+			content.moderator == 'AZURE-CONTENTSAFETY'
+		) {
 			var card = document.querySelector(
 				`[data-providerid='${content.providerId}']`,
 			);
-			card.querySelector('.autoModReason').innerText = `Automod reason: ${content.reason}`;
+			card.querySelector(
+				'.autoModReason',
+			).innerText = `Automod reason: ${content.reason}`;
 		}
 	}
 
@@ -295,9 +305,11 @@
 			card.classList.add('status-rejected');
 		}
 
-		if (content.moderator == "AZURE-CONTENTSAFETY") {
+		if (content.moderator == 'AZURE-CONTENTSAFETY') {
 			card.classList.add('status-automod');
-			card.querySelector('.autoModReason').innerText = `Automod reason: ${content.reason}`;
+			card.querySelector(
+				'.autoModReason',
+			).innerText = `Automod reason: ${content.reason}`;
 		} else {
 			card.classList.add('status-humanmod');
 		}
