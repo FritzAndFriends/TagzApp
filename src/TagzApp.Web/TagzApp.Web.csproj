@@ -44,6 +44,7 @@
     <Folder Include="Areas\Admin\Data\" />
     <Folder Include="Areas\Admin\Models\" />
     <Folder Include="Areas\Admin\Shared\" />
+    <Folder Include="wwwroot\lib\azure-icons\" />
   </ItemGroup>
 
 </Project>

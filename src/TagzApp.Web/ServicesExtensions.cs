@@ -108,7 +108,11 @@ public static class ServicesExtensions
 		if (dbContext.Database.ProviderName!.Equals("Microsoft.EntityFrameworkCore.Sqlite", StringComparison.InvariantCultureIgnoreCase))
 		{
 			// await dbContext.Database.EnsureCreatedAsync();
-			await dbContext.Database.MigrateAsync();
+			try
+			{
+				await dbContext.Database.MigrateAsync();
+			}
+			catch { }
 		}
 
 		var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();

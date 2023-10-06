@@ -31,7 +31,7 @@ body {
 	width: 100%;
 	height: calc(100vh - 66px);
 	overflow-y: scroll;
-	padding: 0.3em;
+	padding: 0.3em 10px;
 	display: grid;
 	grid-gap: 5px;
 	grid-template-columns: repeat(auto-fill, minmax(275px, 1fr));
@@ -343,12 +343,40 @@ article.status-rejected {
 	background-color: rgba(var(--bs-danger-rgb), 0.4);
 }
 
-article.status-rejected .time::after {
+article.status-rejected .content a {
+	color: var(--bs-white);
+}
+
+article.status-approved .content a {
+	color: var(--bs-white);
+}
+
+article.status-humanmod .time::after,
+article.status-automod .autoModReason::after {
 	content: 'Rejected';
 	font-weight: bold;
 	margin-left: 0.5em;
 	color: var(--bs-red);
 	margin-bottom: 1em;
+}
+
+article.status-automod .autoMod {
+	background-image: url('/lib/azure-icons/cognitive-services.svg');
+	background-repeat: no-repeat;
+	height: 1em;
+	width: 3em;
+	display: inline-block;
+	float: right;
+	margin-top: 0.25em;
+}
+
+article.status-automod .autoModReason {
+	display: block;
+}
+
+article.status-approved .autoModReason,
+article.status-humanmod .autoModReason {
+	display: none;
 }
 
 article.status-approved .time::after {

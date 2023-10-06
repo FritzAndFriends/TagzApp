@@ -20,12 +20,13 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 		INotifyNewMessages notifyNewMessages,
 		IConfiguration configuration,
 		ILogger<BaseProviderManager> logger,
+		ILogger<AzureSafetyModeration> azureSafetyLogger,
 		IEnumerable<ISocialMediaProvider>? socialMediaProviders,
 		IProviderConfigurationRepository providerConfigurationRepository) :
 		base(configuration, logger, socialMediaProviders, providerConfigurationRepository)
 	{
 		_Services = services;
-		_NotifyNewMessages = notifyNewMessages;
+		_NotifyNewMessages = new AzureSafetyModeration(notifyNewMessages, services, configuration, azureSafetyLogger);
 	}
 
 	private List<string> _TagsTracked = new();

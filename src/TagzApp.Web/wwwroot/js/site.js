@@ -88,7 +88,7 @@
 			content.authorDisplayName
 		}" />
 		<div class="byline">
-			<div class="author">${content.authorDisplayName}</div>
+			<div class="author">${content.authorDisplayName} <i class="autoMod"></i></div>
 			<div class="authorUserName" title="${content.authorUserName}">${
 				content.authorUserName
 			}</div>
@@ -100,7 +100,7 @@
 			year: 'numeric',
 			hour: 'numeric',
 			minute: '2-digit',
-		})}</div>
+		})}<div class="autoModReason"></div></div>
 
 		<div class="content">${FormatContextWithEmotes(content)}</div>`;
 
@@ -210,6 +210,16 @@
 			moreClasses.push('status-approved');
 		if (content.state == ModerationState.Rejected)
 			moreClasses.push('status-rejected');
+		if (
+			content.state == ModerationState.Rejected &&
+			content.moderator == 'AZURE-CONTENTSAFETY'
+		)
+			moreClasses.push('status-automod');
+		if (
+			content.state == ModerationState.Rejected &&
+			content.moderator != 'AZURE-CONTENTSAFETY'
+		)
+			moreClasses.push('status-humanmod');
 
 		FormatMessage(
 			content,
@@ -217,6 +227,18 @@
 			showModerationPanel,
 			showModerationPanel,
 		);
+
+		if (
+			content.state == ModerationState.Rejected &&
+			content.moderator == 'AZURE-CONTENTSAFETY'
+		) {
+			var card = document.querySelector(
+				`[data-providerid='${content.providerId}']`,
+			);
+			card.querySelector(
+				'.autoModReason',
+			).innerText = `Automod reason: ${content.reason}`;
+		}
 	}
 
 	function MapProviderToIcon(provider) {
@@ -267,6 +289,7 @@
 
 		if (card) {
 			card.classList.remove('status-rejected');
+			card.classList.remove('status-automod');
 			card.classList.add('status-approved');
 		}
 	}
@@ -278,7 +301,17 @@
 
 		if (card) {
 			card.classList.remove('status-approved');
+			card.classList.remove('status-automod');
 			card.classList.add('status-rejected');
+		}
+
+		if (content.moderator == 'AZURE-CONTENTSAFETY') {
+			card.classList.add('status-automod');
+			card.querySelector(
+				'.autoModReason',
+			).innerText = `Automod reason: ${content.reason}`;
+		} else {
+			card.classList.add('status-humanmod');
 		}
 	}
 
