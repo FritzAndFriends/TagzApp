@@ -343,13 +343,13 @@ article.status-rejected {
 	background-color: rgba(var(--bs-danger-rgb), 0.4);
 }
 
-	article.status-rejected .content a {
-		color: var(--bs-white);
-	}
+article.status-rejected .content a {
+	color: var(--bs-white);
+}
 
-	article.status-approved .content a {
-		color: var(--bs-white);
-	}
+article.status-approved .content a {
+	color: var(--bs-white);
+}
 
 article.status-humanmod .time::after, article.status-automod .autoModReason::after {
 	content: 'Rejected';
@@ -376,7 +376,6 @@ article.status-automod .autoModReason {
 article.status-approved .autoModReason, article.status-humanmod .autoModReason {
 	display: none;
 }
-
 
 article.status-approved .time::after {
 	content: 'Approved';

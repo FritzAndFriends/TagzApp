@@ -229,7 +229,6 @@
 			);
 			card.querySelector('.autoModReason').innerText = `Automod reason: ${content.reason}`;
 		}
-
 	}
 
 	function MapProviderToIcon(provider) {
@@ -302,7 +301,6 @@
 		} else {
 			card.classList.add('status-humanmod');
 		}
-
 	}
 
 	function showModerationPanel(ev) {
