@@ -27,7 +27,8 @@ public class JsonTempDataSerializer : TempDataSerializer
 
 		foreach (var item in tempDataDictionary)
 		{
-			if (item.Value is JsonElement) {
+			if (item.Value is JsonElement)
+			{
 
 				var key = item.Key.ToString();
 				var value = ((JsonElement)item.Value).GetRawText().TrimStart('\"').TrimEnd('\"');
