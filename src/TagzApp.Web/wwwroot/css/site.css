@@ -418,7 +418,6 @@ a {
 	height: 1.6em;
 }
 
-
 /** Pause button on waterfall */
 #pauseUpdates {
 	position: absolute;
@@ -438,5 +437,5 @@ a {
 	z-index: -1;
 	position: absolute;
 	left: 0;
-	color: #FFF;
+	color: #fff;
 }

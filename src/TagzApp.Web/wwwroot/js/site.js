@@ -87,21 +87,23 @@
 		const newMessageTime = new Date(content.timestamp);
 		newMessage.setAttribute('data-timestamp', newMessageTime.toISOString());
 		newMessage.innerHTML = `
-		<img class="ProfilePicture" src="${content.authorProfileImageUri}" alt="${content.authorDisplayName
-			}" />
+		<img class="ProfilePicture" src="${content.authorProfileImageUri}" alt="${
+			content.authorDisplayName
+		}" />
 		<div class="byline">
 			<div class="author">${content.authorDisplayName} <i class="autoMod"></i></div>
-			<div class="authorUserName" title="${content.authorUserName}">${content.authorUserName
+			<div class="authorUserName" title="${content.authorUserName}">${
+				content.authorUserName
 			}</div>
 		</div>
 		<i class="provider bi ${MapProviderToIcon(content.provider)}"></i>
 		<div class="time">${newMessageTime.toLocaleString(undefined, {
-				day: 'numeric',
-				month: 'long',
-				year: 'numeric',
-				hour: 'numeric',
-				minute: '2-digit',
-			})}<div class="autoModReason"></div></div>
+			day: 'numeric',
+			month: 'long',
+			year: 'numeric',
+			hour: 'numeric',
+			minute: '2-digit',
+		})}<div class="autoModReason"></div></div>
 
 		<div class="content">${FormatContextWithEmotes(content)}</div>`;
 
@@ -425,18 +427,15 @@
 	}
 
 	function ConfigurePauseButton() {
-
 		var pauseButton = document.getElementById('pauseButton');
 		pauseButton.addEventListener('click', function (ev) {
 			paused = !paused;
 			FormatPauseButton();
 			if (!paused) ResumeFromPause();
 		});
-
 	}
 
 	function FormatPauseButton() {
-
 		if (paused) {
 			pauseButton.classList.remove('bi-pause-circle-fill');
 			pauseButton.classList.add('bi-play-circle-fill');
@@ -444,26 +443,20 @@
 			pauseButton.classList.remove('bi-play-circle-fill');
 			pauseButton.classList.add('bi-pause-circle-fill');
 		}
-
 	}
 
 	function AddMessageToPauseQueue(content) {
-
 		pauseQueue.push(content);
-
 	}
 
 	function ResumeFromPause() {
-
 		// for each element in pauseQueue, call FormatMessage, then clear the queue
 		pauseQueue.forEach(function (content) {
 			FormatMessage(content);
 		});
 
 		pauseQueue = [];
-
 	}
-
 
 	const t = {
 		Tags: [],
