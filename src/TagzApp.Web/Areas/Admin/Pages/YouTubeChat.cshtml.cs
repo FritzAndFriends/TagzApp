@@ -103,8 +103,11 @@ namespace TagzApp.Web.Areas.Admin.Pages
 				{
 					ChannelTitle = !string.IsNullOrEmpty(_YouTubeChatConfiguration.ChannelTitle) ? _YouTubeChatConfiguration.ChannelTitle : await _Provider.GetChannelForUserAsync();
 					base.TempData["ChannelTitle"] = ChannelTitle;
-				} catch (TokenResponseException ex) {
-					if (ex.Error.Error == "invalid_grant") {
+				}
+				catch (TokenResponseException ex)
+				{
+					if (ex.Error.Error == "invalid_grant")
+					{
 						// do nothing, need to login again
 						return;
 					}
