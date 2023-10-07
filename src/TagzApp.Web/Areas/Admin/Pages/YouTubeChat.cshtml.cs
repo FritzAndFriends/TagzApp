@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Google.Apis.Auth.OAuth2.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -98,8 +99,22 @@ namespace TagzApp.Web.Areas.Admin.Pages
 				_Provider.YouTubeEmailId = email;
 				_Provider.RefreshToken = refresh_token;
 
-				ChannelTitle = !string.IsNullOrEmpty(_YouTubeChatConfiguration.ChannelTitle) ? _YouTubeChatConfiguration.ChannelTitle : await _Provider.GetChannelForUserAsync();
-				base.TempData["ChannelTitle"] = ChannelTitle;
+				try
+				{
+					ChannelTitle = !string.IsNullOrEmpty(_YouTubeChatConfiguration.ChannelTitle) ? _YouTubeChatConfiguration.ChannelTitle : await _Provider.GetChannelForUserAsync();
+					base.TempData["ChannelTitle"] = ChannelTitle;
+				}
+				catch (TokenResponseException ex)
+				{
+					if (ex.Error.Error == "invalid_grant")
+					{
+						// do nothing, need to login again
+						return;
+					}
+
+					throw;
+
+				}
 
 				Broadcasts = (await _Provider.GetBroadcastsForUser()).ToArray();
 

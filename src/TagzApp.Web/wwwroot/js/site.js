@@ -7,6 +7,9 @@
 		Rejected: 2,
 	};
 
+	var paused = false;
+	var pauseQueue = [];
+
 	const taggedContent = document.getElementById('taggedContent');
 	const observer = new MutationObserver(function (mutationsList, observer) {
 		for (const mutation of mutationsList) {
@@ -128,6 +131,10 @@
 					el.getAttribute('data-providerid'),
 				);
 
+				// Pause updates
+				paused = true;
+				FormatPauseButton();
+
 				// Format Modal
 				let modalProfilePic = document.querySelector('.modal-header img');
 				modalProfilePic.src = content.authorProfileImageUri;
@@ -181,6 +188,14 @@
 				let modalWindow = new bootstrap.Modal(
 					document.getElementById('contentModal'),
 				);
+
+				// NOTE: Let's not immediately turn off pause coming back from a modal
+				//document.getElementById('contentModal').addEventListener('hide.bs.modal', function (ev) {
+				//	paused = false;
+				//	FormatPauseButton();
+				//	ResumeFromPause();
+				//});
+
 				modalWindow.show();
 			});
 		}
@@ -411,6 +426,38 @@
 		moderatorList.appendChild(newMod);
 	}
 
+	function ConfigurePauseButton() {
+		var pauseButton = document.getElementById('pauseButton');
+		pauseButton.addEventListener('click', function (ev) {
+			paused = !paused;
+			FormatPauseButton();
+			if (!paused) ResumeFromPause();
+		});
+	}
+
+	function FormatPauseButton() {
+		if (paused) {
+			pauseButton.classList.remove('bi-pause-circle-fill');
+			pauseButton.classList.add('bi-play-circle-fill');
+		} else {
+			pauseButton.classList.remove('bi-play-circle-fill');
+			pauseButton.classList.add('bi-pause-circle-fill');
+		}
+	}
+
+	function AddMessageToPauseQueue(content) {
+		pauseQueue.push(content);
+	}
+
+	function ResumeFromPause() {
+		// for each element in pauseQueue, call FormatMessage, then clear the queue
+		pauseQueue.forEach(function (content) {
+			FormatMessage(content);
+		});
+
+		pauseQueue = [];
+	}
+
 	const t = {
 		Tags: [],
 
@@ -425,6 +472,10 @@
 				.build();
 
 			connection.on('NewWaterfallMessage', (content) => {
+				if (paused) {
+					AddMessageToPauseQueue(content);
+					return;
+				}
 				FormatMessage(content);
 			});
 
@@ -435,6 +486,8 @@
 
 			// Start the connection.
 			await start();
+
+			ConfigurePauseButton();
 
 			connection
 				.invoke('GetExistingContentForTag', tags)

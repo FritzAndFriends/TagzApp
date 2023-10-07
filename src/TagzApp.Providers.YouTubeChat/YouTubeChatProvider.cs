@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
+using Google.Apis.Auth.OAuth2.Responses;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
@@ -104,7 +105,17 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 			},
 			Scopes = new[] { YouTubeChatConfiguration.Scope_YouTube }
 		});
-		var token = await flow.RefreshTokenAsync(YouTubeEmailId, RefreshToken, CancellationToken.None);
+
+		TokenResponse token;
+		try
+		{
+			token = await flow.RefreshTokenAsync(YouTubeEmailId, RefreshToken, CancellationToken.None);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Exception while refreshing token: {ex.Message}");
+			throw;
+		}
 		var credential = new UserCredential(flow, "me", token);
 
 		_Service = new YouTubeService(new BaseClientService.Initializer

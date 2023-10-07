@@ -25,6 +25,18 @@ public class JsonTempDataSerializer : TempDataSerializer
 		var tempDataDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(memoryStream)
 				?? new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
+		foreach (var item in tempDataDictionary)
+		{
+			if (item.Value is JsonElement)
+			{
+
+				var key = item.Key.ToString();
+				var value = ((JsonElement)item.Value).GetRawText().TrimStart('\"').TrimEnd('\"');
+				tempDataDictionary[key] = value;
+
+			}
+		}
+
 		return tempDataDictionary;
 	}
 };

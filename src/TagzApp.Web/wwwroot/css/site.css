@@ -417,3 +417,25 @@ a {
 .emote {
 	height: 1.6em;
 }
+
+/** Pause button on waterfall */
+#pauseUpdates {
+	position: absolute;
+	left: 1em;
+	bottom: 6em;
+	cursor: pointer;
+	z-index: 2;
+}
+
+#pauseButton {
+	font-size: 4rem;
+	z-index: 1;
+}
+
+#pauseButton-bg {
+	font-size: 4rem;
+	z-index: -1;
+	position: absolute;
+	left: 0;
+	color: #fff;
+}
