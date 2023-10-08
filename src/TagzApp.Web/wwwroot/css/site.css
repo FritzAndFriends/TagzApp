@@ -326,11 +326,11 @@ span.invisible {
 	width: 50%;
 	text-align: center;
 	font-size: 4em;
-	color: #777;
+	color: #333;
 }
 
 #moderationAction i:hover {
-	color: #333;
+	color: firebrick;
 	cursor: pointer;
 }
 
