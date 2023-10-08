@@ -34,14 +34,15 @@ public class StartTwitchChat : BaseConfigurationProvider, IConfigureProvider
 	{
 		var config = providerConfiguration.ConfigurationSettings;
 
-		if (config is null) {
+		if (config is null)
+		{
 			_TwitchChatConfiguration = TwitchChatConfiguration.Empty;
 			return;
 		}
 
 		_TwitchChatConfiguration = new TwitchChatConfiguration
 		{
-			ClientId = config.GetValueOrDefault("ClientId",string.Empty),
+			ClientId = config.GetValueOrDefault("ClientId", string.Empty),
 			ClientSecret = config.GetValueOrDefault("ClientSecret", string.Empty),
 			ChatBotName = config.GetValueOrDefault("ChatBotName", string.Empty),
 			OAuthToken = config.GetValueOrDefault("OAuthToken", string.Empty),
