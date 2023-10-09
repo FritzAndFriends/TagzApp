@@ -289,8 +289,12 @@ public class ChatClient : IChatClient
 			foreach (var emote in emotesRaw)
 			{
 				var parts = emote.Split(":");
-				var positions = parts[1].Split("-");
-				emotes.Add(new Emote(int.Parse(positions[0]), int.Parse(positions[1]) - int.Parse(positions[0]) + 1, $"https://static-cdn.jtvnw.net/emoticons/v2/{parts[0]}/static/light/2.0"));
+				var entries = parts[1].Split(",");
+				foreach (var entry in entries)
+				{
+					var positions = entry.Split("-");
+					emotes.Add(new Emote(int.Parse(positions[0]), int.Parse(positions[1]) - int.Parse(positions[0]) + 1, $"https://static-cdn.jtvnw.net/emoticons/v2/{parts[0]}/static/light/2.0"));
+				}
 			}
 		}
 

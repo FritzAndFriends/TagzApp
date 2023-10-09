@@ -1,0 +1,34 @@
+﻿@page
+@using TagzApp.Web.Areas.Admin.Pages;
+@model TagzApp.Web.Areas.Admin.Pages.YouTubeChatModel
+@{
+	ViewData["ActivePage"] = ManageNavPages.YouTubeChat;
+}
+
+<h2>Connect to a YouTube Live Event</h2>
+
+@if (string.IsNullOrEmpty(Model.ChannelTitle))
+{
+	<p><a href="~/Identity/Account/Manage/ExternalLogins">Login with a Google Id</a> to start connecting TagzApp to YouTube</p>
+}
+else
+{
+
+	<h3>Events for channel: '@Model.ChannelTitle'</h3>
+
+	<form method="post">
+	<ul>
+		@foreach (var b in Model.Broadcasts)
+		{
+		<li><input type="radio" name="MonitoredChatId" 
+				value="@b.LiveChatId" 
+				@if (Model.MonitoredChatId == b.LiveChatId) { <text>checked="checked"</text> } /> 
+				@b.Title - @(b.BroadcastTime.HasValue ? b.BroadcastTime.Value.UtcDateTime.ToShortDateString() : "Just Starting...") (@b.Id)</li>	
+		}
+	</ul>
+
+		<input type="submit" value="Connect" />
+
+	</form>
+
+}

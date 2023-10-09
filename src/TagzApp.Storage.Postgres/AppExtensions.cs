@@ -21,16 +21,17 @@ public static class AppExtensions
 					options.UseNpgsql(configuration.GetConnectionString("TagzApp"));
 				});
 
-		services.AddScoped<IProviderConfigurationRepository, PostgresProviderConfigurationRepository>();
+		//services.AddScoped<IProviderConfigurationRepository, PostgresProviderConfigurationRepository>();
 		services.AddSingleton<IMessagingService>(sp =>
 		{
 			var scope = sp.CreateScope();
 			var repo = scope.ServiceProvider.GetRequiredService<IProviderConfigurationRepository>();
 			var notify = scope.ServiceProvider.GetRequiredService<INotifyNewMessages>();
 			var logger = scope.ServiceProvider.GetRequiredService<ILogger<BaseProviderManager>>();
+			var safetyLogger = scope.ServiceProvider.GetRequiredService<ILogger<AzureSafetyModeration>>();
 			var socialMediaProviders = scope.ServiceProvider.GetRequiredService<IEnumerable<ISocialMediaProvider>>();
 			var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-			return new PostgresMessagingService(sp, notify, config, logger, socialMediaProviders, repo);
+			return new PostgresMessagingService(sp, notify, config, logger, safetyLogger, socialMediaProviders, repo);
 		});
 		services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
 

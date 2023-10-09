@@ -11,7 +11,7 @@ internal class PgContent
 	[MaxLength(20)]
 	public required string Provider { get; set; }
 
-	[MaxLength(50)]
+	[MaxLength(200)]
 	public required string ProviderId { get; set; }
 
 	[MaxLength(50)]

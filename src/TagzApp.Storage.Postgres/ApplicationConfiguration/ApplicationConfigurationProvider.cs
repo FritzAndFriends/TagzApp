@@ -14,7 +14,7 @@ public class ApplicationConfigurationProvider : ConfigurationProvider
 	public override void Load()
 	{
 		using var dbContext = new TagzAppContext(_Configuration);
-		dbContext.Database.EnsureCreated();
+		//dbContext.Database.EnsureCreated();
 
 		Data = dbContext.Settings.Any()
 				? dbContext.Settings.ToDictionary(c => c.Id, c => c.Value, StringComparer.OrdinalIgnoreCase)

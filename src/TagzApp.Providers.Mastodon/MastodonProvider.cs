@@ -85,6 +85,11 @@ internal class MastodonProvider : ISocialMediaProvider, IHasNewestId
 
 	}
 
+	public Task StartAsync()
+	{
+		return Task.CompletedTask;
+	}
+
 	private Uri FormatUri(Hashtag tag)
 	{
 

@@ -207,4 +207,8 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 		return new Uri($"/2/tweets/search/recent?{query}", UriKind.Relative);
 	}
 
+	public Task StartAsync()
+	{
+		return Task.CompletedTask;
+	}
 }

@@ -58,7 +58,7 @@ namespace TagzApp.Web.Areas.Admin.Pages
 		public string SiteName { get; set; }
 
 		[BindProperty]
-		public string WaterfallHeaderCss { get; set; }
+		public string? WaterfallHeaderCss { get; set; }
 
 		[BindProperty]
 		public string WaterfallHeaderMarkdown { get; set; }

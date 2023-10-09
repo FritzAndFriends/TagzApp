@@ -7,6 +7,9 @@
 		Rejected: 2,
 	};
 
+	var paused = false;
+	var pauseQueue = [];
+
 	const taggedContent = document.getElementById('taggedContent');
 	const observer = new MutationObserver(function (mutationsList, observer) {
 		for (const mutation of mutationsList) {
@@ -88,19 +91,19 @@
 			content.authorDisplayName
 		}" />
 		<div class="byline">
-			<div class="author">${content.authorDisplayName}</div>
+			<div class="author">${content.authorDisplayName} <i class="autoMod"></i></div>
 			<div class="authorUserName" title="${content.authorUserName}">${
 				content.authorUserName
 			}</div>
 		</div>
-		<i class="provider bi bi-${content.provider.toLowerCase()}"></i>
+		<i class="provider bi ${MapProviderToIcon(content.provider)}"></i>
 		<div class="time">${newMessageTime.toLocaleString(undefined, {
 			day: 'numeric',
 			month: 'long',
 			year: 'numeric',
 			hour: 'numeric',
 			minute: '2-digit',
-		})}</div>
+		})}<div class="autoModReason"></div></div>
 
 		<div class="content">${FormatContextWithEmotes(content)}</div>`;
 
@@ -108,7 +111,7 @@
 			const tag =
 				content.previewCard.imageUri.split('.').pop() == 'mp4'
 					? "video muted='muted' controls='controls' autoplay"
-					: 'img';
+					: 'img onerror="this.onerror=null; this.style.display=\'none\';"';
 			newMessage.innerHTML += `
 				<div class="contentcard">
 					<${tag} src="${content.previewCard.imageUri}" class="card-img-top" alt="${content.previewCard.altText}" />
@@ -127,6 +130,10 @@
 					el.getAttribute('data-provider'),
 					el.getAttribute('data-providerid'),
 				);
+
+				// Pause updates
+				paused = true;
+				FormatPauseButton();
 
 				// Format Modal
 				let modalProfilePic = document.querySelector('.modal-header img');
@@ -147,7 +154,7 @@
 				modalProvider.classList.add(
 					'provider',
 					'bi',
-					`bi-${content.provider.toLowerCase()}`,
+					`${MapProviderToIcon(content.provider)}`,
 				);
 
 				document.querySelector(
@@ -163,11 +170,14 @@
 				let modalBody = (document.querySelector('.modal-body').innerHTML =
 					content.text);
 
-				if (content.previewCard) {
+				if (
+					content.previewCard &&
+					content.previewCard.imageUri.trim() != 'about:blank'
+				) {
 					const tag =
 						content.previewCard.imageUri.split('.').pop() == 'mp4'
 							? "video muted='muted' controls='controls' autoplay"
-							: 'img';
+							: 'img onerror="this.onerror=null; this.parentElement.style.display = \'none\';"';
 					document.querySelector('.modal-body').innerHTML += `
 				<div class="contentcard">
 					<${tag} src="${content.previewCard.imageUri}" class="card-img-top" alt="${content.previewCard.altText}" />
@@ -178,6 +188,14 @@
 				let modalWindow = new bootstrap.Modal(
 					document.getElementById('contentModal'),
 				);
+
+				// NOTE: Let's not immediately turn off pause coming back from a modal
+				//document.getElementById('contentModal').addEventListener('hide.bs.modal', function (ev) {
+				//	paused = false;
+				//	FormatPauseButton();
+				//	ResumeFromPause();
+				//});
+
 				modalWindow.show();
 			});
 		}
@@ -207,6 +225,16 @@
 			moreClasses.push('status-approved');
 		if (content.state == ModerationState.Rejected)
 			moreClasses.push('status-rejected');
+		if (
+			content.state == ModerationState.Rejected &&
+			content.moderator == 'AZURE-CONTENTSAFETY'
+		)
+			moreClasses.push('status-automod');
+		if (
+			content.state == ModerationState.Rejected &&
+			content.moderator != 'AZURE-CONTENTSAFETY'
+		)
+			moreClasses.push('status-humanmod');
 
 		FormatMessage(
 			content,
@@ -214,6 +242,42 @@
 			showModerationPanel,
 			showModerationPanel,
 		);
+
+		if (
+			content.state == ModerationState.Rejected &&
+			content.moderator == 'AZURE-CONTENTSAFETY'
+		) {
+			var card = document.querySelector(
+				`[data-providerid='${content.providerId}']`,
+			);
+			FormatAutomodReason(content, card);
+		}
+	}
+
+	function FormatAutomodReason(content, card) {
+		content.reason = content.reason.replace('2', 'Low');
+		content.reason = content.reason.replace('4', 'Medium');
+		content.reason = content.reason.replace('6', 'High');
+		content.reason = content.reason.replace('.', '');
+		card.querySelector(
+			'.autoModReason',
+		).innerText = `AI Reason ( ${content.reason} )`;
+	}
+
+	function MapProviderToIcon(provider) {
+		var cssClass = provider.toLowerCase().trim();
+		switch (cssClass) {
+			case 'twitter':
+				cssClass = 'twitter-x';
+				break;
+			case 'youtube-chat':
+				cssClass = 'youtube';
+				break;
+			default:
+				break;
+		}
+
+		return 'bi-' + cssClass;
 	}
 
 	function FormatContextWithEmotes(content) {
@@ -221,17 +285,15 @@
 		if (!content.emotes) return text;
 
 		var toReplace = [];
-		console.log(content.emotes);
 
 		for (var e in content.emotes) {
 			var emote = content.emotes[e];
-			console.log(emote);
 			var emoteUrl = emote.imageUrl;
 
 			var emoteName = text
 				.substring(emote.pos, emote.length + emote.pos + 1)
 				.trim();
-			var emoteHtml = `<img class="emote" src="${emoteUrl}" alt="${emoteName}" />`;
+			var emoteHtml = `<img class="emote" src="${emoteUrl}"  />`;
 			toReplace.push({ name: emoteName, html: emoteHtml });
 		}
 
@@ -250,6 +312,7 @@
 
 		if (card) {
 			card.classList.remove('status-rejected');
+			card.classList.remove('status-automod');
 			card.classList.add('status-approved');
 		}
 	}
@@ -261,7 +324,15 @@
 
 		if (card) {
 			card.classList.remove('status-approved');
+			card.classList.remove('status-automod');
 			card.classList.add('status-rejected');
+		}
+
+		if (content.moderator == 'AZURE-CONTENTSAFETY') {
+			card.classList.add('status-automod');
+			FormatAutomodReason(content, card);
+		} else {
+			card.classList.add('status-humanmod');
 		}
 	}
 
@@ -355,6 +426,38 @@
 		moderatorList.appendChild(newMod);
 	}
 
+	function ConfigurePauseButton() {
+		var pauseButton = document.getElementById('pauseButton');
+		pauseButton.addEventListener('click', function (ev) {
+			paused = !paused;
+			FormatPauseButton();
+			if (!paused) ResumeFromPause();
+		});
+	}
+
+	function FormatPauseButton() {
+		if (paused) {
+			pauseButton.classList.remove('bi-pause-circle-fill');
+			pauseButton.classList.add('bi-play-circle-fill');
+		} else {
+			pauseButton.classList.remove('bi-play-circle-fill');
+			pauseButton.classList.add('bi-pause-circle-fill');
+		}
+	}
+
+	function AddMessageToPauseQueue(content) {
+		pauseQueue.push(content);
+	}
+
+	function ResumeFromPause() {
+		// for each element in pauseQueue, call FormatMessage, then clear the queue
+		pauseQueue.forEach(function (content) {
+			FormatMessage(content);
+		});
+
+		pauseQueue = [];
+	}
+
 	const t = {
 		Tags: [],
 
@@ -369,6 +472,10 @@
 				.build();
 
 			connection.on('NewWaterfallMessage', (content) => {
+				if (paused) {
+					AddMessageToPauseQueue(content);
+					return;
+				}
 				FormatMessage(content);
 			});
 
@@ -379,6 +486,8 @@
 
 			// Start the connection.
 			await start();
+
+			ConfigurePauseButton();
 
 			connection
 				.invoke('GetExistingContentForTag', tags)

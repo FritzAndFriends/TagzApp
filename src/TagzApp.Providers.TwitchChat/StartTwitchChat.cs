@@ -34,16 +34,20 @@ public class StartTwitchChat : BaseConfigurationProvider, IConfigureProvider
 	{
 		var config = providerConfiguration.ConfigurationSettings;
 
-		if (config != null)
+		if (config is null)
 		{
-			_TwitchChatConfiguration = new TwitchChatConfiguration
-			{
-				ClientId = config["ClientId"] ?? string.Empty,
-				ClientSecret = config["ClientSecret"] ?? string.Empty,
-				ChatBotName = config["ChatBotName"] ?? string.Empty,
-				OAuthToken = config["OAuthToken"] ?? string.Empty,
-				ChannelName = config["ChannelName"] ?? string.Empty
-			};
+			_TwitchChatConfiguration = TwitchChatConfiguration.Empty;
+			return;
 		}
+
+		_TwitchChatConfiguration = new TwitchChatConfiguration
+		{
+			ClientId = config.GetValueOrDefault("ClientId", string.Empty),
+			ClientSecret = config.GetValueOrDefault("ClientSecret", string.Empty),
+			ChatBotName = config.GetValueOrDefault("ChatBotName", string.Empty),
+			OAuthToken = config.GetValueOrDefault("OAuthToken", string.Empty),
+			ChannelName = config.GetValueOrDefault("ChannelName", string.Empty)
+		};
+
 	}
 }
