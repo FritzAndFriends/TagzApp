@@ -47,7 +47,7 @@ namespace TagzApp.Web.Areas.Admin.Pages
 				}
 			});
 
-			if(config != null)
+			if (config != null)
 				await _ProviderConfigurationRepository.SaveConfigurationSettingsAsync(config);
 		}
 
