@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace TagzApp.Storage.Postgres;
 
-internal class TagzAppContext : DbContext
+public class TagzAppContext : DbContext
 {
 	private readonly IConfiguration _Configuration;
 	private bool _InMemory;

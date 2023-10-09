@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace TagzApp.Storage.Postgres;
 
-internal class PgContent
+public class PgContent
 {
 
 	public long Id { get; set; }

@@ -45,4 +45,10 @@ public class InMemoryProviderConfigurationRepository : IProviderConfigurationRep
 		//TODO
 		throw new NotImplementedException();
 	}
+
+	public Task SaveConfigurationSettingsAsync(ProviderConfiguration configuration, CancellationToken cancellationToken = default)
+	{
+		//TODO
+		throw new NotImplementedException();
+	}
 }

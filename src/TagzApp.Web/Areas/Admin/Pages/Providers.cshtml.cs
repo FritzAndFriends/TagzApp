@@ -37,6 +37,9 @@ namespace TagzApp.Web.Areas.Admin.Pages
 					config.ConfigurationSettings[value.Key] = value.Value.ToString() ?? config.ConfigurationSettings[value.Key];
 				}
 			});
+
+			if(config != null)
+				await _ProviderConfigurationRepository.SaveConfigurationSettingsAsync(config);
 		}
 
 		private bool GetActivatedStatus(List<KeyValuePair<string, StringValues>>? values)

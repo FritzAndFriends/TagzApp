@@ -35,7 +35,7 @@
                     <p class="ps-3 pt-3 mb-0 fst-italic">Please fill in the configuration values below:</p>
                     <form method="post" class="p-3">
                         <input type="hidden" id="Name" name="Name" value="@provider.DisplayName" />
-                        @foreach(var property in vmUtilities.LoadViewModel(provider.DisplayName)!)
+                        @foreach(var property in vmUtilities.LoadViewModel(provider.DisplayName) ?? new System.Reflection.PropertyInfo[0])
                         {
                             var displayName = vmUtilities.GetDisplayName(property);
                             displayName = string.IsNullOrWhiteSpace(displayName) ? property.Name : displayName;
