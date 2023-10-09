@@ -90,16 +90,21 @@
                                         }
                                         else
                                         {
-                                            <input type="checkbox" 
-                                                   class="btn-check"
-                                                   name="@property.Name"
-                                                   id="@property.Name" 
-                                                   autocomplete="off"
-                                                   checked="@(propertyValue != "false")" />
-                                            @* <input type="hidden" value="false" name="@property.Name" /> *@
-                                            <label class="btn btn-outline-success" for="@property.Name">@displayName</label>
+                                            // Configuration property handling of String/Boolean and checkbox value conversions
+                                            propertyValue = null;
+                                            config?.ConfigurationSettings?.TryGetValue(property.Name, out propertyValue);
+                                            var checkedValue = propertyValue == null ? false : bool.Parse(propertyValue);
+
+                                            if (!checkedValue)
+                                            {
+                                                <input type="checkbox" data-val="true" data-val-required="Field is required." id="@property.Name" name="@property.Name" value="true">
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox" data-val="true" data-val-required="Field is required." id="@property.Name" name="@property.Name" value="true" checked>
+                                            }
+                                            <input name="@property.Name" type="hidden" value="false">
                                         }
-                                        
                                     </div>
                                     break;
                             }

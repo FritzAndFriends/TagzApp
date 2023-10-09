@@ -34,7 +34,16 @@ namespace TagzApp.Web.Areas.Admin.Pages
 						value.Key != "Name" &&
 						value.Key != "Activated")
 				{
-					config.ConfigurationSettings[value.Key] = value.Value.ToString() ?? config.ConfigurationSettings[value.Key];
+					// String handling of boolean properties submitted from HTML checkbox input controls
+					if (value.Value.ToString().StartsWith(bool.TrueString.ToLower())
+						|| value.Value.ToString().StartsWith(bool.FalseString.ToLower()))
+					{
+						config.ConfigurationSettings[value.Key] = value.Value.ToString().Split(',')[0];
+					}
+					else
+					{
+						config.ConfigurationSettings[value.Key] = value.Value.ToString() ?? config.ConfigurationSettings[value.Key];
+					}
 				}
 			});
 
