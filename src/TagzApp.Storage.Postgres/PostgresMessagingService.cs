@@ -90,8 +90,8 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 		_TagsTracked.AddRange((await ctx.TagsWatched.ToArrayAsync()).Select(t => t.Text));
 
 		await InitProviders();
-		_Service = new PostgresMessaging(_Services);
-		_Service.StartProviders(Providers, cancellationToken);
+		_Service = new PostgresMessaging(_Services, _ProviderConfigurationRepository!);
+		await _Service.StartProviders(Providers, cancellationToken);
 
 		foreach (var tag in _TagsTracked)
 		{

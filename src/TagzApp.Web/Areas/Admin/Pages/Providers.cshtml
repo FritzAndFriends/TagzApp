@@ -72,6 +72,7 @@
                                     <div class="input-group pt-3">
                                         @if(property.Name == "Activated")
                                         {
+                                            // Special handling for the Activated Boolean property
                                             propertyValue = config!.Activated ? bool.TrueString.ToLower() : bool.FalseString.ToLower();
 
                                             <input type="checkbox" 
@@ -97,12 +98,13 @@
 
                                             if (!checkedValue)
                                             {
-                                                <input type="checkbox" data-val="true" data-val-required="Field is required." id="@property.Name" name="@property.Name" value="true">
+                                                <input type="checkbox" class="btn-check" data-val="true" data-val-required="Field is required." id="@property.Name" name="@property.Name" value="true">
                                             }
                                             else
                                             {
-                                                <input type="checkbox" data-val="true" data-val-required="Field is required." id="@property.Name" name="@property.Name" value="true" checked>
+                                                <input type="checkbox" class="btn-check" data-val="true" data-val-required="Field is required." id="@property.Name" name="@property.Name" value="true" checked>
                                             }
+                                            <label class="btn btn-outline-success" for="@property.Name">@displayName</label>
                                             <input name="@property.Name" type="hidden" value="false">
                                         }
                                     </div>
