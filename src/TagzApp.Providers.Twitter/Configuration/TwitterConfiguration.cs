@@ -34,4 +34,9 @@ public class TwitterConfiguration : HttpClientOptions
 	/// Access token secret for Twitter
 	/// </summary>
 	public string AccessTokenSecret { get; set; } = string.Empty;
+
+	/// <summary>
+	/// Provider description
+	/// </summary>
+	public string Description { get; set; } = string.Empty;
 }

@@ -20,12 +20,14 @@ public class StartTwitter : BaseConfigurationProvider, IConfigureProvider
 	{
 		await LoadConfigurationValuesAsync(_DisplayName, cancellationToken);
 
+		//TODO: Need a way to provide updates to config at runtime without seeding DB first (empty config UI)?
 		if (string.IsNullOrEmpty(_TwitterConfiguration?.BaseAddress?.ToString()))
 		{
 			// No configuration provided, no registration to be added
 			return services;
 		}
 
+		services.AddSingleton(_TwitterConfiguration);
 		services.AddHttpClient<ISocialMediaProvider, TwitterProvider, TwitterConfiguration>(_TwitterConfiguration);
 		services.AddTransient<ISocialMediaProvider, TwitterProvider>();
 		return services;
@@ -33,7 +35,6 @@ public class StartTwitter : BaseConfigurationProvider, IConfigureProvider
 
 	protected override void MapConfigurationValues(ProviderConfiguration providerConfiguration)
 	{
-
 		var config = providerConfiguration.ConfigurationSettings;
 
 		if (config != null)
@@ -47,7 +48,8 @@ public class StartTwitter : BaseConfigurationProvider, IConfigureProvider
 				ApiKey = config["ApiKey"] ?? string.Empty,
 				ApiSecretKey = config["ApiSecretKey"] ?? string.Empty,
 				AccessToken = config["AccessToken"] ?? string.Empty,
-				AccessTokenSecret = config["AccessTokenSecret"] ?? string.Empty
+				AccessTokenSecret = config["AccessTokenSecret"] ?? string.Empty,
+				Description = providerConfiguration.Description
 			};
 		}
 	}

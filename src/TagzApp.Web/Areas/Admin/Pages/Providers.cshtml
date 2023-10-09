@@ -33,7 +33,7 @@
                      data-bs-parent="#providerAccordion">
                     <p class="ps-3 pt-3 mb-1">@provider.Description</p>
                     <p class="ps-3 pt-3 mb-0 fst-italic">Please fill in the configuration values below:</p>
-                    <form method="post" class="p-3">
+                    <form method="post" class="p-3" id="@($"{provider.Id}-form")">
                         <input type="hidden" id="Name" name="Name" value="@provider.DisplayName" />
                         @foreach(var property in vmUtilities.LoadViewModel(provider.DisplayName) ?? new System.Reflection.PropertyInfo[0])
                         {
@@ -53,8 +53,7 @@
                             switch (property.PropertyType)
                             {
                                 case Type _ when typeof(string).IsAssignableFrom(property.PropertyType):
-                                    <label for="@property.Name"
-                                    class="form-label">@displayName</label>
+                                    <label for="@property.Name" class="form-label">@displayName</label>
                                     if (inputType == "url" || inputType == "timeout")
                                     {
                                         <input name="@property.Name" 
@@ -75,19 +74,20 @@
                                             // Special handling for the Activated Boolean property
                                             propertyValue = config!.Activated ? bool.TrueString.ToLower() : bool.FalseString.ToLower();
 
-                                            <input type="checkbox" 
-                                                   class="btn-check"
-                                                   name="@property.Name"
-                                                   id="@property.Name" 
-                                                   autocomplete="off"
-                                                   checked="@(propertyValue != "false")" />
-                                            <label class="btn btn-outline-success" for="@property.Name">@displayName</label>
-                                            if (!config?.Activated ?? false)
-                                            {
-                                                <div id="@property.Name" class="form-text text-danger ms-2">
-                                                    Toggling this will enable the provider. Please validate provider code for security concerns prior to activation!
-                                                </div>
-                                            }
+                                            <div class="form-check">
+                                                <label for="@property.Name" class="form-check-label">@displayName</label>
+                                                <input type="checkbox"
+                                                       class="form-check-input"
+                                                       id="@property.Name"
+                                                       name="@property.Name"
+                                                       checked="@(propertyValue != "false")" />
+                                                @if (!config?.Activated ?? false)
+                                                {
+                                                    <div id="@property.Name" class="form-text text-danger ms-2">
+                                                        Toggling this will enable the provider. Please validate provider code for security concerns prior to activation!
+                                                    </div>
+                                                }
+                                            </div>
                                         }
                                         else
                                         {
@@ -95,17 +95,18 @@
                                             propertyValue = null;
                                             config?.ConfigurationSettings?.TryGetValue(property.Name, out propertyValue);
                                             var checkedValue = propertyValue == null ? false : bool.Parse(propertyValue);
-
-                                            if (!checkedValue)
-                                            {
-                                                <input type="checkbox" class="btn-check" data-val="true" data-val-required="Field is required." id="@property.Name" name="@property.Name" value="true">
-                                            }
-                                            else
-                                            {
-                                                <input type="checkbox" class="btn-check" data-val="true" data-val-required="Field is required." id="@property.Name" name="@property.Name" value="true" checked>
-                                            }
-                                            <label class="btn btn-outline-success" for="@property.Name">@displayName</label>
-                                            <input name="@property.Name" type="hidden" value="false">
+                                            <div class="form-check">
+                                                <label for="@property.Name" class="form-check-label">@displayName</label>
+                                                @if (!checkedValue)
+                                                {
+                                                    <input type="checkbox" class="form-check-input" data-val=" true" data-val-required="Field is required." id="@property.Name" name="@property.Name" value="true">
+                                                }
+                                                else
+                                                {
+                                                    <input type="checkbox" class="form-check-input" data-val="true" data-val-required="Field is required." id="@property.Name" name="@property.Name" value="true" checked>
+                                                }
+                                                <input name="@property.Name" type="hidden" value="false">
+                                            </div>
                                         }
                                     </div>
                                     break;

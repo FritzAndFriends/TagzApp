@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 
 using TagzApp.Providers.Twitter.Configuration;
 using TagzApp.Providers.Twitter.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace TagzApp.Providers.Twitter;
 
@@ -32,11 +33,13 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 
 	public string Description { get; init; }
 
-	public TwitterProvider(IHttpClientFactory httpClientFactory, IOptions<TwitterConfiguration> options, ILogger<TwitterProvider> logger)
+	public TwitterProvider(IHttpClientFactory httpClientFactory, ILogger<TwitterProvider> logger,
+		TwitterConfiguration configuration)
 	{
 		_HttpClient = httpClientFactory.CreateClient(nameof(TwitterProvider));
-		_Configuration = options.Value;
+		_Configuration = configuration;
 		_Logger = logger;
+		Description = configuration.Description;
 	}
 	// TODO: Check CS1998: Async method lacks 'await' operators and will run synchronously
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
