@@ -28,6 +28,7 @@ body {
 }
 
 #taggedContent {
+	position: relative;
 	width: 100%;
 	height: calc(100vh - 66px);
 	overflow-y: scroll;
@@ -419,11 +420,16 @@ a {
 
 /** Pause button on waterfall */
 #pauseUpdates {
-	position: absolute;
+	position: fixed;
 	left: 1em;
-	bottom: 6em;
+	bottom: 1em;
 	cursor: pointer;
-	z-index: 2;
+	z-index: 50;
+	opacity: 0.6;
+}
+
+#pauseUpdates:hover {
+	opacity: 1;
 }
 
 #pauseButton {
