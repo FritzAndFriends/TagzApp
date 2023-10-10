@@ -221,12 +221,17 @@
 		}
 
 		// Remove oldest message if we're over the max
-		if (document.querySelector(".currentModerators") == null && taggedContent.children.length > waterfallMaxEntries) {
+		if (
+			document.querySelector('.currentModerators') == null &&
+			taggedContent.children.length > waterfallMaxEntries
+		) {
 			taggedContent.lastElementChild.remove();
-		} else if (document.querySelector(".currentModerators") != null && taggedContent.children.length > moderationMaxEntries) {
+		} else if (
+			document.querySelector('.currentModerators') != null &&
+			taggedContent.children.length > moderationMaxEntries
+		) {
 			taggedContent.lastElementChild.remove();
 		}
-
 	}
 
 	function FormatMessageForModeration(content) {
