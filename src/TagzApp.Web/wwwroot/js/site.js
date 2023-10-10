@@ -452,7 +452,13 @@
 	function ResumeFromPause() {
 		// for each element in pauseQueue, call FormatMessage, then clear the queue
 		pauseQueue.forEach(function (content) {
-			FormatMessage(content);
+
+			if (document.querySelector(".currentModerators"))
+			{
+				FormatMessageForModeration(content);
+			} else {
+				FormatMessage(content);
+			}
 		});
 
 		pauseQueue = [];
@@ -482,6 +488,12 @@
 			connection.on('RemoveMessage', (provider, providerId) => {
 				var item = document.querySelector(`[data-providerid='${providerId}']`);
 				if (item) item.remove();
+
+				// Remove item from pauseQueue if it's loaded
+				pauseQueue = pauseQueue.filter(function (content) {
+					return content.providerId != providerId;
+				});
+
 			});
 
 			// Start the connection.
@@ -509,15 +521,24 @@
 				.build();
 
 			connection.on('NewWaterfallMessage', (content) => {
+
+				if (paused) {
+					AddMessageToPauseQueue(content);
+					return;
+				}
+
 				FormatMessageForModeration(content);
 			});
 
 			connection.on('NewApprovedMessage', (content) => {
 				ApproveMessage(content);
+				// Approve message if its in the pause queue
+
 			});
 
 			connection.on('NewRejectedMessage', (content) => {
 				RejectMessage(content);
+				// Reject message if its in the pause queue
 			});
 
 			connection.on('NewModerator', (moderator) => {
@@ -530,6 +551,8 @@
 
 			// Start the connection.
 			await start();
+
+			ConfigurePauseButton();
 
 			connection.invoke('GetContentForTag', tag).then(function (result) {
 				result.forEach(function (content) {
