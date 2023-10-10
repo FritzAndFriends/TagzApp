@@ -527,13 +527,37 @@
 			});
 
 			connection.on('NewApprovedMessage', (content) => {
-				ApproveMessage(content);
-				// Approve message if its in the pause queue
+
+				if (!paused) {
+					ApproveMessage(content);
+				} else {
+
+					// Find item in the pauseQueue and set its state to ModerationState.Approved
+					pauseQueue.forEach(function (item) {
+						if (item.providerId == content.providerId) {
+							item.state = ModerationState.Approved;
+						}
+					});
+
+				}
+
 			});
 
 			connection.on('NewRejectedMessage', (content) => {
-				RejectMessage(content);
-				// Reject message if its in the pause queue
+
+				if (!paused) {
+					RejectMessage(content);
+				} else {
+
+					// find item in the pauseQueue and set its state to ModerationState.Rejected
+					pauseQueue.forEach(function (item) {
+						if (item.providerId == content.providerId) {
+							item.state = ModerationState.Rejected;
+						}
+					});
+
+				}
+
 			});
 
 			connection.on('NewModerator', (moderator) => {
