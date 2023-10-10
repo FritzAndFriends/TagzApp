@@ -9,6 +9,8 @@
 
 	var paused = false;
 	var pauseQueue = [];
+	const waterfallMaxEntries = 100;
+	const moderationMaxEntries = 500;
 
 	const taggedContent = document.getElementById('taggedContent');
 	const observer = new MutationObserver(function (mutationsList, observer) {
@@ -216,6 +218,19 @@
 			);
 			const index = getIndexForValue(times, newMessageTime);
 			taggedContent.insertBefore(newMessage, taggedContent.children[index]);
+		}
+
+		// Remove oldest message if we're over the max
+		if (
+			document.querySelector('.currentModerators') == null &&
+			taggedContent.children.length > waterfallMaxEntries
+		) {
+			taggedContent.lastElementChild.remove();
+		} else if (
+			document.querySelector('.currentModerators') != null &&
+			taggedContent.children.length > moderationMaxEntries
+		) {
+			taggedContent.lastElementChild.remove();
 		}
 	}
 
