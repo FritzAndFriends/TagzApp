@@ -452,9 +452,7 @@
 	function ResumeFromPause() {
 		// for each element in pauseQueue, call FormatMessage, then clear the queue
 		pauseQueue.forEach(function (content) {
-
-			if (document.querySelector(".currentModerators"))
-			{
+			if (document.querySelector('.currentModerators')) {
 				FormatMessageForModeration(content);
 			} else {
 				FormatMessage(content);
@@ -493,7 +491,6 @@
 				pauseQueue = pauseQueue.filter(function (content) {
 					return content.providerId != providerId;
 				});
-
 			});
 
 			// Start the connection.
@@ -521,7 +518,6 @@
 				.build();
 
 			connection.on('NewWaterfallMessage', (content) => {
-
 				if (paused) {
 					AddMessageToPauseQueue(content);
 					return;
@@ -533,7 +529,6 @@
 			connection.on('NewApprovedMessage', (content) => {
 				ApproveMessage(content);
 				// Approve message if its in the pause queue
-
 			});
 
 			connection.on('NewRejectedMessage', (content) => {
