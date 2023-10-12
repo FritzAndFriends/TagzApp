@@ -1,0 +1,92 @@
+﻿@page
+@model TagzApp.Web.Pages.OverlayModel
+@{
+	Layout = null;
+}
+<html>
+<head>
+	<title>TagzApp</title>
+	<link rel="stylesheet" href="~/css/site.css" />
+	<link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
+
+</head>
+<body id="overlayBody">
+
+	<div id="portraitOverlayDisplay">
+	</div>
+
+	<script src="~/lib/microsoft-signalr/signalr.min.js"></script>
+	<script src="~/js/site.js"></script>
+
+	@if (!string.IsNullOrEmpty(Model.Tag))
+	{
+		<script>
+			(function () {
+
+				async function start() {
+					try {
+						await connection.start();
+						console.log("SignalR Connected.");
+					} catch (err) {
+						console.log(err);
+						setTimeout(start, 5000);
+					}
+
+					connection.onclose(async () => {
+						await start();
+					});
+
+				};
+
+				var connection = new signalR.HubConnectionBuilder()
+					.withUrl(`/messages?ot=@Model.Tag`)
+					.configureLogging(signalR.LogLevel.Information)
+					.withAutomaticReconnect()
+					.build();
+
+				connection.on("DisplayOverlay", (content) => {
+					FormatMessage(content);
+				});
+
+				// Start the connection.
+				start();
+
+				function FormatMessage(content) {
+
+					var overlayDisplay = document.getElementById("portraitOverlayDisplay");
+
+					overlayDisplay.className = "begin";
+					overlayDisplay.innerHTML = `
+								<img class="ProfilePicture" src="${content.authorProfileImageUri}" alt="${content.authorDisplayName}" />
+								<div class="byline">
+									<div class="author">${content.authorDisplayName}</div>
+									<div class="authorUserName">${content.authorUserName}</div>
+								</div>
+											<i class="provider bi ${window.TagzApp.MapProviderToIconClass(content.provider)}"></i>
+								<span class="time">${new Date(content.timestamp).toLocaleString(undefined, { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+								<span class="content">${content.text}</span>
+								`;
+
+					if (content.previewCard) {
+
+						const tag =
+							content.previewCard.imageUri.split('.').pop() == 'mp4'
+								? "video muted='muted' controls='controls' autoplay"
+								: 'img onerror="this.onerror=null; this.style.display=\'none\'; this.parentElement.style.display = \'none\'"';
+						overlayDisplay.innerHTML += `
+							<div class="contentcard">
+								<${tag} src="${content.previewCard.imageUri}" class="card-img-top" alt="${content.previewCard.altText}" />
+							</div>
+						`;
+					}
+
+					overlayDisplay.className = content.previewCard ? "showPreview" : "show";
+
+				}
+
+
+			})();
+		</script>
+	}
+</body>
+</html>
