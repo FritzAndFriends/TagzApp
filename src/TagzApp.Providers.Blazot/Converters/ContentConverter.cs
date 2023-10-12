@@ -42,13 +42,7 @@ public class ContentConverter : IContentConverter
 		try
 		{
 			var body = transmission.Body;
-			if (!string.IsNullOrWhiteSpace(body))
-			{
-				body = LinkFormatters.AddWebLinks(body);
-				body = LinkFormatters.AddHashTagLinks(body);
-				body = LinkFormatters.AddMentionLinks(body);
-			}
-
+			body = LinkFormatters.FormatBodyLinks(body);
 			body = body.Replace("\n", "<br/>");
 
 			var content = new Content
