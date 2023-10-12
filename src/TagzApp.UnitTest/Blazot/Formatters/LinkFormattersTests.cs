@@ -5,11 +5,11 @@ namespace TagzApp.UnitTest.Blazot.Formatters;
 public class LinkFormattersTests
 {
 	[Theory]
-	[ClassData(typeof(HashTagLinkData))]
-	private void AddHashTagLinks_FormatsProperly_Test(string encodedText, string expectedText)
+	[ClassData(typeof(LinkData))]
+	private void WebLinksFormatProperly_Test(string sourceText, string expectedText)
 	{
 		// Act
-		var response = TagzApp.Providers.Blazot.Formatters.LinkFormatters.AddHashTagLinks(encodedText);
+		var response = TagzApp.Providers.Blazot.Formatters.LinkFormatters.FormatBodyLinks(sourceText);
 
 		// Assert
 		Assert.Equal(expectedText, response);

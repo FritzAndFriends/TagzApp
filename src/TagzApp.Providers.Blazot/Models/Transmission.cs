@@ -38,6 +38,6 @@ public class Transmission
 
 	public WebLink WebLink { get; set; }
 
-	public Transmission RelayedTransmission { get; set; }
+	public Transmission? RelayedTransmission { get; set; }
 }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
