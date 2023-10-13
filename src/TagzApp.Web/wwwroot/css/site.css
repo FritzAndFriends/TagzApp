@@ -93,7 +93,7 @@ body {
 #taggedContent .time,
 #overlayDisplay .time,
 #overlayDisplay.showPreview .time,
-#portraitOverlayDisplay.showPreview .time {
+#portraitOverlayDisplay .time {
 	grid-area: 2 / 1 / 3 / 4;
 	color: var(--bs-body-color);
 	font-family: Helvetica;
@@ -107,7 +107,7 @@ body {
 #taggedContent .content,
 #overlayDisplay .content,
 #overlayDisplay.showPreview .content,
-#portraitOverlayDisplay.showPreview .content {
+#portraitOverlayDisplay .content {
 	grid-area: 3 / 1 / 4 / 4;
 	display: block;
 	width: 100%;
@@ -282,7 +282,8 @@ span.invisible {
 	position: relative;
 }
 
-#portraitOverlayDisplay.showPreview {
+#portraitOverlayDisplay.showPreview,
+#portraitOverlayDisplay.show {
 	display: grid;
 	grid-template-columns: 36px 1fr 16px;
 	grid-template-rows: 36px 14px 1fr auto;
