@@ -11,6 +11,10 @@
 {
 	<p><a href="~/Identity/Account/Manage/ExternalLogins">Login with a Google Id</a> to start connecting TagzApp to YouTube</p>
 }
+else if (Model.Broadcasts.Count() == 0)
+{
+	<p>There are no live events for channel: '@Model.ChannelTitle'. <strong>Consider checking the correct account is registered.</strong></p>
+}
 else
 {
 
