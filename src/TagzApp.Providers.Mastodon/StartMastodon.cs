@@ -20,14 +20,8 @@ public class StartMastodon : BaseConfigurationProvider, IConfigureProvider
 	{
 		await LoadConfigurationValuesAsync(_DisplayName, cancellationToken);
 
-		if (string.IsNullOrEmpty(_MastodonConfiguration?.BaseAddress?.ToString()))
-		{
-			// No configuration provided, no registration to be added
-			return services;
-		}
-
-		services.AddSingleton(_MastodonConfiguration);
-		services.AddHttpClient<ISocialMediaProvider, MastodonProvider, MastodonConfiguration>(_MastodonConfiguration);
+		services.AddSingleton(_MastodonConfiguration ?? new MastodonConfiguration());
+		services.AddHttpClient<ISocialMediaProvider, MastodonProvider, MastodonConfiguration>(_MastodonConfiguration ?? new MastodonConfiguration());
 		services.AddTransient<ISocialMediaProvider, MastodonProvider>();
 		return services;
 	}
