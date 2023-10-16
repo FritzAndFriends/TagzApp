@@ -13,4 +13,9 @@ public class BlazotClientConfiguration : HttpClientOptions
 	/// Blazot issued API Key.
 	/// </summary>
 	public string ApiKey { get; set; } = string.Empty;
+
+	public BlazotClientConfiguration()
+	{
+		BaseAddress = new Uri("https://api.blazot.com");
+	}
 }

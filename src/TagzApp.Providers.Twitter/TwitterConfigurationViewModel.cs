@@ -12,9 +12,13 @@ public class TwitterConfigurationViewModel : IProviderConfigurationViewModel
 	public string Timeout { get; set; } = string.Empty;
 	[DisplayName("Default Headers")]
 	public string DefaultHeaders { get; set; } = string.Empty;//TODO might need to figure out dictionary
+	[DisplayName("API Key")]
 	public string ApiKey { get; set; } = string.Empty;
+	[DisplayName("API Secret Key")]
 	public string ApiSecretKey { get; set; } = string.Empty;
+	[DisplayName("Access Token")]
 	public string AccessToken { get; set; } = string.Empty;
+	[DisplayName("Access Token Secret")]
 	public string AccessTokenSecret { get; set; } = string.Empty;
 	public bool Activated { get; set; }
 }

@@ -26,4 +26,9 @@ internal class BlazotSettings
 	/// The number of requests the account allows within the window.
 	/// </summary>
 	public int WindowRequests { get; set; }
+
+	/// <summary>
+	/// Provider Description
+	/// </summary>
+	public string Description { get; set; }
 }

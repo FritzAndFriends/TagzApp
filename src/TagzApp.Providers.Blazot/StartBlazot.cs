@@ -25,12 +25,8 @@ public class StartBlazot : BaseConfigurationProvider, IConfigureProvider
 	{
 		await LoadConfigurationValuesAsync(_DisplayName, cancellationToken);
 
-		if (string.IsNullOrWhiteSpace(_BlazotClientConfiguration?.BaseAddress?.ToString()) ||
-			string.IsNullOrWhiteSpace(_BlazotClientConfiguration.ApiKey) || _BlazotSettings == null)
-			return services;
-
-		services.AddSingleton(_BlazotSettings);
-		services.AddHttpClient<ISocialMediaProvider, BlazotProvider, BlazotClientConfiguration>(_BlazotClientConfiguration);
+		services.AddSingleton(_BlazotSettings ?? new BlazotSettings());
+		services.AddHttpClient<ISocialMediaProvider, BlazotProvider, BlazotClientConfiguration>(_BlazotClientConfiguration ?? new BlazotClientConfiguration());
 		services.AddTransient<ISocialMediaProvider, BlazotProvider>();
 		services.AddSingleton<IContentConverter, ContentConverter>();
 		services.AddSingleton<ITransmissionsService, HashtagTransmissionsService>();

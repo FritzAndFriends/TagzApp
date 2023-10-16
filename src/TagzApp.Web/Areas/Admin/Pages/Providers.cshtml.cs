@@ -25,27 +25,46 @@ namespace TagzApp.Web.Areas.Admin.Pages
 			var config = await _ProviderConfigurationRepository.GetConfigurationSettingsAsync(providerName);
 
 			if (config != null)
-				config.Activated = GetActivatedStatus(submittedValues);
-
-			submittedValues.ForEach(value =>
 			{
-				if (config != null &&
-						config.ConfigurationSettings != null &&
-						value.Key != "Name" &&
-						value.Key != "Activated")
+				config.Activated = GetActivatedStatus(submittedValues);
+				submittedValues.ForEach(value =>
 				{
-					// String handling of boolean properties submitted from HTML checkbox input controls
-					if (value.Value.ToString().StartsWith(bool.TrueString.ToLower())
-						|| value.Value.ToString().StartsWith(bool.FalseString.ToLower()))
+					if (config.ConfigurationSettings != null &&
+							value.Key != "Name" &&
+							value.Key != "Activated")
 					{
-						config.ConfigurationSettings[value.Key] = value.Value.ToString().Split(',')[0];
+						// String handling of boolean properties submitted from HTML checkbox input controls
+						if (value.Value.ToString().StartsWith(bool.TrueString.ToLower())
+							|| value.Value.ToString().StartsWith(bool.FalseString.ToLower()))
+						{
+							config.ConfigurationSettings[value.Key] = value.Value.ToString().Split(',')[0];
+						}
+						else
+						{
+							config.ConfigurationSettings[value.Key] = value.Value.ToString() ?? config.ConfigurationSettings[value.Key];
+						}
 					}
-					else
+				});
+			}
+			else
+			{
+				config = new ProviderConfiguration
+				{
+					Name = submittedValues.FirstOrDefault(x => x.Key == "Name").Value[0] ?? string.Empty,
+					Activated = GetActivatedStatus(submittedValues),
+					ConfigurationSettings = new Dictionary<string, string>()
+					//Description
+				};
+
+				submittedValues.Where(x => x.Key != "Name" &&
+															x.Key != "Activated" &&
+															x.Key != "Description" &&
+															x.Key != "__RequestVerificationToken").ToList()
+					.ForEach(y =>
 					{
-						config.ConfigurationSettings[value.Key] = value.Value.ToString() ?? config.ConfigurationSettings[value.Key];
-					}
-				}
-			});
+						config.ConfigurationSettings.Add(y.Key, y.Value[0]!);
+					});
+			}
 
 			if (config != null)
 				await _ProviderConfigurationRepository.SaveConfigurationSettingsAsync(config);
