@@ -20,15 +20,8 @@ public class StartTwitter : BaseConfigurationProvider, IConfigureProvider
 	{
 		await LoadConfigurationValuesAsync(_DisplayName, cancellationToken);
 
-		//TODO: Need a way to provide updates to config at runtime without seeding DB first (empty config UI)?
-		if (string.IsNullOrEmpty(_TwitterConfiguration?.BaseAddress?.ToString()))
-		{
-			// No configuration provided, no registration to be added
-			return services;
-		}
-
-		services.AddSingleton(_TwitterConfiguration);
-		services.AddHttpClient<ISocialMediaProvider, TwitterProvider, TwitterConfiguration>(_TwitterConfiguration);
+		services.AddSingleton(_TwitterConfiguration ?? new TwitterConfiguration());
+		services.AddHttpClient<ISocialMediaProvider, TwitterProvider, TwitterConfiguration>(_TwitterConfiguration ?? new TwitterConfiguration());
 		services.AddTransient<ISocialMediaProvider, TwitterProvider>();
 		return services;
 	}

@@ -28,7 +28,7 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 
 	public string NewestId { get; set; } = string.Empty;
 
-	public string Description { get; init; }
+	public string Description { get; init; } = "Twitter is a service for friends, family, and coworkers to communicate and stay connected through the exchange of quick, frequent messages";
 
 	public TwitterProvider(IHttpClientFactory httpClientFactory, ILogger<TwitterProvider> logger,
 		TwitterConfiguration configuration)
@@ -36,7 +36,11 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 		_HttpClient = httpClientFactory.CreateClient(nameof(TwitterProvider));
 		_Configuration = configuration;
 		_Logger = logger;
-		Description = configuration.Description;
+
+		if (!string.IsNullOrWhiteSpace(configuration.Description))
+		{
+			Description = configuration.Description;
+		}
 	}
 	// TODO: Check CS1998: Async method lacks 'await' operators and will run synchronously
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously

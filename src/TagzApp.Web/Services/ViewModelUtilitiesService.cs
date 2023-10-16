@@ -42,6 +42,7 @@ public class ViewModelUtilitiesService
 		}
 
 		_Logger.LogWarning($"Unable to load view model for provider {providerName}!");
+		throw new Exception($"Unable to load view model for provider {providerName}!");
 	}
 
 	public string GetDisplayName(PropertyInfo propertyInfo)

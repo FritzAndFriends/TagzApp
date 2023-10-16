@@ -16,12 +16,16 @@ internal class MastodonProvider : ISocialMediaProvider, IHasNewestId
 	{
 		_HttpClient = httpClientFactory.CreateClient(nameof(MastodonProvider));
 		_Logger = logger;
-		Description = configuration.Description;
+
+		if (!string.IsNullOrWhiteSpace(configuration.Description))
+		{
+			Description = configuration.Description;
+		}
 	}
 
 	public string Id => "MASTODON";
 	public string DisplayName => "Mastodon";
-	public string Description { get; init; }
+	public string Description { get; init; } = "Mastodon is a decentralized social network made up of independent servers organized around specific themes, topics, or interests.";
 
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(20);
 

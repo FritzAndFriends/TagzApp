@@ -39,4 +39,9 @@ public class TwitterConfiguration : HttpClientOptions
 	/// Provider description
 	/// </summary>
 	public string Description { get; set; } = string.Empty;
+
+	public TwitterConfiguration()
+	{
+		BaseAddress = new Uri("https://api.twitter.com");
+	}
 }
