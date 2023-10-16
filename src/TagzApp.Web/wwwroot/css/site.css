@@ -456,7 +456,7 @@ article.status-approved .time::after {
 }
 
 a {
-		color: var(--bs-cyan);
+	color: var(--bs-cyan);
 }
 
 #providerAccordion div.accordion-item {
