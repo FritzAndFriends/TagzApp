@@ -18,7 +18,8 @@ public class StartTwitchChat : BaseConfigurationProvider, IConfigureProvider
 	{
 		await LoadConfigurationValuesAsync(_DisplayName, cancellationToken);
 
-		services.AddSingleton(_TwitchChatConfiguration ?? new TwitchChatConfiguration {
+		services.AddSingleton(_TwitchChatConfiguration ?? new TwitchChatConfiguration
+		{
 			ChannelName = string.Empty,
 			ChatBotName = string.Empty,
 			OAuthToken = string.Empty
