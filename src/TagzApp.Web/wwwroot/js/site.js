@@ -480,6 +480,10 @@
 	const t = {
 		Tags: [],
 
+		MapProviderToIconClass: function (provider) {
+			return MapProviderToIcon(provider);
+		},
+
 		ListenForWaterfallContent: async function (tags) {
 			var tagCsv = encodeURI(tags);
 			t.Tags = tags.split(',');
