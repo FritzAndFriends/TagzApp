@@ -11,7 +11,7 @@ public class TwitterConfigurationViewModel : IProviderConfigurationViewModel
 	[InputType("timeout")]
 	public string Timeout { get; set; } = string.Empty;
 	[DisplayName("Default Headers")]
-	public string DefaultHeaders { get; set; } = string.Empty;//TODO might need to figure out dictionary
+	public string DefaultHeaders { get; set; } = string.Empty;
 	[DisplayName("API Key")]
 	public string ApiKey { get; set; } = string.Empty;
 	[DisplayName("API Secret Key")]

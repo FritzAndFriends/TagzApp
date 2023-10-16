@@ -447,18 +447,16 @@ article.status-humanmod .autoModReason {
 	display: none;
 }
 
-article.status-rejected .author,
-article.status-rejected .authorUserName,
-article.status-rejected .time {
-	color: #555 !important;
-}
-
 article.status-approved .time::after {
 	content: 'Approved';
 	font-weight: bold;
 	margin-left: 0.5em;
-	color: forestgreen;
+	color: var(--bs-green);
 	margin-bottom: 1em;
+}
+
+a {
+		color: var(--bs-cyan);
 }
 
 #providerAccordion div.accordion-item {

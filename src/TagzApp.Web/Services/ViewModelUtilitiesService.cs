@@ -41,7 +41,7 @@ public class ViewModelUtilitiesService
 			}
 		}
 
-		throw new Exception("Guess what vm was null"); //TODO : Cleanup
+		_Logger.LogWarning($"Unable to load view model for provider {providerName}!");
 	}
 
 	public string GetDisplayName(PropertyInfo propertyInfo)
