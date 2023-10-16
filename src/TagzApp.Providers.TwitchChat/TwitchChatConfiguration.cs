@@ -7,6 +7,7 @@ public class TwitchChatConfiguration
 	public required string ChatBotName { get; set; }
 	public required string OAuthToken { get; set; }
 	public required string ChannelName { get; set; } = "csharpfritz";
+	public string Description { get; set; } = string.Empty;
 
 	public static TwitchChatConfiguration Empty => new()
 	{
