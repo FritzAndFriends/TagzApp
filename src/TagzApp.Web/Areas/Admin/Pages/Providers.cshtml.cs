@@ -31,7 +31,9 @@ namespace TagzApp.Web.Areas.Admin.Pages
 				{
 					if (config.ConfigurationSettings != null &&
 							value.Key != "Name" &&
-							value.Key != "Activated")
+							value.Key != "Activated" &&
+							value.Key != "Description" &&
+							value.Key != "__RequestVerificationToken")
 					{
 						// String handling of boolean properties submitted from HTML checkbox input controls
 						if (value.Value.ToString().StartsWith(bool.TrueString.ToLower())
