@@ -55,7 +55,6 @@ namespace TagzApp.Web.Areas.Admin.Pages
 					Name = submittedValues.FirstOrDefault(x => x.Key == "Name").Value[0] ?? string.Empty,
 					Activated = GetActivatedStatus(submittedValues),
 					ConfigurationSettings = new Dictionary<string, string>()
-					//Description
 				};
 
 				submittedValues.Where(x => x.Key != "Name" &&
