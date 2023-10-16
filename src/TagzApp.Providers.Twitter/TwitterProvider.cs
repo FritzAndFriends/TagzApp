@@ -6,11 +6,8 @@ using System.Reflection;
 using System.Text.Json;
 using System.Web;
 
-using Microsoft.Extensions.Options;
-
 using TagzApp.Providers.Twitter.Configuration;
 using TagzApp.Providers.Twitter.Models;
-using Microsoft.Extensions.Configuration;
 
 namespace TagzApp.Providers.Twitter;
 
