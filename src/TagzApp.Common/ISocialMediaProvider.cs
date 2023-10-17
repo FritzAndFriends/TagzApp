@@ -17,6 +17,11 @@ public interface ISocialMediaProvider
 	string DisplayName { get; }
 
 	/// <summary>
+	/// Provider description
+	/// </summary>
+	string Description { get; }
+
+	/// <summary>
 	/// How frequently new content should be retrieved from the provider
 	/// </summary>
 	TimeSpan NewContentRetrievalFrequency { get; }

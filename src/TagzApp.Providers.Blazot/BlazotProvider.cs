@@ -18,6 +18,8 @@ internal sealed class BlazotProvider : ISocialMediaProvider
 	public string Id => BlazotConstants.ProviderId;
 	public string DisplayName => BlazotConstants.DisplayName;
 
+	public string Description { get; init; } = "Blazot is an all new social networking platform and your launchpad to the social universe!";
+
 	public BlazotProvider(ILogger<BlazotProvider> logger, BlazotSettings settings,
 		IContentConverter contentConverter, ITransmissionsService transmissionsService, IAuthService authService)
 	{
@@ -28,6 +30,11 @@ internal sealed class BlazotProvider : ISocialMediaProvider
 
 		_WindowSeconds = settings?.WindowSeconds ?? throw new ArgumentNullException(nameof(settings));
 		_WindowRequests = settings.WindowRequests;
+
+		if (!string.IsNullOrWhiteSpace(settings.Description))
+		{
+			Description = settings.Description;
+		}
 	}
 
 	public async Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset dateTimeOffset)

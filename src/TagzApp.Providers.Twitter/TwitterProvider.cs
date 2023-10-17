@@ -6,8 +6,6 @@ using System.Reflection;
 using System.Text.Json;
 using System.Web;
 
-using Microsoft.Extensions.Options;
-
 using TagzApp.Providers.Twitter.Configuration;
 using TagzApp.Providers.Twitter.Models;
 
@@ -30,11 +28,19 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 
 	public string NewestId { get; set; } = string.Empty;
 
-	public TwitterProvider(IHttpClientFactory httpClientFactory, IOptions<TwitterConfiguration> options, ILogger<TwitterProvider> logger)
+	public string Description { get; init; } = "Twitter is a service for friends, family, and coworkers to communicate and stay connected through the exchange of quick, frequent messages";
+
+	public TwitterProvider(IHttpClientFactory httpClientFactory, ILogger<TwitterProvider> logger,
+		TwitterConfiguration configuration)
 	{
 		_HttpClient = httpClientFactory.CreateClient(nameof(TwitterProvider));
-		_Configuration = options.Value;
+		_Configuration = configuration;
 		_Logger = logger;
+
+		if (!string.IsNullOrWhiteSpace(configuration.Description))
+		{
+			Description = configuration.Description;
+		}
 	}
 	// TODO: Check CS1998: Async method lacks 'await' operators and will run synchronously
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously

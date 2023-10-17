@@ -39,4 +39,16 @@ public class InMemoryProviderConfigurationRepository : IProviderConfigurationRep
 
 		return providerConfig;
 	}
+
+	public Task<IEnumerable<ProviderConfiguration?>> GetConfigurationSettingsAsync(CancellationToken cancellationToken = default)
+	{
+		//TODO
+		throw new NotImplementedException();
+	}
+
+	public Task SaveConfigurationSettingsAsync(ProviderConfiguration configuration, CancellationToken cancellationToken = default)
+	{
+		//TODO
+		throw new NotImplementedException();
+	}
 }

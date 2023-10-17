@@ -9,6 +9,8 @@ public class StubSocialMediaProvider : ISocialMediaProvider
 	public string DisplayName { get; } = "TEST";
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromMilliseconds(1000);
 
+	public string Description => "TEST";
+
 	public Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since)
 	{
 		var testContent = new Faker<Content>()

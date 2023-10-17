@@ -17,6 +17,7 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 
 	public string Id => "YOUTUBE-CHAT";
 	public string DisplayName => ProviderName;
+	public string Description { get; init; }
 	public TimeSpan NewContentRetrievalFrequency { get; set; } = TimeSpan.FromMinutes(1);
 
 	public string NewestId { get; set; }

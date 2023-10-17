@@ -15,98 +15,109 @@ internal class PostgresMessaging : IDisposable
 	private readonly Dictionary<string, ConcurrentBag<Action<Content>>> _Actions = new();
 	private static IServiceProvider? _Services;
 	private readonly Task _QueueWatcher;
+	private readonly IProviderConfigurationRepository _ProviderConfigurationRepository;
+	private List<Common.Models.ProviderConfiguration?> _ProviderConfigurations = new();
 
-	public PostgresMessaging(IServiceProvider services)
+	public PostgresMessaging(IServiceProvider services, IProviderConfigurationRepository providerConfigurationRepository)
 	{
 		_Services = _Services ?? services;
 		_QueueWatcher = Task.Run(DispatchFromQueue);
-
+		_ProviderConfigurationRepository = providerConfigurationRepository;
 	}
 
-	internal void StartProviders(IEnumerable<ISocialMediaProvider> providers, CancellationToken cancellationToken)
+	internal async Task StartProviders(IEnumerable<ISocialMediaProvider> providers, CancellationToken cancellationToken)
 	{
-
 		_ProviderTasks.Clear();
+		await LoadProviderConfiguration(cancellationToken);
+
 		foreach (var providerItem in providers)
 		{
+			var providerConfig = _ProviderConfigurations.FirstOrDefault(x => x.Name == providerItem.DisplayName);
 
-			_ProviderTasks.Add(Task.Factory.StartNew(async (object? state) =>
+			// Only add task if provider is activated
+			if (providerConfig != null && providerConfig.Activated)
 			{
-
-				var provider = state as ISocialMediaProvider;
-				// TODO: Check if this can done another way.
-				if (provider == null) return;
-				var lastQueryTime = DateTimeOffset.UtcNow.AddHours(-1);
-
-				await provider.StartAsync();
-
-				while (!cancellationToken.IsCancellationRequested)
+				_ProviderTasks.Add(Task.Factory.StartNew(async (object? state) =>
 				{
 
-					if (!_Actions.Any())
-					{
-						await Task.Delay(TimeSpan.FromSeconds(1));
-						continue;
-					}
+					var provider = state as ISocialMediaProvider;
+					// TODO: Check if this can done another way.
+					if (provider == null) return;
+					var lastQueryTime = DateTimeOffset.UtcNow.AddHours(-1);
 
-					using var scope = _Services!.CreateScope();
-					var context = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
+					await provider.StartAsync();
 
-					if (provider is IHasNewestId newestIdProvider)
+					while (!cancellationToken.IsCancellationRequested)
 					{
-						var newestId = await context.Content.AsNoTracking()
-							.Where(c => c.Provider == provider.Id)
-							.OrderByDescending(c => c.ProviderId)
-							.Select(c => c.ProviderId)
-							.FirstOrDefaultAsync();
-						if (newestId != null)
+
+						if (!_Actions.Any())
 						{
-							newestIdProvider.NewestId = newestId;
+							await Task.Delay(TimeSpan.FromSeconds(1));
+							continue;
 						}
-					}
 
-					foreach (var tag in _Actions.Keys.Distinct<string>())
-					{
+						using var scope = _Services!.CreateScope();
+						var context = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
 
-						Hashtag thisTag = new() { Text = tag };
-						var contentIdentified = await provider.GetContentForHashtag(thisTag, lastQueryTime);
-						if (!contentIdentified.Any()) continue;
+						if (provider is IHasNewestId newestIdProvider)
+						{
+							var newestId = await context.Content.AsNoTracking()
+								.Where(c => c.Provider == provider.Id)
+								.OrderByDescending(c => c.ProviderId)
+								.Select(c => c.ProviderId)
+								.FirstOrDefaultAsync();
+							if (newestId != null)
+							{
+								newestIdProvider.NewestId = newestId;
+							}
+						}
 
-						var providerIds = contentIdentified.Select(c => c.ProviderId).Distinct().ToArray();
-						lastQueryTime = DateTime.UtcNow;
-
-						// de-dupe with in-database collection
-						var inDb = await context.Content.AsNoTracking()
-						.Where(c => c.Provider == provider.Id && providerIds.Any(i => i == c.ProviderId))
-						.Select(c => c.ProviderId)
-						.ToArrayAsync();
-						contentIdentified = contentIdentified
-							.ExceptBy(inDb, c => c.ProviderId)
-							.ToArray();
-
-						if (contentIdentified.Any())
+						foreach (var tag in _Actions.Keys.Distinct<string>())
 						{
 
-							context.Content.AddRange(contentIdentified.Select(c => (PgContent)c).ToArray());
-							await context.SaveChangesAsync();
+							Hashtag thisTag = new() { Text = tag };
+							var contentIdentified = await provider.GetContentForHashtag(thisTag, lastQueryTime);
+							if (!contentIdentified.Any()) continue;
 
-							foreach (var item in contentIdentified.OrderBy<Content, DateTimeOffset>(c => c.Timestamp))
+							var providerIds = contentIdentified.Select(c => c.ProviderId).Distinct().ToArray();
+							lastQueryTime = DateTime.UtcNow;
+
+							// de-dupe with in-database collection
+							var inDb = await context.Content.AsNoTracking()
+							.Where(c => c.Provider == provider.Id && providerIds.Any(i => i == c.ProviderId))
+							.Select(c => c.ProviderId)
+							.ToArrayAsync();
+							contentIdentified = contentIdentified
+								.ExceptBy(inDb, c => c.ProviderId)
+								.ToArray();
+
+							if (contentIdentified.Any())
 							{
-								await PublishContentAsync(thisTag, item);
+
+								context.Content.AddRange(contentIdentified.Select(c => (PgContent)c).ToArray());
+								await context.SaveChangesAsync();
+
+								foreach (var item in contentIdentified.OrderBy<Content, DateTimeOffset>(c => c.Timestamp))
+								{
+									await PublishContentAsync(thisTag, item);
+								}
+
 							}
 
 						}
 
+						await Task.Delay(provider.NewContentRetrievalFrequency);
+
 					}
 
-					await Task.Delay(provider.NewContentRetrievalFrequency);
-
-				}
-
-			}, providerItem));
-
+				}, providerItem));
+			}
 		}
+	}
 
+	internal async Task LoadProviderConfiguration(CancellationToken cancellationToken)
+	{
+		_ProviderConfigurations = (await _ProviderConfigurationRepository.GetConfigurationSettingsAsync(cancellationToken)).ToList();
 	}
 
 	public Task PublishContentAsync(Hashtag tag, Content newContent)

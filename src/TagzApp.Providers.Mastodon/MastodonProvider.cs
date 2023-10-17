@@ -1,7 +1,7 @@
-﻿using System.Net.Http.Json;
+﻿using Microsoft.Extensions.Logging;
+using System.Net.Http.Json;
 using System.Web;
-
-using Microsoft.Extensions.Logging;
+using TagzApp.Providers.Mastodon.Configuration;
 
 namespace TagzApp.Providers.Mastodon;
 
@@ -11,14 +11,21 @@ internal class MastodonProvider : ISocialMediaProvider, IHasNewestId
 	private readonly HttpClient _HttpClient;
 	private readonly ILogger _Logger;
 
-	public MastodonProvider(IHttpClientFactory httpClientFactory, ILogger<MastodonProvider> logger)
+	public MastodonProvider(IHttpClientFactory httpClientFactory, ILogger<MastodonProvider> logger,
+		MastodonConfiguration configuration)
 	{
 		_HttpClient = httpClientFactory.CreateClient(nameof(MastodonProvider));
 		_Logger = logger;
+
+		if (!string.IsNullOrWhiteSpace(configuration.Description))
+		{
+			Description = configuration.Description;
+		}
 	}
 
 	public string Id => "MASTODON";
 	public string DisplayName => "Mastodon";
+	public string Description { get; init; } = "Mastodon is a decentralized social network made up of independent servers organized around specific themes, topics, or interests.";
 
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(20);
 

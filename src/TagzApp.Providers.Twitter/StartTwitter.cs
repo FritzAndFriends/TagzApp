@@ -20,20 +20,14 @@ public class StartTwitter : BaseConfigurationProvider, IConfigureProvider
 	{
 		await LoadConfigurationValuesAsync(_DisplayName, cancellationToken);
 
-		if (string.IsNullOrEmpty(_TwitterConfiguration?.BaseAddress?.ToString()))
-		{
-			// No configuration provided, no registration to be added
-			return services;
-		}
-
-		services.AddHttpClient<ISocialMediaProvider, TwitterProvider, TwitterConfiguration>(_TwitterConfiguration);
+		services.AddSingleton(_TwitterConfiguration ?? new TwitterConfiguration());
+		services.AddHttpClient<ISocialMediaProvider, TwitterProvider, TwitterConfiguration>(_TwitterConfiguration ?? new TwitterConfiguration());
 		services.AddTransient<ISocialMediaProvider, TwitterProvider>();
 		return services;
 	}
 
 	protected override void MapConfigurationValues(ProviderConfiguration providerConfiguration)
 	{
-
 		var config = providerConfiguration.ConfigurationSettings;
 
 		if (config != null)
@@ -47,7 +41,8 @@ public class StartTwitter : BaseConfigurationProvider, IConfigureProvider
 				ApiKey = config["ApiKey"] ?? string.Empty,
 				ApiSecretKey = config["ApiSecretKey"] ?? string.Empty,
 				AccessToken = config["AccessToken"] ?? string.Empty,
-				AccessTokenSecret = config["AccessTokenSecret"] ?? string.Empty
+				AccessTokenSecret = config["AccessTokenSecret"] ?? string.Empty,
+				Description = providerConfiguration.Description
 			};
 		}
 	}

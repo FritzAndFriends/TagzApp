@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
 using TagzApp.Communication.Extensions;
 using TagzApp.Web.Data;
 using TagzApp.Web.Hubs;
+using TagzApp.Web.Services;
 
 namespace TagzApp.Web;
 
@@ -32,10 +33,10 @@ public class Program
 		builder.Services.AddSecurityContext(builder.Configuration);
 
 		builder.Services.AddDefaultIdentity<TagzAppUser>(options =>
-				options.SignIn.RequireConfirmedAccount = true
-			)
-			.AddRoles<IdentityRole>()
-			.AddEntityFrameworkStores<SecurityContext>();
+						options.SignIn.RequireConfirmedAccount = true
+				)
+				.AddRoles<IdentityRole>()
+				.AddEntityFrameworkStores<SecurityContext>();
 
 		_ = builder.Services.AddAuthentication(options =>
 		{
@@ -48,7 +49,7 @@ public class Program
 		{
 			config.AddPolicy(Security.Policy.AdminRoleOnly, policy => { policy.RequireRole(Security.Role.Admin); });
 			config.AddPolicy(Security.Policy.Moderator,
-				policy => { policy.RequireRole(Security.Role.Moderator, Security.Role.Admin); });
+							policy => { policy.RequireRole(Security.Role.Moderator, Security.Role.Admin); });
 		});
 
 		// Add services to the container.
@@ -82,6 +83,8 @@ public class Program
 
 		// Add the Polly policies
 		builder.Services.AddPolicies(builder.Configuration);
+
+		builder.Services.AddSingleton<ViewModelUtilitiesService>();
 
 		var app = builder.Build();
 

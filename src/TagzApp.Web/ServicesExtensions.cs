@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using TagzApp.Providers.YouTubeChat;
+using TagzApp.Storage.Postgres;
 using TagzApp.Web.Data;
 using TagzApp.Web.Services;
 
@@ -18,14 +19,15 @@ public static class ServicesExtensions
 
 		if (!string.IsNullOrEmpty(configuration.GetConnectionString("TagzApp")))
 		{
+			services.AddScoped<IProviderConfigurationRepository, PostgresProviderConfigurationRepository>();
 			services.AddPostgresServices(configuration);
 		}
 		else
 		{
 			services.AddSingleton<IMessagingService, InMemoryMessagingService>();
 			services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
+			services.AddSingleton<IProviderConfigurationRepository, InMemoryProviderConfigurationRepository>();
 		}
-		services.AddSingleton<IProviderConfigurationRepository, InMemoryProviderConfigurationRepository>();
 
 		return services;
 	}
@@ -151,5 +153,4 @@ public static class ServicesExtensions
 		}
 
 	}
-
 }

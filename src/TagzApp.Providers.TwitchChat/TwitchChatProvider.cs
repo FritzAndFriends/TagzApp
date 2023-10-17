@@ -13,6 +13,7 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	public string Id => "TWITCH";
 	public string DisplayName => "TwitchChat";
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(1);
+	public string Description { get; init; } = "Twitch is where millions of people come together live every day to chat, interact, and make their own entertainment together.";
 
 	private static readonly ConcurrentQueue<Content> _Contents = new();
 	private static readonly CancellationTokenSource _CancellationTokenSource = new();
@@ -22,15 +23,18 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 
 	public TwitchChatProvider(TwitchChatConfiguration settings, ILogger<TwitchChatProvider> logger, IHttpClientFactory clientFactory)
 	{
-
 		_Settings = settings;
 		_Logger = logger;
 		_ProfileRepository = new TwitchProfileRepository(_Settings.ClientId, _Settings.ClientSecret, clientFactory.CreateClient("TwitchProfile"));
+
+		if (!string.IsNullOrWhiteSpace(settings.Description))
+		{
+			Description = settings.Description;
+		}
 	}
 
 	internal TwitchChatProvider(IOptions<TwitchChatConfiguration> settings, ILogger<TwitchChatProvider> logger, IChatClient chatClient)
 	{
-
 		_Settings = settings.Value;
 		_Logger = logger;
 		ListenForMessages(chatClient);

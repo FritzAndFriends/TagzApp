@@ -2,7 +2,7 @@
 
 namespace TagzApp.Storage.Postgres;
 
-internal class PgModerationAction
+public class PgModerationAction
 {
 
 	public long Id { get; set; }

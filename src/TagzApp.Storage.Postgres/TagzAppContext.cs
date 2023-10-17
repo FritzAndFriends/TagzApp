@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace TagzApp.Storage.Postgres;
 
-internal class TagzAppContext : DbContext
+public class TagzAppContext : DbContext
 {
 	private readonly IConfiguration _Configuration;
 	private bool _InMemory;
@@ -56,6 +56,7 @@ internal class TagzAppContext : DbContext
 
 
 	public DbSet<ProviderConfiguration> ProviderConfigurations { get; set; }
+
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{

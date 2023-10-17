@@ -459,6 +459,14 @@ a {
 	color: var(--bs-cyan);
 }
 
+#providerAccordion div.accordion-item {
+	margin-bottom: 1em;
+}
+
+#providerAccordion div.accordion-item h3 button i {
+	margin-right: 0.5em;
+}
+
 .waterfallHeader {
 	min-height: 3em;
 	padding: 5px;

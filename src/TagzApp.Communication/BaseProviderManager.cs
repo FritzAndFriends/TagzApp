@@ -11,7 +11,7 @@ public class BaseProviderManager
 	private readonly IServiceCollection _Services;
 	private readonly IConfiguration _Configuration;
 	private readonly ILogger<BaseProviderManager> _Logger;
-	private readonly IProviderConfigurationRepository? _ProviderConfigurationRepository;
+	protected readonly IProviderConfigurationRepository? _ProviderConfigurationRepository;
 
 	public IEnumerable<ISocialMediaProvider> Providers { get; private set; }
 
