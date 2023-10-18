@@ -82,7 +82,9 @@ public class InMemoryProviderConfigurationRepository : IProviderConfigurationRep
 
 	public Task SaveConfigurationSettingsAsync(ProviderConfiguration configuration, CancellationToken cancellationToken = default)
 	{
-		//TODO
-		throw new NotImplementedException();
+
+		// do nothing - we can't save values back to IConfiguration
+		return Task.CompletedTask;
+
 	}
 }

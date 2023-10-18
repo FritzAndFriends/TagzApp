@@ -32,7 +32,7 @@ internal class PostgresMessaging : IDisposable
 
 		foreach (var providerItem in providers)
 		{
-			var providerConfig = _ProviderConfigurations.FirstOrDefault(x => x.Name == providerItem.DisplayName);
+			var providerConfig = _ProviderConfigurations.FirstOrDefault(x => x.Name.Equals(providerItem.DisplayName, StringComparison.InvariantCultureIgnoreCase));
 
 			// Only add task if provider is activated
 			if (providerConfig != null && providerConfig.Activated)
