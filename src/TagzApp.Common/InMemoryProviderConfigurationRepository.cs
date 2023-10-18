@@ -42,13 +42,49 @@ public class InMemoryProviderConfigurationRepository : IProviderConfigurationRep
 
 	public Task<IEnumerable<ProviderConfiguration?>> GetConfigurationSettingsAsync(CancellationToken cancellationToken = default)
 	{
-		//TODO
-		throw new NotImplementedException();
+
+		var providersSections = _Configuration.GetSection("providers").GetChildren();
+		var providerConfigurations = new List<ProviderConfiguration?>();
+		foreach (var section in providersSections)
+		{
+
+			var providerConfig = new ProviderConfiguration
+			{
+				Name = section.Key,
+			};
+
+			var configSettings = section.GetChildren();
+
+			foreach (var configSetting in configSettings)
+			{
+				if (configSetting.Key == "Activated")
+				{
+					providerConfig.Activated = bool.Parse(configSetting.Value ?? "false");
+					continue;
+				}
+
+				if (configSetting.Key == "Description")
+				{
+					providerConfig.Description = configSetting.Value ?? string.Empty;
+					continue;
+				}
+
+				providerConfig.ConfigurationSettings!.Add(configSetting.Key, configSetting.Value ?? string.Empty);
+			}
+
+			providerConfigurations.Add(providerConfig);
+
+		}
+
+		return Task.FromResult(providerConfigurations.AsEnumerable());
+
 	}
 
 	public Task SaveConfigurationSettingsAsync(ProviderConfiguration configuration, CancellationToken cancellationToken = default)
 	{
-		//TODO
-		throw new NotImplementedException();
+
+		// do nothing - we can't save values back to IConfiguration
+		return Task.CompletedTask;
+
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Models = TagzApp.Common.Models;
 
 namespace TagzApp.Storage.Postgres;
@@ -6,24 +7,35 @@ namespace TagzApp.Storage.Postgres;
 public class PostgresProviderConfigurationRepository : IProviderConfigurationRepository
 {
 	private readonly TagzAppContext _Context;
+	private readonly InMemoryProviderConfigurationRepository _InMemoryConfig;
 
-	public PostgresProviderConfigurationRepository(TagzAppContext tagzAppContext)
+	public PostgresProviderConfigurationRepository(TagzAppContext tagzAppContext, IConfiguration configuration)
 	{
 		_Context = tagzAppContext;
+		_InMemoryConfig = new InMemoryProviderConfigurationRepository(configuration);
 	}
 
 	public async Task<Models.ProviderConfiguration?> GetConfigurationSettingsAsync(string name, CancellationToken cancellation = default)
 	{
-		var providerConfiguration = await _Context.ProviderConfigurations.FirstOrDefaultAsync(x => x.Name == name);
 
-		return providerConfiguration?.AsProviderConfigurationCommon();
+		var providerConfiguration = await _InMemoryConfig.GetConfigurationSettingsAsync(name, cancellation);
+
+		if (providerConfiguration is not null) return providerConfiguration;
+
+		var config = await _Context.ProviderConfigurations.FirstOrDefaultAsync(x => x.Name == name);
+		return config?.AsProviderConfigurationCommon();
+
 	}
 
 	public async Task<IEnumerable<Models.ProviderConfiguration?>> GetConfigurationSettingsAsync(CancellationToken cancellationToken = default)
 	{
-		var providerConfigurations = await _Context.ProviderConfigurations.ToListAsync();
 
-		return providerConfigurations?.AsProviderConfigurationsCommon() ?? new List<Common.Models.ProviderConfiguration>();
+		var providerConfigurations = await _InMemoryConfig.GetConfigurationSettingsAsync(cancellationToken);
+		if (providerConfigurations is not null) return providerConfigurations;
+
+		var config = await _Context.ProviderConfigurations.ToListAsync();
+
+		return config?.AsProviderConfigurationsCommon() ?? new List<Common.Models.ProviderConfiguration>();
 
 	}
 
@@ -48,6 +60,7 @@ public class PostgresProviderConfigurationRepository : IProviderConfigurationRep
 		}
 	}
 }
+
 internal static class ProviderConfigurationTranslations
 {
 	public static Models.ProviderConfiguration? AsProviderConfigurationCommon(this ProviderConfiguration providerConfiguration)
