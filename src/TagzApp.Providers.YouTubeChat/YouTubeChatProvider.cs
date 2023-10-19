@@ -165,7 +165,7 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		catch (Google.GoogleApiException ex)
 		{
 			// GoogleApiException: The service youtube has thrown an exception. HttpStatusCode is Forbidden. The user is not enabled for live streaming.
-			Console.WriteLine($"Exception while fetching YouTube broadcasts: {ex.Message}");			
+			Console.WriteLine($"Exception while fetching YouTube broadcasts: {ex.Message}");
 			return Enumerable.Empty<YouTubeBroadcast>();
 		}
 
