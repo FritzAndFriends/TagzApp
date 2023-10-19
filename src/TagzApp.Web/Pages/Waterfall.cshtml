@@ -36,19 +36,30 @@
 
 <div class="modal fade show" id="contentModal" tabindex="-1" aria-labelledby="contentModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered">
-		<div class="modal-content">
-			<div class="modal-header">
-				<img class="ProfilePicture" src="" alt="" />
-				<div class="author"></div>
-				<div class="authorUserName" title=""></div>
-				<i class="provider bi"></i>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				<div class="time"></div>
+			<div class="modal-inner">
+
+				<div class="modal-front modal-content">
+					<div class="modal-header">
+						<img class="ProfilePicture" src="" alt="" />
+						<div class="author"></div>
+						<div class="authorUserName" title=""></div>
+						<i class="provider bi"></i>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						<div class="time"></div>
+					</div>
+
+					<div class="modal-body">
+					</div>
+				</div>
+
+				<div class="modal-back modal-content">
+					<div class="modal-back-content"> 
+						The back of the modal
+						</div>
+				</div>
+
 			</div>
 
-			<div class="modal-body">
-			</div>
-		</div>
 	</div>
 </div>
 
@@ -62,6 +73,8 @@
 		window.onload = window.Masonry.resizeAllGridItems();
 		window.addEventListener("resize", Masonry.resizeAllGridItems);
 
+		var mouseSpinDelay = 600;
+
 	</script>
 
 }
@@ -71,6 +84,16 @@
 
 	<style>
 		@Html.Raw(Model.WaterfallHeaderCss)
+
+		.modal-back {
+			background-color: #190649;
+			background-image: url('/img/dotnetconf-back.png');
+			background-repeat: no-repeat;
+			background-size: contain;
+			background-position: center;
+			color: #eeeeee;
+		}
+
 	</style>
 
 }
