@@ -144,7 +144,8 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		channelRequest.Mine = true;
 		var channels = channelRequest.Execute();
 
-		return channels.Items.First().Snippet.Title;
+		// Not sure if this is needed, can't replicate "fisrt" error. (https://github.com/FritzAndFriends/TagzApp/issues/241)
+		return channels.Items?.First().Snippet.Title ?? "Unknown Channel Title";
 
 	}
 
@@ -156,7 +157,17 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		var listRequest = service.LiveBroadcasts.List("snippet");
 		listRequest.Mine = true;
 		listRequest.BroadcastType = LiveBroadcastsResource.ListRequest.BroadcastTypeEnum.Event__;
-		var broadcasts = listRequest.Execute();
+		LiveBroadcastListResponse broadcasts;
+		try
+		{
+			broadcasts = listRequest.Execute();
+		}
+		catch (Google.GoogleApiException ex)
+		{
+			// GoogleApiException: The service youtube has thrown an exception. HttpStatusCode is Forbidden. The user is not enabled for live streaming.
+			Console.WriteLine($"Exception while fetching YouTube broadcasts: {ex.Message}");
+			return Enumerable.Empty<YouTubeBroadcast>();
+		}
 
 		var outBroadcasts = new List<YouTubeBroadcast>();
 		outBroadcasts.AddRange(broadcasts.Items
