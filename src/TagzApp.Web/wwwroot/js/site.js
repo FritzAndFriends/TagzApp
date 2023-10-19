@@ -354,7 +354,6 @@
 	}
 
 	function PauseOnRollover(ev) {
-
 		// pause updates
 		window.clearTimeout(pauseTimeout);
 		if (!paused) {
@@ -364,7 +363,6 @@
 		}
 
 		ev.srcElement.addEventListener('mouseleave', function (ev) {
-
 			// resume updates if we mouse out
 			if (rolloverPause) {
 				pauseTimeout = window.setTimeout(() => {
@@ -375,7 +373,6 @@
 				}, 1500);
 			}
 		});
-
 	}
 
 	function showModerationPanel(ev) {
@@ -427,7 +424,6 @@
 		hovered.insertBefore(hoverPanel, hovered.firstElementChild);
 
 		hoverPanel.addEventListener('mouseleave', function (ev) {
-
 			// resume updates if we mouse out
 			if (rolloverPause) {
 				pauseTimeout = window.setTimeout(() => {
