@@ -10,13 +10,45 @@
 	</div>
 </div>
 
-<div class="row" style="padding: 10px!important;">
-	<div class="col-md-12 d-flex align-items-center" style="">
+<div class="row" style="padding: 0  10px!important;">
+	<div class="col-md-8 d-flex align-items-center" style="">
 		<span class="col-form-label-sm">Current Moderators:</span>
-		<span class="col-md-10 currentModerators">
+		<span class="currentModerators">
 
 		</span>
 	</div>
+	<div class="col-md-4 d-flex justify-content-end align-items-center" >
+		<label for="approved" style="text-wrap: nowrap; margin-right: 1.4em">Approval Status:</label>
+		<select id="approved" >
+			<option value="0">All</option>
+			<option value="1">Approved Only</option>
+			<option value="2">Rejected Only</option>
+			<option value="3">Needs Review</option>
+		</select>
+
+		<label for="providers" class="px-2">Providers:</label>
+		<div class="btn-group" role="group">
+				<input type="checkbox" class="btn-check" name="options" id="twitter" autocomplete="off">
+				<label class="btn btn-outline-primary" for="twitter">Twitter</label>
+
+				<input type="checkbox" class="btn-check" name="options" id="mastodon" autocomplete="off">
+				<label class="btn btn-outline-primary" for="mastodon">Mastodon</label>
+			
+				<input type="checkbox" class="btn-check" name="options" id="twitchchat" autocomplete="off">
+				<label class="btn btn-outline-primary" for="twitchchat">Twitch</label>
+
+				<input type="checkbox" class="btn-check" name="options" id="blazot" autocomplete="off">
+				<label class="btn btn-outline-primary" for="blazot">Blazot</label>
+
+				<input type="checkbox" class="btn-check" name="options" id="youtubechat" autocomplete="off">
+				<label class="btn btn-outline-primary" for="youtubechat">YouTube</label>
+
+		</div>
+
+	</div>
+
+</div>
+<div class="row" style="padding: 0 10px!important">
 
 	<div id="taggedContent" class="">
 
