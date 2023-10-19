@@ -8,7 +8,9 @@
 	};
 
 	var paused = false;
+	var rolloverPause = false;
 	var pauseQueue = [];
+	var pauseTimeout;
 	const waterfallMaxEntries = 100;
 	const moderationMaxEntries = 500;
 
@@ -351,9 +353,42 @@
 		}
 	}
 
+	function PauseOnRollover(ev) {
+
+		// pause updates
+		window.clearTimeout(pauseTimeout);
+		if (!paused) {
+			paused = true;
+			rolloverPause = true;
+			FormatPauseButton();
+		}
+
+		ev.srcElement.addEventListener('mouseleave', function (ev) {
+
+			// resume updates if we mouse out
+			if (rolloverPause) {
+				pauseTimeout = window.setTimeout(() => {
+					paused = false;
+					rolloverPause = false;
+					FormatPauseButton();
+					ResumeFromPause();
+				}, 1500);
+			}
+		});
+
+	}
+
 	function showModerationPanel(ev) {
 		var hovered = ev.target.closest('article');
 		if (hovered.querySelector('#moderationAction')) return;
+
+		// pause updates
+		window.clearTimeout(pauseTimeout);
+		if (!paused) {
+			paused = true;
+			rolloverPause = true;
+			FormatPauseButton();
+		}
 
 		var hoverPanel = document
 			.getElementById('moderationAction')
@@ -392,6 +427,18 @@
 		hovered.insertBefore(hoverPanel, hovered.firstElementChild);
 
 		hoverPanel.addEventListener('mouseleave', function (ev) {
+
+			// resume updates if we mouse out
+			if (rolloverPause) {
+				pauseTimeout = window.setTimeout(() => {
+					paused = false;
+					rolloverPause = false;
+					FormatPauseButton();
+					ResumeFromPause();
+				}, 1500);
+			}
+
+			// cleanup the moderation overlay
 			ev.target.closest('#moderationAction').remove();
 			var panels = document.querySelectorAll('.active_panel');
 			panels.forEach(function (panel) {
@@ -470,7 +517,7 @@
 			if (document.querySelector('.currentModerators')) {
 				FormatMessageForModeration(content);
 			} else {
-				FormatMessage(content);
+				FormatMessage(content, null, null, PauseOnRollover);
 			}
 		});
 
@@ -499,7 +546,7 @@
 					AddMessageToPauseQueue(content);
 					return;
 				}
-				FormatMessage(content);
+				FormatMessage(content, null, null, PauseOnRollover);
 			});
 
 			connection.on('RemoveMessage', (provider, providerId) => {
@@ -521,7 +568,7 @@
 				.invoke('GetExistingContentForTag', tags)
 				.then(function (result) {
 					result.forEach(function (content) {
-						FormatMessage(content);
+						FormatMessage(content, null, null, PauseOnRollover);
 					});
 					window.Masonry.resizeAllGridItems();
 				});
