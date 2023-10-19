@@ -377,6 +377,54 @@ span.invisible {
 	padding-right: 0 !important;
 }
 
+/** Modal Flip Animation */
+
+.modal-dialog {
+	background-color: transparent;
+	perspective: 1000px;
+}
+
+.modal-inner {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	/*text-align: center;*/
+	transition: transform 0.4s;
+	transform-style: preserve-3d;
+}
+
+.flip {
+	transform: rotateY(180deg);
+}
+
+.modal-front,
+.modal-back {
+	width: 100%;
+	height: 100%;
+	backface-visibility: hidden;
+}
+
+.modal-back {
+	position: absolute;
+	top: 0;
+}
+
+.modal-back-content {
+	width: 100%;
+	height: 100%;
+	display: none;
+	align-items: center;
+	justify-content: center;
+}
+
+.modal-front {
+	transform: rotateY(180deg);
+}
+
+/** End Modal Flip */
+
+/** Moderation UI ***/
+
 #moderationAction {
 	position: absolute;
 	top: 0;

@@ -139,6 +139,9 @@
 				paused = true;
 				FormatPauseButton();
 
+				// modal window is face down to start
+				document.querySelector('.modal-inner').classList.remove('flip');
+
 				// Format Modal
 				let modalProfilePic = document.querySelector('.modal-header img');
 				modalProfilePic.src = content.authorProfileImageUri;
@@ -201,6 +204,10 @@
 				//});
 
 				modalWindow.show();
+
+				window.setTimeout(() => {
+					document.querySelector('.modal-inner').classList.add('flip');
+				}, mouseSpinDelay);
 			});
 		}
 
