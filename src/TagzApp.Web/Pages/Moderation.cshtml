@@ -28,27 +28,19 @@
 
 		<label for="providers" class="px-2">Providers:</label>
 		<div class="btn-group" role="group">
-				<input type="checkbox" class="btn-check" name="options" id="twitter" autocomplete="off">
-				<label class="btn btn-outline-primary" for="twitter">Twitter</label>
 
-				<input type="checkbox" class="btn-check" name="options" id="mastodon" autocomplete="off">
-				<label class="btn btn-outline-primary" for="mastodon">Mastodon</label>
-			
-				<input type="checkbox" class="btn-check" name="options" id="twitchchat" autocomplete="off">
-				<label class="btn btn-outline-primary" for="twitchchat">Twitch</label>
-
-				<input type="checkbox" class="btn-check" name="options" id="blazot" autocomplete="off">
-				<label class="btn btn-outline-primary" for="blazot">Blazot</label>
-
-				<input type="checkbox" class="btn-check" name="options" id="youtubechat" autocomplete="off">
-				<label class="btn btn-outline-primary" for="youtubechat">YouTube</label>
+			@foreach (var provider in Model.Providers)
+			{
+				<input type="checkbox" class="btn-check" name="options" id="@provider.Id" checked autocomplete="off">
+				<label class="btn btn-outline-primary" for="@provider.Id">@provider.DisplayName</label>
+			}
 
 		</div>
 
 	</div>
 
 </div>
-<div class="row" style="padding: 0 10px!important">
+<div class="row" style="padding: 2px 10px!important">
 
 	<div id="taggedContent" class="">
 

@@ -14,10 +14,14 @@ public class ModerationModel : PageModel
 
 	public List<string> Tags { get; } = new List<string>();
 
+	public IEnumerable<ISocialMediaProvider> Providers { get; set; }
+
 	public void OnGet()
 	{
 
 		Tags.AddRange(_Service.TagsTracked);
+
+		Providers = _Service.Providers.OrderBy(x => x.DisplayName);
 
 
 	}
