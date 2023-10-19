@@ -208,7 +208,6 @@
 				window.setTimeout(() => {
 					document.querySelector('.modal-inner').classList.add('flip');
 				}, mouseSpinDelay);
-
 			});
 		}
 
