@@ -732,6 +732,9 @@
 					return item != provider;
 				});
 
+				var style = document.getElementById(`providerFilter-${provider}`);
+				if (style) style.remove();
+
 				// Add a css rule to the page
 				var style = document.createElement('style');
 				style.setAttribute('id', `providerFilter-${provider}`);
@@ -742,6 +745,12 @@
 				// Remove the css rule from the page
 				var style = document.getElementById(`providerFilter-${provider}`);
 				if (style) style.remove();
+
+				var style = document.createElement('style');
+				style.setAttribute('id', `providerFilter-${provider}`);
+				style.innerHTML = `article[data-provider='${provider}'] { display: grid!important; }`;
+				document.head.appendChild(style);
+
 			}
 		},
 	};
