@@ -50,9 +50,9 @@
 	}
 
 	function decodeHtml(html) {
-    var txt = document.createElement("textarea");
-    txt.innerHTML = html;
-    return txt.value;
+		var txt = document.createElement('textarea');
+		txt.innerHTML = html;
+		return txt.value;
 	}
 
 	async function start() {
@@ -324,7 +324,9 @@
 				.substring(emote.pos, emote.length + emote.pos + 1)
 				.trim();
 			var emoteHtml = `<img class="emote" src="${emoteUrl}"  />`;
-			console.log(`Formatting text: '${text}' with emote at ${emote.pos}, with length ${emote.length} and found text ${emoteName}`)
+			console.log(
+				`Formatting text: '${text}' with emote at ${emote.pos}, with length ${emote.length} and found text ${emoteName}`,
+			);
 			toReplace.push({ name: emoteName, html: emoteHtml });
 		}
 
