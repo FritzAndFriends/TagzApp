@@ -68,13 +68,21 @@
 			window.onload = window.Masonry.resizeAllGridItems();
 			window.addEventListener("resize", Masonry.resizeAllGridItems);
 
+			var providers = [];
 			var switches = document.querySelectorAll(".providerSwitch");
 			switches.forEach(function (sw) {
 				var providerId = sw.getAttribute("for");
 				var providerClass = window.TagzApp.MapProviderToIconClass(providerId);
 				var icon = sw.querySelector(".provider");
 				icon.classList.add(providerClass);
+				providers.push(providerId);
+				// add an event handler on the toggle of the checkbox to call AddProviderFilter or RemoveProviderFilter appropriately
+				sw.addEventListener("click", function (e) {
+					var providerId = e.target.parentElement.getAttribute("for");
+					window.TagzApp.ToggleProviderFilter(providerId);
+				});
 			});
+			window.TagzApp.InitializeProviderFilter(providers);
 
 			var approved = document.getElementById("approved");
 			approved.addEventListener("change", function (e) {

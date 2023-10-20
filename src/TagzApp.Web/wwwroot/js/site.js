@@ -19,6 +19,7 @@
 	var pauseQueue = [];
 	var pauseTimeout;
 	var approvedFilterStatus = ApprovalFilter.All;
+	var providerFilter = [];
 	const waterfallMaxEntries = 100;
 	const moderationMaxEntries = 500;
 
@@ -336,15 +337,11 @@
 				.substring(emote.pos, emote.length + emote.pos + 1)
 				.trim();
 			var emoteHtml = `<img class="emote" src="${emoteUrl}"  />`;
-			console.log(
-				`Formatting text: '${text}' with emote at ${emote.pos}, with length ${emote.length} and found text ${emoteName}`,
-			);
 			toReplace.push({ name: emoteName, html: emoteHtml });
 		}
 
 		for (var r in toReplace) {
 			var item = toReplace[r];
-			console.log(`Replacing ${item.name} with ${item.html}`);
 			text = text.replace(item.name, item.html);
 		}
 
@@ -561,6 +558,23 @@
 		pauseQueue = [];
 	}
 
+	function ApplyFilter() {
+
+		// show the current filter contents
+		console.log(`Filtering by ${providerFilter}`);
+
+		// Show only those article elements that have a provider id that matches the filter
+		var cards = document.querySelectorAll('.moderation');
+		cards.forEach(function (card) {
+			if (providerFilter.includes(card.getAttribute('data-provider'))) {
+				card.style.display = '';
+			} else {
+				card.style.display = 'none';
+			}
+		});
+
+	}
+
 	const t = {
 		Tags: [],
 
@@ -706,6 +720,39 @@
 				window.Masonry.resizeAllGridItems();
 			});
 		},
+
+		InitializeProviderFilter: function(providers)
+		{
+			providerFilter = providers;
+		},
+
+		AddProviderFilter: function(provider) {
+			providerFilter.push(provider);
+			ApplyFilter();
+		},
+
+		RemoveProviderFilter: function(provider) {
+			providerFilter = providerFilter.filter(function (item) {
+				return item != provider;
+			});
+			ApplyFilter();
+		},
+
+		ToggleProviderFilter: function(provider)
+		{
+
+			console.log(`Before Toggle: ${providerFilter} -- toggling ${provider}`);
+
+			if (providerFilter.includes(provider)) {
+				providerFilter = providerFilter.filter(function (item) {
+					return item != provider;
+				});
+			} else {
+				providerFilter.push(provider);
+			}
+			ApplyFilter();
+		}
+
 	};
 
 	window.TagzApp = window.TagzApp || t;
