@@ -7,10 +7,18 @@
 		Rejected: 2,
 	};
 
+	const ApprovalFilter = {
+		All: '0',
+		Approved: '1',
+		Rejected: '2',
+		Unmoderated: '3',
+	}
+
 	var paused = false;
 	var rolloverPause = false;
 	var pauseQueue = [];
 	var pauseTimeout;
+	var approvedFilterStatus = ApprovalFilter.All;
 	const waterfallMaxEntries = 100;
 	const moderationMaxEntries = 500;
 
@@ -74,6 +82,10 @@
 			return;
 
 		const newMessage = document.createElement('article');
+
+		if (approvedFilterStatus != '0' && approvedFilterStatus != '3') {
+			newMessage.style.display = 'none';
+		}
 
 		if (additionalClass) {
 			if (additionalClass.constructor === Array) {
@@ -338,6 +350,9 @@
 			card.classList.remove('status-rejected');
 			card.classList.remove('status-automod');
 			card.classList.add('status-approved');
+			if (approvedFilterStatus == ApprovalFilter.Rejected || approvedFilterStatus == ApprovalFilter.Unmoderated) {
+				card.style.display = 'none';
+			}
 		}
 	}
 
@@ -350,6 +365,9 @@
 			card.classList.remove('status-approved');
 			card.classList.remove('status-automod');
 			card.classList.add('status-rejected');
+			if (approvedFilterStatus == ApprovalFilter.Approved || approvedFilterStatus == ApprovalFilter.Unmoderated) {
+				card.style.display = 'none';
+			}
 		}
 
 		if (content.moderator == 'AZURE-CONTENTSAFETY') {
@@ -377,7 +395,7 @@
 					rolloverPause = false;
 					FormatPauseButton();
 					ResumeFromPause();
-				}, 1500);
+				}, 500);
 			}
 		});
 	}
@@ -438,7 +456,7 @@
 					rolloverPause = false;
 					FormatPauseButton();
 					ResumeFromPause();
-				}, 1500);
+				}, 500);
 			}
 
 			// cleanup the moderation overlay
@@ -532,6 +550,36 @@
 
 		MapProviderToIconClass: function (provider) {
 			return MapProviderToIcon(provider);
+		},
+
+		FilterByApprovalStatus: function (status) {
+
+			var cards = document.querySelectorAll('.moderation');
+			approvedFilterStatus = status;
+			cards.forEach(function (card) {
+				if (status == '0') {
+					card.style.display = '';
+				} else if (status == '1') {
+					if (card.classList.contains('status-approved')) {
+						card.style.display = '';
+					} else {
+						card.style.display = 'none';
+					}
+				} else if (status == '2') {
+					if (card.classList.contains('status-rejected')) {
+						card.style.display = '';
+					} else {
+						card.style.display = 'none';
+					}
+				} else if (status == '3') {
+					if (card.classList.contains('status-approved') || card.classList.contains('status-rejected')) {
+						card.style.display = 'none';
+					} else {
+						card.style.display = '';
+					}
+				}
+			});
+
 		},
 
 		ListenForWaterfallContent: async function (tags) {

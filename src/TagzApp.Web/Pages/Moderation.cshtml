@@ -32,7 +32,7 @@
 			@foreach (var provider in Model.Providers)
 			{
 				<input type="checkbox" class="btn-check" name="options" id="@provider.Id" checked autocomplete="off">
-				<label class="btn btn-outline-primary" for="@provider.Id">@provider.DisplayName</label>
+				<label title="@provider.DisplayName" class="btn btn-outline-primary providerSwitch" for="@provider.Id"><i class="provider bi"></i></label>
 			}
 
 		</div>
@@ -67,6 +67,20 @@
 
 			window.onload = window.Masonry.resizeAllGridItems();
 			window.addEventListener("resize", Masonry.resizeAllGridItems);
+
+			var switches = document.querySelectorAll(".providerSwitch");
+			switches.forEach(function (sw) {
+				var providerId = sw.getAttribute("for");
+				var providerClass = window.TagzApp.MapProviderToIconClass(providerId);
+				var icon = sw.querySelector(".provider");
+				icon.classList.add(providerClass);
+			});
+
+			var approved = document.getElementById("approved");
+			approved.addEventListener("change", function (e) {
+				var value = e.target.value;
+				window.TagzApp.FilterByApprovalStatus(value);
+			});
 
 		</script>
 
