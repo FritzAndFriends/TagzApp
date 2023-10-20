@@ -750,7 +750,6 @@
 				style.setAttribute('id', `providerFilter-${provider}`);
 				style.innerHTML = `article[data-provider='${provider}'] { display: grid!important; }`;
 				document.head.appendChild(style);
-
 			}
 		},
 	};
