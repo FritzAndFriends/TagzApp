@@ -559,7 +559,6 @@
 	}
 
 	function ApplyFilter() {
-
 		// show the current filter contents
 		console.log(`Filtering by ${providerFilter}`);
 
@@ -572,7 +571,6 @@
 				card.style.display = 'none';
 			}
 		});
-
 	}
 
 	const t = {
@@ -721,26 +719,23 @@
 			});
 		},
 
-		InitializeProviderFilter: function(providers)
-		{
+		InitializeProviderFilter: function (providers) {
 			providerFilter = providers;
 		},
 
-		AddProviderFilter: function(provider) {
+		AddProviderFilter: function (provider) {
 			providerFilter.push(provider);
 			ApplyFilter();
 		},
 
-		RemoveProviderFilter: function(provider) {
+		RemoveProviderFilter: function (provider) {
 			providerFilter = providerFilter.filter(function (item) {
 				return item != provider;
 			});
 			ApplyFilter();
 		},
 
-		ToggleProviderFilter: function(provider)
-		{
-
+		ToggleProviderFilter: function (provider) {
 			console.log(`Before Toggle: ${providerFilter} -- toggling ${provider}`);
 
 			if (providerFilter.includes(provider)) {
@@ -751,8 +746,7 @@
 				providerFilter.push(provider);
 			}
 			ApplyFilter();
-		}
-
+		},
 	};
 
 	window.TagzApp = window.TagzApp || t;
