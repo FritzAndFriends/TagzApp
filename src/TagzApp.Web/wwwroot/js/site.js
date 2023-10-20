@@ -12,7 +12,7 @@
 		Approved: '1',
 		Rejected: '2',
 		Unmoderated: '3',
-	}
+	};
 
 	var paused = false;
 	var rolloverPause = false;
@@ -350,7 +350,10 @@
 			card.classList.remove('status-rejected');
 			card.classList.remove('status-automod');
 			card.classList.add('status-approved');
-			if (approvedFilterStatus == ApprovalFilter.Rejected || approvedFilterStatus == ApprovalFilter.Unmoderated) {
+			if (
+				approvedFilterStatus == ApprovalFilter.Rejected ||
+				approvedFilterStatus == ApprovalFilter.Unmoderated
+			) {
 				card.style.display = 'none';
 			}
 		}
@@ -365,7 +368,10 @@
 			card.classList.remove('status-approved');
 			card.classList.remove('status-automod');
 			card.classList.add('status-rejected');
-			if (approvedFilterStatus == ApprovalFilter.Approved || approvedFilterStatus == ApprovalFilter.Unmoderated) {
+			if (
+				approvedFilterStatus == ApprovalFilter.Approved ||
+				approvedFilterStatus == ApprovalFilter.Unmoderated
+			) {
 				card.style.display = 'none';
 			}
 		}
@@ -553,7 +559,6 @@
 		},
 
 		FilterByApprovalStatus: function (status) {
-
 			var cards = document.querySelectorAll('.moderation');
 			approvedFilterStatus = status;
 			cards.forEach(function (card) {
@@ -572,14 +577,16 @@
 						card.style.display = 'none';
 					}
 				} else if (status == '3') {
-					if (card.classList.contains('status-approved') || card.classList.contains('status-rejected')) {
+					if (
+						card.classList.contains('status-approved') ||
+						card.classList.contains('status-rejected')
+					) {
 						card.style.display = 'none';
 					} else {
 						card.style.display = '';
 					}
 				}
 			});
-
 		},
 
 		ListenForWaterfallContent: async function (tags) {
