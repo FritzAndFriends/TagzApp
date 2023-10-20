@@ -733,14 +733,12 @@
 				style.setAttribute('id', `providerFilter-${provider}`);
 				style.innerHTML = `article[data-provider='${provider}'] { display: none!important; }`;
 				document.head.appendChild(style);
-
 			} else {
 				providerFilter.push(provider);
 				// Remove the css rule from the page
 				var style = document.getElementById(`providerFilter-${provider}`);
 				if (style) style.remove();
 			}
-
 		},
 	};
 
