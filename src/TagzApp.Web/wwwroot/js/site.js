@@ -337,11 +337,15 @@
 				.substring(emote.pos, emote.length + emote.pos + 1)
 				.trim();
 			var emoteHtml = `<img class="emote" src="${emoteUrl}"  />`;
+			console.log(
+				`Formatting text: '${text}' with emote at ${emote.pos}, with length ${emote.length} and found text ${emoteName}`,
+			);
 			toReplace.push({ name: emoteName, html: emoteHtml });
 		}
 
 		for (var r in toReplace) {
 			var item = toReplace[r];
+			console.log(`Replacing ${item.name} with ${item.html}`);
 			text = text.replace(item.name, item.html);
 		}
 
