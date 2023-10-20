@@ -57,7 +57,6 @@
 		<i class="bi bi-x-circle-fill reject" title="Reject this content"></i>
 	</div>
 
-
 	@section Scripts {
 
 		<script src="~/js/masonry.js" asp-append-version="true"></script>
@@ -77,8 +76,9 @@
 				icon.classList.add(providerClass);
 				providers.push(providerId);
 				// add an event handler on the toggle of the checkbox to call AddProviderFilter or RemoveProviderFilter appropriately
-				sw.addEventListener("click", function (e) {
-					var providerId = e.target.parentElement.getAttribute("for");
+				var checkbox = document.getElementById(providerId);
+				checkbox.addEventListener("click", function (e) {
+					var providerId = e.target.id;
 					window.TagzApp.ToggleProviderFilter(providerId);
 				});
 			});

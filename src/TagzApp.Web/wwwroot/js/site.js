@@ -558,21 +558,6 @@
 		pauseQueue = [];
 	}
 
-	function ApplyFilter() {
-		// show the current filter contents
-		console.log(`Filtering by ${providerFilter}`);
-
-		// Show only those article elements that have a provider id that matches the filter
-		var cards = document.querySelectorAll('.moderation');
-		cards.forEach(function (card) {
-			if (providerFilter.includes(card.getAttribute('data-provider'))) {
-				card.style.display = '';
-			} else {
-				card.style.display = 'none';
-			}
-		});
-	}
-
 	const t = {
 		Tags: [],
 
@@ -742,10 +727,20 @@
 				providerFilter = providerFilter.filter(function (item) {
 					return item != provider;
 				});
+
+				// Add a css rule to the page
+				var style = document.createElement('style');
+				style.setAttribute('id', `providerFilter-${provider}`);
+				style.innerHTML = `article[data-provider='${provider}'] { display: none!important; }`;
+				document.head.appendChild(style);
+
 			} else {
 				providerFilter.push(provider);
+				// Remove the css rule from the page
+				var style = document.getElementById(`providerFilter-${provider}`);
+				if (style) style.remove();
 			}
-			ApplyFilter();
+
 		},
 	};
 
