@@ -1,12 +1,16 @@
 ﻿@font-face {
 	font-display: block;
-	font-family: "bootstrap-blazot-icons";
-	src: url("../fonts/bootstrap-blazot-icons.woff2?cc11dd1c41f63204054ef9d2f5666701") format("woff2"), url("../fonts/bootstrap-blazot-icons.woff?cc11dd1c41f63204054ef9d2f5666701") format("woff");
+	font-family: 'bootstrap-blazot-icons';
+	src:
+		url('../fonts/bootstrap-blazot-icons.woff2?cc11dd1c41f63204054ef9d2f5666701')
+			format('woff2'),
+		url('../fonts/bootstrap-blazot-icons.woff?cc11dd1c41f63204054ef9d2f5666701')
+			format('woff');
 }
 
 .bi-blazot::before,
-[class^="bi-blazot"]::before,
-[class*=" bi-blazot"]::before {
+[class^='bi-blazot']::before,
+[class*=' bi-blazot']::before {
 	display: inline-block;
 	font-family: bootstrap-blazot-icons !important;
 	font-style: normal;
@@ -14,11 +18,11 @@
 	font-variant: normal;
 	text-transform: none;
 	line-height: 1;
-	vertical-align: -.125em;
+	vertical-align: -0.125em;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }
 
 .bi-blazot::before {
-	content: "\f2a5";
+	content: '\f2a5';
 }
