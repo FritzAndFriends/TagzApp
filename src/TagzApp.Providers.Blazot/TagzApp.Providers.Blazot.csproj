@@ -20,6 +20,7 @@
 
 	<ItemGroup>
 		<EmbeddedResource Include="wwwroot\**\*" />
+		<Content Remove="wwwroot\icons\blazot.svg" />
 		<Content Update="**\*.cshtml" Pack="false" />
 	</ItemGroup>
 
