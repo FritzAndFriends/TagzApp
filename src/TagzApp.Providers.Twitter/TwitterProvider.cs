@@ -20,6 +20,9 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 	private const int _SearchMaxResults = 100;
 	private const string _SearchExpansions = "author_id,attachments.media_keys";
 
+	private SocialMediaStatus _Status = SocialMediaStatus.Unhealthy;
+	private string _StatusMessage = "Not started";
+
 	public string Id => "TWITTER";
 	public string DisplayName => "Twitter";
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(30);
@@ -48,6 +51,9 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 	{
 
+		_Status = SocialMediaStatus.Healthy;
+		_StatusMessage = "OK";
+
 		var tweetQuery = "#" + tag.Text.ToLowerInvariant().TrimStart('#') + " -is:retweet";
 		var sinceTerm = string.IsNullOrEmpty(NewestId) ? "" : $"&since_id={NewestId}";
 
@@ -70,6 +76,9 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 			else
 			{
 
+				_Status = SocialMediaStatus.Degraded;
+				_StatusMessage = "Twitter provider is not activated - returning sample tweets";
+
 				var assembly = Assembly.GetExecutingAssembly();
 				var resourceName = "TagzApp.Providers.Twitter.Models.SampleTweets.json.gz";
 				string sampleJson = string.Empty;
@@ -87,8 +96,14 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 		}
 		catch (Exception ex)
 		{
+
 			Console.WriteLine($"Error retrieving tweets: {ex.Message}");
+
+			_Status = SocialMediaStatus.Unhealthy;
+			_StatusMessage = $"Error retrieving tweets: {ex.Message}";
+
 			_Logger.LogError(ex, $"Error retrieving tweets");
+
 		}
 
 		var outTweets = ConvertToContent(recentTweets, tag);
@@ -187,8 +202,12 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine($"Error formatting twee ('{t.text}'): ${ex.Message}");
+				Console.WriteLine($"Error formatting tweet ('{t.text}'): ${ex.Message}");
 				_Logger.LogError(ex, $"Error formatting tweet: {t.text}");
+
+				_Status = SocialMediaStatus.Degraded;
+				_StatusMessage = $"Error formatting tweet: {t.text}";
+
 			}
 
 		}
@@ -214,5 +233,12 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 	public Task StartAsync()
 	{
 		return Task.CompletedTask;
+	}
+
+	public Task<(SocialMediaStatus Status, string Message)> GetHealth()
+	{
+
+		return Task.FromResult((_Status, _StatusMessage));
+
 	}
 }
