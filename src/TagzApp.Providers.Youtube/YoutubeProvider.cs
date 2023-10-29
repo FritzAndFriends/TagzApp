@@ -12,6 +12,9 @@ internal class YoutubeProvider : ISocialMediaProvider
 	public string DisplayName => "Youtube";
 	public string Description { get; init; }
 
+	private SocialMediaStatus _Status = SocialMediaStatus.Unhealthy;
+	private string _StatusMessage = "Not started";
+
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(30);
 
 	public YoutubeProvider(YoutubeConfiguration options)
@@ -34,6 +37,9 @@ internal class YoutubeProvider : ISocialMediaProvider
 		searchListRequest.MaxResults = _Configuration.MaxResults;
 
 		var searchListResponse = await searchListRequest.ExecuteAsync();
+
+		_Status = SocialMediaStatus.Healthy;
+		_StatusMessage = "OK";
 
 		if (searchListResponse.Items == null || (!searchListResponse.Items?.Any() ?? true))
 		{
@@ -63,4 +69,7 @@ internal class YoutubeProvider : ISocialMediaProvider
 	{
 		return Task.CompletedTask;
 	}
+
+	public Task<(SocialMediaStatus Status, string Message)> GetHealth() => Task.FromResult((_Status, _StatusMessage));
+
 }
