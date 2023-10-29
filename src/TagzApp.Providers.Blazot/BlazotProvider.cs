@@ -18,6 +18,9 @@ internal sealed class BlazotProvider : ISocialMediaProvider
 	public string Id => BlazotConstants.ProviderId;
 	public string DisplayName => BlazotConstants.DisplayName;
 
+	private SocialMediaStatus _Status = SocialMediaStatus.Unhealthy;
+	private string _StatusMessage = "Not started";
+
 	public string Description { get; init; } = "Blazot is an all new social networking platform and your launchpad to the social universe!";
 
 	public BlazotProvider(ILogger<BlazotProvider> logger, BlazotSettings settings,
@@ -65,12 +68,20 @@ internal sealed class BlazotProvider : ISocialMediaProvider
 
 			transmissions = await _TransmissionsService.GetHashtagTransmissionsAsync(tag, dateTimeOffset);
 
+			_Status = SocialMediaStatus.Healthy;
+			_StatusMessage = "OK";
+
 			if (transmissions == null)
 				return Enumerable.Empty<Content>();
+
 		}
 		catch (Exception ex)
 		{
 			_Logger.LogError(ex, "Error fetching Blazot Hashtag Transmissions: {message}", ex.Message);
+
+			_Status = SocialMediaStatus.Unhealthy;
+			_StatusMessage = $"Error fetching Blazot Hashtag Transmissions: {ex.Message}";
+
 		}
 
 		return _ContentConverter.ConvertToContent(transmissions, tag);
@@ -80,4 +91,6 @@ internal sealed class BlazotProvider : ISocialMediaProvider
 	{
 		return Task.CompletedTask;
 	}
+
+	public Task<(SocialMediaStatus Status, string Message)> GetHealth() => Task.FromResult((_Status, _StatusMessage));
 }

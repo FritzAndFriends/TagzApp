@@ -74,6 +74,7 @@ public class ChatClient : IChatClient
 
 	public string ChannelName { get; }
 	public string ChatBotName { get; }
+	public bool IsRunning => _ReceiveMessagesThread.IsAlive;
 
 	private readonly string _OAuthToken;
 	private readonly CancellationTokenSource _Shutdown;

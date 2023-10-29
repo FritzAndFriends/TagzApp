@@ -32,6 +32,9 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 	private bool _DisposedValue;
 	private string _NextPageToken;
 
+	private SocialMediaStatus _Status = SocialMediaStatus.Unhealthy;
+	private string _StatusMessage = "Not started";
+
 	public YouTubeChatProvider(YouTubeChatConfiguration config, IOptions<ApplicationConfiguration> appConfig)
 	{
 		_ChatConfig = config;
@@ -70,8 +73,15 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 				_GoogleException = $"{LiveChatId}:{ex.Message}";
 				LiveChatId = string.Empty;
 			}
+
+			_Status = SocialMediaStatus.Unhealthy;
+			_StatusMessage = $"Exception while fetching YouTubeChat: {ex.Message}";
+
 			return Enumerable.Empty<Content>();
 		}
+
+		_Status = SocialMediaStatus.Healthy;
+		_StatusMessage = "OK";
 
 		return contents.Items.Select(i => new Content
 		{
@@ -115,6 +125,10 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		catch (Exception ex)
 		{
 			Console.WriteLine($"Exception while refreshing token: {ex.Message}");
+
+			_Status = SocialMediaStatus.Unhealthy;
+			_StatusMessage = $"Exception while refreshing token: {ex.Message}";
+
 			throw;
 		}
 		var credential = new UserCredential(flow, "me", token);
@@ -123,6 +137,10 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		{
 			HttpClientInitializer = credential
 		});
+
+		_Status = SocialMediaStatus.Degraded;
+		_StatusMessage = "Starting YouTubeChat client";
+
 		return _Service;
 	}
 
@@ -166,6 +184,10 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		{
 			// GoogleApiException: The service youtube has thrown an exception. HttpStatusCode is Forbidden. The user is not enabled for live streaming.
 			Console.WriteLine($"Exception while fetching YouTube broadcasts: {ex.Message}");
+
+			_Status = SocialMediaStatus.Unhealthy;
+			_StatusMessage = $"Exception while fetching YouTube broadcasts: {ex.Message}";
+
 			return Enumerable.Empty<YouTubeBroadcast>();
 		}
 
@@ -216,6 +238,8 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		Dispose(disposing: true);
 		GC.SuppressFinalize(this);
 	}
+
+	public Task<(SocialMediaStatus Status, string Message)> GetHealth() => Task.FromResult((_Status, _StatusMessage));
 
 	#endregion
 

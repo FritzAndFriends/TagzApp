@@ -35,6 +35,12 @@ public interface ISocialMediaProvider
 	Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since);
 
 	/// <summary>
+	/// Report the health of the provider
+	/// </summary>
+	/// <returns></returns>
+	Task<(SocialMediaStatus Status, string Message)> GetHealth();
+
+	/// <summary>
 	/// Start the provider
 	/// </summary>
 	/// <returns></returns>

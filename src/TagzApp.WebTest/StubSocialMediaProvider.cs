@@ -32,6 +32,11 @@ public class StubSocialMediaProvider : ISocialMediaProvider
 		return Task.FromResult(testContent.Generate(10).AsEnumerable());
 	}
 
+	public Task<(SocialMediaStatus Status, string Message)> GetHealth()
+	{
+		return Task.FromResult((SocialMediaStatus.Healthy, "OK"));
+	}
+
 	public Task StartAsync()
 	{
 		return Task.CompletedTask;
