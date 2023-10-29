@@ -76,5 +76,14 @@ namespace TagzApp.Web.Areas.Admin.Pages
 			var activatedValues = values?.Where(x => x.Key.Contains("Activated"));
 			return activatedValues?.FirstOrDefault(x => x.Key == "Activated").Value.ToString() == "on" ? true : false;
 		}
+
+		public static string GetClassForHealth(SocialMediaStatus status) => status switch
+		{
+			SocialMediaStatus.Healthy => "bi bi-check-circle-fill text-success",
+			SocialMediaStatus.Degraded => "bi bi-exclamation-circle-fill text-warning",
+			SocialMediaStatus.Unhealthy => "bi bi-x-circle-fill text-danger",
+			_ => "bi bi text-primary"
+		};
+
 	}
 }
