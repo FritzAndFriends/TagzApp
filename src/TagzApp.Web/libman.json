@@ -30,6 +30,14 @@
 			"provider": "cdnjs",
 			"library": "simplemde@1.11.2",
 			"destination": "wwwroot/lib/simplemde/"
+		},
+		{
+			"provider": "jsdelivr",
+			"library": "sweetalert@2.1.2",
+			"destination": "wwwroot/lib/sweetalert/",
+			"files":[
+				"dist/sweetalert.min.js"
+			]
 		}
 	]
 }
