@@ -1,4 +1,5 @@
 ﻿(function () {
+
 	var connection;
 
 	const ModerationState = {
@@ -349,6 +350,7 @@
 			card.classList.remove('status-automod');
 			card.classList.add('status-approved');
 		}
+
 	}
 
 	function RejectMessage(content) {
@@ -413,15 +415,40 @@
 		hoverPanel
 			.querySelector('i.approve')
 			.addEventListener('click', function (ev) {
-				connection.invoke(
-					'SetStatus',
-					hovered.getAttribute('data-provider'),
-					hovered.getAttribute('data-providerid'),
-					ModerationState.Approved,
-				);
-				hoverPanel.remove();
-				hovered.classList.remove('status-rejected');
-				hovered.classList.add('status-approved');
+
+				let approveFunc = function() {
+					connection.invoke(
+						'SetStatus',
+						hovered.getAttribute('data-provider'),
+						hovered.getAttribute('data-providerid'),
+						ModerationState.Approved,
+					);
+					hoverPanel.remove();
+					hovered.classList.remove('status-rejected');
+					hovered.classList.add('status-approved');
+				};
+
+				if (hovered.classList.contains('status-rejected')) {
+
+					// Confirm that we are flipping this
+					swal({
+						title: "Are you sure?",
+						text: "This message was previously rejected. Are you sure you want to approve it?",
+						icon: "warning",
+						buttons: true,
+						dangerMode: true,
+					})
+					.then((willApprove) => {
+						if (willApprove) {
+							approveFunc();
+						}
+					});
+
+				} else {
+
+					approveFunc();
+
+				}
 			});
 
 		hoverPanel
@@ -588,6 +615,7 @@
 		},
 
 		ListenForModerationContent: async function (tag) {
+
 			var tagCsv = encodeURI(tag);
 
 			connection = new signalR.HubConnectionBuilder()
