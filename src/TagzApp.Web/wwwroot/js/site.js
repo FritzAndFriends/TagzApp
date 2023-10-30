@@ -510,6 +510,10 @@
 	}
 
 	function AddModerator(moderator) {
+
+		// Don't double add the moderator
+		if (document.getElementById('moderator-' + moderator.email)) return;
+
 		var moderatorList = document.querySelector('.currentModerators');
 
 		var newMod = document.createElement('img');
