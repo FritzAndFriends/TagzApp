@@ -455,6 +455,7 @@
 				hoverPanel.remove();
 				hovered.classList.remove('status-approved');
 				hovered.classList.add('status-rejected');
+				hovered.classList.add('status-humanmod');
 			});
 
 		hovered.insertBefore(hoverPanel, hovered.firstElementChild);
