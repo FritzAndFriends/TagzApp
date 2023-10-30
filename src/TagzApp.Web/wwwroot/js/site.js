@@ -669,6 +669,15 @@
 				});
 				window.Masonry.resizeAllGridItems();
 			});
+
+			connection.invoke('GetCurrentModerators').then(function (result) {
+				result.forEach(function (moderator) {
+					AddModerator(moderator);
+				});
+				window.Masonry.resizeAllGridItems();
+			});
+
+
 		},
 	};
 
