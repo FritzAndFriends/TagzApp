@@ -510,7 +510,6 @@
 	}
 
 	function AddModerator(moderator) {
-
 		// Don't double add the moderator
 		if (document.getElementById('moderator-' + moderator.email)) return;
 
@@ -680,8 +679,6 @@
 				});
 				window.Masonry.resizeAllGridItems();
 			});
-
-
 		},
 	};
 
