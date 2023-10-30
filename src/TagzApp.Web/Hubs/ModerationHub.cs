@@ -90,6 +90,13 @@ public class ModerationHub : Hub<IModerationClient>
 
 	}
 
+	public async Task<NewModerator[]> GetCurrentModerators()
+	{
+
+		return _CurrentUsersModerating.Select((k) => new NewModerator(k.Key, k.Key.ToGravatar(), k.Value)).ToArray();
+
+	}
+
 }
 
 public interface IModerationClient

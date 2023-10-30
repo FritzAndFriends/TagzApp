@@ -510,6 +510,9 @@
 	}
 
 	function AddModerator(moderator) {
+		// Don't double add the moderator
+		if (document.getElementById('moderator-' + moderator.email)) return;
+
 		var moderatorList = document.querySelector('.currentModerators');
 
 		var newMod = document.createElement('img');
@@ -666,6 +669,13 @@
 			connection.invoke('GetContentForTag', tag).then(function (result) {
 				result.forEach(function (content) {
 					FormatMessageForModeration(content);
+				});
+				window.Masonry.resizeAllGridItems();
+			});
+
+			connection.invoke('GetCurrentModerators').then(function (result) {
+				result.forEach(function (moderator) {
+					AddModerator(moderator);
 				});
 				window.Masonry.resizeAllGridItems();
 			});
