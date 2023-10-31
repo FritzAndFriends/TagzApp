@@ -14,6 +14,7 @@
 		Unmoderated: '3',
 	};
 
+	var tagCsv = "";
 	var paused = false;
 	var rolloverPause = false;
 	var pauseQueue = [];
@@ -89,10 +90,6 @@
 			return;
 
 		const newMessage = document.createElement('article');
-
-		if (approvedFilterStatus != '0' && approvedFilterStatus != '3') {
-			newMessage.style.display = 'none';
-		}
 
 		if (additionalClass) {
 			if (additionalClass.constructor === Array) {
@@ -337,19 +334,39 @@
 				.substring(emote.pos, emote.length + emote.pos + 1)
 				.trim();
 			var emoteHtml = `<img class="emote" src="${emoteUrl}"  />`;
-			console.log(
-				`Formatting text: '${text}' with emote at ${emote.pos}, with length ${emote.length} and found text ${emoteName}`,
-			);
+			// console.log(
+			// 	`Formatting text: '${text}' with emote at ${emote.pos}, with length ${emote.length} and found text ${emoteName}`,
+			// );
 			toReplace.push({ name: emoteName, html: emoteHtml });
 		}
 
 		for (var r in toReplace) {
 			var item = toReplace[r];
-			console.log(`Replacing ${item.name} with ${item.html}`);
+			// console.log(`Replacing ${item.name} with ${item.html}`);
 			text = text.replace(item.name, item.html);
 		}
 
 		return text;
+	}
+
+	function LoadAdditionalContentForFilters()
+	{
+
+		// only proceed if less than 20 article elements are visible
+		if (document.querySelectorAll('article:not([style*="display: none"])').length < 20) return;
+
+		console.log(`Loading additional content for filters: ${approvedFilterStatus} and ${providerFilter}`);
+
+		// use the SignalR connection to call the server and get the additional content
+		connection.invoke('GetFilteredContentByTag', tagCsv, providerFilter, approvedFilterStatus).then(function (result) {
+			console.log(`Received ${result.length} additional messages.`);
+			result.forEach(function (content) {
+				console.log(`Formatting ${content.providerId}`);
+				FormatMessageForModeration(content);
+			});
+			window.Masonry.resizeAllGridItems();
+		});
+
 	}
 
 	function ApproveMessage(content) {
@@ -361,12 +378,6 @@
 			card.classList.remove('status-rejected');
 			card.classList.remove('status-automod');
 			card.classList.add('status-approved');
-			if (
-				approvedFilterStatus == ApprovalFilter.Rejected ||
-				approvedFilterStatus == ApprovalFilter.Unmoderated
-			) {
-				card.style.display = 'none';
-			}
 		}
 	}
 
@@ -379,12 +390,6 @@
 			card.classList.remove('status-approved');
 			card.classList.remove('status-automod');
 			card.classList.add('status-rejected');
-			if (
-				approvedFilterStatus == ApprovalFilter.Approved ||
-				approvedFilterStatus == ApprovalFilter.Unmoderated
-			) {
-				card.style.display = 'none';
-			}
 		}
 
 		if (content.moderator == 'AZURE-CONTENTSAFETY') {
@@ -593,38 +598,38 @@
 		},
 
 		FilterByApprovalStatus: function (status) {
-			var cards = document.querySelectorAll('.moderation');
+			let taggedContent = document.getElementById('taggedContent');
 			approvedFilterStatus = status;
-			cards.forEach(function (card) {
-				if (status == '0') {
-					card.style.display = '';
-				} else if (status == '1') {
-					if (card.classList.contains('status-approved')) {
-						card.style.display = '';
-					} else {
-						card.style.display = 'none';
-					}
-				} else if (status == '2') {
-					if (card.classList.contains('status-rejected')) {
-						card.style.display = '';
-					} else {
-						card.style.display = 'none';
-					}
-				} else if (status == '3') {
-					if (
-						card.classList.contains('status-approved') ||
-						card.classList.contains('status-rejected')
-					) {
-						card.style.display = 'none';
-					} else {
-						card.style.display = '';
-					}
-				}
-			});
+			switch (status) {
+				case ApprovalFilter.All:
+					taggedContent.classList.remove('filter-approvedOnly');
+					taggedContent.classList.remove('filter-rejectedOnly');
+					taggedContent.classList.remove('filter-needsModeration');
+					break;
+				case ApprovalFilter.Approved:
+					taggedContent.classList.add('filter-approvedOnly');
+					taggedContent.classList.remove('filter-rejectedOnly');
+					taggedContent.classList.remove('filter-needsModeration');
+					break;
+				case ApprovalFilter.Rejected:
+					taggedContent.classList.remove('filter-approvedOnly');
+					taggedContent.classList.add('filter-rejectedOnly');
+					taggedContent.classList.remove('filter-needsModeration');
+					break;
+				case ApprovalFilter.Unmoderated:
+					taggedContent.classList.remove('filter-approvedOnly');
+					taggedContent.classList.remove('filter-rejectedOnly');
+					taggedContent.classList.add('filter-needsModeration');
+					break;
+
+			}
+
+			LoadAdditionalContentForFilters();
+
 		},
 
 		ListenForWaterfallContent: async function (tags) {
-			var tagCsv = encodeURI(tags);
+			tagCsv = encodeURI(tags);
 			t.Tags = tags.split(',');
 
 			connection = new signalR.HubConnectionBuilder()
@@ -667,7 +672,7 @@
 		},
 
 		ListenForModerationContent: async function (tag) {
-			var tagCsv = encodeURI(tag);
+			tagCsv = encodeURI(tag);
 
 			connection = new signalR.HubConnectionBuilder()
 				.withUrl(`/mod?t=${tagCsv}`)
@@ -755,7 +760,7 @@
 		},
 
 		ToggleProviderFilter: function (provider) {
-			console.log(`Before Toggle: ${providerFilter} -- toggling ${provider}`);
+			// console.log(`Before Toggle: ${providerFilter} -- toggling ${provider}`);
 
 			if (providerFilter.includes(provider)) {
 				providerFilter = providerFilter.filter(function (item) {

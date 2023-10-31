@@ -503,6 +503,34 @@ article.status-approved .time::after {
 	margin-bottom: 1em;
 }
 
+/** Filters on the moderation cards **/
+#taggedContent.filter-approvedOnly article.status-rejected {
+	display: none;
+}
+
+#taggedContent.filter-approvedOnly article:not(.status-rejected):not(.status-approved) {
+	display: none;
+}
+
+/* In #taggedContent, hide articles that don't have status-rejected class or status-approved class  */
+#taggedContent.filter-rejectedOnly article:not(.status-rejected):not(.status-approved) {
+	display: none;
+}
+
+#taggedContent.filter-rejectedOnly article.status-approved {
+	display: none;
+}
+
+/* in #taggedContent with the class filter-needsModeration, hide all articles with status-approved and status-rejected */
+#taggedContent.filter-needsModeration article.status-approved {
+	display: none;
+}
+
+#taggedContent.filter-needsModeration article.status-rejected {
+	display: none;
+}
+
+
 a {
 	color: var(--bs-cyan);
 }

@@ -173,6 +173,27 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 			.Select(c => c.ProviderId)
 			.FirstOrDefault() ?? string.Empty;
 
+	}
+
+	public async Task<IEnumerable<(Content, ModerationAction?)>> GetFilteredContentByTag(string tag, string[] providers, ModerationState[] states)
+	{
+
+		tag = $"#{tag}";
+
+		using var scope = _Services.CreateScope();
+		var ctx = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
+
+		return (await ctx.Content.AsNoTracking()
+			.Include(c => c.ModerationAction)
+			.Where(c => c.HashtagSought == tag &&
+				providers.Contains(c.Provider) &&
+				c.ModerationAction != null &&
+				states.Contains(c.ModerationAction.State))
+			.OrderByDescending(c => c.Timestamp)
+			.Take(100)
+			.ToArrayAsync())
+			.Select(c => ((Content)c, (ModerationAction?)(c.ModerationAction)))
+			.ToArray();
 
 	}
 }

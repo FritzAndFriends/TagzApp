@@ -97,6 +97,19 @@ public class ModerationHub : Hub<IModerationClient>
 
 	}
 
+	public async Task<IEnumerable<ModerationContentModel>> GetFilteredContentByTag(string tag, string[] providers, string state)
+	{
+
+		var states = string.IsNullOrEmpty(state) ?
+			[ModerationState.Pending, ModerationState.Approved, ModerationState.Rejected] :
+			new[] { Enum.Parse<ModerationState>(state) };
+
+		return (await _Service.GetFilteredContentByTag(tag, providers, states))
+			.Select(c => ModerationContentModel.ToModerationContentModel(c.Item1, c.Item2))
+			.ToArray();
+
+	}
+
 }
 
 public interface IModerationClient
