@@ -5,4 +5,7 @@ public interface IChatClient : IDisposable
 	event EventHandler<NewMessageEventArgs> NewMessage;
 
 	void Init();
+
+	bool IsRunning { get; }
+
 }

@@ -438,15 +438,34 @@
 		hoverPanel
 			.querySelector('i.approve')
 			.addEventListener('click', function (ev) {
-				connection.invoke(
-					'SetStatus',
-					hovered.getAttribute('data-provider'),
-					hovered.getAttribute('data-providerid'),
-					ModerationState.Approved,
-				);
-				hoverPanel.remove();
-				hovered.classList.remove('status-rejected');
-				hovered.classList.add('status-approved');
+				let approveFunc = function () {
+					connection.invoke(
+						'SetStatus',
+						hovered.getAttribute('data-provider'),
+						hovered.getAttribute('data-providerid'),
+						ModerationState.Approved,
+					);
+					hoverPanel.remove();
+					hovered.classList.remove('status-rejected');
+					hovered.classList.add('status-approved');
+				};
+
+				if (hovered.classList.contains('status-rejected')) {
+					// Confirm that we are flipping this
+					swal({
+						title: 'Are you sure?',
+						text: 'This message was previously rejected. Are you sure you want to approve it?',
+						icon: 'warning',
+						buttons: true,
+						dangerMode: true,
+					}).then((willApprove) => {
+						if (willApprove) {
+							approveFunc();
+						}
+					});
+				} else {
+					approveFunc();
+				}
 			});
 
 		hoverPanel
@@ -461,6 +480,7 @@
 				hoverPanel.remove();
 				hovered.classList.remove('status-approved');
 				hovered.classList.add('status-rejected');
+				hovered.classList.add('status-humanmod');
 			});
 
 		hovered.insertBefore(hoverPanel, hovered.firstElementChild);
@@ -516,6 +536,9 @@
 	}
 
 	function AddModerator(moderator) {
+		// Don't double add the moderator
+		if (document.getElementById('moderator-' + moderator.email)) return;
+
 		var moderatorList = document.querySelector('.currentModerators');
 
 		var newMod = document.createElement('img');
@@ -703,6 +726,13 @@
 			connection.invoke('GetContentForTag', tag).then(function (result) {
 				result.forEach(function (content) {
 					FormatMessageForModeration(content);
+				});
+				window.Masonry.resizeAllGridItems();
+			});
+
+			connection.invoke('GetCurrentModerators').then(function (result) {
+				result.forEach(function (moderator) {
+					AddModerator(moderator);
 				});
 				window.Masonry.resizeAllGridItems();
 			});

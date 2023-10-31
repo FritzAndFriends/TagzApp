@@ -10,6 +10,8 @@ internal class MastodonProvider : ISocialMediaProvider, IHasNewestId
 
 	private readonly HttpClient _HttpClient;
 	private readonly ILogger _Logger;
+	private SocialMediaStatus _Status = SocialMediaStatus.Unhealthy;
+	private string _StatusMessage = "Not started";
 
 	public MastodonProvider(IHttpClientFactory httpClientFactory, ILogger<MastodonProvider> logger,
 		MastodonConfiguration configuration)
@@ -34,6 +36,9 @@ internal class MastodonProvider : ISocialMediaProvider, IHasNewestId
 	public async Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since)
 	{
 
+		_Status = SocialMediaStatus.Healthy;
+		_StatusMessage = "OK";
+
 		var targetUri = FormatUri(tag);
 
 		Message[]? messages = null;
@@ -49,12 +54,17 @@ internal class MastodonProvider : ISocialMediaProvider, IHasNewestId
 		{
 
 			_Logger.LogError(ex, "Error getting content from Mastodon");
+			_Status = SocialMediaStatus.Unhealthy;
+			_StatusMessage = $"Error getting content from Mastodon: {ex.Message}";
+
 			return Enumerable.Empty<Content>();
 
 		}
 
 		if (messages is null || (!messages?.Any() ?? true))
 		{
+			_Status = SocialMediaStatus.Healthy;
+			_StatusMessage = "No new content found";
 			return Enumerable.Empty<Content>();
 		}
 
@@ -87,6 +97,11 @@ internal class MastodonProvider : ISocialMediaProvider, IHasNewestId
 		}).ToArray();
 #pragma warning restore CS8604 // Possible null reference argument.
 
+	}
+
+	public Task<(SocialMediaStatus Status, string Message)> GetHealth()
+	{
+		return Task.FromResult((_Status, _StatusMessage));
 	}
 
 	public Task StartAsync()

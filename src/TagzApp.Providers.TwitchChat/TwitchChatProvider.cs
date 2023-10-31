@@ -15,6 +15,9 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(1);
 	public string Description { get; init; } = "Twitch is where millions of people come together live every day to chat, interact, and make their own entertainment together.";
 
+	private SocialMediaStatus _Status = SocialMediaStatus.Unhealthy;
+	private string _StatusMessage = "Not started";
+
 	private static readonly ConcurrentQueue<Content> _Contents = new();
 	private static readonly CancellationTokenSource _CancellationTokenSource = new();
 	private readonly TwitchChatConfiguration _Settings;
@@ -43,13 +46,24 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	private async Task ListenForMessages(IChatClient chatClient = null)
 	{
 
+		_Status = SocialMediaStatus.Degraded;
+		_StatusMessage = "Starting TwitchChat client";
+
 		var token = _CancellationTokenSource.Token;
 		_Client = chatClient ?? new ChatClient(_Settings.ChannelName, _Settings.ChatBotName, _Settings.OAuthToken, _Logger);
 
 		_Client.NewMessage += async (sender, args) =>
 		{
 
-			var profileUrl = await IdentifyProfilePic(args.UserName);
+			string profileUrl = string.Empty;
+			try
+			{
+				profileUrl = await IdentifyProfilePic(args.UserName);
+			}
+			catch (Exception ex)
+			{
+				_Logger.LogError(ex, "Failed to identify profile pic for {UserName}", args.UserName);
+			}
 
 			_Contents.Enqueue(new Content
 			{
@@ -70,7 +84,20 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 			});
 		};
 
-		_Client.Init();
+		try
+		{
+			_Client.Init();
+		}
+		catch (Exception ex)
+		{
+			_Logger.LogError(ex, "Failed to initialize TwitchChat client");
+			_Status = SocialMediaStatus.Unhealthy;
+			_StatusMessage = $"Failed to initialize TwitchChat client: '{ex.Message}'";
+			return;
+		}
+
+		_Status = SocialMediaStatus.Healthy;
+		_StatusMessage = "OK";
 
 	}
 
@@ -82,6 +109,17 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	public Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since)
 	{
 
+		if (!_Client.IsRunning)
+		{
+
+			// mark status as unhealthy and return empty list
+			_Status = SocialMediaStatus.Unhealthy;
+			_StatusMessage = "TwitchChat client is not running";
+
+			return Task.FromResult(Enumerable.Empty<Content>());
+
+		}
+
 		var messages = _Contents.ToList();
 		if (messages.Count() == 0) return Task.FromResult(Enumerable.Empty<Content>());
 
@@ -90,6 +128,9 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 		{
 			_Contents.TryDequeue(out _);
 		}
+
+		_Status = SocialMediaStatus.Healthy;
+		_StatusMessage = "OK";
 
 		messages.ForEach(m => m.HashtagSought = tag.Text);
 
@@ -130,5 +171,10 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	{
 		ListenForMessages();
 		return Task.CompletedTask;
+	}
+
+	public Task<(SocialMediaStatus Status, string Message)> GetHealth()
+	{
+		return Task.FromResult((_Status, _StatusMessage));
 	}
 }
