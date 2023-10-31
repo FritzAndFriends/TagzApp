@@ -14,7 +14,7 @@
 		Unmoderated: '0',
 	};
 
-	var tagCsv = "";
+	var tagCsv = '';
 	var paused = false;
 	var rolloverPause = false;
 	var pauseQueue = [];
@@ -191,7 +191,7 @@
 				})}`;
 
 				let modalBody = (document.querySelector('.modal-body').innerHTML =
-					content.text);
+					FormatContextWithEmotes(content));
 
 				if (
 					content.previewCard &&
@@ -349,22 +349,34 @@
 		return text;
 	}
 
-	function LoadAdditionalContentForFilters()
-	{
-
+	function LoadAdditionalContentForFilters() {
 		// only proceed if less than 20 article elements are visible
-		if (document.querySelectorAll('article:not([style*="display: none"])').length < 20) return;
+		if (
+			document.querySelectorAll('article:not([style*="display: none"])')
+				.length < 20
+		)
+			return;
 
 		// use the SignalR connection to call the server and get the additional content
-		connection.invoke('GetFilteredContentByTag', tagCsv, providerFilter, approvedFilterStatus).then(function (result) {
-			console.log(`Received ${result.length} additional messages from server`);
-			result.forEach(function (content) {
-				console.log(`Formatting ${content.providerId} with state ${content.state}`);
-				FormatMessageForModeration(content);
+		connection
+			.invoke(
+				'GetFilteredContentByTag',
+				tagCsv,
+				providerFilter,
+				approvedFilterStatus,
+			)
+			.then(function (result) {
+				console.log(
+					`Received ${result.length} additional messages from server`,
+				);
+				result.forEach(function (content) {
+					console.log(
+						`Formatting ${content.providerId} with state ${content.state}`,
+					);
+					FormatMessageForModeration(content);
+				});
+				window.Masonry.resizeAllGridItems();
 			});
-			window.Masonry.resizeAllGridItems();
-		});
-
 	}
 
 	function ApproveMessage(content) {
@@ -595,6 +607,10 @@
 			return MapProviderToIcon(provider);
 		},
 
+		FormatContentWithEmotes: function (content) {
+			return FormatContextWithEmotes(content);
+		},
+
 		FilterByApprovalStatus: function (status) {
 			let taggedContent = document.getElementById('taggedContent');
 			approvedFilterStatus = status;
@@ -619,11 +635,9 @@
 					taggedContent.classList.remove('filter-rejectedOnly');
 					taggedContent.classList.add('filter-needsModeration');
 					break;
-
 			}
 
 			LoadAdditionalContentForFilters();
-
 		},
 
 		ListenForWaterfallContent: async function (tags) {
@@ -774,7 +788,6 @@
 			}
 
 			if (providerFilter.length > 0) LoadAdditionalContentForFilters();
-
 		},
 	};
 
