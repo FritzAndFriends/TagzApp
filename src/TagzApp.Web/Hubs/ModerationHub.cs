@@ -100,13 +100,15 @@ public class ModerationHub : Hub<IModerationClient>
 	public async Task<IEnumerable<ModerationContentModel>> GetFilteredContentByTag(string tag, string[] providers, string state)
 	{
 
-		var states = string.IsNullOrEmpty(state) ?
+		var states = string.IsNullOrEmpty(state) || state == "-1" ?
 			[ModerationState.Pending, ModerationState.Approved, ModerationState.Rejected] :
 			new[] { Enum.Parse<ModerationState>(state) };
 
-		return (await _Service.GetFilteredContentByTag(tag, providers, states))
+		var results = (await _Service.GetFilteredContentByTag(tag, providers, states))
 			.Select(c => ModerationContentModel.ToModerationContentModel(c.Item1, c.Item2))
 			.ToArray();
+		System.Console.WriteLine($"Found {results.Length} results for {tag} with {providers.Length} providers and {states.Length} states");
+		return results;
 
 	}
 

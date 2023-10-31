@@ -8,10 +8,10 @@
 	};
 
 	const ApprovalFilter = {
-		All: '0',
+		All: '-1',
 		Approved: '1',
 		Rejected: '2',
-		Unmoderated: '3',
+		Unmoderated: '0',
 	};
 
 	var tagCsv = "";
@@ -355,13 +355,11 @@
 		// only proceed if less than 20 article elements are visible
 		if (document.querySelectorAll('article:not([style*="display: none"])').length < 20) return;
 
-		console.log(`Loading additional content for filters: ${approvedFilterStatus} and ${providerFilter}`);
-
 		// use the SignalR connection to call the server and get the additional content
 		connection.invoke('GetFilteredContentByTag', tagCsv, providerFilter, approvedFilterStatus).then(function (result) {
-			console.log(`Received ${result.length} additional messages.`);
+			console.log(`Received ${result.length} additional messages from server`);
 			result.forEach(function (content) {
-				console.log(`Formatting ${content.providerId}`);
+				console.log(`Formatting ${content.providerId} with state ${content.state}`);
 				FormatMessageForModeration(content);
 			});
 			window.Masonry.resizeAllGridItems();
@@ -747,18 +745,6 @@
 			providerFilter = providers;
 		},
 
-		AddProviderFilter: function (provider) {
-			providerFilter.push(provider);
-			ApplyFilter();
-		},
-
-		RemoveProviderFilter: function (provider) {
-			providerFilter = providerFilter.filter(function (item) {
-				return item != provider;
-			});
-			ApplyFilter();
-		},
-
 		ToggleProviderFilter: function (provider) {
 			// console.log(`Before Toggle: ${providerFilter} -- toggling ${provider}`);
 
@@ -783,9 +769,12 @@
 
 				var style = document.createElement('style');
 				style.setAttribute('id', `providerFilter-${provider}`);
-				style.innerHTML = `article[data-provider='${provider}'] { display: grid!important; }`;
+				style.innerHTML = `article[data-provider='${provider}'] { display: grid; }`;
 				document.head.appendChild(style);
 			}
+
+			if (providerFilter.length > 0) LoadAdditionalContentForFilters();
+
 		},
 	};
 
