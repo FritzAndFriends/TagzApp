@@ -173,6 +173,57 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 			.Select(c => c.ProviderId)
 			.FirstOrDefault() ?? string.Empty;
 
+	}
+
+	public async Task<IEnumerable<(Content, ModerationAction?)>> GetFilteredContentByTag(string tag, string[] providers, ModerationState[] states)
+	{
+
+		tag = $"#{tag}";
+
+		using var scope = _Services.CreateScope();
+		var ctx = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
+
+		if (states.Length == 1 && states.Contains(ModerationState.Pending))
+		{
+
+			return (await ctx.Content.AsNoTracking()
+				.Include(c => c.ModerationAction)
+				.Where(c => c.HashtagSought == tag &&
+					providers.Contains(c.Provider) &&
+					c.ModerationAction == null)
+				.OrderByDescending(c => c.Timestamp)
+				.Take(100)
+				.ToArrayAsync())
+				.Select(c => ((Content)c, (ModerationAction?)null))
+				.ToArray();
+
+		} else if (states.Length == 3) {
+
+			return (await ctx.Content.AsNoTracking()
+				.Include(c => c.ModerationAction)
+				.Where(c => c.HashtagSought == tag &&
+					providers.Contains(c.Provider))
+				.OrderByDescending(c => c.Timestamp)
+				.Take(100)
+				.ToArrayAsync())
+				.Select(c => ((Content)c, c.ModerationAction == null ? null : (ModerationAction?)c.ModerationAction))
+				.ToArray();
+
+		} else {
+
+			return (await ctx.Content.AsNoTracking()
+				.Include(c => c.ModerationAction)
+				.Where(c => c.HashtagSought == tag &&
+					providers.Contains(c.Provider) &&
+					c.ModerationAction != null &&
+					states.Contains(c.ModerationAction.State))
+				.OrderByDescending(c => c.Timestamp)
+				.Take(100)
+				.ToArrayAsync())
+				.Select(c => ((Content)c, (ModerationAction?)(c.ModerationAction)))
+				.ToArray();
+
+		}
 
 	}
 }

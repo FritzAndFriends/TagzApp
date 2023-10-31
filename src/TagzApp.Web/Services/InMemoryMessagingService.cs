@@ -105,6 +105,13 @@ public class InMemoryMessagingService : BaseProviderManager, IMessagingService
 
 	}
 
+	public Task<IEnumerable<(Content, ModerationAction)>> GetFilteredContentByTag(string tag, string[] providers, ModerationState[] states)
+	{
+
+		throw new NotImplementedException();
+
+	}
+
 	public IEnumerable<string> TagsTracked => _Content.Keys;
 
 }

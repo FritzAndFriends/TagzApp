@@ -7,10 +7,20 @@
 		Rejected: 2,
 	};
 
+	const ApprovalFilter = {
+		All: '-1',
+		Approved: '1',
+		Rejected: '2',
+		Unmoderated: '0',
+	};
+
+	var tagCsv = "";
 	var paused = false;
 	var rolloverPause = false;
 	var pauseQueue = [];
 	var pauseTimeout;
+	var approvedFilterStatus = ApprovalFilter.All;
+	var providerFilter = [];
 	const waterfallMaxEntries = 100;
 	const moderationMaxEntries = 500;
 
@@ -324,19 +334,37 @@
 				.substring(emote.pos, emote.length + emote.pos + 1)
 				.trim();
 			var emoteHtml = `<img class="emote" src="${emoteUrl}"  />`;
-			console.log(
-				`Formatting text: '${text}' with emote at ${emote.pos}, with length ${emote.length} and found text ${emoteName}`,
-			);
+			// console.log(
+			// 	`Formatting text: '${text}' with emote at ${emote.pos}, with length ${emote.length} and found text ${emoteName}`,
+			// );
 			toReplace.push({ name: emoteName, html: emoteHtml });
 		}
 
 		for (var r in toReplace) {
 			var item = toReplace[r];
-			console.log(`Replacing ${item.name} with ${item.html}`);
+			// console.log(`Replacing ${item.name} with ${item.html}`);
 			text = text.replace(item.name, item.html);
 		}
 
 		return text;
+	}
+
+	function LoadAdditionalContentForFilters()
+	{
+
+		// only proceed if less than 20 article elements are visible
+		if (document.querySelectorAll('article:not([style*="display: none"])').length < 20) return;
+
+		// use the SignalR connection to call the server and get the additional content
+		connection.invoke('GetFilteredContentByTag', tagCsv, providerFilter, approvedFilterStatus).then(function (result) {
+			console.log(`Received ${result.length} additional messages from server`);
+			result.forEach(function (content) {
+				console.log(`Formatting ${content.providerId} with state ${content.state}`);
+				FormatMessageForModeration(content);
+			});
+			window.Masonry.resizeAllGridItems();
+		});
+
 	}
 
 	function ApproveMessage(content) {
@@ -387,7 +415,7 @@
 					rolloverPause = false;
 					FormatPauseButton();
 					ResumeFromPause();
-				}, 1500);
+				}, 500);
 			}
 		});
 	}
@@ -468,7 +496,7 @@
 					rolloverPause = false;
 					FormatPauseButton();
 					ResumeFromPause();
-				}, 1500);
+				}, 500);
 			}
 
 			// cleanup the moderation overlay
@@ -567,8 +595,39 @@
 			return MapProviderToIcon(provider);
 		},
 
+		FilterByApprovalStatus: function (status) {
+			let taggedContent = document.getElementById('taggedContent');
+			approvedFilterStatus = status;
+			switch (status) {
+				case ApprovalFilter.All:
+					taggedContent.classList.remove('filter-approvedOnly');
+					taggedContent.classList.remove('filter-rejectedOnly');
+					taggedContent.classList.remove('filter-needsModeration');
+					break;
+				case ApprovalFilter.Approved:
+					taggedContent.classList.add('filter-approvedOnly');
+					taggedContent.classList.remove('filter-rejectedOnly');
+					taggedContent.classList.remove('filter-needsModeration');
+					break;
+				case ApprovalFilter.Rejected:
+					taggedContent.classList.remove('filter-approvedOnly');
+					taggedContent.classList.add('filter-rejectedOnly');
+					taggedContent.classList.remove('filter-needsModeration');
+					break;
+				case ApprovalFilter.Unmoderated:
+					taggedContent.classList.remove('filter-approvedOnly');
+					taggedContent.classList.remove('filter-rejectedOnly');
+					taggedContent.classList.add('filter-needsModeration');
+					break;
+
+			}
+
+			LoadAdditionalContentForFilters();
+
+		},
+
 		ListenForWaterfallContent: async function (tags) {
-			var tagCsv = encodeURI(tags);
+			tagCsv = encodeURI(tags);
 			t.Tags = tags.split(',');
 
 			connection = new signalR.HubConnectionBuilder()
@@ -611,7 +670,7 @@
 		},
 
 		ListenForModerationContent: async function (tag) {
-			var tagCsv = encodeURI(tag);
+			tagCsv = encodeURI(tag);
 
 			connection = new signalR.HubConnectionBuilder()
 				.withUrl(`/mod?t=${tagCsv}`)
@@ -680,6 +739,42 @@
 				});
 				window.Masonry.resizeAllGridItems();
 			});
+		},
+
+		InitializeProviderFilter: function (providers) {
+			providerFilter = providers;
+		},
+
+		ToggleProviderFilter: function (provider) {
+			// console.log(`Before Toggle: ${providerFilter} -- toggling ${provider}`);
+
+			if (providerFilter.includes(provider)) {
+				providerFilter = providerFilter.filter(function (item) {
+					return item != provider;
+				});
+
+				var style = document.getElementById(`providerFilter-${provider}`);
+				if (style) style.remove();
+
+				// Add a css rule to the page
+				var style = document.createElement('style');
+				style.setAttribute('id', `providerFilter-${provider}`);
+				style.innerHTML = `article[data-provider='${provider}'] { display: none!important; }`;
+				document.head.appendChild(style);
+			} else {
+				providerFilter.push(provider);
+				// Remove the css rule from the page
+				var style = document.getElementById(`providerFilter-${provider}`);
+				if (style) style.remove();
+
+				var style = document.createElement('style');
+				style.setAttribute('id', `providerFilter-${provider}`);
+				style.innerHTML = `article[data-provider='${provider}'] { display: grid; }`;
+				document.head.appendChild(style);
+			}
+
+			if (providerFilter.length > 0) LoadAdditionalContentForFilters();
+
 		},
 	};
 

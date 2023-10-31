@@ -14,6 +14,8 @@ public interface IMessagingService : IHostedService
 	// TODO: Needs checking if a non-nullable ModerationAction makes problems!
 	Task<IEnumerable<(Content, ModerationAction)>> GetContentByTagForModeration(string tag);
 
+	Task<IEnumerable<(Content, ModerationAction)>> GetFilteredContentByTag(string tag, string[] providers, ModerationState[] states);
+
 	Task<IEnumerable<Content>> GetApprovedContentByTag(string tag);
 
 	IEnumerable<ISocialMediaProvider> Providers { get; }

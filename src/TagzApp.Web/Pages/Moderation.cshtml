@@ -10,13 +10,37 @@
 	</div>
 </div>
 
-<div class="row" style="padding: 10px!important;">
-	<div class="col-md-12 d-flex align-items-center" style="">
+<div class="row" style="padding: 0  10px!important;">
+	<div class="col-md-8 d-flex align-items-center" style="">
 		<span class="col-form-label-sm">Current Moderators:</span>
-		<span class="col-md-10 currentModerators">
+		<span class="currentModerators">
 
 		</span>
 	</div>
+	<div class="col-md-4 d-flex justify-content-end align-items-center" >
+		<label for="approved" style="text-wrap: nowrap; margin-right: 1.4em">Approval Status:</label>
+		<select id="approved" >
+			<option value="-1">All</option>
+			<option value="1">Approved Only</option>
+			<option value="2">Rejected Only</option>
+			<option value="0">Needs Review</option>
+		</select>
+
+		<label for="providers" class="px-2">Providers:</label>
+		<div class="btn-group" role="group">
+
+			@foreach (var provider in Model.Providers)
+			{
+				<input type="checkbox" class="btn-check" name="options" id="@provider.Id" checked autocomplete="off">
+				<label title="@provider.DisplayName" class="btn btn-outline-primary providerSwitch" for="@provider.Id"><i class="provider bi"></i></label>
+			}
+
+		</div>
+
+	</div>
+
+</div>
+<div class="row" style="padding: 2px 10px!important">
 
 	<div id="taggedContent" class="">
 
@@ -33,7 +57,6 @@
 		<i class="bi bi-x-circle-fill reject" title="Reject this content"></i>
 	</div>
 
-
 	@section Scripts {
 
 		<script src="~/js/masonry.js" asp-append-version="true"></script>
@@ -44,6 +67,29 @@
 
 			window.onload = window.Masonry.resizeAllGridItems();
 			window.addEventListener("resize", Masonry.resizeAllGridItems);
+
+			var providers = [];
+			var switches = document.querySelectorAll(".providerSwitch");
+			switches.forEach(function (sw) {
+				var providerId = sw.getAttribute("for");
+				var providerClass = window.TagzApp.MapProviderToIconClass(providerId);
+				var icon = sw.querySelector(".provider");
+				icon.classList.add(providerClass);
+				providers.push(providerId);
+				// add an event handler on the toggle of the checkbox to call AddProviderFilter or RemoveProviderFilter appropriately
+				var checkbox = document.getElementById(providerId);
+				checkbox.addEventListener("click", function (e) {
+					var providerId = e.target.id;
+					window.TagzApp.ToggleProviderFilter(providerId);
+				});
+			});
+			window.TagzApp.InitializeProviderFilter(providers);
+
+			var approved = document.getElementById("approved");
+			approved.addEventListener("change", function (e) {
+				var value = e.target.value;
+				window.TagzApp.FilterByApprovalStatus(value);
+			});
 
 		</script>
 
