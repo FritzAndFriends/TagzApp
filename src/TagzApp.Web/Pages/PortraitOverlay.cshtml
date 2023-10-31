@@ -64,7 +64,7 @@
 								</div>
 											<i class="provider bi ${window.TagzApp.MapProviderToIconClass(content.provider)}"></i>
 								<span class="time">${new Date(content.timestamp).toLocaleString(undefined, { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-								<span class="content">${content.text}</span>
+								<span class="content">${window.TagzApp.FormatContentWithEmotes(content)}</span>
 								`;
 
 					if (content.previewCard) {

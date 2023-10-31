@@ -191,7 +191,7 @@
 				})}`;
 
 				let modalBody = (document.querySelector('.modal-body').innerHTML =
-					content.text);
+					FormatContextWithEmotes(content));
 
 				if (
 					content.previewCard &&
@@ -593,6 +593,10 @@
 
 		MapProviderToIconClass: function (provider) {
 			return MapProviderToIcon(provider);
+		},
+
+		FormatContentWithEmotes: function (content) {
+			return FormatContextWithEmotes(content);
 		},
 
 		FilterByApprovalStatus: function (status) {
