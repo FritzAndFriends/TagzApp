@@ -21,6 +21,8 @@
 	var pauseTimeout;
 	var approvedFilterStatus = ApprovalFilter.All;
 	var providerFilter = [];
+	var cursorProviderId = null;
+
 	const waterfallMaxEntries = 100;
 	const moderationMaxEntries = 500;
 
@@ -77,6 +79,13 @@
 		connection.onclose(async () => {
 			await start();
 		});
+	}
+
+	function RemoveActivePanel() {
+		if (document.querySelector('.active_panel')) {
+			// remove the active panel
+			document.querySelector('.active_panel').remove();
+		}
 	}
 
 	function FormatMessage(content, additionalClass, onclick, onmouseenter) {
@@ -597,8 +606,295 @@
 		pauseQueue = [];
 	}
 
+	function HandleKeyPress(ev) {
+		let height = 0;
+		try {
+			height = document.querySelector('article .bi').offsetHeight;
+		} catch {
+			return;
+		}
+
+		function PauseNewContentFor5Seconds() {
+			window.clearTimeout(pauseTimeout);
+			if (!paused) {
+				paused = true;
+				rolloverPause = true;
+				FormatPauseButton();
+			}
+
+			pauseTimeout = window.setTimeout(() => {
+				paused = false;
+				rolloverPause = false;
+				FormatPauseButton();
+				ResumeFromPause();
+			}, 5000);
+		}
+
+		switch (ev.key) {
+			case 'p':
+				paused = !paused;
+				FormatPauseButton();
+				if (!paused) ResumeFromPause();
+				break;
+			// for h,j,k,l and the arrow keys start navigating the cursor
+			case 'h':
+			case 'ArrowLeft':
+				// move the cursor left
+				if (cursorProviderId == null) {
+					cursorProviderId =
+						taggedContent.firstElementChild.getAttribute('data-providerid');
+				} else {
+					const thisOne = document.querySelector(
+						`[data-providerid='${cursorProviderId}']`,
+					);
+					const rect = thisOne.getBoundingClientRect();
+					const aboveElements = document.elementsFromPoint(
+						rect.x - height,
+						rect.y,
+					);
+
+					// inspect the elements in aboveElements and assign the variable above to the first article element
+					var above = null;
+					for (var i = 0; i < aboveElements.length; i++) {
+						if (aboveElements[i].tagName == 'ARTICLE') {
+							above = aboveElements[i];
+							break;
+						}
+					}
+
+					// check if above is an article element
+					if (above && above.tagName == 'ARTICLE') {
+						document
+							.querySelector(`[data-providerid='${cursorProviderId}']`)
+							.classList.remove('keyboard-cursor');
+						cursorProviderId = above.getAttribute('data-providerid');
+					}
+				}
+				RemoveActivePanel();
+				PauseNewContentFor5Seconds();
+
+				break;
+			case 'l':
+			case 'ArrowRight':
+				// move the cursor right
+				if (cursorProviderId == null) {
+					cursorProviderId =
+						taggedContent.firstElementChild.getAttribute('data-providerid');
+				} else {
+					const thisOne = document.querySelector(
+						`[data-providerid='${cursorProviderId}']`,
+					);
+					const rect = thisOne.getBoundingClientRect();
+					const aboveElements = document.elementsFromPoint(
+						rect.x + rect.width + height,
+						rect.y,
+					);
+
+					// inspect the elements in aboveElements and assign the variable above to the first article element
+					var above = null;
+					for (var i = 0; i < aboveElements.length; i++) {
+						if (aboveElements[i].tagName == 'ARTICLE') {
+							above = aboveElements[i];
+							break;
+						}
+					}
+
+					// check if above is an article element
+					if (above && above.tagName == 'ARTICLE') {
+						document
+							.querySelector(`[data-providerid='${cursorProviderId}']`)
+							.classList.remove('keyboard-cursor');
+						cursorProviderId = above.getAttribute('data-providerid');
+					}
+				}
+				RemoveActivePanel();
+				PauseNewContentFor5Seconds();
+
+				break;
+			case 'k':
+			case 'ArrowUp':
+				// move the cursor up
+				if (cursorProviderId == null) {
+					cursorProviderId =
+						taggedContent.firstElementChild.getAttribute('data-providerid');
+				} else {
+					for (var i = 0; i < 5; i++) {
+						const thisOne = document.querySelector(
+							`[data-providerid='${cursorProviderId}']`,
+						);
+						const rect = thisOne.getBoundingClientRect();
+						const aboveElements = document.elementsFromPoint(
+							rect.x,
+							rect.y - height,
+						);
+
+						// inspect the elements in aboveElements and assign the variable above to the first article element
+						var above = null;
+						for (var i = 0; i < aboveElements.length; i++) {
+							if (aboveElements[i].tagName == 'ARTICLE') {
+								above = aboveElements[i];
+								break;
+							}
+						}
+
+						// check if above is an article element
+						if (above && above.tagName == 'ARTICLE') {
+							document
+								.querySelector(`[data-providerid='${cursorProviderId}']`)
+								.classList.remove('keyboard-cursor');
+							cursorProviderId = above.getAttribute('data-providerid');
+							break;
+						}
+
+						document.getElementById('taggedContent').scrollBy(0, -72);
+					}
+				}
+
+				document
+					.querySelector(`[data-providerid='${cursorProviderId}']`)
+					.classList.add('keyboard-cursor');
+
+				RemoveActivePanel();
+				PauseNewContentFor5Seconds();
+				break;
+			case 'j':
+			case 'ArrowDown':
+				// move the cursor down
+				if (cursorProviderId == null) {
+					cursorProviderId =
+						taggedContent.firstElementChild.getAttribute('data-providerid');
+				} else {
+					for (var i = 0; i < 5; i++) {
+						const thisOne = document.querySelector(
+							`[data-providerid='${cursorProviderId}']`,
+						);
+						const rect = thisOne.getBoundingClientRect();
+						const aboveElements = document.elementsFromPoint(
+							rect.x,
+							rect.y + rect.height + height,
+						);
+
+						// inspect the elements in aboveElements and assign the variable above to the first article element
+						var above = null;
+						for (var i = 0; i < aboveElements.length; i++) {
+							if (aboveElements[i].tagName == 'ARTICLE') {
+								above = aboveElements[i];
+								break;
+							}
+						}
+
+						// check if above is an article element
+						if (above && above.tagName == 'ARTICLE') {
+							document
+								.querySelector(`[data-providerid='${cursorProviderId}']`)
+								.classList.remove('keyboard-cursor');
+							cursorProviderId = above.getAttribute('data-providerid');
+							break;
+						}
+
+						try {
+							let taggedContent = document.getElementById('taggedContent');
+							let tcHeight = taggedContent.scrollHeight;
+							if (
+								taggedContent.scrollTop + taggedContent.offsetHeight + height >
+								tcHeight
+							)
+								return;
+							taggedContent.scrollBy(0, height);
+						} catch (ex) {
+							break;
+						}
+					}
+				}
+
+				RemoveActivePanel();
+				PauseNewContentFor5Seconds();
+				break;
+			case 'Enter':
+				if (document.querySelector('.active_panel')) {
+					RemoveActivePanel();
+				} else {
+					// bring up the moderation panel
+					const card = document.querySelector(
+						`[data-providerid='${cursorProviderId}']`,
+					);
+					if (card) showModerationPanel({ target: card });
+				}
+				break;
+			case 'y':
+				if (document.querySelector('.active_panel') == null) return;
+
+				var thisCard = document.querySelector(
+					`[data-providerid='${cursorProviderId}']`,
+				);
+
+				// Approve the current message
+				let approveFunc = function () {
+					connection.invoke(
+						'SetStatus',
+						thisCard.getAttribute('data-provider'),
+						thisCard.getAttribute('data-providerid'),
+						ModerationState.Approved,
+					);
+					thisCard.classList.remove('status-rejected');
+					thisCard.classList.add('status-approved');
+				};
+
+				if (thisCard.classList.contains('status-rejected')) {
+					// Confirm that we are flipping this
+					swal({
+						title: 'Are you sure?',
+						text: 'This message was previously rejected. Are you sure you want to approve it?',
+						icon: 'warning',
+						buttons: true,
+						dangerMode: true,
+					}).then((willApprove) => {
+						if (willApprove) {
+							approveFunc();
+						}
+					});
+				} else {
+					approveFunc();
+				}
+
+				break;
+			case 'n':
+				if (document.querySelector('.active_panel') == null) return;
+
+				let rejectCard = document.querySelector(
+					`[data-providerid='${cursorProviderId}']`,
+				);
+
+				connection.invoke(
+					'SetStatus',
+					rejectCard.getAttribute('data-provider'),
+					rejectCard.getAttribute('data-providerid'),
+					ModerationState.Rejected,
+				);
+				rejectCard.classList.remove('status-approved');
+				rejectCard.classList.add('status-rejected');
+				rejectCard.classList.add('status-humanmod');
+
+				break;
+		}
+
+		// Set the new cursor position
+		if (
+			cursorProviderId != null &&
+			document.querySelector(`[data-providerid='${cursorProviderId}']`)
+		) {
+			document
+				.querySelector(`[data-providerid='${cursorProviderId}']`)
+				.classList.add('keyboard-cursor');
+		}
+	}
+
 	const t = {
 		Tags: [],
+
+		ActivateKeyboardNavigation: function () {
+			window.onkeydown = HandleKeyPress;
+		},
 
 		MapProviderToIconClass: function (provider) {
 			return MapProviderToIcon(provider);
