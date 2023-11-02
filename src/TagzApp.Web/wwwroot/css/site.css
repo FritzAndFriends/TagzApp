@@ -511,18 +511,19 @@ article.keyboard-cursor
 	border: 6px double skyblue!important;
 }
 
-
 /** Filters on the moderation cards **/
 #taggedContent.filter-approvedOnly article.status-rejected {
 	display: none;
 }
 
-#taggedContent.filter-approvedOnly article:not(.status-rejected):not(.status-approved) {
+#taggedContent.filter-approvedOnly
+	article:not(.status-rejected):not(.status-approved) {
 	display: none;
 }
 
 /* In #taggedContent, hide articles that don't have status-rejected class or status-approved class  */
-#taggedContent.filter-rejectedOnly article:not(.status-rejected):not(.status-approved) {
+#taggedContent.filter-rejectedOnly
+	article:not(.status-rejected):not(.status-approved) {
 	display: none;
 }
 
@@ -538,7 +539,6 @@ article.keyboard-cursor
 #taggedContent.filter-needsModeration article.status-rejected {
 	display: none;
 }
-
 
 a {
 	color: var(--bs-cyan);
