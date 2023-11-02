@@ -407,6 +407,7 @@ span.invisible {
 .modal-back {
 	position: absolute;
 	top: 0;
+	z-index: -20;
 }
 
 .modal-back-content {
@@ -502,6 +503,13 @@ article.status-approved .time::after {
 	color: var(--bs-green);
 	margin-bottom: 1em;
 }
+
+/** Keyboard Navigation on Moderation screen */
+article.keyboard-active
+{
+	border: 4px double skyblue!important;
+}
+
 
 /** Filters on the moderation cards **/
 #taggedContent.filter-approvedOnly article.status-rejected {
