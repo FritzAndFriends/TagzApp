@@ -370,9 +370,6 @@
 					`Received ${result.length} additional messages from server`,
 				);
 				result.forEach(function (content) {
-					console.log(
-						`Formatting ${content.providerId} with state ${content.state}`,
-					);
 					FormatMessageForModeration(content);
 				});
 				window.Masonry.resizeAllGridItems();

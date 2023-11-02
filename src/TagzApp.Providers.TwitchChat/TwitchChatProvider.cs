@@ -63,6 +63,7 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 			catch (Exception ex)
 			{
 				_Logger.LogError(ex, "Failed to identify profile pic for {UserName}", args.UserName);
+				profileUrl = "about:blank";
 			}
 
 			_Contents.Enqueue(new Content
@@ -118,6 +119,20 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 
 			return Task.FromResult(Enumerable.Empty<Content>());
 
+		}
+
+		if (!_Client.IsConnected)
+		{
+
+			// mark status as unhealthy and return empty list
+			_Status = SocialMediaStatus.Unhealthy;
+			_StatusMessage = "TwitchChat client is not logged in - check credentials";
+
+			return Task.FromResult(Enumerable.Empty<Content>());
+
+		} else {
+			_Status = SocialMediaStatus.Healthy;
+			_StatusMessage = "OK";
 		}
 
 		var messages = _Contents.ToList();
