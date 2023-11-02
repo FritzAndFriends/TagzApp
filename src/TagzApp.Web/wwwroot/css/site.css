@@ -401,6 +401,7 @@ span.invisible {
 .modal-back {
 	width: 100%;
 	height: 100%;
+	scale: 1.4;
 	backface-visibility: hidden;
 }
 
@@ -505,9 +506,9 @@ article.status-approved .time::after {
 }
 
 /** Keyboard Navigation on Moderation screen */
-article.keyboard-active
+article.keyboard-cursor
 {
-	border: 4px double skyblue!important;
+	border: 6px double skyblue!important;
 }
 
 

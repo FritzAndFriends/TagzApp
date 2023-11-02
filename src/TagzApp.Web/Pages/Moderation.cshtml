@@ -2,6 +2,7 @@
 @model TagzApp.Web.Pages.ModerationModel
 @{
 	Layout = "_WaterfallLayout";
+	ViewData["Title"] = "Moderation";
 }
 
 <div class="row">
@@ -64,6 +65,8 @@
 		<script>
 
 			window.TagzApp.ListenForModerationContent("@Model.Tags.FirstOrDefault()");
+
+			window.TagzApp.ActivateKeyboardNavigation();
 
 			window.onload = window.Masonry.resizeAllGridItems();
 			window.addEventListener("resize", Masonry.resizeAllGridItems);
