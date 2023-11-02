@@ -20,6 +20,15 @@ Live chat integration (TwitchChat, YouTubeChat, etc) captures all messages that 
 
 We also have a simple moderation capability.
 
+## Keyboard navigation supported on moderation screen
+
+On the moderation screen, you can use the keyboard to navigate the cards on screen:
+
+- arrows to move a cursor between the various messages
+- HJKL to move a cursor using 'vim' style cursor movement- Enter to select a message for moderation
+- Y to approve a message
+- N to reject a message
+
 ### Currently Supported Services
 
  - [Blazot](https://www.blazot.com/)
