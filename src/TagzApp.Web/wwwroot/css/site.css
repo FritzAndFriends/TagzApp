@@ -506,9 +506,8 @@ article.status-approved .time::after {
 }
 
 /** Keyboard Navigation on Moderation screen */
-article.keyboard-cursor
-{
-	border: 6px double skyblue!important;
+article.keyboard-cursor {
+	border: 6px double skyblue !important;
 }
 
 /** Filters on the moderation cards **/
