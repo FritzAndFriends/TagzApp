@@ -8,4 +8,6 @@ public interface IChatClient : IDisposable
 
 	bool IsRunning { get; }
 
+	bool IsConnected { get; }
+
 }
