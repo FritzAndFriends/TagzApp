@@ -818,28 +818,27 @@
 
 				}
 				break;
-			case 'Y':
+			case 'y':
 
-				if (document.querySelector(".active_panel") is null) return;
+				if (document.querySelector(".active_panel") == null) return;
 
-				const card = document.querySelector(
+				var thisCard = document.querySelector(
 					`[data-providerid='${cursorProviderId}']`,
 				);
-				
+
 				// Approve the current message
 				let approveFunc = function () {
 					connection.invoke(
 						'SetStatus',
-						hovered.getAttribute('data-provider'),
-						hovered.getAttribute('data-providerid'),
+						thisCard.getAttribute('data-provider'),
+						thisCard.getAttribute('data-providerid'),
 						ModerationState.Approved,
 					);
-					hoverPanel.remove();
-					hovered.classList.remove('status-rejected');
-					hovered.classList.add('status-approved');
+					thisCard.classList.remove('status-rejected');
+					thisCard.classList.add('status-approved');
 				};
 
-				if (hovered.classList.contains('status-rejected')) {
+				if (thisCard.classList.contains('status-rejected')) {
 					// Confirm that we are flipping this
 					swal({
 						title: 'Are you sure?',
@@ -857,20 +856,23 @@
 				}
 
 				break;
-			case 'N':
+			case 'n':
 
-				if (document.querySelector(".active_panel") is null) return;
+				if (document.querySelector(".active_panel") == null) return;
+
+				let rejectCard = document.querySelector(
+					`[data-providerid='${cursorProviderId}']`,
+				);
 
 				connection.invoke(
 					'SetStatus',
-					hovered.getAttribute('data-provider'),
-					hovered.getAttribute('data-providerid'),
+					rejectCard.getAttribute('data-provider'),
+					rejectCard.getAttribute('data-providerid'),
 					ModerationState.Rejected,
 				);
-				hoverPanel.remove();
-				hovered.classList.remove('status-approved');
-				hovered.classList.add('status-rejected');
-				hovered.classList.add('status-humanmod');
+				rejectCard.classList.remove('status-approved');
+				rejectCard.classList.add('status-rejected');
+				rejectCard.classList.add('status-humanmod');
 
 				break;
 		}
