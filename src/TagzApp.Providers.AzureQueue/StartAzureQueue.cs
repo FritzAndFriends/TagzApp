@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using System.Text.Json;
+﻿using Microsoft.Extensions.DependencyInjection;
 using TagzApp.Communication;
 
 namespace TagzApp.Providers.AzureQueue;

@@ -319,7 +319,7 @@
 			case 'twitter':
 				cssClass = 'twitter-x';
 				break;
-			case "website":
+			case 'website':
 				cssClass = 'globe2';
 				break;
 			case 'youtube-chat':

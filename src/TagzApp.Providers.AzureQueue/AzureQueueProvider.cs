@@ -56,7 +56,8 @@ public class AzureQueueProvider : ISocialMediaProvider
 		try
 		{
 			await _Client.CreateIfNotExistsAsync();
-		} catch (Exception ex)
+		}
+		catch (Exception ex)
 		{
 			_Status = SocialMediaStatus.Unhealthy;
 			_StatusMessage = $"Unable to start a connection to the Azure Queue: {ex.Message}";
