@@ -319,6 +319,9 @@
 			case 'twitter':
 				cssClass = 'twitter-x';
 				break;
+			case "website":
+				cssClass = 'globe2';
+				break;
 			case 'youtube-chat':
 				cssClass = 'youtube';
 				break;
