@@ -8,8 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.AI.ContentSafety" Version="1.0.0-beta.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0-rc.1.23419.6" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0-rc.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0-rc.2.23480.1" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0-rc.2" />
   </ItemGroup>
 
   <ItemGroup>
