@@ -7,10 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Google.Apis.YouTube.v3" Version="1.62.0.3169" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0-rc.1.23419.4" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0-rc.1.23419.4" />
-		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0-rc.1.23419.4" />
+    <PackageReference Include="Google.Apis.YouTube.v3" Version="1.63.0.3205" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0-rc.2.23479.6" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0-rc.2.23479.6" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0-rc.2.23479.6" />
 	</ItemGroup>
 
   <ItemGroup>
