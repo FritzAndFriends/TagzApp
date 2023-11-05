@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
+using System.Collections.Concurrent;
 using TagzApp.Web.Data;
 using TagzApp.Web.Services;
 
@@ -16,7 +17,7 @@ public class ModerationHub : Hub<IModerationClient>
 	private readonly UserManager<TagzAppUser> _UserManager;
 	private bool ModerationEnabled = false;
 
-	private readonly Dictionary<string, string> _CurrentUsersModerating = new();
+	private static readonly ConcurrentDictionary<string, string> _CurrentUsersModerating = new();
 
 	public ModerationHub(
 		IMessagingService svc,
@@ -47,7 +48,7 @@ public class ModerationHub : Hub<IModerationClient>
 		var thisUser = await _UserManager.GetUserAsync(Context.User);
 		if (thisUser is not null)
 		{
-			_CurrentUsersModerating.Add(thisUser.Email, thisUser.DisplayName);
+			_CurrentUsersModerating.TryAdd(thisUser.Email, thisUser.DisplayName);
 			await Clients.All.NewModerator(new NewModerator(thisUser.Email, thisUser.Email.ToGravatar(), thisUser.DisplayName));
 		}
 
@@ -60,7 +61,7 @@ public class ModerationHub : Hub<IModerationClient>
 		var thisUser = await _UserManager.GetUserAsync(Context.User);
 		if (thisUser is not null)
 		{
-			_CurrentUsersModerating.Remove(thisUser.Email);
+			_CurrentUsersModerating.Remove(thisUser.Email, out _);
 			await Clients.All.RemoveModerator(thisUser.Email);
 		}
 
