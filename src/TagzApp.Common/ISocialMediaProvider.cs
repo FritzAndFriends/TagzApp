@@ -16,6 +16,8 @@ public interface ISocialMediaProvider
 	/// </summary>
 	string DisplayName { get; }
 
+	virtual string DllName => DisplayName;
+
 	/// <summary>
 	/// Provider description
 	/// </summary>

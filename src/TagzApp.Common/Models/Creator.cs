@@ -20,7 +20,7 @@ public class Creator
 	/// <summary>
 	///   Uri to the profile of the creator
 	/// </summary>
-	public required Uri ProfileUri { get; set; }
+	public required Uri ProfileUri { get; set; } = new Uri("/img/user.jpg", UriKind.Relative);
 
 	/// <summary>
 	///   Uri to the profile image of the creator

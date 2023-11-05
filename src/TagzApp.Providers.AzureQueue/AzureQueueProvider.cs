@@ -13,6 +13,7 @@ public class AzureQueueProvider : ISocialMediaProvider
 
 	public string Id => "WEBSITE";
 	public string DisplayName => "Website";
+	public string DllName { get { return "AzureQueue"; } }
 	public string Description => "Q+A submitted through a website form";
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(5);
 
@@ -25,7 +26,7 @@ public class AzureQueueProvider : ISocialMediaProvider
 	public async Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since)
 	{
 
-		var messageResponse = await _Client.ReceiveMessagesAsync(maxMessages: 50);
+		var messageResponse = await _Client.ReceiveMessagesAsync(maxMessages: 10);
 		if (!messageResponse.Value.Any()) return Enumerable.Empty<Content>();
 
 		var outList = new List<Content>();
@@ -34,7 +35,12 @@ public class AzureQueueProvider : ISocialMediaProvider
 		{
 
 			var content = JsonSerializer.Deserialize<Content>(msg.Body.ToStream());
-			if (content is not null) outList.Add(content);
+			if (content is not null)
+			{
+				content.HashtagSought = tag.Text.ToLowerInvariant();
+				outList.Add(content);
+				await _Client.DeleteMessageAsync(msg.MessageId, msg.PopReceipt);
+			}
 
 		}
 
