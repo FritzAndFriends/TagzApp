@@ -35,7 +35,8 @@ public class InMemoryProviderConfigurationRepository : IProviderConfigurationRep
 					continue;
 					break;
 				case "defaultheaders":
-					if (configSetting.GetChildren().Count() == 0 || configSetting.Value is string) {
+					if (configSetting.GetChildren().Count() == 0 || configSetting.Value is string)
+					{
 						providerConfig.ConfigurationSettings!.Add(configSetting.Key, configSetting.Value ?? string.Empty);
 						continue;
 					}
