@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using System.Text.Json;
 
 namespace TagzApp.Common;
 public class InMemoryProviderConfigurationRepository : IProviderConfigurationRepository
@@ -22,19 +23,37 @@ public class InMemoryProviderConfigurationRepository : IProviderConfigurationRep
 
 		foreach (var configSetting in configSettings)
 		{
-			if (configSetting.Key == "Activated")
-			{
-				providerConfig.Activated = bool.Parse(configSetting.Value ?? "false");
-				continue;
-			}
 
-			if (configSetting.Key == "Description")
+			switch (configSetting.Key.ToLowerInvariant())
 			{
-				providerConfig.Description = configSetting.Value ?? string.Empty;
-				continue;
+				case "activated":
+					providerConfig.Activated = bool.Parse(configSetting.Value ?? "false");
+					continue;
+					break;
+				case "description":
+					providerConfig.Description = configSetting.Value ?? string.Empty;
+					continue;
+					break;
+				case "defaultheaders":
+					if (configSetting.GetChildren().Count() == 0 || configSetting.Value is string)
+					{
+						providerConfig.ConfigurationSettings!.Add(configSetting.Key, configSetting.Value ?? string.Empty);
+						continue;
+					}
+					var headerDict = new Dictionary<string, string>();
+					// iterate through the children of the DefaultHeaders section and add to the dictionary
+					foreach (var header in configSetting.GetChildren())
+					{
+						headerDict.Add(header.Key, header.Value ?? string.Empty);
+					}
+					providerConfig.ConfigurationSettings!.Add("DefaultHeaders", JsonSerializer.Serialize(headerDict));
+					continue;
+					break;
+
 			}
 
 			providerConfig.ConfigurationSettings!.Add(configSetting.Key, configSetting.Value ?? string.Empty);
+
 		}
 
 		return providerConfig;
