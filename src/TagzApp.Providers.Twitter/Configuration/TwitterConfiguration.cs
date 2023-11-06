@@ -15,25 +15,25 @@ public class TwitterConfiguration : HttpClientOptions
 
 	public bool Activated { get; set; } = false;
 
-	/// <summary>
-	/// Twitter issued API Key for the service
-	/// </summary>
-	public string ApiKey { get; set; } = string.Empty;
+	///// <summary>
+	///// Twitter issued API Key for the service
+	///// </summary>
+	//public string ApiKey { get; set; } = string.Empty;
 
-	/// <summary>
-	/// Twitter issued API Secret Key for the service
-	/// </summary>
-	public string ApiSecretKey { get; set; } = string.Empty;
+	///// <summary>
+	///// Twitter issued API Secret Key for the service
+	///// </summary>
+	//public string ApiSecretKey { get; set; } = string.Empty;
 
-	/// <summary>
-	/// Access token for Twitter
-	/// </summary>
-	public string AccessToken { get; set; } = string.Empty;
+	///// <summary>
+	///// Access token for Twitter
+	///// </summary>
+	//public string AccessToken { get; set; } = string.Empty;
 
-	/// <summary>
-	/// Access token secret for Twitter
-	/// </summary>
-	public string AccessTokenSecret { get; set; } = string.Empty;
+	///// <summary>
+	///// Access token secret for Twitter
+	///// </summary>
+	//public string AccessTokenSecret { get; set; } = string.Empty;
 
 	/// <summary>
 	/// Provider description

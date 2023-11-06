@@ -61,8 +61,11 @@ internal class PostgresMessaging : IDisposable
 
 						if (provider is IHasNewestId newestIdProvider)
 						{
+
+							var SevenDaysAgo = DateTime.UtcNow.AddDays(-7);
+
 							var newestId = await context.Content.AsNoTracking()
-								.Where(c => c.Provider == provider.Id)
+								.Where(c => c.Provider == provider.Id && c.Timestamp > SevenDaysAgo)
 								.OrderByDescending(c => c.ProviderId)
 								.Select(c => c.ProviderId)
 								.FirstOrDefaultAsync();
