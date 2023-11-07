@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Polly;
 using System.Security.Claims;
 using TagzApp.Providers.YouTubeChat;
 using TagzApp.Storage.Postgres;
@@ -151,7 +150,8 @@ public static class ServicesExtensions
 			{
 				securityContext.Database.Migrate();
 			}
-			catch (Exception ex) {
+			catch (Exception ex)
+			{
 				Console.WriteLine($"Error while migrating security context to Postgres: {ex}");
 			}
 		}
