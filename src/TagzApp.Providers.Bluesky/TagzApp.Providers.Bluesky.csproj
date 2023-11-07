@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
+    <ProjectReference Include="..\TagzApp.Communication\TagzApp.Communication.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Drastic.Utilities" Version="1.0.10" />
+    <PackageReference Include="FishyFlip" Version="1.2.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>
