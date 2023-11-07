@@ -60,10 +60,10 @@
 											<img class="ProfilePicture" src="${content.authorProfileImageUri}" alt="${content.authorDisplayName}" onerror="this.src='/img/user.jpg';" />
 								<div class="byline">
 									<div class="author">${content.authorDisplayName}</div>
-									<div class="authorUserName">${content.authorUserName}</div>
 								</div>
-											<i class="provider bi ${window.TagzApp.MapProviderToIconClass(content.provider)}"></i>
-								<span class="time">${new Date(content.timestamp).toLocaleString(undefined, { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+								<i class="provider bi ${window.TagzApp.MapProviderToIconClass(content.provider)}"></i>
+								<div class="authorUserName">${content.authorUserName}</div>
+								<span class="time">${new Date(content.timestamp).toLocaleString(undefined, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
 								<span class="content">${window.TagzApp.FormatContentWithEmotes(content)}</span>
 								`;
 
