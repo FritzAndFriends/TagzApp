@@ -118,7 +118,7 @@
 		newMessage.innerHTML = `
 		<img class="ProfilePicture" src="${content.authorProfileImageUri}" alt="${
 			content.authorDisplayName
-		}" />
+		}" onerror="this.src='/img/user.jpg';" />
 		<div class="byline">
 			<div class="author">${content.authorDisplayName} <i class="autoMod"></i></div>
 			<div class="authorUserName" title="${content.authorUserName}">${
@@ -321,6 +321,9 @@
 		switch (cssClass) {
 			case 'twitter':
 				cssClass = 'twitter-x';
+				break;
+			case 'website':
+				cssClass = 'globe2';
 				break;
 			case 'youtube-chat':
 				cssClass = 'youtube';

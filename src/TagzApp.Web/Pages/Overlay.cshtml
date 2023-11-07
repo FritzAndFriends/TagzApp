@@ -57,7 +57,7 @@
 
 				overlayDisplay.className = "begin";
 					overlayDisplay.innerHTML = `
-					<img class="ProfilePicture" src="${content.authorProfileImageUri}" alt="${content.authorDisplayName}" />
+								<img class="ProfilePicture" src="${content.authorProfileImageUri}" alt="${content.authorDisplayName}" onerror="this.src='/img/user.jpg';" />
 					<div class="byline">
 						<div class="author">${content.authorDisplayName}</div>
 						<div class="authorUserName">${content.authorUserName}</div>
