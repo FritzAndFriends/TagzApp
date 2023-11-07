@@ -149,11 +149,9 @@
 		}
 
 		if (onclick) {
-
-			newMessage.addEventListener('touchend', ev => {
+			newMessage.addEventListener('touchend', (ev) => {
 				window.setTimeout(() => onclick(ev), 100);
 			});
-
 		} else {
 			newMessage.addEventListener('click', function (ev) {
 				var el = ev.target.closest('article');
@@ -536,7 +534,6 @@
 				panel.remove();
 			});
 		});
-
 	}
 
 	function getDateFromElement(el) {
