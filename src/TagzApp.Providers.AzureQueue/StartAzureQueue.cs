@@ -26,7 +26,7 @@ public class StartAzureQueue : BaseConfigurationProvider, IConfigureProvider
 
 		var config = providerConfiguration.ConfigurationSettings;
 
-		if (config != null)
+		if (config != null && config.Any(kv => kv.Key.Equals("QueueConnectionString", StringComparison.InvariantCultureIgnoreCase)))
 		{
 			_azureQueueConfiguration = new()
 			{
