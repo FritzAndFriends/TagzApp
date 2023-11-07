@@ -5,6 +5,7 @@ using System.Security.Claims;
 using TagzApp.Providers.YouTubeChat;
 using TagzApp.Storage.Postgres;
 using TagzApp.Web.Data;
+using TagzApp.Web.Migrations;
 using TagzApp.Web.Services;
 
 namespace TagzApp.Web;
@@ -138,9 +139,21 @@ public static class ServicesExtensions
 			services.AddDbContext<SecurityContext>(options =>
 			{
 				options.UseNpgsql(configuration.GetConnectionString("TagzAppSecurity"),
-				pg => pg.MigrationsAssembly("TagzApp.Storage.Postgres.Security"));
+				pg => pg.MigrationsAssembly(typeof(SecurityContextModelSnapshot).Assembly.FullName));
+				// "TagzApp.Storage.Postgres.Security, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"));
 			});
 
+			var serviceLocator = services.BuildServiceProvider();
+			var securityContext = serviceLocator.GetRequiredService<SecurityContext>();
+
+			try
+			{
+				securityContext.Database.Migrate();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error while migrating security context to Postgres: {ex}");
+			}
 		}
 		else if (!string.IsNullOrEmpty(configuration.GetConnectionString("SecurityContextConnection")))
 		{
