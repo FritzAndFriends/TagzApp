@@ -30,6 +30,8 @@ public class StartTwitter : BaseConfigurationProvider, IConfigureProvider
 	{
 		var config = providerConfiguration.ConfigurationSettings;
 
+		var headers = config["DefaultHeaders"];
+
 		if (config != null)
 		{
 			_TwitterConfiguration = new TwitterConfiguration
@@ -38,10 +40,6 @@ public class StartTwitter : BaseConfigurationProvider, IConfigureProvider
 				BaseAddress = new Uri(config["BaseAddress"] ?? string.Empty),
 				Timeout = TimeSpan.Parse(config["Timeout"] ?? string.Empty),
 				DefaultHeaders = JsonSerializer.Deserialize<Dictionary<string, string>?>(config["DefaultHeaders"]),
-				ApiKey = config["ApiKey"] ?? string.Empty,
-				ApiSecretKey = config["ApiSecretKey"] ?? string.Empty,
-				AccessToken = config["AccessToken"] ?? string.Empty,
-				AccessTokenSecret = config["AccessTokenSecret"] ?? string.Empty,
 				Description = providerConfiguration.Description
 			};
 		}
