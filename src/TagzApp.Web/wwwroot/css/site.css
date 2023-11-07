@@ -326,8 +326,7 @@ span.invisible {
 	grid-row-gap: 10px;
 	width: 184px;
 	height: 334px;
-/*	height: 334px;*/
-
+	/*	height: 334px;*/
 }
 
 #portraitOverlayDisplay * {
@@ -335,7 +334,7 @@ span.invisible {
 }
 
 #portraitOverlayDisplay .provider {
-	position:absolute;
+	position: absolute;
 	right: 3px;
 	top: -3px;
 	font-size: 15px;
