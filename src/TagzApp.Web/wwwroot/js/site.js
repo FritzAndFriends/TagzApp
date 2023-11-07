@@ -149,6 +149,9 @@
 		}
 
 		if (onclick) {
+			newMessage.addEventListener('touchend', (ev) => {
+				window.setTimeout(() => onclick(ev), 100);
+			});
 		} else {
 			newMessage.addEventListener('click', function (ev) {
 				var el = ev.target.closest('article');
@@ -440,7 +443,14 @@
 
 	function showModerationPanel(ev) {
 		var hovered = ev.target.closest('article');
-		if (hovered.querySelector('#moderationAction')) return;
+
+		// Remove all moderationAction elements inside of articles
+		var panels = document.querySelectorAll('article #moderationAction');
+		panels.forEach(function (panel) {
+			panel.remove();
+		});
+
+		if (hovered == null || hovered.querySelector('#moderationAction')) return;
 
 		// pause updates
 		window.clearTimeout(pauseTimeout);
