@@ -661,18 +661,25 @@
 						`[data-providerid='${cursorProviderId}']`,
 					);
 					const rect = thisOne.getBoundingClientRect();
-					const aboveElements = document.elementsFromPoint(
-						rect.x - height,
-						rect.y,
-					);
 
-					// inspect the elements in aboveElements and assign the variable above to the first article element
 					var above = null;
-					for (var i = 0; i < aboveElements.length; i++) {
-						if (aboveElements[i].tagName == 'ARTICLE') {
-							above = aboveElements[i];
-							break;
+					for (var j = 0; j < 20; j++) {
+						// Look for an ARTICLE to the left of the current cursor position, if not found, look 10 pixels lower for an article
+
+						const aboveElements = document.elementsFromPoint(
+							rect.x - height,
+							rect.y + j * 10,
+						);
+
+						// inspect the elements in aboveElements and assign the variable above to the first article element
+						for (var i = 0; i < aboveElements.length; i++) {
+							if (aboveElements[i].tagName == 'ARTICLE') {
+								above = aboveElements[i];
+								break;
+							}
 						}
+
+						if (above != null && above.tagName == 'ARTICLE') break;
 					}
 
 					// check if above is an article element
@@ -698,18 +705,23 @@
 						`[data-providerid='${cursorProviderId}']`,
 					);
 					const rect = thisOne.getBoundingClientRect();
-					const aboveElements = document.elementsFromPoint(
-						rect.x + rect.width + height,
-						rect.y,
-					);
 
-					// inspect the elements in aboveElements and assign the variable above to the first article element
 					var above = null;
-					for (var i = 0; i < aboveElements.length; i++) {
-						if (aboveElements[i].tagName == 'ARTICLE') {
-							above = aboveElements[i];
-							break;
+					for (var j = 0; j < 20; j++) {
+						const aboveElements = document.elementsFromPoint(
+							rect.x + rect.width + height,
+							rect.y + j * 10,
+						);
+
+						// inspect the elements in aboveElements and assign the variable above to the first article element
+						for (var i = 0; i < aboveElements.length; i++) {
+							if (aboveElements[i].tagName == 'ARTICLE') {
+								above = aboveElements[i];
+								break;
+							}
 						}
+
+						if (above != null && above.tagName == 'ARTICLE') break;
 					}
 
 					// check if above is an article element
