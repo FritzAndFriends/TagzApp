@@ -48,7 +48,7 @@ public class BlockedUsersModel : PageModel
 
 		// Verify the user specified in Provider and UserName, then Block the user
 		var thisUser = await _UserManager.GetUserAsync(User);
-		await _Repository.BlockUser(UserName, Provider, thisUser.DisplayName ?? thisUser.UserName, new DateTimeOffset(new DateTime(2050,1,1), TimeSpan.Zero));
+		await _Repository.BlockUser(UserName, Provider, thisUser.DisplayName ?? thisUser.UserName, new DateTimeOffset(new DateTime(2050, 1, 1), TimeSpan.Zero));
 
 		return RedirectToPage();
 

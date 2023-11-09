@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
 using TagzApp.Web.Services;
 
 namespace TagzApp.Storage.Postgres;
@@ -171,7 +170,7 @@ internal class PostgresModerationRepository : IModerationRepository
 		_Context.BlockedUsers.Add(blockedUser);
 
 		var blockedCount = await GetCurrentBlockedUserCount();
-		_Notifier.NotifyNewBlockedCount(blockedCount+1);
+		_Notifier.NotifyNewBlockedCount(blockedCount + 1);
 
 		await _Context.SaveChangesAsync();
 
@@ -191,7 +190,7 @@ internal class PostgresModerationRepository : IModerationRepository
 		blockedUser.ExpirationDateTime = DateTimeOffset.UtcNow;
 
 		var blockedCount = await GetCurrentBlockedUserCount();
-		_Notifier.NotifyNewBlockedCount(blockedCount-1);
+		_Notifier.NotifyNewBlockedCount(blockedCount - 1);
 
 		await _Context.SaveChangesAsync();
 

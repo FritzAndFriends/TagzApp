@@ -1,5 +1,4 @@
-﻿using Npgsql.Replication.PgOutput;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace TagzApp.Storage.Postgres;
 
