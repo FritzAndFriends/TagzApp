@@ -57,6 +57,7 @@ public class Program
 		{
 			options.Conventions.AuthorizeAreaFolder("Admin", "/", Security.Policy.AdminRoleOnly);
 			options.Conventions.AuthorizePage("/Moderation", Security.Policy.Moderator);
+			options.Conventions.AuthorizePage("/BlockedUsers", Security.Policy.Moderator);
 		});
 
 		builder.Services.Configure<ForwardedHeadersOptions>(options =>

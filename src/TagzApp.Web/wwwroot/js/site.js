@@ -1053,6 +1053,11 @@
 				document.getElementById('moderator-' + moderatorEmail).remove();
 			});
 
+			connection.on('NewBlockedUserCount', newCount => {
+				console.log("New blocked user count: " + newCount);
+				document.getElementById("blockedCount").innerText = newCount;
+			});
+
 			// Start the connection.
 			await start();
 

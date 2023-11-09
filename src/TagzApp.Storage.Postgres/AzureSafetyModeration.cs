@@ -7,11 +7,14 @@ using System.Text.RegularExpressions;
 using System.Text;
 using System.Web;
 using TagzApp.Web.Services;
+using System.Collections.Concurrent;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace TagzApp.Storage.Postgres;
 
 public class AzureSafetyModeration : INotifyNewMessages
 {
+	private readonly IMemoryCache _Cache;
 	private INotifyNewMessages _NotifyNewMessages;
 	private readonly IServiceProvider _ServiceProvider;
 	private readonly IConfiguration _Configuration;
@@ -21,12 +24,13 @@ public class AzureSafetyModeration : INotifyNewMessages
 	private readonly string? _ContentSafetyEndpoint;
 
 	public AzureSafetyModeration(
+		IMemoryCache cache,
 		INotifyNewMessages notifyNewMessages,
 		IServiceProvider serviceProvider,
 		IConfiguration configuration,
 		ILogger<AzureSafetyModeration> azureSafetyLogger)
 	{
-
+		_Cache = cache;
 		_NotifyNewMessages = notifyNewMessages;
 		_ServiceProvider = serviceProvider;
 		_Configuration = configuration;
@@ -57,6 +61,30 @@ public class AzureSafetyModeration : INotifyNewMessages
 
 	public void NotifyNewContent(string hashtag, Content content)
 	{
+
+		// Check if this content is created by one of the blocked users listed in the cache
+		var isBlocked = _Cache.GetOrCreate("blockedUsers", _ => new List<(string Provider, string UserName)>())
+			.Any(a => a.Provider.Equals(content.Provider, StringComparison.InvariantCultureIgnoreCase)
+				&& a.UserName.Equals(content.Author.UserName, StringComparison.InvariantCultureIgnoreCase));
+
+		if (isBlocked)
+		{
+			using var scope = _ServiceProvider.CreateScope();
+			var moderationRepository = scope.ServiceProvider.GetRequiredService<IModerationRepository>();
+			moderationRepository.ModerateWithReason("BLOCKED-USER", content.Provider, content.ProviderId, ModerationState.Rejected, "Blocked User").GetAwaiter().GetResult();
+
+			_NotifyNewMessages.NotifyNewContent(hashtag, content);
+			_NotifyNewMessages.NotifyRejectedContent(hashtag, content, new ModerationAction
+			{
+				Provider = content.Provider,
+				ProviderId = content.ProviderId,
+				State = ModerationState.Rejected,
+				Timestamp = DateTimeOffset.UtcNow,
+				Moderator = "BLOCKED-USER",
+				Reason = "Blocked User"
+			});
+			return;
+		}
 
 		if (!_Enabled)
 		{
@@ -118,6 +146,13 @@ public class AzureSafetyModeration : INotifyNewMessages
 
 
 	}
+
+	public void NotifyNewBlockedCount(int blockedCount)
+	{
+		throw new NotImplementedException();
+	}
+
+	private static ConcurrentDictionary<string, string> BlockedUsers { get; } = new ConcurrentDictionary<string, string>();
 
 
 	/// <summary>

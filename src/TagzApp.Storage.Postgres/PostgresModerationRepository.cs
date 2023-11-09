@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using TagzApp.Web.Services;
 
 namespace TagzApp.Storage.Postgres;
@@ -125,6 +126,73 @@ internal class PostgresModerationRepository : IModerationRepository
 		};
 		_Context.ModerationActions.Add(moderationAction);
 		content.ModerationAction = moderationAction;
+		await _Context.SaveChangesAsync();
+
+	}
+
+	public async Task<IEnumerable<BlockedUser>> GetBlockedUsers()
+	{
+
+		var now = DateTimeOffset.UtcNow;
+
+		// Get the list of blocked users from the context
+		return (await _Context.BlockedUsers.AsNoTracking()
+			.Where(u => u.ExpirationDateTime > now)
+			.ToArrayAsync())
+			.Select(u => (BlockedUser)u)
+			.ToArray();
+
+	}
+
+	public async Task<int> GetCurrentBlockedUserCount()
+	{
+
+		var now = DateTimeOffset.UtcNow;
+
+		// Get the list of blocked users from the context
+		return await _Context.BlockedUsers.AsNoTracking()
+			.Where(u => u.ExpirationDateTime > now)
+			.CountAsync();
+
+	}
+
+
+	public async Task BlockUser(string userId, string provider, string userName, DateTimeOffset expirationDate)
+	{
+
+		// add a new blocked user to the context
+		var blockedUser = new PgBlockedUser
+		{
+			BlockingUser = userName,
+			Provider = provider,
+			UserName = userId,
+			ExpirationDateTime = expirationDate
+		};
+		_Context.BlockedUsers.Add(blockedUser);
+
+		var blockedCount = await GetCurrentBlockedUserCount();
+		_Notifier.NotifyNewBlockedCount(blockedCount+1);
+
+		await _Context.SaveChangesAsync();
+
+	}
+
+	public async Task UnblockUser(string userId, string provider)
+	{
+
+		// find the requested user's latest block and mark it to expire now
+		var blockedUser = _Context.BlockedUsers
+			.Where(u => u.Provider == provider && u.UserName == userId)
+			.OrderByDescending(u => u.BlockDateTime)
+			.FirstOrDefault();
+
+		if (blockedUser is null) throw new ArgumentOutOfRangeException("Unable to find blocked user");
+
+		blockedUser.ExpirationDateTime = DateTimeOffset.UtcNow;
+
+		var blockedCount = await GetCurrentBlockedUserCount();
+		_Notifier.NotifyNewBlockedCount(blockedCount-1);
+
 		await _Context.SaveChangesAsync();
 
 	}

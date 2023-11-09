@@ -1,0 +1,67 @@
+﻿@page
+@model TagzApp.Web.Pages.BlockedUsersModel
+
+<h2>Currently Blocked Users</h2>
+
+@* Create a form that allows submission of a provider and username to block *@
+<form action="" method="post">
+	<select name="provider">
+		@foreach (var provider in Model.Providers)
+		{
+			<option value="@provider.Id">@provider.DisplayName</option>
+		}"
+		<input id="username" name="username" maxlength="20" placeholder="User Name" />
+		<button type="submit" class="btn btn-primary">Block User</button>
+</form>
+
+
+@if (Model.BlockedUsers.Any())
+{
+	<table class="table">
+		<thead>
+			<tr>
+				<th></th>
+				<th>Provider</th>
+				<th>Username</th>
+				<th>Blocked By</th>
+				<th>Blocked On</th>
+				<th>Blocked Until</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var user in Model.BlockedUsers)
+			{
+			<tr>
+
+					<td>
+						<a class="btn btn-danger" asp-page-handler="Unblock" asp-route-provider="@user.Provider" asp-route-username="@user.UserName">
+							<i class="bi bi-x-circle-fill"></i>
+							</a>
+					</td>
+					<td>@user.Provider</td>
+					<td>@user.UserName</td>
+					<td>@user.BlockingUser</td>
+					<td data-utc="@user.BlockedDate">@user.BlockedDate</td>
+					<td>@(user.ExpirationDate > DateTime.Now.AddYears(1) ? "No end date" : user.ExpirationDate.Value.Date)</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+else
+{
+	<p>No users are currently blocked.</p>
+}
+
+@section Scripts {
+	<script>
+		// onload of the page, reformat the dates to local time
+		$(function () {
+			$('td[data-utc]').each(function () {
+				var utcDate = $(this).data('utc');
+				var localDate = new Date(utcDate);
+				$(this).text(localDate.toLocaleString());
+			});
+		});
+	</script>
+}

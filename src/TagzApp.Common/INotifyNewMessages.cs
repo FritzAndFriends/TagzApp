@@ -8,4 +8,6 @@ public interface INotifyNewMessages
 
 	void NotifyRejectedContent(string hashtag, Content content, ModerationAction action);
 
+	void NotifyNewBlockedCount(int blockedCount);
+
 }
