@@ -662,14 +662,13 @@
 					);
 					const rect = thisOne.getBoundingClientRect();
 
-
 					var above = null;
 					for (var j = 0; j < 20; j++) {
 						// Look for an ARTICLE to the left of the current cursor position, if not found, look 10 pixels lower for an article
 
 						const aboveElements = document.elementsFromPoint(
 							rect.x - height,
-							rect.y + (j*10),
+							rect.y + j * 10,
 						);
 
 						// inspect the elements in aboveElements and assign the variable above to the first article element
@@ -681,8 +680,6 @@
 						}
 
 						if (above != null && above.tagName == 'ARTICLE') break;
-
-
 					}
 
 					// check if above is an article element
@@ -709,12 +706,11 @@
 					);
 					const rect = thisOne.getBoundingClientRect();
 
-
 					var above = null;
 					for (var j = 0; j < 20; j++) {
 						const aboveElements = document.elementsFromPoint(
 							rect.x + rect.width + height,
-							rect.y + (j * 10),
+							rect.y + j * 10,
 						);
 
 						// inspect the elements in aboveElements and assign the variable above to the first article element
@@ -726,7 +722,6 @@
 						}
 
 						if (above != null && above.tagName == 'ARTICLE') break;
-
 					}
 
 					// check if above is an article element
