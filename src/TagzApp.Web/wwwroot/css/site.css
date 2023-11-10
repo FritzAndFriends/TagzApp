@@ -518,8 +518,8 @@ article.status-approved .content a {
 	color: var(--bs-white);
 }
 
-article.status-humanmod .time::after,
-article.status-automod .autoModReason::after {
+article.status-humanmod .time div::after,
+article.status-automod .time div:first-child::after { /* .autoModReason::after { */
 	content: 'Rejected';
 	font-weight: bold;
 	margin-left: 0.5em;
@@ -539,6 +539,7 @@ article.status-automod .autoMod {
 
 article.status-automod .autoModReason {
 	display: block;
+	
 }
 
 article.status-approved .autoModReason,
@@ -546,7 +547,7 @@ article.status-humanmod .autoModReason {
 	display: none;
 }
 
-article.status-approved .time::after {
+article.status-approved .time div::after {
 	content: 'Approved';
 	font-weight: bold;
 	margin-left: 0.5em;
