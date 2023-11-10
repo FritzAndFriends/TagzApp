@@ -35,7 +35,7 @@ public class AzureQueueProvider : ISocialMediaProvider
 		{
 
 			var rawContent = JsonSerializer.Deserialize<QuestionInputModel>(msg.Body.ToStream());
-			var content = (Content)rawContent;	
+			var content = (Content)rawContent;
 			if (content is not null)
 			{
 				content.HashtagSought = tag.Text.ToLowerInvariant();
