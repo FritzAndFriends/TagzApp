@@ -63,7 +63,7 @@ internal class Repository : IApplicationConfigurationRepository
 			var changedSettings = ctx.Settings.AsNoTracking().Where(s => settingsIds.Any(cs => cs == s.Id)).ToList();
 			if (changedSettings.Any())
 			{
-				ctx.Settings.UpdateRange(changedSettings);
+				ctx.Settings.UpdateRange(config.ChangedSettings.Where(c => changedSettings.Any(h => h.Id == c.Id)).ToArray());
 			}
 
 			await ctx.SaveChangesAsync();
