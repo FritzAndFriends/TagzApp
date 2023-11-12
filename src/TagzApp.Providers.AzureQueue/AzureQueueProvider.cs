@@ -15,7 +15,7 @@ public class AzureQueueProvider : ISocialMediaProvider
 	public string DisplayName => "Website";
 	public string DllName { get { return "AzureQueue"; } }
 	public string Description => "Q+A submitted through a website form";
-	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(5);
+	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(3);
 
 	public AzureQueueProvider(AzureQueueConfiguration configuration)
 	{
@@ -34,7 +34,8 @@ public class AzureQueueProvider : ISocialMediaProvider
 		foreach (var msg in messageResponse.Value)
 		{
 
-			var content = JsonSerializer.Deserialize<Content>(msg.Body.ToStream());
+			var rawContent = JsonSerializer.Deserialize<QuestionInputModel>(msg.Body.ToStream());
+			var content = (Content)rawContent;
 			if (content is not null)
 			{
 				content.HashtagSought = tag.Text.ToLowerInvariant();
@@ -74,4 +75,42 @@ public class AzureQueueProvider : ISocialMediaProvider
 		_StatusMessage = "Connected";
 
 	}
+}
+
+
+
+public class QuestionInputModel
+{
+
+	public string Author { get; set; }
+
+	public string Text { get; set; }
+
+	public static explicit operator Content(QuestionInputModel model)
+	{
+
+		// Convert to a content object
+		return new Content
+		{
+
+			Author = new Creator
+			{
+				ProfileImageUri = new Uri("https://bing.com"),
+				ProfileUri = new Uri("https://bing.com"),
+				DisplayName = model.Author,
+				ProviderId = "WEBSITE",
+				UserName = model.Author.ToLowerInvariant()
+			},
+
+			Provider = "WEBSITE",
+			ProviderId = Guid.NewGuid().ToString(),
+			SourceUri = new Uri("https://dotnetconf.net"),
+			Text = model.Text,
+			Timestamp = DateTimeOffset.UtcNow,
+			Type = ContentType.Message
+
+		};
+
+	}
+
 }

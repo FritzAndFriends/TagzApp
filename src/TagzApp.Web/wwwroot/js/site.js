@@ -126,13 +126,13 @@
 			}</div>
 		</div>
 		<i class="provider bi ${MapProviderToIcon(content.provider)}"></i>
-		<div class="time">${newMessageTime.toLocaleString(undefined, {
+		<div class="time"><div>${newMessageTime.toLocaleString(undefined, {
 			day: 'numeric',
-			month: 'long',
+			month: 'short',
 			year: 'numeric',
 			hour: 'numeric',
 			minute: '2-digit',
-		})}<div class="autoModReason"></div></div>
+		})}</div><div class="autoModReason"></div></div>
 
 		<div class="content">${FormatContextWithEmotes(content)}</div>`;
 
