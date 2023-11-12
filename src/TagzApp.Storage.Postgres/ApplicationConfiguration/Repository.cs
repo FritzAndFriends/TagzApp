@@ -66,11 +66,7 @@ internal class Repository : IApplicationConfigurationRepository
 			var changedSettings = config.ChangedSettings.ExceptBy(missingSettings, c => c.Id).ToArray();
 			if (changedSettings.Any())
 			{
-				System.Console.WriteLine($"Updating settings: {string.Join(',', changedSettings.Select(c => $"'{c.Id}' = '{c.Value}'").ToArray())}");
-				foreach (var setting in changedSettings)
-				{
-					ctx.Settings.Update(setting);
-				}
+				ctx.Settings.UpdateRange(changedSettings);
 			}
 
 			await ctx.SaveChangesAsync();
