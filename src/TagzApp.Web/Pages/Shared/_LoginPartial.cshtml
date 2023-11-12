@@ -5,6 +5,12 @@
 @inject UserManager<TagzAppUser> UserManager
 @inject IAuthorizationService AuthorizationService
 
+@{
+
+	var thisUser = await UserManager.GetUserAsync(User);
+
+}
+
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
 {
@@ -18,7 +24,7 @@
 		}
 
 		<li class="nav-item">
-			<a id="manage" class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
+			<a id="manage" class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @(thisUser.DisplayName ?? thisUser.UserName)!</a>
 		</li>
 		<li class="nav-item">
 				<form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })">
