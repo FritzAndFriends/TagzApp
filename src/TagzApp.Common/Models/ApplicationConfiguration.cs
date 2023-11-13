@@ -20,6 +20,7 @@ public class ApplicationConfiguration
 		get => _SiteName;
 		set
 		{
+			if (_SiteName == value) return;
 			_SiteName = value;
 			ChangedSettings.RemoveAll(s => s.Id == SettingsKeys.SiteName);
 			ChangedSettings.Add(new Settings(SettingsKeys.SiteName, value));
@@ -32,6 +33,7 @@ public class ApplicationConfiguration
 		get => _WaterfallHeaderMarkdown;
 		set
 		{
+			if (_WaterfallHeaderMarkdown == value) return;
 			_WaterfallHeaderMarkdown = value;
 			ChangedSettings.RemoveAll(s => s.Id == SettingsKeys.WaterfallHeaderMarkdown);
 			ChangedSettings.Add(new Settings(SettingsKeys.WaterfallHeaderMarkdown, value));
@@ -44,6 +46,7 @@ public class ApplicationConfiguration
 		get => _WaterfallHeaderCss;
 		set
 		{
+			if (_WaterfallHeaderCss == value) return;
 			_WaterfallHeaderCss = value;
 			ChangedSettings.RemoveAll(s => s.Id == SettingsKeys.WaterfallHeaderCss);
 			ChangedSettings.Add(new Settings(SettingsKeys.WaterfallHeaderCss, value));
@@ -55,6 +58,7 @@ public class ApplicationConfiguration
 		get { return _YouTubeChatConfig; }
 		set
 		{
+			if (_YouTubeChatConfig == value) return;
 			_YouTubeChatConfig = value;
 			ChangedSettings.RemoveAll(s => s.Id == SettingsKeys.YouTubeChatConfiguration);
 			ChangedSettings.Add(new Settings(SettingsKeys.YouTubeChatConfiguration, value));
