@@ -192,15 +192,14 @@
 					`${MapProviderToIcon(content.provider)}`,
 				);
 
-				document.querySelector(
-					'.modal-header .time',
-				).innerText = `${newMessageTime.toLocaleString(undefined, {
-					day: 'numeric',
-					month: 'long',
-					year: 'numeric',
-					hour: 'numeric',
-					minute: '2-digit',
-				})}`;
+				document.querySelector('.modal-header .time').innerText =
+					`${newMessageTime.toLocaleString(undefined, {
+						day: 'numeric',
+						month: 'long',
+						year: 'numeric',
+						hour: 'numeric',
+						minute: '2-digit',
+					})}`;
 
 				let modalBody = (document.querySelector('.modal-body').innerHTML =
 					FormatContextWithEmotes(content));
@@ -311,9 +310,8 @@
 		content.reason = content.reason.replace('4', 'Medium');
 		content.reason = content.reason.replace('6', 'High');
 		content.reason = content.reason.replace('.', '');
-		card.querySelector(
-			'.autoModReason',
-		).innerText = `AI Reason ( ${content.reason} )`;
+		card.querySelector('.autoModReason').innerText =
+			`AI Reason ( ${content.reason} )`;
 	}
 
 	function MapProviderToIcon(provider) {
