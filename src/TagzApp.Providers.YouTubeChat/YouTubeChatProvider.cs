@@ -13,6 +13,7 @@ namespace TagzApp.Providers.YouTubeChat;
 public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 {
 	private readonly YouTubeChatConfiguration _ChatConfig;
+	private readonly IOptionsMonitor<ApplicationConfiguration> _AppConfig;
 	public const string ProviderName = "YouTubeChat";
 
 	public string Id => "YOUTUBE-CHAT";
@@ -35,17 +36,30 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 	private SocialMediaStatus _Status = SocialMediaStatus.Unhealthy;
 	private string _StatusMessage = "Not started";
 
-	public YouTubeChatProvider(YouTubeChatConfiguration config, IOptions<ApplicationConfiguration> appConfig)
+	public YouTubeChatProvider(YouTubeChatConfiguration config, IOptionsMonitor<ApplicationConfiguration> appConfig)
 	{
 		_ChatConfig = config;
+		_AppConfig = appConfig;
+		_AppConfig.OnChange((c, _) => RefreshConfig(c));
 
-		if (appConfig.Value.YouTubeChatConfiguration == "{}") return;
+		if (appConfig.CurrentValue.YouTubeChatConfiguration == "{}") return;
 
-		var youtubeConfig = JsonSerializer.Deserialize<YouTubeChatApplicationConfiguration>(appConfig.Value.YouTubeChatConfiguration);
+		var youtubeConfig = JsonSerializer.Deserialize<YouTubeChatApplicationConfiguration>(appConfig.CurrentValue.YouTubeChatConfiguration);
 		RefreshToken = youtubeConfig.RefreshToken;
 		LiveChatId = youtubeConfig.LiveChatId;
 		YouTubeEmailId = youtubeConfig.ChannelEmail;
 
+	}
+
+	private void RefreshConfig(ApplicationConfiguration c)
+	{
+
+		if (c.YouTubeChatConfiguration == "{}") return;
+
+		var youtubeConfig = JsonSerializer.Deserialize<YouTubeChatApplicationConfiguration>(c.YouTubeChatConfiguration);
+		RefreshToken = youtubeConfig.RefreshToken;
+		LiveChatId = youtubeConfig.LiveChatId;
+		YouTubeEmailId = youtubeConfig.ChannelEmail;
 	}
 
 	public async Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since)
@@ -55,6 +69,8 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		var liveChatListRequest = new LiveChatMessagesResource.ListRequest(_Service, LiveChatId, new(new[] { "id", "snippet", "authorDetails" }));
 		liveChatListRequest.MaxResults = 2000;
 		liveChatListRequest.ProfileImageSize = 36;
+
+		Console.WriteLine("getting content for youtubechat");
 
 		if (!string.IsNullOrEmpty(_NextPageToken)) liveChatListRequest.PageToken = _NextPageToken;
 
