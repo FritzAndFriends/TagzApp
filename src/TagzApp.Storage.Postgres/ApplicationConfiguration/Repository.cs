@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
@@ -60,14 +59,14 @@ internal class Repository : IApplicationConfigurationRepository
 			var missingSettings = settingsIds.Except(currentSettings.Select(c => c.Id)).ToArray();
 			if (missingSettings.Any())
 			{
-				System.Console.WriteLine($"Adding settings {string.Join(',',missingSettings)}");
+				System.Console.WriteLine($"Adding settings {string.Join(',', missingSettings)}");
 				ctx.Settings.AddRange(config.ChangedSettings.Where(changed => missingSettings.Contains(changed.Id)).ToArray());
 			}
 
 			var changedSettings = config.ChangedSettings.ExceptBy(missingSettings, c => c.Id).ToArray();
 			if (changedSettings.Any())
 			{
-				System.Console.WriteLine($"Updating settings: {string.Join(',',changedSettings.Select(c => $"'{c.Id}' = '{c.Value}'").ToArray())}");
+				System.Console.WriteLine($"Updating settings: {string.Join(',', changedSettings.Select(c => $"'{c.Id}' = '{c.Value}'").ToArray())}");
 				foreach (var setting in changedSettings)
 				{
 					ctx.Settings.Update(setting);
