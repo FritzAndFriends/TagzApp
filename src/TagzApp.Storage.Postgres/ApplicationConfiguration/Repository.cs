@@ -54,13 +54,16 @@ internal class Repository : IApplicationConfigurationRepository
 			using var ctx = new TagzAppContext(_Configuration);
 
 			var settingsIds = config.ChangedSettings.Select(s => s.Id).ToList();
-			var missingSettings = ctx.Settings.AsNoTracking().Where(s => !settingsIds.Any(cs => cs == s.Id)).ToList();
+			var currentSettings = await ctx.Settings.AsNoTracking().ToArrayAsync();
+
+			var missingSettings = settingsIds.Except(currentSettings.Select(c => c.Id)).ToArray();
 			if (missingSettings.Any())
 			{
-				ctx.Settings.AddRange(missingSettings);
+				System.Console.WriteLine($"Adding settings {string.Join(',', missingSettings)}");
+				ctx.Settings.AddRange(config.ChangedSettings.Where(changed => missingSettings.Contains(changed.Id)).ToArray());
 			}
 
-			var changedSettings = ctx.Settings.AsNoTracking().Where(s => settingsIds.Any(cs => cs == s.Id)).ToList();
+			var changedSettings = config.ChangedSettings.ExceptBy(missingSettings, c => c.Id).ToArray();
 			if (changedSettings.Any())
 			{
 				ctx.Settings.UpdateRange(config.ChangedSettings.Where(c => changedSettings.Any(h => h.Id == c.Id)).ToArray());
@@ -70,7 +73,9 @@ internal class Repository : IApplicationConfigurationRepository
 		}
 		catch (Exception ex)
 		{
-			Console.WriteLine($"Error saving settings: {ex.Message}");
+			Console.WriteLine($"Error saving settings from SetSettings: {ex.Message}");
+			Console.WriteLine(ex);
+			//Console.WriteLine(ex.StackTrace);
 			throw new Exception("Error saving settings", ex);
 		}
 	}
