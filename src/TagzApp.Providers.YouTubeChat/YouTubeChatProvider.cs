@@ -6,7 +6,7 @@ using Google.Apis.Auth.OAuth2.Responses;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
 
 namespace TagzApp.Providers.YouTubeChat;
 
@@ -35,13 +35,12 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 	private SocialMediaStatus _Status = SocialMediaStatus.Unhealthy;
 	private string _StatusMessage = "Not started";
 
-	public YouTubeChatProvider(YouTubeChatConfiguration config, IOptions<ApplicationConfiguration> appConfig)
+	public YouTubeChatProvider(YouTubeChatConfiguration config, IConfiguration configuration)
 	{
 		_ChatConfig = config;
+		var rawConfig = configuration["ApplicationConfiguration:YouTubeChatConfiguration"];
 
-		if (appConfig.Value.YouTubeChatConfiguration == "{}") return;
-
-		var youtubeConfig = JsonSerializer.Deserialize<YouTubeChatApplicationConfiguration>(appConfig.Value.YouTubeChatConfiguration);
+		var youtubeConfig = JsonSerializer.Deserialize<YouTubeChatApplicationConfiguration>(rawConfig);
 		RefreshToken = youtubeConfig.RefreshToken;
 		LiveChatId = youtubeConfig.LiveChatId;
 		YouTubeEmailId = youtubeConfig.ChannelEmail;
