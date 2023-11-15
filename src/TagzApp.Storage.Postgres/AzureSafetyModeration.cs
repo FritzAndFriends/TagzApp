@@ -70,6 +70,14 @@ public class AzureSafetyModeration : INotifyNewMessages
 
 		var client = new ContentSafetyClient(new Uri(_ContentSafetyEndpoint), new AzureKeyCredential(_ContentSafetyKey));
 		var clearText = HtmlCleaner.UnHtml(content.Text);
+
+		// Return now if there is no text to analyze
+		if (string.IsNullOrEmpty(clearText))
+		{
+			_NotifyNewMessages.NotifyNewContent(hashtag, content);
+			return;
+		}
+
 		var request = new AnalyzeTextOptions(clearText);
 
 		Response<AnalyzeTextResult> response;
