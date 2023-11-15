@@ -22,6 +22,7 @@
 	var approvedFilterStatus = ApprovalFilter.All;
 	var providerFilter = [];
 	var cursorProviderId = null;
+	var currentModal = null;
 
 	const waterfallMaxEntries = 100;
 	const moderationMaxEntries = 500;
@@ -155,6 +156,9 @@
 		} else {
 			newMessage.addEventListener('click', function (ev) {
 				var el = ev.target.closest('article');
+
+				if (currentModal == content.providerId) return;
+				currentModal = content.providerId;
 
 				connection.invoke(
 					'SendMessageToOverlay',
@@ -982,6 +986,16 @@
 				pauseQueue = pauseQueue.filter(function (content) {
 					return content.providerId != providerId;
 				});
+			});
+
+			// Listen for the DisplayOverlay event and display the modal for the selected message
+			connection.on('DisplayOverlay', (content) => {
+				var item = document.querySelector(
+					`[data-providerid='${content.providerId}']`,
+				);
+				if (item) {
+					item.click();
+				}
 			});
 
 			// Start the connection.

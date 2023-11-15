@@ -80,7 +80,8 @@ public class AzureSafetyModeration : INotifyNewMessages
 		catch (RequestFailedException ex)
 		{
 			_AzureSafetyLogger.LogError(ex, "Analyze text failed.\nStatus code: {0}, Error code: {1}, Error message: {2}", ex.Status, ex.ErrorCode, ex.Message);
-			throw;
+			_NotifyNewMessages.NotifyNewContent(hashtag, content);
+			return;
 		}
 
 		if (response != null && (response.Value.SexualResult.Severity > 0 || response.Value.HateResult.Severity > 0 || response.Value.SelfHarmResult.Severity > 0 || response.Value.ViolenceResult.Severity > 0))

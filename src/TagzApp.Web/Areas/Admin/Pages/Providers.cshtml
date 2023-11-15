@@ -38,6 +38,7 @@
 						 aria-labelledby="heading-@provider.Id"
 						 data-bs-parent="#providerAccordion">
 					<p class="ps-3 pt-3 mb-1">@provider.Description</p>
+					<p class="ps-3 pt-3 mb-1"><b>Status:</b> @health.Status - @health.Message</p>
 					<p class="ps-3 pt-3 mb-0 fst-italic">Please fill in the configuration values below:</p>
 					<form method="post" class="p-3" id="@($"{provider.Id}-form")">
 						<input type="hidden" id="Name" name="Name" value="@provider.DisplayName" />
