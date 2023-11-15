@@ -23,6 +23,7 @@
 	var providerFilter = [];
 	var cursorProviderId = null;
 	var currentModal = null;
+	var modalWindow = null;
 
 	const waterfallMaxEntries = 100;
 	const moderationMaxEntries = 500;
@@ -160,6 +161,14 @@
 				if (currentModal == content.providerId) return;
 				currentModal = content.providerId;
 
+				if (modalWindow) modalWindow.hide();
+
+				modalWindow = new bootstrap.Modal(
+					document.getElementById('contentModal'),
+				);
+
+				// modalWindow.modal('hide');
+
 				connection.invoke(
 					'SendMessageToOverlay',
 					window.TagzApp.Tags[0],
@@ -222,10 +231,6 @@
 				</div>
 			`;
 				}
-
-				let modalWindow = new bootstrap.Modal(
-					document.getElementById('contentModal'),
-				);
 
 				// NOTE: Let's not immediately turn off pause coming back from a modal
 				//document.getElementById('contentModal').addEventListener('hide.bs.modal', function (ev) {
