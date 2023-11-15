@@ -80,7 +80,7 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		}
 
 		_Status = SocialMediaStatus.Healthy;
-		_StatusMessage = "OK";
+		_StatusMessage = $"OK -- adding ({contents.Items.Count}) messages at {DateTimeOffset.UtcNow}";
 
 		return contents.Items.Select(i => new Content
 		{
