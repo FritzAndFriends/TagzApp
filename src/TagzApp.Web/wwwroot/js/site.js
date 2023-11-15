@@ -990,7 +990,9 @@
 
 			// Listen for the DisplayOverlay event and display the modal for the selected message
 			connection.on('DisplayOverlay', (content) => {
-				var item = document.querySelector(`[data-providerid='${content.providerId}']`);
+				var item = document.querySelector(
+					`[data-providerid='${content.providerId}']`,
+				);
 				if (item) {
 					item.click();
 				}
