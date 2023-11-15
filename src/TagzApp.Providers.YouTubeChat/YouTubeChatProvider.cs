@@ -82,26 +82,29 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		_Status = SocialMediaStatus.Healthy;
 		_StatusMessage = $"OK -- adding ({contents.Items.Count}) messages for chatid '{LiveChatId}' at {DateTimeOffset.UtcNow}";
 
-		try {
+		try
+		{
 			var outItems = contents.Items.Select(i => new Content
+			{
+				Author = new Creator
 				{
-					Author = new Creator
-					{
-						DisplayName = i.AuthorDetails.DisplayName,
-						ProfileImageUri = new Uri(i.AuthorDetails.ProfileImageUrl),
-						ProfileUri = new Uri($"https://www.youtube.com/channel/{i.AuthorDetails.ChannelId}")
-					},
-					Provider = Id,
-					ProviderId = i.Id,
-					Text = i.Snippet.DisplayMessage,
-					SourceUri = new Uri($"https://youtube.com/livechat/{LiveChatId}"),
-					Timestamp = DateTimeOffset.Parse(i.Snippet.PublishedAtRaw),
-					Type = ContentType.Message,
-					HashtagSought = tag?.Text ?? ""
-				}).ToArray();
+					DisplayName = i.AuthorDetails.DisplayName,
+					ProfileImageUri = new Uri(i.AuthorDetails.ProfileImageUrl),
+					ProfileUri = new Uri($"https://www.youtube.com/channel/{i.AuthorDetails.ChannelId}")
+				},
+				Provider = Id,
+				ProviderId = i.Id,
+				Text = i.Snippet.DisplayMessage,
+				SourceUri = new Uri($"https://youtube.com/livechat/{LiveChatId}"),
+				Timestamp = DateTimeOffset.Parse(i.Snippet.PublishedAtRaw),
+				Type = ContentType.Message,
+				HashtagSought = tag?.Text ?? ""
+			}).ToArray();
 			return outItems;
 
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 
 			Console.WriteLine($"Exception while parsing YouTubeChat: {ex.Message}");
 
