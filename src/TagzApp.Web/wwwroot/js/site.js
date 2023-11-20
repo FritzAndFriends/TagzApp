@@ -73,6 +73,7 @@
 		try {
 			await connection.start();
 			console.log('SignalR Connected.');
+			DisableContextMenu();
 		} catch (err) {
 			console.log(err);
 			setTimeout(start, 5000);
@@ -81,6 +82,10 @@
 		connection.onclose(async () => {
 			await start();
 		});
+	}
+
+	function DisableContextMenu() {
+		document.addEventListener('contextmenu', ev => ev.preventDefault());
 	}
 
 	function RemoveActivePanel() {
