@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
 	var connection;
 
 	const ModerationState = {
@@ -599,6 +599,10 @@
 		});
 	}
 
+	function DisableContextMenu() {
+		document.addEventListener('contextmenu', ev => ev.preventDefault());
+	}
+
 	function FormatPauseButton() {
 		if (paused) {
 			pauseButton.classList.remove('bi-pause-circle-fill');
@@ -1016,6 +1020,8 @@
 					});
 					window.Masonry.resizeAllGridItems();
 				});
+
+			DisableContextMenu();
 		},
 
 		ListenForModerationContent: async function (tag) {
