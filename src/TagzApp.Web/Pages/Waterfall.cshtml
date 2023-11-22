@@ -2,6 +2,7 @@
 @model TagzApp.Web.Pages.WaterfallModel
 @{
 	Layout = "_WaterfallLayout";
+	ViewData["Title"] = "Waterfall Display";
 	ViewBag.EnableFloatingHeader = true;
 }
 <div class="waterfallHeader">
@@ -22,16 +23,10 @@
 
 <div id="taggedContent" class="">
 
-	@* 		<div class=" d-flex justify-content-center" style="width:100%;">
-
-	<div class="spinner-border" role="status">
-	<span class="visually-hidden">Loading...</span>
-	</div>
-
-	</div>
-	*@
 
 </div>
+
+<div id="footerFade"></div>
 
 
 <div class="modal fade show" id="contentModal" tabindex="-1" aria-labelledby="contentModalLabel" aria-hidden="true">

@@ -1,4 +1,5 @@
 ﻿@page
+@inject IOptions<ApplicationConfiguration> ApplicationConfiguration
 @model IndexModel
 
 @{
@@ -7,13 +8,13 @@
 
 <div class="row">
 	<div class="col-md-12">
-		<h1 class="text-center">Welcome to TagzApp</h1>
+		<h1 class="text-center">Welcome to @ApplicationConfiguration.Value.SiteName</h1>
 	</div>
 </div>
 
 <div class="row">
 	<div class="col-md-12">
-		TagzApp is a simple web application that allows you to search for hashtags on social media 
+		This is a web application built on the <a href="https://github.com/FritzAndFriends/TagzApp">TagzApp system</a> that allows you to search for hashtags on social media 
 		and view the results in a waterfall/masonry display.
 	</div>
 </div>

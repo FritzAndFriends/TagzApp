@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Options;
 using TagzApp.Communication;
 using TagzApp.Providers.YouTubeChat;
+using TagzApp.Storage.Postgres.ApplicationConfiguration;
 using TagzApp.Web.Data;
 using TagzApp.Web.Services;
 
@@ -17,6 +18,7 @@ namespace TagzApp.Web.Areas.Admin.Pages
 		private readonly IApplicationConfigurationRepository _Repository;
 		private readonly ApplicationConfiguration _AppConfiguration;
 		private readonly UserManager<TagzAppUser> _UserManager;
+		private readonly IConfigurationRoot? _ConfigurationRoot;
 		private YouTubeChatApplicationConfiguration? _YouTubeChatConfiguration;
 		private YouTubeChatProvider _Provider;
 		private IEnumerable<YouTubeBroadcast> _Broadcasts = Enumerable.Empty<YouTubeBroadcast>();
@@ -25,7 +27,8 @@ namespace TagzApp.Web.Areas.Admin.Pages
 			IMessagingService messagingService,
 			IApplicationConfigurationRepository repository,
 			IOptions<ApplicationConfiguration> appConfiguration,
-			UserManager<TagzAppUser> userManager)
+			UserManager<TagzAppUser> userManager,
+			IConfiguration configurationRoot)
 		{
 
 			var providers = (messagingService as BaseProviderManager).Providers;
@@ -33,6 +36,8 @@ namespace TagzApp.Web.Areas.Admin.Pages
 			_Repository = repository;
 			_AppConfiguration = appConfiguration.Value;
 			_UserManager = userManager;
+			_ConfigurationRoot = configurationRoot as IConfigurationRoot;
+
 
 			if (!string.IsNullOrEmpty(_AppConfiguration.YouTubeChatConfiguration.Replace("{}", "")))
 			{
@@ -142,6 +147,9 @@ namespace TagzApp.Web.Areas.Admin.Pages
 
 			_AppConfiguration.YouTubeChatConfiguration = JsonSerializer.Serialize(_YouTubeChatConfiguration);
 			await _Repository.SetValues(_AppConfiguration);
+
+			var thisProvider = _ConfigurationRoot.Providers.OfType<ApplicationConfigurationProvider>().First();
+			thisProvider.Reload();
 
 			return RedirectToPage("youtubechat", new { Area = "Admin" });
 

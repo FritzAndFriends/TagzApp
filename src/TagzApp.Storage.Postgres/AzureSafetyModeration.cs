@@ -98,6 +98,14 @@ public class AzureSafetyModeration : INotifyNewMessages
 
 		var client = new ContentSafetyClient(new Uri(_ContentSafetyEndpoint), new AzureKeyCredential(_ContentSafetyKey));
 		var clearText = HtmlCleaner.UnHtml(content.Text);
+
+		// Return now if there is no text to analyze
+		if (string.IsNullOrEmpty(clearText))
+		{
+			_NotifyNewMessages.NotifyNewContent(hashtag, content);
+			return;
+		}
+
 		var request = new AnalyzeTextOptions(clearText);
 
 		Response<AnalyzeTextResult> response;
@@ -108,7 +116,8 @@ public class AzureSafetyModeration : INotifyNewMessages
 		catch (RequestFailedException ex)
 		{
 			_AzureSafetyLogger.LogError(ex, "Analyze text failed.\nStatus code: {0}, Error code: {1}, Error message: {2}", ex.Status, ex.ErrorCode, ex.Message);
-			throw;
+			_NotifyNewMessages.NotifyNewContent(hashtag, content);
+			return;
 		}
 
 		if (response != null && (response.Value.SexualResult.Severity > 0 || response.Value.HateResult.Severity > 0 || response.Value.SelfHarmResult.Severity > 0 || response.Value.ViolenceResult.Severity > 0))
