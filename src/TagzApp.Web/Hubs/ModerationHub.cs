@@ -128,6 +128,8 @@ public interface IModerationClient
 
 	Task RemoveModerator(string email);
 
+	Task NewBlockedUserCount(int count);
+
 }
 
 public record NewModerator(string Email, string AvatarImageSource, string DisplayName);
