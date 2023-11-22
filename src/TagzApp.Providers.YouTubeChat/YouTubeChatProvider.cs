@@ -40,6 +40,8 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		_ChatConfig = config;
 		var rawConfig = configuration["ApplicationConfiguration:YouTubeChatConfiguration"];
 
+		if (rawConfig == null || rawConfig == "{}") return;
+
 		var youtubeConfig = JsonSerializer.Deserialize<YouTubeChatApplicationConfiguration>(rawConfig);
 		RefreshToken = youtubeConfig.RefreshToken;
 		LiveChatId = youtubeConfig.LiveChatId;
