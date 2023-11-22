@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
 	var connection;
 
 	const ModerationState = {
@@ -22,6 +22,8 @@
 	var approvedFilterStatus = ApprovalFilter.All;
 	var providerFilter = [];
 	var cursorProviderId = null;
+	var currentModal = null;
+	var modalWindow = null;
 
 	const waterfallMaxEntries = 100;
 	const moderationMaxEntries = 500;
@@ -126,13 +128,13 @@
 			}</div>
 		</div>
 		<i class="provider bi ${MapProviderToIcon(content.provider)}"></i>
-		<div class="time">${newMessageTime.toLocaleString(undefined, {
+		<div class="time"><div>${newMessageTime.toLocaleString(undefined, {
 			day: 'numeric',
-			month: 'long',
+			month: 'short',
 			year: 'numeric',
 			hour: 'numeric',
 			minute: '2-digit',
-		})}<div class="autoModReason"></div></div>
+		})}</div><div class="autoModReason"></div></div>
 
 		<div class="content">${FormatContextWithEmotes(content)}</div>`;
 
@@ -155,6 +157,17 @@
 		} else {
 			newMessage.addEventListener('click', function (ev) {
 				var el = ev.target.closest('article');
+
+				if (currentModal == content.providerId) return;
+				currentModal = content.providerId;
+
+				if (modalWindow) modalWindow.hide();
+
+				modalWindow = new bootstrap.Modal(
+					document.getElementById('contentModal'),
+				);
+
+				// modalWindow.modal('hide');
 
 				connection.invoke(
 					'SendMessageToOverlay',
@@ -192,15 +205,14 @@
 					`${MapProviderToIcon(content.provider)}`,
 				);
 
-				document.querySelector(
-					'.modal-header .time',
-				).innerText = `${newMessageTime.toLocaleString(undefined, {
-					day: 'numeric',
-					month: 'long',
-					year: 'numeric',
-					hour: 'numeric',
-					minute: '2-digit',
-				})}`;
+				document.querySelector('.modal-header .time').innerText =
+					`${newMessageTime.toLocaleString(undefined, {
+						day: 'numeric',
+						month: 'long',
+						year: 'numeric',
+						hour: 'numeric',
+						minute: '2-digit',
+					})}`;
 
 				let modalBody = (document.querySelector('.modal-body').innerHTML =
 					FormatContextWithEmotes(content));
@@ -219,10 +231,6 @@
 				</div>
 			`;
 				}
-
-				let modalWindow = new bootstrap.Modal(
-					document.getElementById('contentModal'),
-				);
 
 				// NOTE: Let's not immediately turn off pause coming back from a modal
 				//document.getElementById('contentModal').addEventListener('hide.bs.modal', function (ev) {
@@ -311,9 +319,8 @@
 		content.reason = content.reason.replace('4', 'Medium');
 		content.reason = content.reason.replace('6', 'High');
 		content.reason = content.reason.replace('.', '');
-		card.querySelector(
-			'.autoModReason',
-		).innerText = `AI Reason ( ${content.reason} )`;
+		card.querySelector('.autoModReason').innerText =
+			`AI Reason ( ${content.reason} )`;
 	}
 
 	function MapProviderToIcon(provider) {
@@ -590,6 +597,10 @@
 			FormatPauseButton();
 			if (!paused) ResumeFromPause();
 		});
+	}
+
+	function DisableContextMenu() {
+		document.addEventListener('contextmenu', ev => ev.preventDefault());
 	}
 
 	function FormatPauseButton() {
@@ -986,6 +997,16 @@
 				});
 			});
 
+			// Listen for the DisplayOverlay event and display the modal for the selected message
+			connection.on('DisplayOverlay', (content) => {
+				var item = document.querySelector(
+					`[data-providerid='${content.providerId}']`,
+				);
+				if (item) {
+					item.click();
+				}
+			});
+
 			// Start the connection.
 			await start();
 
@@ -999,6 +1020,8 @@
 					});
 					window.Masonry.resizeAllGridItems();
 				});
+
+			DisableContextMenu();
 		},
 
 		ListenForModerationContent: async function (tag) {

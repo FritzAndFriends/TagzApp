@@ -15,7 +15,7 @@
 		<th>User Email</th>
 		<th>Action</th>
 	</tr>
-	@foreach (var user in Model.Users)
+	@foreach (var user in Model.Users.OrderBy(u => u.DisplayName).ToArray())
 	{
 		<tr>
 			<td>	

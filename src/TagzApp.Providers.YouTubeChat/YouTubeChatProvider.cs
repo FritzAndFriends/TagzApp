@@ -6,7 +6,7 @@ using Google.Apis.Auth.OAuth2.Responses;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
 
 namespace TagzApp.Providers.YouTubeChat;
 
@@ -35,13 +35,12 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 	private SocialMediaStatus _Status = SocialMediaStatus.Unhealthy;
 	private string _StatusMessage = "Not started";
 
-	public YouTubeChatProvider(YouTubeChatConfiguration config, IOptions<ApplicationConfiguration> appConfig)
+	public YouTubeChatProvider(YouTubeChatConfiguration config, IConfiguration configuration)
 	{
 		_ChatConfig = config;
+		var rawConfig = configuration["ApplicationConfiguration:YouTubeChatConfiguration"];
 
-		if (appConfig.Value.YouTubeChatConfiguration == "{}") return;
-
-		var youtubeConfig = JsonSerializer.Deserialize<YouTubeChatApplicationConfiguration>(appConfig.Value.YouTubeChatConfiguration);
+		var youtubeConfig = JsonSerializer.Deserialize<YouTubeChatApplicationConfiguration>(rawConfig);
 		RefreshToken = youtubeConfig.RefreshToken;
 		LiveChatId = youtubeConfig.LiveChatId;
 		YouTubeEmailId = youtubeConfig.ChannelEmail;
@@ -81,24 +80,41 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		}
 
 		_Status = SocialMediaStatus.Healthy;
-		_StatusMessage = "OK";
+		_StatusMessage = $"OK -- adding ({contents.Items.Count}) messages for chatid '{LiveChatId}' at {DateTimeOffset.UtcNow}";
 
-		return contents.Items.Select(i => new Content
+		try
 		{
-			Author = new Creator
+			var outItems = contents.Items.Select(i => new Content
 			{
-				DisplayName = i.AuthorDetails.DisplayName,
-				ProfileImageUri = new Uri(i.AuthorDetails.ProfileImageUrl),
-				ProfileUri = new Uri($"https://www.youtube.com/channel/{i.AuthorDetails.ChannelId}")
-			},
-			Provider = Id,
-			ProviderId = i.Id,
-			Text = i.Snippet.DisplayMessage,
-			SourceUri = new Uri($"https://youtube.com/livechat/{LiveChatId}"),
-			Timestamp = DateTimeOffset.Parse(i.Snippet.PublishedAtRaw),
-			Type = ContentType.Message,
-			HashtagSought = tag?.Text ?? ""
-		}).ToArray();
+				Author = new Creator
+				{
+					DisplayName = i.AuthorDetails.DisplayName,
+					ProfileImageUri = new Uri(i.AuthorDetails.ProfileImageUrl),
+					ProfileUri = new Uri($"https://www.youtube.com/channel/{i.AuthorDetails.ChannelId}")
+				},
+				Provider = Id,
+				ProviderId = i.Id,
+				Text = i.Snippet.DisplayMessage,
+				SourceUri = new Uri($"https://youtube.com/livechat/{LiveChatId}"),
+				Timestamp = DateTimeOffset.Parse(i.Snippet.PublishedAtRaw),
+				Type = ContentType.Message,
+				HashtagSought = tag?.Text ?? ""
+			}).ToArray();
+			return outItems;
+
+		}
+		catch (Exception ex)
+		{
+
+			Console.WriteLine($"Exception while parsing YouTubeChat: {ex.Message}");
+
+			_Status = SocialMediaStatus.Unhealthy;
+			_StatusMessage = $"Exception while parsing YouTubeChat: {ex.Message}";
+
+			return Enumerable.Empty<Content>();
+
+		}
+
 
 	}
 
