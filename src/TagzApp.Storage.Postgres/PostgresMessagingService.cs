@@ -199,7 +199,9 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 				.Select(c => ((Content)c, (ModerationAction?)null))
 				.ToArray();
 
-		} else if (states.Length == 3) {
+		}
+		else if (states.Length == 3)
+		{
 
 			return (await ctx.Content.AsNoTracking()
 				.Include(c => c.ModerationAction)
@@ -211,7 +213,9 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 				.Select(c => ((Content)c, c.ModerationAction == null ? null : (ModerationAction?)c.ModerationAction))
 				.ToArray();
 
-		} else {
+		}
+		else
+		{
 
 			return (await ctx.Content.AsNoTracking()
 				.Include(c => c.ModerationAction)
