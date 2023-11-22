@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.DotNet.Scaffolding.Shared;
-using System.Text;
 using TagzApp.Web.Data;
 using TagzApp.Web.Services;
 using Humanizer;
@@ -44,7 +42,7 @@ namespace TagzApp.Web.Pages
 		}
 
 		[HttpPost("MessageDetails/[id]")]
-		public async Task<IActionResult> OnPostAsync(string id, [FromForm]string blockUser)
+		public async Task<IActionResult> OnPostAsync(string id, [FromForm] string blockUser)
 		{
 
 			if (!string.IsNullOrEmpty(id) && !string.IsNullOrEmpty(blockUser))
@@ -63,11 +61,11 @@ namespace TagzApp.Web.Pages
 
 				var thisUser = await _UserManager.GetUserAsync(User);
 
-				await _ModerationRepository.BlockUser(thisMessage.Content.Author.UserName, thisMessage.Content.Provider, thisUser.DisplayName, new DateTimeOffset(new DateTime(2050,1,1), TimeSpan.Zero));
+				await _ModerationRepository.BlockUser(thisMessage.Content.Author.UserName, thisMessage.Content.Provider, thisUser.DisplayName, new DateTimeOffset(new DateTime(2050, 1, 1), TimeSpan.Zero));
 
 				TempData["Message"] = $"Successfully blocked user {thisMessage.Content.Author.DisplayName} on {thisMessage.Content.Provider.ToLowerInvariant().Humanize(LetterCasing.Title)}";
 
-				return RedirectToPage(new { id = id});
+				return RedirectToPage(new { id = id });
 
 			}
 

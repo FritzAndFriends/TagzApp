@@ -219,7 +219,7 @@ internal class PostgresModerationRepository : IModerationRepository
 		if (item is null) throw new ArgumentException("Unable to find content with that id");
 		var action = item.ModerationAction is null ? null : (ModerationAction)item.ModerationAction;
 
-		return ((Content)item, action); 
+		return ((Content)item, action);
 
 	}
 }
