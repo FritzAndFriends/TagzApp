@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using TagzApp.Communication;
@@ -31,7 +32,8 @@ public static class AppExtensions
 			var safetyLogger = scope.ServiceProvider.GetRequiredService<ILogger<AzureSafetyModeration>>();
 			var socialMediaProviders = scope.ServiceProvider.GetRequiredService<IEnumerable<ISocialMediaProvider>>();
 			var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-			return new PostgresMessagingService(sp, notify, config, logger, safetyLogger, socialMediaProviders, repo);
+			var cache = scope.ServiceProvider.GetRequiredService<IMemoryCache>();
+			return new PostgresMessagingService(sp, notify, cache, config, logger, safetyLogger, socialMediaProviders, repo);
 		});
 		services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
 
