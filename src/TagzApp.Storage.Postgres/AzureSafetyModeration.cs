@@ -14,6 +14,7 @@ namespace TagzApp.Storage.Postgres;
 
 public class AzureSafetyModeration : INotifyNewMessages
 {
+	private const string KEY_BLOCKEDUSERS_CACHE = "blockedUsers";
 	private readonly IMemoryCache _Cache;
 	private INotifyNewMessages _NotifyNewMessages;
 	private readonly IServiceProvider _ServiceProvider;
@@ -41,6 +42,8 @@ public class AzureSafetyModeration : INotifyNewMessages
 		_ContentSafetyKey = _Configuration["AzureContentSafety:Key"];
 		_ContentSafetyEndpoint = _Configuration["AzureContentSafety:Endpoint"];
 
+		using IServiceScope scope = ReloadBlockedUserCache();
+
 	}
 
 	public void NotifyApprovedContent(string hashtag, Content content, ModerationAction action)
@@ -62,10 +65,13 @@ public class AzureSafetyModeration : INotifyNewMessages
 	public void NotifyNewContent(string hashtag, Content content)
 	{
 
+		// TODO: Establish a notification pipeline that allows for multiple moderation providers
+
+
 		// Check if this content is created by one of the blocked users listed in the cache
-		var isBlocked = _Cache.GetOrCreate("blockedUsers", _ => new List<(string Provider, string UserName)>())
+		var isBlocked = _Cache.GetOrCreate(KEY_BLOCKEDUSERS_CACHE, _ => new List<(string Provider, string UserName)>())
 			.Any(a => a.Provider.Equals(content.Provider, StringComparison.InvariantCultureIgnoreCase)
-				&& a.UserName.Equals(content.Author.UserName, StringComparison.InvariantCultureIgnoreCase));
+				&& a.UserName.Equals(content.Author.UserName.Trim('@').Trim(), StringComparison.InvariantCultureIgnoreCase));
 
 		if (isBlocked)
 		{
@@ -158,11 +164,21 @@ public class AzureSafetyModeration : INotifyNewMessages
 
 	public void NotifyNewBlockedCount(int blockedCount)
 	{
-		throw new NotImplementedException();
+		// reload the blocked users list
+		using IServiceScope scope = ReloadBlockedUserCache();
+		_NotifyNewMessages.NotifyNewBlockedCount(blockedCount);
+
 	}
 
-	private static ConcurrentDictionary<string, string> BlockedUsers { get; } = new ConcurrentDictionary<string, string>();
-
+	private IServiceScope ReloadBlockedUserCache()
+	{
+		var scope = _ServiceProvider.CreateScope();
+		var moderationRepository = scope.ServiceProvider.GetRequiredService<IModerationRepository>();
+		var blockedUsers = moderationRepository.GetBlockedUsers().GetAwaiter().GetResult();
+		_AzureSafetyLogger.LogInformation($"Blocked user count: {blockedUsers.Count()}");
+		_Cache.Set(KEY_BLOCKEDUSERS_CACHE, blockedUsers.Select(u => (u.Provider, u.UserName)).ToList());
+		return scope;
+	}
 
 	/// <summary>
 	/// Sanitation code from Stackoverflow:  https://stackoverflow.com/a/19524290

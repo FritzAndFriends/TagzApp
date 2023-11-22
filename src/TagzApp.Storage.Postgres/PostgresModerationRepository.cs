@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using TagzApp.Web.Services;
 
 namespace TagzApp.Storage.Postgres;
@@ -7,11 +8,15 @@ internal class PostgresModerationRepository : IModerationRepository
 {
 	private readonly TagzAppContext _Context;
 	private readonly INotifyNewMessages _Notifier;
+	private readonly IMemoryCache _Cache;
+	private const string KEY_BLOCKEDUSERS_CACHE = "blockedUsers";
 
-	public PostgresModerationRepository(TagzAppContext context, INotifyNewMessages notifier)
+
+	public PostgresModerationRepository(TagzAppContext context, INotifyNewMessages notifier, IMemoryCache cache)
 	{
 		_Context = context;
 		_Notifier = notifier;
+		_Cache = cache;
 	}
 
 	public async Task<IEnumerable<Content>> GetApprovedContent(DateTimeOffset dateTimeOffset, int limit)
@@ -174,6 +179,9 @@ internal class PostgresModerationRepository : IModerationRepository
 
 		await _Context.SaveChangesAsync();
 
+		var blockedUsers = await GetBlockedUsers();
+		_Cache.Set(KEY_BLOCKEDUSERS_CACHE, blockedUsers.Select(u => (u.Provider, u.UserName)).ToList());
+
 	}
 
 	public async Task UnblockUser(string userId, string provider)
@@ -193,6 +201,9 @@ internal class PostgresModerationRepository : IModerationRepository
 		_Notifier.NotifyNewBlockedCount(blockedCount - 1);
 
 		await _Context.SaveChangesAsync();
+
+		var blockedUsers = await GetBlockedUsers();
+		_Cache.Set(KEY_BLOCKEDUSERS_CACHE, blockedUsers.Select(u => (u.Provider, u.UserName)).ToList());
 
 	}
 }
