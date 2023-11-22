@@ -600,7 +600,7 @@
 	}
 
 	function DisableContextMenu() {
-		document.addEventListener('contextmenu', ev => ev.preventDefault());
+		document.addEventListener('contextmenu', (ev) => ev.preventDefault());
 	}
 
 	function FormatPauseButton() {
