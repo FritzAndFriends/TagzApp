@@ -189,7 +189,7 @@ internal class PostgresModerationRepository : IModerationRepository
 
 		// find the requested user's latest block and mark it to expire now
 		var blockedUser = _Context.BlockedUsers
-			.Where(u => u.Provider == provider && u.UserName == userId)
+			.Where(u => u.Provider == provider && u.UserName == userId && u.ExpirationDateTime > DateTime.UtcNow)
 			.OrderByDescending(u => u.BlockDateTime)
 			.FirstOrDefault();
 
@@ -204,6 +204,22 @@ internal class PostgresModerationRepository : IModerationRepository
 
 		var blockedUsers = await GetBlockedUsers();
 		_Cache.Set(KEY_BLOCKEDUSERS_CACHE, blockedUsers.Select(u => (u.Provider, u.UserName)).ToList());
+
+	}
+
+	public async Task<(Content Content, ModerationAction Action)> GetContentWithModeration(string provider, string providerId)
+	{
+
+		// Get the content item requested and include the moderation action
+		var item = await _Context.Content
+			.Include(c => c.ModerationAction)
+			.Where(c => c.Provider == provider && c.ProviderId == providerId)
+			.FirstOrDefaultAsync();
+
+		if (item is null) throw new ArgumentException("Unable to find content with that id");
+		var action = item.ModerationAction is null ? null : (ModerationAction)item.ModerationAction;
+
+		return ((Content)item, action); 
 
 	}
 }

@@ -30,6 +30,8 @@ public interface IModerationRepository
 
 	Task<IEnumerable<Content>> GetRejectedContent(DateTimeOffset dateTimeOffset, int limit);
 
+	Task<(Content Content, ModerationAction Action)> GetContentWithModeration(string provider, string providerId);
+
 
 	/// <summary>
 	/// Get a list of blocked users
