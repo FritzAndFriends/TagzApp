@@ -25,7 +25,8 @@ We also have a simple moderation capability.
 On the moderation screen, you can use the keyboard to navigate the cards on screen:
 
 - arrows to move a cursor between the various messages
-- HJKL to move a cursor using 'vim' style cursor movement- Enter to select a message for moderation
+- HJKL to move a cursor using 'vim' style cursor movement
+- Enter to select a message for moderation
 - Y to approve a message
 - N to reject a message
 
@@ -36,5 +37,6 @@ On the moderation screen, you can use the keyboard to navigate the cards on scre
  - Twitter / X
  - TwitchChat
  - YouTube (search for videos that have a given hashtag in the description)
+ - Custom message delivery across Azure Queues, labeled as 'Website'
 
 
