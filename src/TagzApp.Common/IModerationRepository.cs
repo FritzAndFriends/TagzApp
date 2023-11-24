@@ -30,4 +30,37 @@ public interface IModerationRepository
 
 	Task<IEnumerable<Content>> GetRejectedContent(DateTimeOffset dateTimeOffset, int limit);
 
+	Task<(Content Content, ModerationAction Action)> GetContentWithModeration(string provider, string providerId);
+
+
+	/// <summary>
+	/// Get a list of blocked users
+	/// </summary>
+	/// <returns>
+	/// A list of blocked users
+	/// </returns>
+	Task<IEnumerable<BlockedUser>> GetBlockedUsers();
+
+	Task<int> GetCurrentBlockedUserCount();
+
+
+	/// <summary>
+	/// Block a user
+	/// </summary>
+	/// <param name="userId">Id of the user to block</param>
+	/// <param name="provider">Provider the user is acting on</param>
+	/// <param name="userName">The moderator who is blocking the user</param>
+	/// <param name="expirationDate">The date the block expires</param>
+	/// <returns></returns>
+	Task BlockUser(string userId, string provider, string userName, DateTimeOffset expirationDate);
+
+	/// <summary>
+	/// Unblock a user
+	/// </summary>
+	/// <param name="userId">Id of the user to unblock</param>
+	/// <param name="provider">Provider the user is acting on</param>
+	/// <returns></returns>
+	Task UnblockUser(string userId, string provider);
+
+
 }

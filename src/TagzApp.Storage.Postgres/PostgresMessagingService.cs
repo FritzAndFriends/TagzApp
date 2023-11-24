@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -18,6 +19,7 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 		IServiceProvider services,
 		INotifyNewMessages notifyNewMessages,
+		IMemoryCache cache,
 		IConfiguration configuration,
 		ILogger<BaseProviderManager> logger,
 		ILogger<AzureSafetyModeration> azureSafetyLogger,
@@ -26,7 +28,7 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 		base(configuration, logger, socialMediaProviders, providerConfigurationRepository)
 	{
 		_Services = services;
-		_NotifyNewMessages = new AzureSafetyModeration(notifyNewMessages, services, configuration, azureSafetyLogger);
+		_NotifyNewMessages = new AzureSafetyModeration(cache, notifyNewMessages, services, configuration, azureSafetyLogger);
 	}
 
 	private List<string> _TagsTracked = new();
@@ -197,7 +199,9 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 				.Select(c => ((Content)c, (ModerationAction?)null))
 				.ToArray();
 
-		} else if (states.Length == 3) {
+		}
+		else if (states.Length == 3)
+		{
 
 			return (await ctx.Content.AsNoTracking()
 				.Include(c => c.ModerationAction)
@@ -209,7 +213,9 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 				.Select(c => ((Content)c, c.ModerationAction == null ? null : (ModerationAction?)c.ModerationAction))
 				.ToArray();
 
-		} else {
+		}
+		else
+		{
 
 			return (await ctx.Content.AsNoTracking()
 				.Include(c => c.ModerationAction)

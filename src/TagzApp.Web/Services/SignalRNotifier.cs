@@ -66,4 +66,10 @@ public class SignalRNotifier : INotifyNewMessages
 
 	}
 
+	public void NotifyNewBlockedCount(int blockedCount)
+	{
+		_ModContext.Clients
+			.All
+			.NewBlockedUserCount(blockedCount);
+	}
 }

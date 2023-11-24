@@ -1,0 +1,91 @@
+﻿@page "{id}"
+@using System.Text.Json
+@using Humanizer
+@model TagzApp.Web.Pages.MessageDetailsModel
+@{
+	ViewData["Title"] = "Message Details";
+
+}
+
+
+@** Add information about the selected message *@
+<div class="row">
+	<div class="col-md-12">
+		<h1 class="text-center">Message Details</h1>
+	</div>
+</div>
+
+@* Create two columns one that is four columns wide that contains the formatted message and the right side of the screen should then contain all of the actions that we can take on the message  *@
+<div id="messageDetailsUI" class="row">
+	<div class="col-md-4">
+		<div class="card">
+
+			@* Add a card head with the message author information *@
+			<div class="card-header @(Model.Message.Action?.State == ModerationState.Rejected ? "rejected" : Model.Message.Action?.State == ModerationState.Approved ? "approved" : "")">
+				<div class="row">
+					<div class="col-md-2">
+						<img src="@Model.Message.Content.Author.ProfileImageUri" onerror="this.src='/img/user.jpg';" class="rounded-circle" style="width: 50px; height: 50px;" />
+					</div>
+					<div class="col-md-10">
+						<h5 class="card-title">@Model.Message.Content.Author.DisplayName</h5>
+						<p class="card-text">@Model.Message.Content.Author.UserName</p>
+						@if ((Model.Message.Action?.State ?? ModerationState.Pending ) != ModerationState.Pending)
+						{
+							<text>@Model.Message.Action.State.ToString() </text>
+							@if (Model.Message.Action.State == ModerationState.Rejected || Model.Message.Action.State == ModerationState.Approved)
+							{
+								<text>by @Model.Message.Action.Moderator</text><br/>
+							}
+							@if (!string.IsNullOrEmpty(Model.Message.Action.Reason))
+							{
+								<text>for @Model.Message.Action.Reason</text>
+							}
+						}
+					</div>
+				</div>
+			</div>
+
+			<div class="card-body">
+				<p id="messageContent" class="card-text"></p>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-8">
+		<div class="card">
+			<div class="card-body actions">
+
+				@if (TempData["Message"] != null)
+				{
+					<p class="alert-danger alert">@TempData["Message"]</p>
+				}
+
+				<h5 class="card-title">Actions</h5>
+				<form method="post">
+				<ul>
+					@* Add a block user button *@
+					<li>
+							Block @Model.Message.Content.Author.DisplayName on @Model.Message.Content.Provider.ToLowerInvariant().Humanize(LetterCasing.Title)
+						<input type="submit" name="blockUser" value="Go" />
+					</li>
+				</ul>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+
+	<script>
+
+		var theMessage = @Html.Raw(JsonSerializer.Serialize(Model.Message.Content, new JsonSerializerOptions
+						 {
+							 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+						 }))
+			;
+
+		var contentEl = document.getElementById("messageContent");
+		contentEl.innerHTML = window.TagzApp.FormatContentWithEmotes(theMessage);
+	</script>
+
+}

@@ -524,6 +524,17 @@
 				hovered.classList.add('status-humanmod');
 			});
 
+		hoverPanel.querySelector('i.more').addEventListener('click', function (ev) {
+			// navigate to the Message Details page for this message in a new tab
+			window.open(
+				`/MessageDetails/${hovered.getAttribute(
+					'data-provider',
+				)}|${hovered.getAttribute('data-providerid')}`,
+				'_blank',
+			);
+			hoverPanel.remove();
+		});
+
 		hovered.insertBefore(hoverPanel, hovered.firstElementChild);
 
 		hoverPanel.addEventListener('mouseleave', function (ev) {
@@ -600,7 +611,7 @@
 	}
 
 	function DisableContextMenu() {
-		document.addEventListener('contextmenu', ev => ev.preventDefault());
+		document.addEventListener('contextmenu', (ev) => ev.preventDefault());
 	}
 
 	function FormatPauseButton() {
@@ -1074,6 +1085,11 @@
 
 			connection.on('RemoveModerator', (moderatorEmail) => {
 				document.getElementById('moderator-' + moderatorEmail).remove();
+			});
+
+			connection.on('NewBlockedUserCount', (newCount) => {
+				console.log('New blocked user count: ' + newCount);
+				document.getElementById('blockedCount').innerText = newCount;
 			});
 
 			// Start the connection.

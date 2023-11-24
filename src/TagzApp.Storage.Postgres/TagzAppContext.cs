@@ -28,6 +28,8 @@ public class TagzAppContext : DbContext
 
 	public DbSet<PgModerationAction> ModerationActions { get; set; }
 
+	public DbSet<PgBlockedUser> BlockedUsers { get; set; }
+
 	public DbSet<Settings> Settings => Set<Settings>();
 
 	public DbSet<Tag> TagsWatched { get; set; }

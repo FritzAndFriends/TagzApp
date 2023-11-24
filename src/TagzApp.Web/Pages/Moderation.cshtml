@@ -12,13 +12,18 @@
 </div>
 
 <div class="row" style="padding: 0  10px!important;">
-	<div class="col-md-8 d-flex align-items-center" style="">
+	<div class="col-md-6 d-flex align-items-center" style="">
 		<span class="col-form-label-sm">Current Moderators:</span>
 		<span class="currentModerators">
 
 		</span>
 	</div>
-	<div class="col-md-4 d-flex justify-content-end align-items-center" >
+
+	<div class="col-md-6 d-flex justify-content-end align-items-center" >
+
+		@* TODO: Add a badge with a number of currently blocked users *@
+		<a class="link-danger me-3" title="Blocked Users" asp-page="/BlockedUsers"><span id="blockedCount">@Model.BlockedUserCount</span> <i class="bi bi-x-circle-fill"></i></a>
+
 		<label for="approved" style="text-wrap: nowrap; margin-right: 1.4em">Approval Status:</label>
 		<select id="approved" >
 			<option value="-1">All</option>
@@ -56,6 +61,7 @@
 	<div id="moderationAction" style="display: none;">
 		<i class="bi bi-check2 approve" title="Approve this content"></i>
 		<i class="bi bi-x-circle-fill reject" title="Reject this content"></i>
+		<i class="bi bi-journal-text more" title="More Actions"></i>
 	</div>
 
 	@section Scripts {

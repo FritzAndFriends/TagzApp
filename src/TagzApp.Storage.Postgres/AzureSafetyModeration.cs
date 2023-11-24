@@ -7,11 +7,14 @@ using System.Text.RegularExpressions;
 using System.Text;
 using System.Web;
 using TagzApp.Web.Services;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace TagzApp.Storage.Postgres;
 
 public class AzureSafetyModeration : INotifyNewMessages
 {
+	private const string KEY_BLOCKEDUSERS_CACHE = "blockedUsers";
+	private readonly IMemoryCache _Cache;
 	private INotifyNewMessages _NotifyNewMessages;
 	private readonly IServiceProvider _ServiceProvider;
 	private readonly IConfiguration _Configuration;
@@ -21,12 +24,13 @@ public class AzureSafetyModeration : INotifyNewMessages
 	private readonly string? _ContentSafetyEndpoint;
 
 	public AzureSafetyModeration(
+		IMemoryCache cache,
 		INotifyNewMessages notifyNewMessages,
 		IServiceProvider serviceProvider,
 		IConfiguration configuration,
 		ILogger<AzureSafetyModeration> azureSafetyLogger)
 	{
-
+		_Cache = cache;
 		_NotifyNewMessages = notifyNewMessages;
 		_ServiceProvider = serviceProvider;
 		_Configuration = configuration;
@@ -36,6 +40,8 @@ public class AzureSafetyModeration : INotifyNewMessages
 
 		_ContentSafetyKey = _Configuration["AzureContentSafety:Key"];
 		_ContentSafetyEndpoint = _Configuration["AzureContentSafety:Endpoint"];
+
+		using IServiceScope scope = ReloadBlockedUserCache();
 
 	}
 
@@ -57,6 +63,33 @@ public class AzureSafetyModeration : INotifyNewMessages
 
 	public void NotifyNewContent(string hashtag, Content content)
 	{
+
+		// TODO: Establish a notification pipeline that allows for multiple moderation providers
+
+
+		// Check if this content is created by one of the blocked users listed in the cache
+		var isBlocked = _Cache.GetOrCreate(KEY_BLOCKEDUSERS_CACHE, _ => new List<(string Provider, string UserName)>())
+			.Any(a => a.Provider.Equals(content.Provider, StringComparison.InvariantCultureIgnoreCase)
+				&& a.UserName.Equals(content.Author.UserName.Trim('@').Trim(), StringComparison.InvariantCultureIgnoreCase));
+
+		if (isBlocked)
+		{
+			using var scope = _ServiceProvider.CreateScope();
+			var moderationRepository = scope.ServiceProvider.GetRequiredService<IModerationRepository>();
+			moderationRepository.ModerateWithReason("BLOCKED-USER", content.Provider, content.ProviderId, ModerationState.Rejected, "Blocked User").GetAwaiter().GetResult();
+
+			_NotifyNewMessages.NotifyNewContent(hashtag, content);
+			_NotifyNewMessages.NotifyRejectedContent(hashtag, content, new ModerationAction
+			{
+				Provider = content.Provider,
+				ProviderId = content.ProviderId,
+				State = ModerationState.Rejected,
+				Timestamp = DateTimeOffset.UtcNow,
+				Moderator = "BLOCKED-USER",
+				Reason = "Blocked User"
+			});
+			return;
+		}
 
 		if (!_Enabled)
 		{
@@ -128,6 +161,23 @@ public class AzureSafetyModeration : INotifyNewMessages
 
 	}
 
+	public void NotifyNewBlockedCount(int blockedCount)
+	{
+		// reload the blocked users list
+		using IServiceScope scope = ReloadBlockedUserCache();
+		_NotifyNewMessages.NotifyNewBlockedCount(blockedCount);
+
+	}
+
+	private IServiceScope ReloadBlockedUserCache()
+	{
+		var scope = _ServiceProvider.CreateScope();
+		var moderationRepository = scope.ServiceProvider.GetRequiredService<IModerationRepository>();
+		var blockedUsers = moderationRepository.GetBlockedUsers().GetAwaiter().GetResult();
+		_AzureSafetyLogger.LogInformation($"Blocked user count: {blockedUsers.Count()}");
+		_Cache.Set(KEY_BLOCKEDUSERS_CACHE, blockedUsers.Select(u => (u.Provider, u.UserName)).ToList());
+		return scope;
+	}
 
 	/// <summary>
 	/// Sanitation code from Stackoverflow:  https://stackoverflow.com/a/19524290
