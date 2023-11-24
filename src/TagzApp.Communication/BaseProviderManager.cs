@@ -82,21 +82,22 @@ public class BaseProviderManager
 
 	private async Task ConfigureProviders(IEnumerable<IConfigureProvider> configurationProviders)
 	{
-		var socialMediaProviders = new List<ISocialMediaProvider>();
+		//var socialMediaProviders = new List<ISocialMediaProvider>();
 
-		foreach (var provider in configurationProviders)
-		{
-			if (provider is INeedConfiguration)
-			{
-				((INeedConfiguration)provider).SetConfiguration(_Configuration);
-			}
-			await provider.RegisterServices(_Services);
-		}
+		//foreach (var provider in configurationProviders)
+		//{
+		//	if (provider is INeedConfiguration)
+		//	{
+		//		((INeedConfiguration)provider).SetConfiguration(_Configuration);
+		//	}
+		//	await provider.RegisterServices(_Services);
+		//}
 
-		_Services.AddPolicies(_Configuration);
-		_Services.AddSingleton<IConfiguration>(_Configuration);
-		var sp = _Services.BuildServiceProvider();
-		socialMediaProviders.AddRange(sp.GetServices<ISocialMediaProvider>());
-		Providers = socialMediaProviders;
+		// TEMP: Commented out to get working
+		// _Services.AddPolicies(_Configuration);
+		//_Services.AddSingleton<IConfiguration>(_Configuration);
+		//var sp = _Services.BuildServiceProvider();
+		//socialMediaProviders.AddRange(sp.GetServices<ISocialMediaProvider>());
+		//Providers = socialMediaProviders;
 	}
 }

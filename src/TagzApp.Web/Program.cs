@@ -16,41 +16,47 @@ public class Program
 
 		var builder = WebApplication.CreateBuilder(args);
 
-		try
-		{
-			builder.Configuration.AddApplicationConfiguration();
-			builder.Services.Configure<ApplicationConfiguration>(
-				builder.Configuration.GetSection("ApplicationConfiguration")
-			);
-			builder.Services.AddSingleton<IConfigurationRoot>(builder.Configuration);
-		}
-		catch (Exception ex)
-		{
-			Console.WriteLine("This should fail when applying EF migrations");
-		}
+		ConfigureTagzAppFactory.Create(builder.Configuration, null);
+
+		// TODO: Pull from the new IConfigureTagzAppProvider
+		//try
+		//{
+		//	builder.Configuration.AddApplicationConfiguration();
+		//	builder.Services.Configure<ApplicationConfiguration>(
+		//		builder.Configuration.GetSection("ApplicationConfiguration")
+		//	);
+		//	builder.Services.AddSingleton<IConfigurationRoot>(builder.Configuration);
+		//}
+		//catch (Exception ex)
+		//{
+		//	Console.WriteLine("This should fail when applying EF migrations");
+		//}
 
 		// Late bind the connection string so that any changes to the configuration made later on, or in the test fixture can be picked up.
-		builder.Services.AddSecurityContext(builder.Configuration);
-
-		builder.Services.AddDefaultIdentity<TagzAppUser>(options =>
-						options.SignIn.RequireConfirmedAccount = true
-				)
-				.AddRoles<IdentityRole>()
-				.AddEntityFrameworkStores<SecurityContext>();
-
-		_ = builder.Services.AddAuthentication(options =>
+		if (ConfigureTagzAppFactory.IsConfigured)
 		{
-			//options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-		})
-			.AddCookie()
-			.AddExternalProviders(builder.Configuration);
+			builder.Services.AddSecurityContext(builder.Configuration);
 
-		builder.Services.AddAuthorization(config =>
-		{
-			config.AddPolicy(Security.Policy.AdminRoleOnly, policy => { policy.RequireRole(Security.Role.Admin); });
-			config.AddPolicy(Security.Policy.Moderator,
-							policy => { policy.RequireRole(Security.Role.Moderator, Security.Role.Admin); });
-		});
+			builder.Services.AddDefaultIdentity<TagzAppUser>(options =>
+							options.SignIn.RequireConfirmedAccount = true
+					)
+					.AddRoles<IdentityRole>()
+					.AddEntityFrameworkStores<SecurityContext>();
+
+			_ = builder.Services.AddAuthentication(options =>
+			{
+				//options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+			})
+				.AddCookie()
+				.AddExternalProviders(builder.Configuration);
+
+			builder.Services.AddAuthorization(config =>
+			{
+				config.AddPolicy(Security.Policy.AdminRoleOnly, policy => { policy.RequireRole(Security.Role.Admin); });
+				config.AddPolicy(Security.Policy.Moderator,
+								policy => { policy.RequireRole(Security.Role.Moderator, Security.Role.Admin); });
+			});
+		}
 
 		// Add services to the container.
 		builder.Services.AddRazorPages(options =>
@@ -83,7 +89,7 @@ public class Program
 		builder.Services.AddSingleton<TempDataSerializer, JsonTempDataSerializer>();
 
 		// Add the Polly policies
-		builder.Services.AddPolicies(builder.Configuration);
+		builder.Services.AddPolicies();
 
 		builder.Services.AddSingleton<ViewModelUtilitiesService>();
 
@@ -119,6 +125,8 @@ public class Program
 
 		app.MapRazorPages();
 
+		app.UseMiddleware<StartupConfigMiddleware>(app.Configuration);
+
 		app.MapHub<MessageHub>("/messages");
 		app.MapHub<ModerationHub>("/mod");
 
@@ -132,7 +140,10 @@ public class Program
 			});
 		}
 
-		app.Services.InitializeSecurity().GetAwaiter().GetResult(); // Ensure this runs before we start the app.
+		if (ConfigureTagzAppFactory.IsConfigured)
+		{
+			app.Services.InitializeSecurity().GetAwaiter().GetResult(); // Ensure this runs before we start the app.
+		}
 
 		app.Run();
 	}

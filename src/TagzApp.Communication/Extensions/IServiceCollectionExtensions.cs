@@ -150,16 +150,18 @@ public static class IServiceCollectionExtensions
 	/// <param name="configuration">Reference to the application configuration instance</param>
 	/// <param name="configurationSectionName">Section name to use when configuring the Http client</param>
 	/// <exception cref="ArgumentNullException">Raised whenever any of the provided arguments is null</exception>
-	public static IServiceCollection AddPolicies(this IServiceCollection services, IConfiguration configuration, string configurationSectionName = PolicyConstants.HttpPolicies)
+	public static IServiceCollection AddPolicies(this IServiceCollection services, string configurationSectionName = PolicyConstants.HttpPolicies)
 	{
+
+		var configuration = ConfigureTagzAppFactory.Current;
+
 		// Validate the request
 		Ensure.Any.IsNotNull(services, nameof(services));
 		Ensure.Any.IsNotNull(configuration, nameof(configuration));
 		Ensure.String.IsNotEmptyOrWhiteSpace(configurationSectionName, nameof(configurationSectionName));
 
 		// Retrieve the policy options from service
-		services.Configure<PolicyOptions>(configuration);
-		PolicyOptions policyOptions = configuration.GetSection(configurationSectionName).Get<PolicyOptions>()!;
+		PolicyOptions policyOptions = configuration.GetConfigurationById<PolicyOptions>(configurationSectionName).GetAwaiter().GetResult();
 
 		IPolicyRegistry<string> policyRegistry = services.AddPolicyRegistry();
 
