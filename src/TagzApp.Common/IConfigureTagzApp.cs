@@ -1,8 +1,5 @@
 ﻿// Ignore Spelling: Tagz
 
-using System.Linq;
-using System.Runtime.InteropServices.JavaScript;
-
 namespace TagzApp.Common;
 
 

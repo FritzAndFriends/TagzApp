@@ -2,7 +2,6 @@
 
 using Dapper;
 using Microsoft.Data.Sqlite;
-using System;
 using System.Data;
 using System.Text.Json;
 
@@ -66,7 +65,7 @@ public class DbConfigureTagzApp : IConfigureTagzApp, IDisposable
 
 		var outValue = JsonSerializer.Serialize(value);
 
-		var exists = await _Connection.QuerySingleAsync<int>("SELECT COUNT(1) FROM SystemConfiguration WHERE id = @id", new  { id = id });
+		var exists = await _Connection.QuerySingleAsync<int>("SELECT COUNT(1) FROM SystemConfiguration WHERE id = @id", new { id = id });
 		int result = 0;
 		if (exists == 0)
 		{

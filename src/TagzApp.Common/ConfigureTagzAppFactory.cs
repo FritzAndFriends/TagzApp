@@ -44,7 +44,7 @@ public static class ConfigureTagzAppFactory
 		var thisFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 		var rawJson = await File.ReadAllTextAsync("appsettings.json");
 		var jsonObj = JsonNode.Parse(rawJson);
-	  jsonObj["ConnectionStrings"]["AppConfigProvider"] = provider;
+		jsonObj["ConnectionStrings"]["AppConfigProvider"] = provider;
 		jsonObj["ConnectionStrings"]["AppConfigConnection"] = configurationString;
 
 		// update appsettings.json with the new configuration
