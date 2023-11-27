@@ -16,7 +16,8 @@ public class Program
 
 	private static bool _Restarting = true;
 
-	public static Task Restart() {
+	public static Task Restart()
+	{
 		_Restarting = true;
 		_Source.Cancel();
 		return Task.CompletedTask;
