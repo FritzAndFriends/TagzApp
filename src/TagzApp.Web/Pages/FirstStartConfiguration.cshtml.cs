@@ -64,7 +64,7 @@ public class FirstStartConfigurationModel : PageModel
 			await currentProvider.SetConfigurationById("ContentProvider", ContentProvider);
 			await currentProvider.SetConfigurationById("ContentConnectionString", ContentConnectionString);
 
-			//_ApplicationLifetime.StopApplication();
+			Program.Restart();
 
 			return RedirectToPage("/Index");
 		}
