@@ -25,6 +25,15 @@ public class DbConfigureTagzApp : IConfigureTagzApp, IDisposable
 
 	}
 
+	public async Task<string> GetConfigurationStringById(string id)
+	{
+		var outValue = await _Connection.QuerySingleOrDefaultAsync<string>("select value from SystemConfiguration WHERE id=@id ", new { id = id });
+		if (string.IsNullOrEmpty(outValue)) { return string.Empty; }
+
+		return JsonSerializer.Deserialize<string>(outValue);
+	}
+
+
 	public Task InitializeConfiguration(string providerName, string connectionString)
 	{
 
@@ -115,4 +124,5 @@ public class DbConfigureTagzApp : IConfigureTagzApp, IDisposable
 		Dispose(disposing: true);
 		GC.SuppressFinalize(this);
 	}
+
 }

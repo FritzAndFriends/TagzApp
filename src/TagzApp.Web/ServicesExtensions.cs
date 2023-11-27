@@ -130,15 +130,17 @@ public static class ServicesExtensions
 		}
 	}
 
-	public static void AddSecurityContext(this IServiceCollection services, IConfiguration configuration)
+	public static async void AddSecurityContext(this IServiceCollection services, IConfigureTagzApp configuration)
 	{
 
-		if (!string.IsNullOrEmpty(configuration.GetConnectionString("TagzAppSecurity")))
+		var provider = await configuration.GetConfigurationStringById("SecurityProvider");
+		var connectionString = await configuration.GetConfigurationStringById("SecurityConnectionString");
+		if (provider.Equals("postgres", StringComparison.InvariantCultureIgnoreCase))
 		{
 
 			services.AddDbContext<SecurityContext>(options =>
 			{
-				options.UseNpgsql(configuration.GetConnectionString("TagzAppSecurity"),
+				options.UseNpgsql(connectionString,
 				pg => pg.MigrationsAssembly(typeof(SecurityContextModelSnapshot).Assembly.FullName));
 				// "TagzApp.Storage.Postgres.Security, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"));
 			});
@@ -155,12 +157,12 @@ public static class ServicesExtensions
 				Console.WriteLine($"Error while migrating security context to Postgres: {ex}");
 			}
 		}
-		else if (!string.IsNullOrEmpty(configuration.GetConnectionString("SecurityContextConnection")))
+		else if (provider.Equals("sqlite", StringComparison.InvariantCultureIgnoreCase))
 		{
 
 			services.AddDbContext<SecurityContext>(options =>
 			{
-				options.UseSqlite(configuration.GetConnectionString("SecurityContextConnection"));
+				options.UseSqlite(connectionString);
 			});
 
 		}

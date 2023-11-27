@@ -1,11 +1,11 @@
-﻿// Ignore Spelling: Css
+﻿//// Ignore Spelling: Css
 
-namespace TagzApp.Common;
+//namespace TagzApp.Common;
 
-public interface IApplicationConfigurationRepository
-{
-	Task SetValues(ApplicationConfiguration config);
+//public interface IApplicationConfigurationRepository
+//{
+//	Task SetValues(ApplicationConfiguration config);
 
-	Task SetValue(string key, string value);
+//	Task SetValue(string key, string value);
 
-}
+//}

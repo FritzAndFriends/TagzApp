@@ -33,26 +33,14 @@ public class Program
 
 			var builder = WebApplication.CreateBuilder(args);
 
-			ConfigureTagzAppFactory.Create(builder.Configuration, null);
+			var configure = ConfigureTagzAppFactory.Create(builder.Configuration, null);
+			var appConfig = ApplicationConfiguration.LoadFromConfiguration(configure);
 
-			// TODO: Pull from the new IConfigureTagzAppProvider
-			//try
-			//{
-			//	builder.Configuration.AddApplicationConfiguration();
-			//	builder.Services.Configure<ApplicationConfiguration>(
-			//		builder.Configuration.GetSection("ApplicationConfiguration")
-			//	);
-			//	builder.Services.AddSingleton<IConfigurationRoot>(builder.Configuration);
-			//}
-			//catch (Exception ex)
-			//{
-			//	Console.WriteLine("This should fail when applying EF migrations");
-			//}
 
 			// Late bind the connection string so that any changes to the configuration made later on, or in the test fixture can be picked up.
 			if (ConfigureTagzAppFactory.IsConfigured)
 			{
-				builder.Services.AddSecurityContext(builder.Configuration);
+				builder.Services.AddSecurityContext(configure);
 
 				builder.Services.AddDefaultIdentity<TagzAppUser>(options =>
 								options.SignIn.RequireConfirmedAccount = true
@@ -60,10 +48,7 @@ public class Program
 						.AddRoles<IdentityRole>()
 						.AddEntityFrameworkStores<SecurityContext>();
 
-				_ = builder.Services.AddAuthentication(options =>
-				{
-					//options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-				})
+				_ = builder.Services.AddAuthentication()
 					.AddCookie()
 					.AddExternalProviders(builder.Configuration);
 

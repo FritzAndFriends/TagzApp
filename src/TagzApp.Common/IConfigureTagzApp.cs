@@ -10,6 +10,8 @@ public interface IConfigureTagzApp
 
 	Task<T> GetConfigurationById<T>(string id) where T : new();
 
+	Task<string> GetConfigurationStringById(string id);
+
 	Task SetConfigurationById<T>(string id, T value);
 
 }
@@ -23,6 +25,8 @@ public class EmptyConfigureTagzApp : IConfigureTagzApp
 	{
 		return Task.FromResult(new T());
 	}
+
+	public Task<string> GetConfigurationStringById(string id) => Task.FromResult(string.Empty);
 
 	public Task InitializeConfiguration(string providerName, string configurationString)
 	{
