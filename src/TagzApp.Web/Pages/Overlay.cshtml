@@ -54,6 +54,8 @@
 			function FormatMessage(content) {
 
 				var overlayDisplay = document.getElementById("overlayDisplay");
+				overlayDisplay.setAttribute('data-url', content.sourceUri);
+				overlayDisplay.setAttribute('data-provider', content.provider);
 
 				overlayDisplay.className = "begin";
 					overlayDisplay.innerHTML = `
@@ -70,7 +72,7 @@
 				if (content.previewCard) {
 					overlayDisplay.innerHTML += `
 									<span class="contentcard">
-							<img src="${content.previewCard.imageUri}" class="card-img-top" alt="${content.previewCard.altText}" />
+													<img src="${content.previewCard.imageUri}" class="card-img-top" alt="${content.previewCard.altText}" onerror="this.onerror=null; window.TagzApp.FixEmbedImage(this);" />
 						</span>
 					`
 				}
