@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
@@ -31,6 +32,12 @@ public class Program
 
 		// Late bind the connection string so that any changes to the configuration made later on, or in the test fixture can be picked up.
 		builder.Services.AddSecurityContext(builder.Configuration);
+
+		// Add DataProtection services
+		builder.Services.AddDataProtection()
+			.SetApplicationName("TagzApp")
+			.SetDefaultKeyLifetime(TimeSpan.FromDays(90))
+			.PersistKeysToDbContext<SecurityContext>();
 
 		builder.Services.AddDefaultIdentity<TagzAppUser>(options =>
 						options.SignIn.RequireConfirmedAccount = true

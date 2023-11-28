@@ -54,10 +54,12 @@
 				function FormatMessage(content) {
 
 					var overlayDisplay = document.getElementById("portraitOverlayDisplay");
+					overlayDisplay.setAttribute('data-url', content.sourceUri);
+					overlayDisplay.setAttribute('data-provider', content.provider);
 
 					overlayDisplay.className = "begin";
 					overlayDisplay.innerHTML = `
-											<img class="ProfilePicture" src="${content.authorProfileImageUri}" alt="${content.authorDisplayName}" onerror="this.src='/img/user.jpg';" />
+								<img class="ProfilePicture" src="${content.authorProfileImageUri}" alt="${content.authorDisplayName}" onerror="this.src='/img/user.jpg';" />
 								<div class="byline">
 									<div class="author">${content.authorDisplayName}</div>
 									<div class="authorUserName">${content.authorUserName}</div>
@@ -74,7 +76,7 @@
 						const tag =
 							content.previewCard.imageUri.split('.').pop() == 'mp4'
 								? "video muted='muted' controls='controls' autoplay"
-								: 'img onerror="this.onerror=null; this.style.display=\'none\'; this.parentElement.style.display = \'none\'"';
+								: 'img onerror="this.onerror=null; window.TagzApp.FixEmbedImage(this)"';
 						overlayDisplay.innerHTML += `
 							<div class="contentcard">
 								<${tag} src="${content.previewCard.imageUri}" class="card-img-top" alt="${content.previewCard.altText}" />
