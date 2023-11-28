@@ -12,6 +12,9 @@
 		<dt><label for="SiteName">Site Name:</label></dt>
 		<dd><input name="SiteName" value="@Model.SiteName" /></dd>
 
+		<dt><label asp-for="ModerationEnabled"></label></dt>
+		<dd><input type="radio" asp-for="ModerationEnabled" value="true" />Enabled <input type="radio" value="false" asp-for="ModerationEnabled" />Disabled </dd>
+
 		<dt><label for="WaterfallHeaderCss">Waterfall header CSS:</label></dt>
 		<dd><textarea name="WaterfallHeaderCss" style="width: 40em; height: 10em">@Model.WaterfallHeaderCss</textarea></dd>
 

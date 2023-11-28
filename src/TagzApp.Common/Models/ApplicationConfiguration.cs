@@ -10,8 +10,19 @@ public class ApplicationConfiguration
 	private string _SiteName = "TagzApp";
 	private string _WaterfallHeaderMarkdown = "# Welcome to TagzApp";
 	private string _WaterfallHeaderCss = string.Empty;
+	private bool _ModerationEnabled = false;
 
 	private string _YouTubeChatConfig = "{}";
+
+	public bool ModerationEnabled
+	{
+		get => _ModerationEnabled;
+		set
+		{
+			if (_ModerationEnabled == value) return;
+			_ModerationEnabled = value;
+		}
+	}
 
 	[Required, MaxLength(30)]
 	public string SiteName

@@ -1,6 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Authorization;
 @inject IAuthorizationService AuthorizationService
-@inject IConfiguration Configuration
 @inject ApplicationConfiguration AppConfiguration
 
 <header>
@@ -24,7 +23,7 @@
 							<a class="nav-link" asp-area="" asp-page="/Waterfall">Waterfall</a>
 						</li>
 
-						@if (Configuration.GetValue<bool>("ModerationEnabled", false) && (await AuthorizationService.AuthorizeAsync(User, Security.Policy.Moderator)).Succeeded)
+						@if (AppConfiguration.ModerationEnabled && (await AuthorizationService.AuthorizeAsync(User, Security.Policy.Moderator)).Succeeded)
 						{
 							<li class="nav-item">
 								<a class="nav-link" asp-area="" asp-page="/Moderation">Moderation</a>

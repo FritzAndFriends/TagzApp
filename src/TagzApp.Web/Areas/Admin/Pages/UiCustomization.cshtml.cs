@@ -2,6 +2,8 @@
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace TagzApp.Web.Areas.Admin.Pages
 {
@@ -25,6 +27,7 @@ namespace TagzApp.Web.Areas.Admin.Pages
 		public void OnGet()
 		{
 
+			ModerationEnabled = _AppConfig.ModerationEnabled;
 			SiteName = _AppConfig.SiteName;
 			WaterfallHeaderCss = _AppConfig.WaterfallHeaderCss;
 			WaterfallHeaderMarkdown = _AppConfig.WaterfallHeaderMarkdown;
@@ -40,6 +43,7 @@ namespace TagzApp.Web.Areas.Admin.Pages
 				return Page();
 			}
 
+			_AppConfig.ModerationEnabled = ModerationEnabled;
 			_AppConfig.SiteName = SiteName;
 			_AppConfig.WaterfallHeaderCss = WaterfallHeaderCss;
 			_AppConfig.WaterfallHeaderMarkdown = WaterfallHeaderMarkdown;
@@ -49,6 +53,9 @@ namespace TagzApp.Web.Areas.Admin.Pages
 			return RedirectToPage("uicustomization", new { Area = "Admin" });
 
 		}
+
+		[BindProperty, Display(AutoGenerateField = true, Name = "Moderation Enabled:")]
+		public bool ModerationEnabled { get; set; }
 
 		[BindProperty]
 		public string SiteName { get; set; }

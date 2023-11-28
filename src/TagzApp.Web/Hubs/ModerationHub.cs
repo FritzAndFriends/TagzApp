@@ -21,14 +21,14 @@ public class ModerationHub : Hub<IModerationClient>
 
 	public ModerationHub(
 		IMessagingService svc,
-		IConfiguration configuration,
+		ApplicationConfiguration configuration,
 		IModerationRepository repository,
 		UserManager<TagzAppUser> userManager)
 	{
 		_Service = svc;
 		_Repository = repository;
 		_UserManager = userManager;
-		ModerationEnabled = configuration.GetValue<bool>("ModerationEnabled", false);
+		ModerationEnabled = configuration.ModerationEnabled;
 
 	}
 

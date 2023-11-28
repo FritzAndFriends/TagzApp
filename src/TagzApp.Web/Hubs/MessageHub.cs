@@ -10,10 +10,10 @@ public class MessageHub : Hub
 	private readonly IMessagingService _Service;
 	private bool ModerationEnabled = false;
 
-	public MessageHub(IMessagingService svc, IConfiguration configuration)
+	public MessageHub(IMessagingService svc, ApplicationConfiguration configuration)
 	{
 		_Service = svc;
-		ModerationEnabled = configuration.GetValue<bool>("ModerationEnabled", false);
+		ModerationEnabled = configuration.ModerationEnabled;
 	}
 
 	public override async Task OnConnectedAsync()
