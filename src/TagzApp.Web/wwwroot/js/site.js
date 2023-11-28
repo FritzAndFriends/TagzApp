@@ -138,7 +138,7 @@
 
 		<div class="content">${FormatContextWithEmotes(content)}</div>`;
 
-		if (content.providerId == "1697329414722199899") console.log(content);
+		if (content.providerId == '1697329414722199899') console.log(content);
 
 		if (content.previewCard) {
 			const tag =
@@ -150,7 +150,6 @@
 					<${tag} src="${content.previewCard.imageUri}" class="card-img-top" alt="${content.previewCard.altText}" />
 				</div>
 			`;
-
 		}
 
 		if (onclick) {
@@ -173,7 +172,6 @@
 				let thisModal = document.getElementById('contentModal');
 				thisModal.setAttribute('data-url', content.sourceUri);
 				thisModal.setAttribute('data-provider', content.provider);
-
 
 				// modalWindow.modal('hide');
 
@@ -379,13 +377,15 @@
 	}
 
 	function FixEmbedImage(img) {
-
 		var theArticle = img.closest('[data-provider]');
 
-		if (theArticle.dataset.provider == 'TWITTER' && !img.src.toString().includes("d.fxtwitter.com")) {
-
-			img.src = theArticle.dataset.url.replace('twitter.com', 'd.fxtwitter.com') + ".jpg";
-
+		if (
+			theArticle.dataset.provider == 'TWITTER' &&
+			!img.src.toString().includes('d.fxtwitter.com')
+		) {
+			img.src =
+				theArticle.dataset.url.replace('twitter.com', 'd.fxtwitter.com') +
+				'.jpg';
 		} else {
 			img.parentElement.style.display = 'none';
 		}
