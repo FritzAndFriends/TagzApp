@@ -35,12 +35,16 @@ public class Program
 			var builder = WebApplication.CreateBuilder(args);
 
 			var configure = ConfigureTagzAppFactory.Create(builder.Configuration, null);
-			var appConfig = ApplicationConfiguration.LoadFromConfiguration(configure);
 
+			var appConfig = ApplicationConfiguration.LoadFromConfiguration(configure);
 
 			// Late bind the connection string so that any changes to the configuration made later on, or in the test fixture can be picked up.
 			if (ConfigureTagzAppFactory.IsConfigured)
 			{
+
+				// Stash a copy of the configuration in the services collection
+				builder.Services.AddSingleton(configure);
+
 				builder.Services.AddSecurityContext(configure);
 
 				builder.Services.AddDefaultIdentity<TagzAppUser>(options =>

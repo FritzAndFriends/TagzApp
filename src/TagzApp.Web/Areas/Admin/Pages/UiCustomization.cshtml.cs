@@ -1,24 +1,25 @@
+// Ignore Spelling: App Tagz
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Options;
-using TagzApp.Storage.Postgres.ApplicationConfiguration;
 
 namespace TagzApp.Web.Areas.Admin.Pages
 {
 	public class UiCustomizationModel : PageModel
 	{
+
 		private readonly ApplicationConfiguration _AppConfig;
-		private readonly IApplicationConfigurationRepository _Repo;
 		private readonly IConfigurationRoot _ConfigurationRoot;
+		private readonly IConfigureTagzApp _ConfigureTagzApp;
 
 		public UiCustomizationModel(
-			IOptions<ApplicationConfiguration> appConfig,
-			IApplicationConfigurationRepository repo,
+			IConfigureTagzApp configureTagzApp,
 			IConfiguration configurationRoot)
 		{
-			_AppConfig = appConfig.Value;
-			_Repo = repo;
+			_AppConfig = ApplicationConfiguration.LoadFromConfiguration(configureTagzApp).GetAwaiter().GetResult();
 			_ConfigurationRoot = configurationRoot as IConfigurationRoot;
+			_ConfigureTagzApp = configureTagzApp;
 		}
 
 		public void OnGet()
@@ -30,7 +31,7 @@ namespace TagzApp.Web.Areas.Admin.Pages
 
 		}
 
-		public IActionResult OnPost()
+		public async Task<IActionResult> OnPostAsync()
 		{
 
 			// Save the settings to the repository
@@ -39,16 +40,11 @@ namespace TagzApp.Web.Areas.Admin.Pages
 				return Page();
 			}
 
-			_AppConfig.ForgetChanges();
-
 			_AppConfig.SiteName = SiteName;
 			_AppConfig.WaterfallHeaderCss = WaterfallHeaderCss;
 			_AppConfig.WaterfallHeaderMarkdown = WaterfallHeaderMarkdown;
 
-			_Repo.SetValues(_AppConfig);
-
-			var thisProvider = _ConfigurationRoot.Providers.OfType<ApplicationConfigurationProvider>().First();
-			thisProvider.Reload();
+			await _AppConfig.SaveConfiguration(_ConfigureTagzApp);
 
 			return RedirectToPage("uicustomization", new { Area = "Admin" });
 
