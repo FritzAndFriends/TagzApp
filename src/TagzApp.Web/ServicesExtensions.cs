@@ -130,7 +130,7 @@ public static class ServicesExtensions
 		}
 	}
 
-	public static async void AddSecurityContext(this IServiceCollection services, IConfigureTagzApp configuration)
+	public static async Task AddSecurityContext(this IServiceCollection services, IConfigureTagzApp configuration)
 	{
 
 		var provider = await configuration.GetConfigurationStringById("SecurityProvider");

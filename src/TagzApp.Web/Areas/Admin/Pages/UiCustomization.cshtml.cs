@@ -14,9 +14,10 @@ namespace TagzApp.Web.Areas.Admin.Pages
 
 		public UiCustomizationModel(
 			IConfigureTagzApp configureTagzApp,
+			ApplicationConfiguration appConfig,
 			IConfiguration configurationRoot)
 		{
-			_AppConfig = ApplicationConfiguration.LoadFromConfiguration(configureTagzApp).GetAwaiter().GetResult();
+			_AppConfig = appConfig;
 			_ConfigurationRoot = configurationRoot as IConfigurationRoot;
 			_ConfigureTagzApp = configureTagzApp;
 		}

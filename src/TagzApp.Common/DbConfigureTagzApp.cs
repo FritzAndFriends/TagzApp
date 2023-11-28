@@ -10,15 +10,18 @@ namespace TagzApp.Common;
 public class DbConfigureTagzApp : IConfigureTagzApp, IDisposable
 {
 
-	private IDbConnection _Connection;
 	private bool _DisposedValue;
 
 	public static IEnumerable<string> SupportedDbs = ["postgres", "sqlilte"];
+	private static string _ProviderName;
+	private static string _ConnectionString;
 
 	public async Task<T> GetConfigurationById<T>(string id) where T : new()
 	{
 
-		var outValue = await _Connection.QuerySingleOrDefaultAsync<string>("select value from SystemConfiguration WHERE id=@id ", new { id = id });
+		using var conn = GetConnection();
+		var outValue = await conn.QuerySingleOrDefaultAsync<string>("select value from SystemConfiguration WHERE id=@id ", new { id = id });
+
 		if (string.IsNullOrEmpty(outValue)) { return new T(); }
 
 		return JsonSerializer.Deserialize<T>(outValue);
@@ -27,7 +30,10 @@ public class DbConfigureTagzApp : IConfigureTagzApp, IDisposable
 
 	public async Task<string> GetConfigurationStringById(string id)
 	{
-		var outValue = await _Connection.QuerySingleOrDefaultAsync<string>("select value from SystemConfiguration WHERE id=@id ", new { id = id });
+
+		using var conn = GetConnection();
+		var outValue = await conn.QuerySingleOrDefaultAsync<string>("select value from SystemConfiguration WHERE id=@id ", new { id = id });
+
 		if (string.IsNullOrEmpty(outValue)) { return string.Empty; }
 
 		return JsonSerializer.Deserialize<string>(outValue);
@@ -37,10 +43,13 @@ public class DbConfigureTagzApp : IConfigureTagzApp, IDisposable
 	public Task InitializeConfiguration(string providerName, string connectionString)
 	{
 
-		_Connection = GetConnection(providerName, connectionString);
-		_Connection.Open();
+		_ProviderName = providerName;
+		_ConnectionString = connectionString;
 
-		CreateConfigTable(_Connection, providerName);
+		using var conn = GetConnection(providerName, connectionString);
+		conn.Open();
+
+		CreateConfigTable(conn, providerName);
 
 		return Task.CompletedTask;
 
@@ -56,6 +65,8 @@ public class DbConfigureTagzApp : IConfigureTagzApp, IDisposable
 		cmd.ExecuteNonQuery();
 
 	}
+
+	private IDbConnection GetConnection() => GetConnection(_ProviderName, _ConnectionString);
 
 	private static IDbConnection GetConnection(string providerName, string connectionString)
 	{
@@ -74,17 +85,18 @@ public class DbConfigureTagzApp : IConfigureTagzApp, IDisposable
 
 		var outValue = JsonSerializer.Serialize(value);
 
-		var exists = await _Connection.QuerySingleAsync<int>("SELECT COUNT(1) FROM SystemConfiguration WHERE id = @id", new { id = id });
+		using var conn = GetConnection();
+		var exists = await conn.QuerySingleAsync<int>("SELECT COUNT(1) FROM SystemConfiguration WHERE id = @id", new { id = id });
 		int result = 0;
+
 		if (exists == 0)
 		{
-			result = await _Connection.ExecuteAsync("INSERT INTO SystemConfiguration (Id, Value) VALUES (@id, @value)", new { id = id, value = outValue });
+			result = await conn.ExecuteAsync("INSERT INTO SystemConfiguration (Id, Value) VALUES (@id, @value)", new { id = id, value = outValue });
 		}
 		else
 		{
-			result = await _Connection.ExecuteAsync("UPDATE SystemConfiguration SET Value = @value WHERE Id = @id", new { id = id, value = outValue });
+			result = await conn.ExecuteAsync("UPDATE SystemConfiguration SET Value = @value WHERE Id = @id", new { id = id, value = outValue });
 		}
-
 
 		if (result == 0)
 		{
@@ -102,8 +114,6 @@ public class DbConfigureTagzApp : IConfigureTagzApp, IDisposable
 				// TODO: dispose managed state (managed objects)
 			}
 
-			_Connection.Dispose();
-			_Connection = null;
 
 			// TODO: free unmanaged resources (unmanaged objects) and override finalizer
 			// TODO: set large fields to null

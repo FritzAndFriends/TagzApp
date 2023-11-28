@@ -36,7 +36,7 @@ public class Program
 
 			var configure = ConfigureTagzAppFactory.Create(builder.Configuration, null);
 
-			var appConfig = ApplicationConfiguration.LoadFromConfiguration(configure);
+			var appConfig = await ApplicationConfiguration.LoadFromConfiguration(configure);
 
 			// Late bind the connection string so that any changes to the configuration made later on, or in the test fixture can be picked up.
 			if (ConfigureTagzAppFactory.IsConfigured)
@@ -44,6 +44,7 @@ public class Program
 
 				// Stash a copy of the configuration in the services collection
 				builder.Services.AddSingleton(configure);
+				builder.Services.AddSingleton(appConfig);
 
 				builder.Services.AddSecurityContext(configure);
 

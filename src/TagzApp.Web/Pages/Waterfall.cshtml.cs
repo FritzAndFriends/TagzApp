@@ -8,9 +8,9 @@ namespace TagzApp.Web.Pages;
 public class WaterfallModel : PageModel
 {
 	private readonly IMessagingService _Service;
-	private readonly IOptions<ApplicationConfiguration> _AppConfiguration;
+	private readonly ApplicationConfiguration _AppConfiguration;
 
-	public WaterfallModel(IMessagingService service, IOptions<ApplicationConfiguration> AppConfiguration)
+	public WaterfallModel(IMessagingService service, ApplicationConfiguration AppConfiguration)
 	{
 		_Service = service;
 		_AppConfiguration = AppConfiguration;
@@ -26,13 +26,13 @@ public class WaterfallModel : PageModel
 
 	}
 
-	public string WaterfallHeaderContent => Markdig.Markdown.ToHtml(_AppConfiguration.Value.WaterfallHeaderMarkdown);
+	public string WaterfallHeaderContent => Markdig.Markdown.ToHtml(_AppConfiguration.WaterfallHeaderMarkdown);
 
 	public string WaterfallHeaderCss
 	{
 		get
 		{
-			var theCSS = _AppConfiguration.Value.WaterfallHeaderCss;
+			var theCSS = _AppConfiguration.WaterfallHeaderCss;
 			if (string.IsNullOrWhiteSpace(theCSS))
 			{
 				return "";
