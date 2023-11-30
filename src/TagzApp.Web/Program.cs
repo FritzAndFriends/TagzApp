@@ -30,7 +30,7 @@ public class Program
 		{
 
 			_Restarting = false;
-			_Source.TryReset();
+			_Source = new();
 
 			var builder = WebApplication.CreateBuilder(args);
 
@@ -46,7 +46,7 @@ public class Program
 				// Stash a copy of the configuration in the services collection
 				builder.Services.AddSingleton(configure);
 
-				builder.Services.AddSecurityContext(configure);
+				await builder.Services.AddSecurityContext(configure);
 
 				builder.Services.AddDefaultIdentity<TagzAppUser>(options =>
 								options.SignIn.RequireConfirmedAccount = true
@@ -74,6 +74,7 @@ public class Program
 				options.Conventions.AuthorizePage("/BlockedUsers", Security.Policy.Moderator);
 			});
 
+			// Configure the forwarded headers to allow Container hosting support
 			builder.Services.Configure<ForwardedHeadersOptions>(options =>
 			{
 				options.ForwardedHeaders = ForwardedHeaders.All;
@@ -84,7 +85,7 @@ public class Program
 				options.KnownProxies.Clear();
 			});
 
-			builder.Services.AddTagzAppHostedServices(builder.Configuration);
+			await builder.Services.AddTagzAppHostedServices(configure);
 
 			builder.Services.AddSignalR();
 
@@ -96,8 +97,9 @@ public class Program
 			// configure TempData serialization with System.Text.Json
 			builder.Services.AddSingleton<TempDataSerializer, JsonTempDataSerializer>();
 
-			// Add the Polly policies
-			builder.Services.AddPolicies();
+			//// Add the Polly policies
+			/// Removing in favor of provider specific Polly Policies
+			//builder.Services.AddPolicies();
 
 			builder.Services.AddSingleton<ViewModelUtilitiesService>();
 

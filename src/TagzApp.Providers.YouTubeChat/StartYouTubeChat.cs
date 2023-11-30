@@ -4,11 +4,10 @@ using TagzApp.Communication;
 
 namespace TagzApp.Providers.YouTubeChat;
 
-public class StartYouTubeChat : BaseConfigurationProvider, IConfigureProvider, INeedConfiguration
+public class StartYouTubeChat : BaseConfigurationProvider<YouTubeChatConfiguration>, IConfigureProvider
 {
-	private YouTubeChatConfiguration _Config;
 
-	public StartYouTubeChat(IProviderConfigurationRepository providerConfigurationRepository) : base(providerConfigurationRepository)
+	public StartYouTubeChat(IConfigureTagzApp configureTagzApp) : base(configureTagzApp)
 	{
 	}
 
@@ -16,28 +15,14 @@ public class StartYouTubeChat : BaseConfigurationProvider, IConfigureProvider, I
 	{
 
 		// Exit not if we don't have a clientid
-		if (string.IsNullOrEmpty(_Config.ClientId)) return services;
+		var config = await LoadConfigurationValuesAsync(YouTubeChatProvider.ProviderName);
+		if (string.IsNullOrEmpty(config.ClientId)) return services;
 
-		await LoadConfigurationValuesAsync(YouTubeChatProvider.ProviderName, cancellationToken);
 
-		services.AddSingleton(_Config);
+		services.AddSingleton(config);
 		services.AddTransient<ISocialMediaProvider, YouTubeChatProvider>();
 		return services;
 
-	}
-
-	public void SetConfiguration(IConfiguration configuration)
-	{
-		_Config = new YouTubeChatConfiguration
-		{
-			ClientId = configuration[YouTubeChatConfiguration.Key_Google_ClientId],
-			ClientSecret = configuration[YouTubeChatConfiguration.Key_Google_ClientSecret]
-		};
-	}
-
-	protected override void MapConfigurationValues(ProviderConfiguration providerConfiguration)
-	{
-		// do nothing... yet
 	}
 
 }

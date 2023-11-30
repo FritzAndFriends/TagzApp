@@ -13,26 +13,24 @@ public static class AppExtensions
 
 	private static Task _MigrateTask = Task.CompletedTask;
 
-	public static IServiceCollection AddPostgresServices(this IServiceCollection services, IConfiguration configuration)
+	public static IServiceCollection AddPostgresServices(this IServiceCollection services, IConfigureTagzApp configureTagzApp, ConnectionSettings connectionSettings)
 	{
 
 		services.AddDbContext<TagzAppContext>(options =>
 				{
-					options.UseNpgsql(configuration.GetConnectionString("TagzApp"));
+					options.UseNpgsql(connectionSettings.ContentConnectionString);
 				});
 
 		//services.AddScoped<IProviderConfigurationRepository, PostgresProviderConfigurationRepository>();
 		services.AddSingleton<IMessagingService>(sp =>
 		{
 			var scope = sp.CreateScope();
-			var repo = scope.ServiceProvider.GetRequiredService<IProviderConfigurationRepository>();
 			var notify = scope.ServiceProvider.GetRequiredService<INotifyNewMessages>();
 			var logger = scope.ServiceProvider.GetRequiredService<ILogger<BaseProviderManager>>();
 			var safetyLogger = scope.ServiceProvider.GetRequiredService<ILogger<AzureSafetyModeration>>();
 			var socialMediaProviders = scope.ServiceProvider.GetRequiredService<IEnumerable<ISocialMediaProvider>>();
-			var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
 			var cache = scope.ServiceProvider.GetRequiredService<IMemoryCache>();
-			return new PostgresMessagingService(sp, notify, cache, config, logger, safetyLogger, socialMediaProviders, repo);
+			return new PostgresMessagingService(sp, notify, cache, logger, safetyLogger, socialMediaProviders);
 		});
 		services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
 

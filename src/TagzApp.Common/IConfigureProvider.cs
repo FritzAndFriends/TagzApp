@@ -17,10 +17,3 @@ public interface IConfigureProvider
 	Task<IServiceCollection> RegisterServices(IServiceCollection services, CancellationToken cancellationToken = default);
 
 }
-
-public interface INeedConfiguration
-{
-
-	void SetConfiguration(IConfiguration configuration);
-
-}

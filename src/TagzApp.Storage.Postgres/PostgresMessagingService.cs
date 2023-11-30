@@ -20,12 +20,10 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 		IServiceProvider services,
 		INotifyNewMessages notifyNewMessages,
 		IMemoryCache cache,
-		IConfiguration configuration,
 		ILogger<BaseProviderManager> logger,
 		ILogger<AzureSafetyModeration> azureSafetyLogger,
-		IEnumerable<ISocialMediaProvider>? socialMediaProviders,
-		IProviderConfigurationRepository providerConfigurationRepository) :
-		base(configuration, logger, socialMediaProviders, providerConfigurationRepository)
+		IEnumerable<ISocialMediaProvider>? socialMediaProviders) :
+		base(logger, socialMediaProviders)
 	{
 		_Services = services;
 		_NotifyNewMessages = new AzureSafetyModeration(cache, notifyNewMessages, services, configuration, azureSafetyLogger);

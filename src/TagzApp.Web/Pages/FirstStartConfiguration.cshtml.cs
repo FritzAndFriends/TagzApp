@@ -59,10 +59,14 @@ public class FirstStartConfigurationModel : PageModel
 
 			// Configure the Security and Content providers
 			var currentProvider = ConfigureTagzAppFactory.Current;
-			await currentProvider.SetConfigurationById("SecurityProvider", SecurityProvider);
-			await currentProvider.SetConfigurationById("SecurityConnectionString", SecurityConnectionString);
-			await currentProvider.SetConfigurationById("ContentProvider", ContentProvider);
-			await currentProvider.SetConfigurationById("ContentConnectionString", ContentConnectionString);
+			var connectionSettings = new ConnectionSettings
+			{
+				SecurityProvider = SecurityProvider,
+				SecurityConnectionString = SecurityConnectionString,
+				ContentProvider = ContentProvider,
+				ContentConnectionString = ContentConnectionString
+			};
+			await currentProvider.SetConfigurationById(ConnectionSettings.ConfigurationKey, connectionSettings);
 
 			Program.Restart();
 
