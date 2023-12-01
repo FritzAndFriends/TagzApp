@@ -1,6 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using TagzApp.Communication;
 
 namespace TagzApp.Providers.YouTubeChat;
 
