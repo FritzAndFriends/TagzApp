@@ -18,11 +18,10 @@ internal class PostgresMessaging : IDisposable
 	private readonly IProviderConfigurationRepository _ProviderConfigurationRepository;
 	private List<Common.Models.ProviderConfiguration?> _ProviderConfigurations = new();
 
-	public PostgresMessaging(IServiceProvider services, IProviderConfigurationRepository providerConfigurationRepository)
+	public PostgresMessaging(IServiceProvider services)
 	{
 		_Services = _Services ?? services;
 		_QueueWatcher = Task.Run(DispatchFromQueue);
-		_ProviderConfigurationRepository = providerConfigurationRepository;
 	}
 
 	internal async Task StartProviders(IEnumerable<ISocialMediaProvider> providers, CancellationToken cancellationToken)
@@ -183,7 +182,6 @@ internal class PostgresMessaging : IDisposable
 		{
 			if (disposing)
 			{
-				// TODO: dispose managed state (managed objects)
 			}
 
 			// TODO: free unmanaged resources (unmanaged objects) and override finalizer

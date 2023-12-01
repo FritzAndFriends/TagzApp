@@ -259,6 +259,11 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 
 	public Task<(SocialMediaStatus Status, string Message)> GetHealth() => Task.FromResult((_Status, _StatusMessage));
 
+	public Task StopAsync()
+	{
+		return Task.CompletedTask;
+	}
+
 	#endregion
 
 }

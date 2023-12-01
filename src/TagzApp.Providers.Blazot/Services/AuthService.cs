@@ -18,16 +18,15 @@ internal class AuthService : IAuthService
 	private readonly IAuthEvents _AuthEvents;
 	private readonly ILogger<AuthService> _Logger;
 
-	public AuthService(ILogger<AuthService> logger, IHttpClientFactory httpClientFactory, IAuthEvents authEvents, IConfiguration configuration)
+	public AuthService(ILogger<AuthService> logger, IHttpClientFactory httpClientFactory, IAuthEvents authEvents, BlazotConfiguration configuration)
 	{
 		_Logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		_HttpClient = httpClientFactory.CreateClient(nameof(BlazotProvider));
 		_AuthEvents = authEvents ?? throw new ArgumentNullException(nameof(authEvents));
 
-		var settings = configuration.GetSection(BlazotSettings.AppSettingsSection).Get<BlazotSettings>();
-		_ApiKey = settings?.ApiKey ?? throw new ArgumentNullException(nameof(settings));
+		_ApiKey = configuration?.ApiKey ?? throw new ArgumentNullException(nameof(configuration));
 		_HttpClient.DefaultRequestHeaders.Add("x-api-key", _ApiKey);
-		_SecretAuthKey = settings.SecretAuthKey;
+		_SecretAuthKey = configuration.SecretAuthKey;
 	}
 
 	public string? AccessToken { get; private set; }

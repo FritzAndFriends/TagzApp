@@ -4,18 +4,14 @@ using TagzApp.Communication;
 
 namespace TagzApp.Providers.YouTubeChat;
 
-public class StartYouTubeChat : BaseConfigurationProvider<YouTubeChatConfiguration>, IConfigureProvider
+public class StartYouTubeChat : IConfigureProvider
 {
-
-	public StartYouTubeChat(IConfigureTagzApp configureTagzApp) : base(configureTagzApp)
-	{
-	}
 
 	public async Task<IServiceCollection> RegisterServices(IServiceCollection services, CancellationToken cancellationToken = default)
 	{
 
 		// Exit not if we don't have a clientid
-		var config = await LoadConfigurationValuesAsync(YouTubeChatProvider.ProviderName);
+		var config = await ConfigureTagzAppFactory.Current.GetConfigurationById<YouTubeChatConfiguration>(YouTubeChatConfiguration.AppSettingsSection);
 		if (string.IsNullOrEmpty(config.ClientId)) return services;
 
 

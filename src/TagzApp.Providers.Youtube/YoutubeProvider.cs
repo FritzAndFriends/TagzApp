@@ -72,4 +72,13 @@ internal class YoutubeProvider : ISocialMediaProvider
 
 	public Task<(SocialMediaStatus Status, string Message)> GetHealth() => Task.FromResult((_Status, _StatusMessage));
 
+	public Task StopAsync()
+	{
+		return Task.CompletedTask;
+	}
+
+	public void Dispose()
+	{
+		// do nothing
+	}
 }

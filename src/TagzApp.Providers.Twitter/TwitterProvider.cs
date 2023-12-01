@@ -241,4 +241,14 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 		return Task.FromResult((_Status, _StatusMessage));
 
 	}
+
+	public Task StopAsync()
+	{
+		return Task.CompletedTask;
+	}
+
+	public void Dispose()
+	{
+		// do nothing
+	}
 }

@@ -15,7 +15,7 @@ public class YoutubeConfiguration
 	/// <summary>
 	/// YouTube assigned API key
 	/// </summary>
-	public required string ApiKey { get; set; }
+	public string ApiKey { get; set; } = string.Empty;
 
 	public SearchResource.ListRequest.SafeSearchEnum SafeSearch { get; set; } = SearchResource.ListRequest.SafeSearchEnum.Moderate;
 

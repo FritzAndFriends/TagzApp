@@ -3,7 +3,7 @@
 /// <summary>
 /// Defines the interface for a Social Media Provider that delivers content to TagzApp
 /// </summary>
-public interface ISocialMediaProvider
+public interface ISocialMediaProvider : IDisposable
 {
 
 	/// <summary>
@@ -47,5 +47,7 @@ public interface ISocialMediaProvider
 	/// </summary>
 	/// <returns></returns>
 	Task StartAsync();
+
+	Task StopAsync();
 
 }

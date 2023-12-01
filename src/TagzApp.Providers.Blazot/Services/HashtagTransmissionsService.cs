@@ -25,15 +25,14 @@ internal class HashtagTransmissionsService : ITransmissionsService, IDisposable
 	private DateTime _SinceDate = DateTime.MinValue;
 	private readonly ILogger<HashtagTransmissionsService> _Logger;
 
-	public HashtagTransmissionsService(IConfiguration configuration, ILogger<HashtagTransmissionsService> logger,
+	public HashtagTransmissionsService(BlazotConfiguration configuration, ILogger<HashtagTransmissionsService> logger,
 		IHttpClientFactory httpClientFactory, IAuthEvents authEvents, IAuthService authService)
 	{
 		_Logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		_HttpClient = httpClientFactory.CreateClient(nameof(BlazotProvider));
 		_AuthService = authService ?? throw new ArgumentNullException(nameof(authService));
 
-		var settings = configuration.GetSection(BlazotSettings.AppSettingsSection).Get<BlazotSettings>();
-		_WindowSeconds = settings?.WindowSeconds ?? throw new ArgumentNullException(nameof(settings));
+		_WindowSeconds = configuration?.WindowSeconds ?? throw new ArgumentNullException(nameof(configuration));
 
 		_WindowTimer = new Timer { Interval = TimeSpan.FromSeconds(_WindowSeconds).TotalMilliseconds, AutoReset = true };
 		// TODO: Check CS8622 -- Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).

@@ -192,4 +192,9 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	{
 		return Task.FromResult((_Status, _StatusMessage));
 	}
+
+	public Task StopAsync()
+	{
+		return Task.CompletedTask;
+	}
 }
