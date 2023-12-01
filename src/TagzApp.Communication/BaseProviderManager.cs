@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
 using TagzApp.Communication.Extensions;
@@ -86,7 +85,7 @@ public class BaseProviderManager
 		}
 
 		// TEMP: Commented out to get working
-		 _Services.AddPolicies();
+		_Services.AddPolicies();
 		var sp = _Services.BuildServiceProvider();
 		socialMediaProviders.AddRange(sp.GetServices<ISocialMediaProvider>());
 		Providers = socialMediaProviders;

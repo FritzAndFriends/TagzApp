@@ -1,5 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using TagzApp.Communication;
 using TagzApp.Communication.Extensions;
 using TagzApp.Providers.Blazot.Configuration;
 using TagzApp.Providers.Blazot.Constants;

@@ -1,6 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using System.Text.Json;
-using TagzApp.Communication;
 using TagzApp.Communication.Extensions;
 using TagzApp.Providers.Twitter.Configuration;
 

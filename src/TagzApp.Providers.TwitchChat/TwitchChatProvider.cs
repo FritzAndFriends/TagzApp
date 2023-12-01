@@ -130,7 +130,9 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 
 			return Task.FromResult(Enumerable.Empty<Content>());
 
-		} else {
+		}
+		else
+		{
 			_Status = SocialMediaStatus.Healthy;
 			_StatusMessage = "OK";
 		}
