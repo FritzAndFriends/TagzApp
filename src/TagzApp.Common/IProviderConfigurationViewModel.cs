@@ -3,7 +3,11 @@
 /// <summary>
 /// Tagging interface to build provider configuration forms from
 /// </summary>
-public interface IProviderConfigurationViewModel
+public interface IProviderConfiguration
 {
-	public bool Activated { get; set; }
+
+	public string Name { get; }
+	public string Description { get; }
+
+	public bool Enabled { get; set; }
 }
