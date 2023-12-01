@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
 using TagzApp.Providers.Blazot.Constants;
 using TagzApp.Providers.Blazot.Events;
 using TagzApp.Providers.Blazot.Interfaces;

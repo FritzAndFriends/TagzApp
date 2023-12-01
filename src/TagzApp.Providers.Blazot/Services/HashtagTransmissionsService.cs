@@ -1,8 +1,6 @@
 using System.Net;
 using System.Text.Json;
 using System.Timers;
-
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 using TagzApp.Providers.Blazot.Configuration;

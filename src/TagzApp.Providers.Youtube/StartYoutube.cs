@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using TagzApp.Providers.Youtube.Configuration;
-using TagzApp.Communication;
 
 namespace TagzApp.Providers.Youtube;
 

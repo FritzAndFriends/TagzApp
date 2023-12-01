@@ -1,6 +1,5 @@
 using Azure;
 using Azure.AI.ContentSafety;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
@@ -30,7 +29,7 @@ public class AzureSafetyModeration : INotifyNewMessages
 		ILogger<AzureSafetyModeration> azureSafetyLogger)
 	{
 		_Cache = cache;
-		_NotifyNewMessages = notifyNewMessages; 
+		_NotifyNewMessages = notifyNewMessages;
 		_ServiceProvider = serviceProvider;
 		_AzureSafetyLogger = azureSafetyLogger;
 
