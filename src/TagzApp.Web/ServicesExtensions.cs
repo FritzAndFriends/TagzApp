@@ -163,6 +163,15 @@ public static class ServicesExtensions
 				options.UseSqlite(configuration.GetConnectionString("SecurityContextConnection"));
 			});
 
+		} else {
+
+			// Add the in-memory provider
+			services.AddDbContext<SecurityContext>(options =>
+			{
+				options.UseInMemoryDatabase("tagzapp");
+			});
+
+
 		}
 
 	}
