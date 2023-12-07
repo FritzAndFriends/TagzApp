@@ -139,7 +139,7 @@ public static class ServicesExtensions
 			services.AddDbContext<SecurityContext>(options =>
 			{
 				options.UseNpgsql(configuration.GetConnectionString("TagzAppSecurity"),
-				pg => pg.MigrationsAssembly(typeof(SecurityContextModelSnapshot).Assembly.FullName));
+				pg => pg.MigrationsAssembly("TagzApp.Storage.Postgres.Security"));
 				// "TagzApp.Storage.Postgres.Security, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"));
 			});
 
