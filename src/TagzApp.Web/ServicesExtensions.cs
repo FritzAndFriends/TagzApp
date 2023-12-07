@@ -5,7 +5,6 @@ using System.Security.Claims;
 using TagzApp.Providers.YouTubeChat;
 using TagzApp.Storage.Postgres;
 using TagzApp.Web.Data;
-using TagzApp.Web.Migrations;
 using TagzApp.Web.Services;
 
 namespace TagzApp.Web;
@@ -139,7 +138,7 @@ public static class ServicesExtensions
 			services.AddDbContext<SecurityContext>(options =>
 			{
 				options.UseNpgsql(configuration.GetConnectionString("TagzAppSecurity"),
-				pg => pg.MigrationsAssembly(typeof(SecurityContextModelSnapshot).Assembly.FullName));
+				pg => pg.MigrationsAssembly("TagzApp.Storage.Postgres.Security"));
 				// "TagzApp.Storage.Postgres.Security, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"));
 			});
 
@@ -162,6 +161,17 @@ public static class ServicesExtensions
 			{
 				options.UseSqlite(configuration.GetConnectionString("SecurityContextConnection"));
 			});
+
+		}
+		else
+		{
+
+			// Add the in-memory provider
+			services.AddDbContext<SecurityContext>(options =>
+			{
+				options.UseInMemoryDatabase("tagzapp");
+			});
+
 
 		}
 

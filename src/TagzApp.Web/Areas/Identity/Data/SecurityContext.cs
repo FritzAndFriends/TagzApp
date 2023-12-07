@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace TagzApp.Web.Data;
 
-public class SecurityContext : IdentityDbContext<TagzAppUser>
+public class SecurityContext : IdentityDbContext<TagzAppUser>, IDataProtectionKeyContext
 {
 	private readonly IConfiguration _Configuration;
 
@@ -22,8 +23,14 @@ public class SecurityContext : IdentityDbContext<TagzAppUser>
 		// Customize the ASP.NET Identity model and override the defaults if needed.
 		// For example, you can rename the ASP.NET Identity table names and more.
 		// Add your customizations after calling base.OnModelCreating(builder);
+
+		builder.Entity<DataProtectionKey>().Property(d => d.Id)
+			.UseIdentityColumn();
+
 	}
 
 	public DbSet<Settings> Settings => Set<Settings>();
+
+	public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
 
 }
