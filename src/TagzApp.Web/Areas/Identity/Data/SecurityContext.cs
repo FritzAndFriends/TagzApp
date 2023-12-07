@@ -31,6 +31,6 @@ public class SecurityContext : IdentityDbContext<TagzAppUser>, IDataProtectionKe
 
 	public DbSet<Settings> Settings => Set<Settings>();
 
-	public DbSet<DataProtectionKey> DataProtectionKeys { get; set;  }
+	public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
 
 }
