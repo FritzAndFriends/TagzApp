@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using System.Text.Json;
-
-namespace TagzApp.Common;
+﻿namespace TagzApp.Common;
 //public class InMemoryProviderConfigurationRepository : IProviderConfigurationRepository
 //{
 //	private readonly IConfiguration _Configuration;

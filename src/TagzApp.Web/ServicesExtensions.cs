@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using System.Security.Claims;
 using TagzApp.Providers.YouTubeChat;
-using TagzApp.Storage.Postgres;
 using TagzApp.Web.Data;
 using TagzApp.Web.Services;
 
