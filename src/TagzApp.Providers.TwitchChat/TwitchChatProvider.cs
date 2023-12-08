@@ -204,4 +204,9 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	{
 		return await configure.GetConfigurationById<TwitchChatConfiguration>(Id);
 	}
+
+	public async Task SaveConfiguration(IConfigureTagzApp configure, IProviderConfiguration providerConfiguration)
+	{
+		await configure.SetConfigurationById(Id, (TwitchChatConfiguration)providerConfiguration);
+	}
 }

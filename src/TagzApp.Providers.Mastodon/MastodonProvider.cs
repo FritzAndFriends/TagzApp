@@ -114,6 +114,11 @@ internal class MastodonProvider : ISocialMediaProvider, IHasNewestId
 		return Task.FromResult((_Status, _StatusMessage));
 	}
 
+	public async Task SaveConfiguration(IConfigureTagzApp configure, IProviderConfiguration providerConfiguration)
+	{
+		await configure.SetConfigurationById(Id, (MastodonConfiguration)providerConfiguration);
+	}
+
 	public Task StartAsync()
 	{
 		return Task.CompletedTask;

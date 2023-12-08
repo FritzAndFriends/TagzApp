@@ -8,12 +8,10 @@ namespace TagzApp.Web.Areas.Admin.Pages
 	{
 		public IEnumerable<ISocialMediaProvider> Providers { get; set; }
 		private readonly IMessagingService _Service;
-		private readonly IProviderConfigurationRepository _ProviderConfigurationRepository;
 
-		public ProvidersModel(IMessagingService service, IProviderConfigurationRepository providerConfigurationRepository)
+		public ProvidersModel(IMessagingService service)
 		{
 			_Service = service;
-			_ProviderConfigurationRepository = providerConfigurationRepository;
 			Providers = service.Providers;
 		}
 
@@ -22,53 +20,55 @@ namespace TagzApp.Web.Areas.Admin.Pages
 			var submittedValues = Request.Form.ToList();
 			var providerName = submittedValues.FirstOrDefault(x => x.Key == "Name").Value.ToString() ?? string.Empty;
 
-			var config = await _ProviderConfigurationRepository.GetConfigurationSettingsAsync(providerName);
+			var provider = Providers.FirstOrDefault(p => p.DisplayName == providerName);
+			var config = await provider?.GetConfiguration(ConfigureTagzAppFactory.Current);
 
 			if (config != null)
 			{
-				config.Activated = GetActivatedStatus(submittedValues);
+				config.Enabled = GetActivatedStatus(submittedValues);
 				submittedValues.ForEach(value =>
 				{
-					if (config.ConfigurationSettings != null &&
+					if (
 							value.Key != "Name" &&
 							value.Key != "Activated" &&
 							value.Key != "Description" &&
 							value.Key != "__RequestVerificationToken")
 					{
 						// String handling of boolean properties submitted from HTML checkbox input controls
-						if (value.Value.ToString().StartsWith(bool.TrueString.ToLower())
-							|| value.Value.ToString().StartsWith(bool.FalseString.ToLower()))
-						{
-							config.ConfigurationSettings[value.Key] = value.Value.ToString().Split(',')[0];
-						}
-						else
-						{
-							config.ConfigurationSettings[value.Key] = value.Value.ToString() ?? config.ConfigurationSettings[value.Key];
-						}
+						//if (value.Value.ToString().StartsWith(bool.TrueString.ToLower())
+						//	|| value.Value.ToString().StartsWith(bool.FalseString.ToLower()))
+						//{
+						//	config.ConfigurationSettings[value.Key] = value.Value.ToString().Split(',')[0];
+						//}
+						//else
+						//{
+						//	config.ConfigurationSettings[value.Key] = value.Value.ToString() ?? config.ConfigurationSettings[value.Key];
+						//}
+						config.SetConfigurationByKey(value.Key, value.Value);
 					}
 				});
 			}
-			else
-			{
-				config = new Common.Models.IProviderConfiguration
-				{
-					Name = submittedValues.FirstOrDefault(x => x.Key == "Name").Value[0] ?? string.Empty,
-					Activated = GetActivatedStatus(submittedValues),
-					ConfigurationSettings = new Dictionary<string, string>()
-				};
+			//else
+			//{
+			//	config = new Common.Models.IProviderConfiguration
+			//	{
+			//		Name = submittedValues.FirstOrDefault(x => x.Key == "Name").Value[0] ?? string.Empty,
+			//		Activated = GetActivatedStatus(submittedValues),
+			//		ConfigurationSettings = new Dictionary<string, string>()
+			//	};
 
-				submittedValues.Where(x => x.Key != "Name" &&
-															x.Key != "Activated" &&
-															x.Key != "Description" &&
-															x.Key != "__RequestVerificationToken").ToList()
-					.ForEach(y =>
-					{
-						config.ConfigurationSettings.Add(y.Key, y.Value[0]!);
-					});
-			}
+			//	submittedValues.Where(x => x.Key != "Name" &&
+			//												x.Key != "Activated" &&
+			//												x.Key != "Description" &&
+			//												x.Key != "__RequestVerificationToken").ToList()
+			//		.ForEach(y =>
+			//		{
+			//			config.ConfigurationSettings.Add(y.Key, y.Value[0]!);
+			//		});
+			//}
 
 			if (config != null)
-				await _ProviderConfigurationRepository.SaveConfigurationSettingsAsync(config);
+				await provider.SaveConfiguration(ConfigureTagzAppFactory.Current, config);
 		}
 
 		private bool GetActivatedStatus(List<KeyValuePair<string, StringValues>>? values)

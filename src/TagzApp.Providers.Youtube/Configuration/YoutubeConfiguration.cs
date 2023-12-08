@@ -23,4 +23,33 @@ public class YoutubeConfiguration : IProviderConfiguration
 	public string Name => "YouTube";
 	public string Description => "Search YouTube video descriptions for a hashtag";
 	public bool Enabled { get; set; }
+	public string[] Keys => ["ApiKey", "MaxResults"];
+
+	public string GetConfigurationByKey(string key)
+	{
+		return key switch
+		{
+			"ApiKey" => ApiKey,
+			"MaxResults" => MaxResults.ToString(),
+			_ => string.Empty
+		};
+	}
+
+	public void SetConfigurationByKey(string key, string value)
+	{
+
+		switch (key)
+		{
+
+		case "ApiKey":
+				ApiKey = value;
+				break;
+			case "MaxResults":
+				MaxResults = long.Parse(value);
+				break;
+			default:
+				throw new NotImplementedException();
+		}
+
+	}
 }

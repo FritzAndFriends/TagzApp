@@ -136,4 +136,9 @@ internal sealed class BlazotProvider : ISocialMediaProvider
 	{
 		return await configure.GetConfigurationById<BlazotConfiguration>(Id);
 	}
+
+	public async Task SaveConfiguration(IConfigureTagzApp configure, IProviderConfiguration providerConfiguration)
+	{
+		await configure.SetConfigurationById(Id, (BlazotConfiguration)providerConfiguration);
+	}
 }

@@ -256,4 +256,9 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 	{
 		return await configure.GetConfigurationById<TwitterConfiguration>(Id);
 	}
+
+	public async Task SaveConfiguration(IConfigureTagzApp configure, IProviderConfiguration providerConfiguration)
+	{
+		await configure.SetConfigurationById(Id, (TwitterConfiguration)providerConfiguration);
+	}
 }

@@ -24,14 +24,12 @@ public static class ServicesExtensions
 
 		if (connectionSettings.ContentProvider.Equals("postgres", StringComparison.InvariantCultureIgnoreCase))
 		{
-			services.AddScoped<IProviderConfigurationRepository, PostgresProviderConfigurationRepository>();
 			services.AddPostgresServices(configureTagzApp, connectionSettings);
 		}
 		else
 		{
 			services.AddSingleton<IMessagingService, InMemoryMessagingService>();
 			services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
-			services.AddSingleton<IProviderConfigurationRepository, InMemoryProviderConfigurationRepository>();
 		}
 
 		return services;

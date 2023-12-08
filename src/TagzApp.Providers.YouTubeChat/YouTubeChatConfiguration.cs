@@ -16,6 +16,35 @@ public class YouTubeChatConfiguration : IProviderConfiguration
 	public string Name => "YouTubeChat";
 	public string Description => "Listen to messages in YouTube LiveChat for a Live Stream";
 	public bool Enabled { get; set; }
+	public string[] Keys => ["ClientId", "ClientSecret"];
+
+	public string GetConfigurationByKey(string key)
+	{
+		return key switch
+		{
+			"ClientId" => ClientId,
+			"ClientSecret" => ClientSecret,
+			_ => string.Empty
+		};
+	}
+
+	public void SetConfigurationByKey(string key, string value)
+	{
+
+		switch (key)
+		{
+			case "ClientId":
+				ClientId = value;
+				break;
+			case "ClientSecret":
+				ClientSecret = value;
+				break;
+			default:
+				throw new NotImplementedException();
+
+		}
+
+	}
 }
 
 

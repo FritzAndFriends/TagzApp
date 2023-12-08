@@ -30,6 +30,8 @@ public interface ISocialMediaProvider : IDisposable
 
 	Task<IProviderConfiguration> GetConfiguration(IConfigureTagzApp configure);
 
+	Task SaveConfiguration(IConfigureTagzApp configure, IProviderConfiguration providerConfiguration);
+
 	/// <summary>
 	/// Get a collection of content for a given hashtag
 	/// </summary>

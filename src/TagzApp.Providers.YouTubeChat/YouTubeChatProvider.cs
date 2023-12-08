@@ -269,6 +269,11 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		return await configure.GetConfigurationById<YouTubeChatConfiguration>(Id);
 	}
 
+	public async Task SaveConfiguration(IConfigureTagzApp configure, IProviderConfiguration providerConfiguration)
+	{
+		await configure.SetConfigurationById(Id, (YouTubeChatConfiguration)providerConfiguration);
+	}
+
 	#endregion
 
 }

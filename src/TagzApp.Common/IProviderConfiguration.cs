@@ -6,8 +6,12 @@
 public interface IProviderConfiguration
 {
 
-	public string Name { get; }
-	public string Description { get; }
+	string Name { get; }
+	string Description { get; }
+	bool Enabled { get; set; }
 
-	public bool Enabled { get; set; }
+	string[] Keys { get; }
+	string GetConfigurationByKey(string key);
+	void SetConfigurationByKey(string key, string value);
+
 }

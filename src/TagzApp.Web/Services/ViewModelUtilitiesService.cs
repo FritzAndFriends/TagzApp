@@ -25,7 +25,7 @@ public class ViewModelUtilitiesService
 			{
 				var assembly = Assembly.LoadFrom(dllPath);
 				var viewModelAssembly = assembly.GetTypes()
-					.FirstOrDefault(t => typeof(IProviderConfigurationViewModel).IsAssignableFrom(t) && !t.IsInterface);
+					.FirstOrDefault(t => typeof(IProviderConfiguration).IsAssignableFrom(t) && !t.IsInterface);
 
 				var properties = viewModelAssembly?.GetProperties();
 

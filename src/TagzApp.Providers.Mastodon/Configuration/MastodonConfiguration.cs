@@ -16,9 +16,44 @@ internal class MastodonConfiguration : HttpClientOptions, IProviderConfiguration
 
 	public string Name => "Mastodon";
 	public bool Enabled { get; set; }
+	public string[] Keys => ["BaseAddress", "Timeout", "DefaultHeaders", "UseHttp2"];
 
 	public MastodonConfiguration()
 	{
 		BaseAddress = new Uri("https://mastodon.social");
+	}
+
+	public string GetConfigurationByKey(string key)
+	{
+		return key switch
+		{
+			"BaseAddress" => BaseAddress?.ToString() ?? string.Empty,
+			"Timeout" => Timeout.ToString(),
+			"DefaultHeaders" => DefaultHeaders?.Serialize() ?? string.Empty,
+			"UseHttp2" => UseHttp2.ToString(),
+			_ => string.Empty
+		};
+	}
+
+	public void SetConfigurationByKey(string key, string value)
+	{
+		switch (key)
+		{
+			case "BaseAddress":
+				BaseAddress = new Uri(value);
+				break;
+			case "Timeout":
+				Timeout = TimeSpan.Parse(value);
+				break;
+			case "DefaultHeaders":
+				DefaultHeaders = DeserializeHeaders(value);
+				break;
+			case "UseHttp2":
+				UseHttp2 = bool.Parse(value);
+				break;
+			default:
+				throw new NotImplementedException();
+
+		}
 	}
 }
