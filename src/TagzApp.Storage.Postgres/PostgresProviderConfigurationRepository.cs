@@ -1,8 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Models = TagzApp.Common.Models;
-
-namespace TagzApp.Storage.Postgres;
+﻿namespace TagzApp.Storage.Postgres;
 
 //public class PostgresProviderConfigurationRepository : IProviderConfigurationRepository
 //{
