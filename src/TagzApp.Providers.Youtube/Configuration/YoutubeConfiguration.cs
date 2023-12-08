@@ -41,7 +41,7 @@ public class YoutubeConfiguration : IProviderConfiguration
 		switch (key)
 		{
 
-		case "ApiKey":
+			case "ApiKey":
 				ApiKey = value;
 				break;
 			case "MaxResults":

@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using TagzApp.Common.Attributes;
 
@@ -32,7 +31,7 @@ public class HttpClientOptions
 	/// </summary>
 	public bool UseHttp2 { get; set; } = true;
 
-	public static Dictionary<string,string> DeserializeHeaders(string json)
+	public static Dictionary<string, string> DeserializeHeaders(string json)
 	{
 		if (string.IsNullOrEmpty(json)) return new();
 		return JsonSerializer.Deserialize<Dictionary<string, string>>(json);
@@ -45,7 +44,7 @@ public class HttpClientOptions
 public static class HttpClientOptionsExtensions
 {
 
-	public static string Serialize(this Dictionary<string,string>? headers)
+	public static string Serialize(this Dictionary<string, string>? headers)
 	{
 		if (headers is null) return string.Empty;
 		return JsonSerializer.Serialize(headers);

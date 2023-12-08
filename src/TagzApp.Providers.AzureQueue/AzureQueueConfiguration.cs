@@ -32,7 +32,7 @@ public class AzureQueueConfiguration : IProviderConfiguration
 		{
 			QueueConnectionString = value;
 			return;
-		} 
+		}
 
 		throw new NotImplementedException();
 
