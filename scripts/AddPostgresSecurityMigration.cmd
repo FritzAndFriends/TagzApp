@@ -1,0 +1,1 @@
+dotnet ef migrations add --context TagzApp.Web.Data.SecurityContext -p ..\src\TagzApp.Storage.Postgres.Security\ -s ..\src\TagzApp.Web %1
