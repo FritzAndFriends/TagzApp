@@ -2,18 +2,21 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TagzApp.Web.Data;
 
 #nullable disable
 
-namespace TagzApp.Storage.Postgres.Security.Migrations
+namespace TagzApp.Web.Migrations
 {
     [DbContext(typeof(SecurityContext))]
-    partial class SecurityContextModelSnapshot : ModelSnapshot
+    [Migration("20231207182626_Autoincrement data protection keys")]
+    partial class Autoincrementdataprotectionkeys
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

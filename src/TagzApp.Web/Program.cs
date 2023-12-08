@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
@@ -47,7 +48,13 @@ public class Program
 
 				await builder.Services.AddSecurityContext(configure);
 
-				builder.Services.AddDefaultIdentity<TagzAppUser>(options =>
+				// Add DataProtection services
+		builder.Services.AddDataProtection()
+			.SetApplicationName("TagzApp")
+			.SetDefaultKeyLifetime(TimeSpan.FromDays(90))
+			.PersistKeysToDbContext<SecurityContext>();
+
+		builder.Services.AddDefaultIdentity<TagzAppUser>(options =>
 								options.SignIn.RequireConfirmedAccount = true
 						)
 						.AddRoles<IdentityRole>()
