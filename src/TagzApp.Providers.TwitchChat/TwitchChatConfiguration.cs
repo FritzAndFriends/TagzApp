@@ -1,13 +1,13 @@
 ﻿namespace TagzApp.Providers.TwitchChat;
 
-public class TwitchChatConfiguration
+public class TwitchChatConfiguration : IProviderConfiguration
 {
 	public string ClientId { get; set; } = string.Empty;
 	public string ClientSecret { get; set; } = string.Empty;
 	public string ChatBotName { get; set; } = string.Empty;
 	public string OAuthToken { get; set; } = string.Empty;
 	public string ChannelName { get; set; } = "csharpfritz";
-	public string Description { get; set; } = string.Empty;
+	public string Description => "Read all messages from a specified Twitch channel";
 
 	public static TwitchChatConfiguration Empty => new()
 	{
@@ -18,4 +18,6 @@ public class TwitchChatConfiguration
 		ChannelName = string.Empty
 	};
 
+	public string Name => "TwitchChat";
+	public bool Enabled { get; set; }
 }

@@ -131,4 +131,9 @@ internal sealed class BlazotProvider : ISocialMediaProvider
 		Dispose(disposing: true);
 		GC.SuppressFinalize(this);
 	}
+
+	public async Task<IProviderConfiguration> GetConfiguration(IConfigureTagzApp configure)
+	{
+		return await configure.GetConfigurationById<BlazotConfiguration>(Id);
+	}
 }

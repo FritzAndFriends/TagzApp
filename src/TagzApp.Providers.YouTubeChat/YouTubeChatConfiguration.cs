@@ -1,6 +1,6 @@
 ﻿namespace TagzApp.Providers.YouTubeChat;
 
-public class YouTubeChatConfiguration
+public class YouTubeChatConfiguration : IProviderConfiguration
 {
 
 	public const string AppSettingsSection = "providers:youtubechat";
@@ -13,7 +13,9 @@ public class YouTubeChatConfiguration
 	public string ClientId { get; set; }
 
 	public string ClientSecret { get; set; }
-
+	public string Name => "YouTubeChat";
+	public string Description => "Listen to messages in YouTube LiveChat for a Live Stream";
+	public bool Enabled { get; set; }
 }
 
 

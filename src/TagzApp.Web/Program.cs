@@ -49,16 +49,16 @@ public class Program
 				await builder.Services.AddSecurityContext(configure);
 
 				// Add DataProtection services
-		builder.Services.AddDataProtection()
-			.SetApplicationName("TagzApp")
-			.SetDefaultKeyLifetime(TimeSpan.FromDays(90))
-			.PersistKeysToDbContext<SecurityContext>();
+				builder.Services.AddDataProtection()
+					.SetApplicationName("TagzApp")
+					.SetDefaultKeyLifetime(TimeSpan.FromDays(90))
+					.PersistKeysToDbContext<SecurityContext>();
 
-		builder.Services.AddDefaultIdentity<TagzAppUser>(options =>
-								options.SignIn.RequireConfirmedAccount = true
-						)
-						.AddRoles<IdentityRole>()
-						.AddEntityFrameworkStores<SecurityContext>();
+				builder.Services.AddDefaultIdentity<TagzAppUser>(options =>
+										options.SignIn.RequireConfirmedAccount = true
+								)
+								.AddRoles<IdentityRole>()
+								.AddEntityFrameworkStores<SecurityContext>();
 
 				_ = builder.Services.AddAuthentication()
 					.AddCookie()

@@ -1,4 +1,6 @@
-﻿namespace TagzApp.Communication.Configuration;
+﻿using TagzApp.Common.Attributes;
+
+namespace TagzApp.Communication.Configuration;
 
 /// <summary>
 /// Declaration of Http Client options
@@ -8,11 +10,13 @@ public class HttpClientOptions
 	/// <summary>
 	/// Gets or sets the base address
 	/// </summary>
+	[InputType("Uri")]
 	public Uri? BaseAddress { get; set; }
 
 	/// <summary>
 	/// Gets or sets the method timeout
 	/// </summary>
+	[InputType("Timeout")]
 	public TimeSpan Timeout { get; set; }
 
 	/// <summary>

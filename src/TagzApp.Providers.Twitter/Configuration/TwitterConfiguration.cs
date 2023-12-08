@@ -5,7 +5,7 @@ namespace TagzApp.Providers.Twitter.Configuration;
 /// <summary>
 /// Defines the Twitter configuration
 /// </summary>
-public class TwitterConfiguration : HttpClientOptions
+public class TwitterConfiguration : HttpClientOptions, IProviderConfiguration
 {
 
 	/// <summary>
@@ -13,32 +13,9 @@ public class TwitterConfiguration : HttpClientOptions
 	/// </summary>
 	public const string AppSettingsSection = "providers:twitter";
 
-	public bool Activated { get; set; } = false;
-
-	///// <summary>
-	///// Twitter issued API Key for the service
-	///// </summary>
-	//public string ApiKey { get; set; } = string.Empty;
-
-	///// <summary>
-	///// Twitter issued API Secret Key for the service
-	///// </summary>
-	//public string ApiSecretKey { get; set; } = string.Empty;
-
-	///// <summary>
-	///// Access token for Twitter
-	///// </summary>
-	//public string AccessToken { get; set; } = string.Empty;
-
-	///// <summary>
-	///// Access token secret for Twitter
-	///// </summary>
-	//public string AccessTokenSecret { get; set; } = string.Empty;
-
-	/// <summary>
-	/// Provider description
-	/// </summary>
-	public string Description { get; set; } = string.Empty;
+	public string Description => "Search the X (formerly Twitter) service for a specified hashtag";
+	public string Name => "X (formerly Twitter)";
+	public bool Enabled { get; set; }
 
 	public TwitterConfiguration()
 	{

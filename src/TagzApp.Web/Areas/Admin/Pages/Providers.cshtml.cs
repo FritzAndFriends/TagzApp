@@ -50,7 +50,7 @@ namespace TagzApp.Web.Areas.Admin.Pages
 			}
 			else
 			{
-				config = new ProviderConfiguration
+				config = new Common.Models.IProviderConfiguration
 				{
 					Name = submittedValues.FirstOrDefault(x => x.Key == "Name").Value[0] ?? string.Empty,
 					Activated = GetActivatedStatus(submittedValues),

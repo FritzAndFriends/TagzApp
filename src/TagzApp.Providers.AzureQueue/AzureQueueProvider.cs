@@ -114,6 +114,11 @@ public class AzureQueueProvider : ISocialMediaProvider
 		GC.SuppressFinalize(this);
 	}
 
+	public async Task<IProviderConfiguration> GetConfiguration(IConfigureTagzApp configure)
+	{
+		return await configure.GetConfigurationById<AzureQueueConfiguration>(Id);
+	}
+
 	#endregion
 
 }

@@ -15,7 +15,6 @@ public class InMemoryMessagingService : BaseProviderManager, IMessagingService
 		IConfiguration configuration,
 		ILogger<InMemoryMessagingService> logger,
 		INotifyNewMessages notifyNewMessages,
-		IProviderConfigurationRepository providerConfigurationRepository,
 		IEnumerable<ISocialMediaProvider>? socialMediaProviders = null
 	) : base(logger, socialMediaProviders)
 	{

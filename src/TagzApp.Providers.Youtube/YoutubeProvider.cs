@@ -81,4 +81,9 @@ internal class YoutubeProvider : ISocialMediaProvider
 	{
 		// do nothing
 	}
+
+	public async Task<IProviderConfiguration> GetConfiguration(IConfigureTagzApp configure)
+	{
+		return await configure.GetConfigurationById<YoutubeConfiguration>(Id);
+	}
 }

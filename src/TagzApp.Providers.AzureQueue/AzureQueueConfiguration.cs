@@ -1,11 +1,15 @@
 ﻿namespace TagzApp.Providers.AzureQueue;
 
-public class AzureQueueConfiguration
+public class AzureQueueConfiguration : IProviderConfiguration
 {
 
-	public string QueueConnectionString { get; set; } = string.Empty;
+	public string QueueConnectionString { get; } = string.Empty;
 
-	public bool Activated { get; set; } = false;
+	public string Name => "AzureQueue";
+
+	public string Description => "Reads messages from a custom Azure Queue";
+
+	public bool Enabled { get; set; } = false;
 
 }
 

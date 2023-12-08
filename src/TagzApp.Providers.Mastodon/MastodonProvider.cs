@@ -38,6 +38,11 @@ internal class MastodonProvider : ISocialMediaProvider, IHasNewestId
 		// do nothing
 	}
 
+	public async Task<IProviderConfiguration> GetConfiguration(IConfigureTagzApp configure)
+	{
+		return await configure.GetConfigurationById<MastodonConfiguration>(Id);
+	}
+
 	public async Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since)
 	{
 

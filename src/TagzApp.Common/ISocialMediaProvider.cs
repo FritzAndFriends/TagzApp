@@ -28,6 +28,8 @@ public interface ISocialMediaProvider : IDisposable
 	/// </summary>
 	TimeSpan NewContentRetrievalFrequency { get; }
 
+	Task<IProviderConfiguration> GetConfiguration(IConfigureTagzApp configure);
+
 	/// <summary>
 	/// Get a collection of content for a given hashtag
 	/// </summary>

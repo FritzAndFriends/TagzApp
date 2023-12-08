@@ -15,8 +15,7 @@ internal class PostgresMessaging : IDisposable
 	private readonly Dictionary<string, ConcurrentBag<Action<Content>>> _Actions = new();
 	private static IServiceProvider? _Services;
 	private readonly Task _QueueWatcher;
-	private readonly IProviderConfigurationRepository _ProviderConfigurationRepository;
-	private List<Common.Models.ProviderConfiguration?> _ProviderConfigurations = new();
+	private List<IProviderConfiguration?> _ProviderConfigurations = new();
 
 	public PostgresMessaging(IServiceProvider services)
 	{
@@ -27,14 +26,14 @@ internal class PostgresMessaging : IDisposable
 	internal async Task StartProviders(IEnumerable<ISocialMediaProvider> providers, CancellationToken cancellationToken)
 	{
 		_ProviderTasks.Clear();
-		await LoadProviderConfiguration(cancellationToken);
+		await LoadProviderConfiguration(providers);
 
 		foreach (var providerItem in providers)
 		{
 			var providerConfig = _ProviderConfigurations.FirstOrDefault(x => x.Name.Equals(providerItem.DisplayName, StringComparison.InvariantCultureIgnoreCase));
 
 			// Only add task if provider is activated
-			if (providerConfig != null && providerConfig.Activated)
+			if (providerConfig != null && providerConfig.Enabled)
 			{
 				_ProviderTasks.Add(Task.Factory.StartNew(async (object? state) =>
 				{
@@ -117,9 +116,22 @@ internal class PostgresMessaging : IDisposable
 		}
 	}
 
-	internal async Task LoadProviderConfiguration(CancellationToken cancellationToken)
+	internal async Task LoadProviderConfiguration(IEnumerable<ISocialMediaProvider> providers)
 	{
-		_ProviderConfigurations = (await _ProviderConfigurationRepository.GetConfigurationSettingsAsync(cancellationToken)).ToList();
+
+		var outList = new List<IProviderConfiguration>();
+
+		foreach (var provider in providers)
+		{
+			var config = await provider.GetConfiguration(ConfigureTagzAppFactory.Current);
+			if (config != null)
+			{
+				outList.Add(config);
+			}
+		}
+
+		_ProviderConfigurations = outList;
+
 	}
 
 	public Task PublishContentAsync(Hashtag tag, Content newContent)

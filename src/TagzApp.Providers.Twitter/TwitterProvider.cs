@@ -63,7 +63,7 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 		try
 		{
 
-			if (_Configuration.Activated)
+			if (_Configuration.Enabled)
 			{
 
 				//var response = await _HttpClient.GetAsync(targetUri);
@@ -250,5 +250,10 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 	public void Dispose()
 	{
 		// do nothing
+	}
+
+	public async Task<IProviderConfiguration> GetConfiguration(IConfigureTagzApp configure)
+	{
+		return await configure.GetConfigurationById<TwitterConfiguration>(Id);
 	}
 }

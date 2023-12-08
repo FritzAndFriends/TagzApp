@@ -199,4 +199,9 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	{
 		return Task.CompletedTask;
 	}
+
+	public async Task<IProviderConfiguration> GetConfiguration(IConfigureTagzApp configure)
+	{
+		return await configure.GetConfigurationById<TwitchChatConfiguration>(Id);
+	}
 }
