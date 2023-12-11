@@ -141,8 +141,7 @@ public static class ServicesExtensions
 			services.AddDbContext<SecurityContext>(options =>
 			{
 				options.UseNpgsql(connectionSettings.SecurityConnectionString,
-				pg => pg.MigrationsAssembly("TagzApp.Storage.Postgres.Security"));
-				// "TagzApp.Storage.Postgres.Security, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"));
+				pg => pg.MigrationsAssembly(typeof(TagzApp.Storage.Postgres.Security.Migrations.SecurityContextModelSnapshot).Assembly.FullName));
 			});
 
 			var serviceLocator = services.BuildServiceProvider();

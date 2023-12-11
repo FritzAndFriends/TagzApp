@@ -11,6 +11,17 @@ public class StubSocialMediaProvider : ISocialMediaProvider
 
 	public string Description => "TEST";
 
+	public void Dispose()
+	{
+		// do nothing
+	}
+
+	public Task<IProviderConfiguration> GetConfiguration(IConfigureTagzApp configure)
+	{
+		// do nothing
+		return null;
+	}
+
 	public Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since)
 	{
 		var testContent = new Faker<Content>()
@@ -37,9 +48,19 @@ public class StubSocialMediaProvider : ISocialMediaProvider
 		return Task.FromResult((SocialMediaStatus.Healthy, "OK"));
 	}
 
+	public Task SaveConfiguration(IConfigureTagzApp configure, IProviderConfiguration providerConfiguration)
+	{
+		throw new NotImplementedException();
+	}
+
 	public Task StartAsync()
 	{
 		return Task.CompletedTask;
+	}
+
+	public Task StopAsync()
+	{
+		throw new NotImplementedException();
 	}
 }
 
