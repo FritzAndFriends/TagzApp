@@ -13,6 +13,8 @@ public class ViewModelUtilitiesService
 		_Logger = logger;
 	}
 
+	static string[] PropertiesToExclude = ["Keys", "Name", "Description"];
+
 	public PropertyInfo[]? LoadViewModel(string providerName)
 	{
 		var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
@@ -27,7 +29,7 @@ public class ViewModelUtilitiesService
 				var viewModelAssembly = assembly.GetTypes()
 					.FirstOrDefault(t => typeof(IProviderConfiguration).IsAssignableFrom(t) && !t.IsInterface);
 
-				var properties = viewModelAssembly?.GetProperties();
+				var properties = viewModelAssembly?.GetProperties().Where(p => !PropertiesToExclude.Any(x => x == p.Name)).ToArray();
 
 				return properties;
 			}

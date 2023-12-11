@@ -16,12 +16,14 @@ public class AzureQueueConfiguration : IProviderConfiguration
 	public string GetConfigurationByKey(string key)
 	{
 
-		if (key == "QueueConnectionString")
+		return key switch
 		{
-			return QueueConnectionString;
-		}
-
-		throw new NotImplementedException();
+			"Name" => Name,
+			"Description" => Description,
+			"Enabled" => Enabled.ToString(),
+			"QueueConnectionString" => QueueConnectionString,
+			_ => throw new NotImplementedException($"The key '{key}' is not available")
+		};
 
 	}
 

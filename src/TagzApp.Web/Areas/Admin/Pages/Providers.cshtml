@@ -99,7 +99,7 @@
 										{
 											// Configuration property handling of String/Boolean and checkbox value conversions
 											propertyValue = config?.GetConfigurationByKey(property.Name);
-											var checkedValue = propertyValue == null ? false : bool.Parse(propertyValue);
+											var checkedValue = string.IsNullOrEmpty(propertyValue) ? false : bool.Parse(propertyValue);
 											<div class="form-check">
 												<label for="@property.Name" class="form-check-label">@displayName</label>
 												@if (!checkedValue)
