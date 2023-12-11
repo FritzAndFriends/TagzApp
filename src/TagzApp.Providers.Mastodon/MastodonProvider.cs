@@ -40,7 +40,7 @@ internal class MastodonProvider : ISocialMediaProvider, IHasNewestId
 
 	public async Task<IProviderConfiguration> GetConfiguration(IConfigureTagzApp configure)
 	{
-		return await configure.GetConfigurationById<MastodonConfiguration>(Id);
+		return await configure.GetConfigurationById<MastodonConfiguration>(MastodonConfiguration.AppSettingsSection);
 	}
 
 	public async Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since)
@@ -116,7 +116,7 @@ internal class MastodonProvider : ISocialMediaProvider, IHasNewestId
 
 	public async Task SaveConfiguration(IConfigureTagzApp configure, IProviderConfiguration providerConfiguration)
 	{
-		await configure.SetConfigurationById(Id, (MastodonConfiguration)providerConfiguration);
+		await configure.SetConfigurationById(MastodonConfiguration.AppSettingsSection, (MastodonConfiguration)providerConfiguration);
 	}
 
 	public Task StartAsync()

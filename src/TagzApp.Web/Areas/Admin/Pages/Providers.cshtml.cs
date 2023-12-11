@@ -30,21 +30,21 @@ namespace TagzApp.Web.Areas.Admin.Pages
 				{
 					if (
 							value.Key != "Name" &&
-							value.Key != "Activated" &&
+							value.Key != "Enabled" &&
 							value.Key != "Description" &&
 							value.Key != "__RequestVerificationToken")
 					{
 						// String handling of boolean properties submitted from HTML checkbox input controls
-						//if (value.Value.ToString().StartsWith(bool.TrueString.ToLower())
-						//	|| value.Value.ToString().StartsWith(bool.FalseString.ToLower()))
-						//{
-						//	config.ConfigurationSettings[value.Key] = value.Value.ToString().Split(',')[0];
-						//}
-						//else
-						//{
-						//	config.ConfigurationSettings[value.Key] = value.Value.ToString() ?? config.ConfigurationSettings[value.Key];
-						//}
-						config.SetConfigurationByKey(value.Key, value.Value);
+						if (value.Value.ToString().StartsWith(bool.TrueString.ToLower())
+							|| value.Value.ToString().StartsWith(bool.FalseString.ToLower()))
+						{
+							config.SetConfigurationByKey(value.Key, value.Value.ToString().Split(',')[0]);
+						}
+						else
+						{
+							//config.ConfigurationSettings[value.Key] = value.Value.ToString() ?? config.ConfigurationSettings[value.Key];
+							config.SetConfigurationByKey(value.Key, value.Value);
+						}
 					}
 				});
 			}
@@ -73,8 +73,8 @@ namespace TagzApp.Web.Areas.Admin.Pages
 
 		private bool GetActivatedStatus(List<KeyValuePair<string, StringValues>>? values)
 		{
-			var activatedValues = values?.Where(x => x.Key.Contains("Activated"));
-			return activatedValues?.FirstOrDefault(x => x.Key == "Activated").Value.ToString() == "on" ? true : false;
+			var activatedValues = values?.Where(x => x.Key.Contains("Enabled"));
+			return activatedValues?.FirstOrDefault(x => x.Key == "Enabled").Value.ToString() == "on" ? true : false;
 		}
 
 		public static string GetClassForHealth(SocialMediaStatus status) => status switch

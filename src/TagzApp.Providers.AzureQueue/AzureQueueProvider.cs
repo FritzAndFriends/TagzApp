@@ -116,12 +116,12 @@ public class AzureQueueProvider : ISocialMediaProvider
 
 	public async Task<IProviderConfiguration> GetConfiguration(IConfigureTagzApp configure)
 	{
-		return await configure.GetConfigurationById<AzureQueueConfiguration>(Id);
+		return await configure.GetConfigurationById<AzureQueueConfiguration>($"provider-{Id.ToLowerInvariant()}");
 	}
 
 	public async Task SaveConfiguration(IConfigureTagzApp configure, IProviderConfiguration providerConfiguration)
 	{
-		await configure.SetConfigurationById(Id, (AzureQueueConfiguration)providerConfiguration);
+		await configure.SetConfigurationById($"provider-{Id.ToLowerInvariant()}", (AzureQueueConfiguration)providerConfiguration);
 	}
 
 	#endregion

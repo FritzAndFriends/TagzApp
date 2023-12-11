@@ -8,7 +8,7 @@ public class StartAzureQueue : IConfigureProvider
 	public async Task<IServiceCollection> RegisterServices(IServiceCollection services, CancellationToken cancellationToken = default)
 	{
 
-		var config = await ConfigureTagzAppFactory.Current.GetConfigurationById<AzureQueueConfiguration>($"provider:AzureQueue");
+		var config = await ConfigureTagzAppFactory.Current.GetConfigurationById<AzureQueueConfiguration>($"provider-website");
 
 		services.AddSingleton(config ?? new());
 		services.AddTransient<ISocialMediaProvider, AzureQueueProvider>();

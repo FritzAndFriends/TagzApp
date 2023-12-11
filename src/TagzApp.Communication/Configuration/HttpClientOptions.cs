@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using TagzApp.Common.Attributes;
 
 namespace TagzApp.Communication.Configuration;
@@ -11,13 +12,13 @@ public class HttpClientOptions
 	/// <summary>
 	/// Gets or sets the base address
 	/// </summary>
-	[InputType("Uri")]
+	[InputType("Url"), JsonPropertyName("BaseAddress")]
 	public Uri? BaseAddress { get; set; }
 
 	/// <summary>
 	/// Gets or sets the method timeout
 	/// </summary>
-	[InputType("Timeout")]
+	[InputType("Timeout"), JsonPropertyName("Timeout")]
 	public TimeSpan Timeout { get; set; }
 
 	/// <summary>

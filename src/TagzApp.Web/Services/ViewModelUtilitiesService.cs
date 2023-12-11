@@ -31,6 +31,8 @@ public class ViewModelUtilitiesService
 
 				var properties = viewModelAssembly?.GetProperties().Where(p => !PropertiesToExclude.Any(x => x == p.Name)).ToArray();
 
+				// Console.WriteLine(string.Join(',', properties.Select(p => p.Name)));
+
 				return properties;
 			}
 			catch (BadImageFormatException)

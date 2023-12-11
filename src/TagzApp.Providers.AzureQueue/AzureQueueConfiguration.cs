@@ -1,16 +1,23 @@
-﻿namespace TagzApp.Providers.AzureQueue;
+﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
+
+namespace TagzApp.Providers.AzureQueue;
 
 public class AzureQueueConfiguration : IProviderConfiguration
 {
 
+	[DisplayName("Azure Queue Connectionstring")]
 	public string QueueConnectionString { get; private set; } = string.Empty;
 
+	[JsonIgnore]
 	public string Name => "AzureQueue";
 
+	[JsonIgnore]
 	public string Description => "Reads messages from a custom Azure Queue";
 
 	public bool Enabled { get; set; } = false;
 
+	[JsonIgnore]
 	public string[] Keys => ["QueueConnectionString"];
 
 	public string GetConfigurationByKey(string key)
@@ -33,6 +40,9 @@ public class AzureQueueConfiguration : IProviderConfiguration
 		if (key == "QueueConnectionString")
 		{
 			QueueConnectionString = value;
+			return;
+		} else if (key == "Enabled") {
+			Enabled = bool.Parse(value);
 			return;
 		}
 
