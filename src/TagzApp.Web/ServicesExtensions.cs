@@ -72,6 +72,7 @@ public static class ServicesExtensions
 		builder.AddExternalProvider("GitHub", configuration, options => builder.AddGitHub(options));
 		builder.AddExternalProvider("LinkedIn", configuration, options => builder.AddLinkedIn(options));
 
+
 		if (!string.IsNullOrEmpty(configuration["Authentication:Google:ClientId"]))
 		{
 			builder.AddGoogle(options =>

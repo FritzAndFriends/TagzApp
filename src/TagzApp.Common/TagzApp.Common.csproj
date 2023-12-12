@@ -12,15 +12,15 @@
 
 	<ItemGroup>
 	  <PackageReference Include="Dapper" Version="2.1.24" />
-	  <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="8.0.0-rc.2.23480.1" />
-	  <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0-rc.2.23479.6" />
-	  <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0-rc.2.23479.6" />
-	  <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="8.0.0-rc.2.23479.6" />
-	  <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0-rc.2.23479.6" />
-	  <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0-rc.2.23479.6" />
-	  <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0-rc.2.23479.6" />
-	  <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0-rc.2.23479.6" />
-	  <PackageReference Include="Npgsql" Version="8.0.0-rc.2" />
+	  <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="8.0.0" />
+	  <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+	  <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
+	  <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="8.0.0" />
+	  <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+	  <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
+	  <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+	  <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+	  <PackageReference Include="Npgsql" Version="8.0.1" />
 	</ItemGroup>
 
 </Project>
