@@ -41,7 +41,9 @@ public class AzureQueueConfiguration : IProviderConfiguration
 		{
 			QueueConnectionString = value;
 			return;
-		} else if (key == "Enabled") {
+		}
+		else if (key == "Enabled")
+		{
 			Enabled = bool.Parse(value);
 			return;
 		}
