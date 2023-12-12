@@ -43,7 +43,8 @@ internal class PostgresMessaging : IDisposable
 	public void StartTaskForProvider(ISocialMediaProvider provider, IProviderConfiguration providerConfiguration, CancellationToken cancellationToken)
 	{
 
-		if (_ProviderConfigurations.Any(c => c.Name == providerConfiguration.Name)) {
+		if (_ProviderConfigurations.Any(c => c.Name == providerConfiguration.Name))
+		{
 			_ProviderConfigurations.Remove(_ProviderConfigurations.First(p => p.Name == providerConfiguration.Name));
 		}
 
