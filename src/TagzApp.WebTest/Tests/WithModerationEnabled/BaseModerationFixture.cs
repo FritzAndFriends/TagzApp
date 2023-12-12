@@ -1,5 +1,4 @@
 ﻿using C3D.Extensions.Playwright.AspNetCore.Xunit;
-using TagzApp.Web;
 using TagzApp.WebTest.Fixtures;
 using Program = TagzApp.Web.Program;
 
