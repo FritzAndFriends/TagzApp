@@ -259,6 +259,21 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 
 	public Task<(SocialMediaStatus Status, string Message)> GetHealth() => Task.FromResult((_Status, _StatusMessage));
 
+	public Task StopAsync()
+	{
+		return Task.CompletedTask;
+	}
+
+	public async Task<IProviderConfiguration> GetConfiguration(IConfigureTagzApp configure)
+	{
+		return await configure.GetConfigurationById<YouTubeChatConfiguration>(Id);
+	}
+
+	public async Task SaveConfiguration(IConfigureTagzApp configure, IProviderConfiguration providerConfiguration)
+	{
+		await configure.SetConfigurationById(Id, (YouTubeChatConfiguration)providerConfiguration);
+	}
+
 	#endregion
 
 }

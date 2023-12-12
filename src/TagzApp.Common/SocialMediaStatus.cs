@@ -5,6 +5,7 @@
 /// </summary>
 public enum SocialMediaStatus
 {
+	Disabled = -2,
 	Unknown = -1,
 	Unhealthy = 0,
 	Degraded = 1,

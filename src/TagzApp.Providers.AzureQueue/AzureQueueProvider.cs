@@ -6,10 +6,11 @@ namespace TagzApp.Providers.AzureQueue;
 public class AzureQueueProvider : ISocialMediaProvider
 {
 	private const string QueueName = "tagzapp-content";
-	private readonly AzureQueueConfiguration _Configuration;
+	private AzureQueueConfiguration _Configuration;
 	private QueueClient _Client;
 	private SocialMediaStatus _Status = SocialMediaStatus.Unhealthy;
 	private string _StatusMessage = "Not started";
+	private bool _DisposedValue;
 
 	public string Id => "WEBSITE";
 	public string DisplayName => "Website";
@@ -75,6 +76,57 @@ public class AzureQueueProvider : ISocialMediaProvider
 		_StatusMessage = "Connected";
 
 	}
+
+	public Task StopAsync()
+	{
+		// do nothing
+		return Task.CompletedTask;
+	}
+
+	#region Dispose Pattern
+
+	protected virtual void Dispose(bool disposing)
+	{
+		if (!_DisposedValue)
+		{
+			if (disposing)
+			{
+				_Client = null;
+			}
+
+			// TODO: free unmanaged resources (unmanaged objects) and override finalizer
+			// TODO: set large fields to null
+			_DisposedValue = true;
+		}
+	}
+
+	// // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+	// ~AzureQueueProvider()
+	// {
+	//     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+	//     Dispose(disposing: false);
+	// }
+
+	public void Dispose()
+	{
+		// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+		Dispose(disposing: true);
+		GC.SuppressFinalize(this);
+	}
+
+	public async Task<IProviderConfiguration> GetConfiguration(IConfigureTagzApp configure)
+	{
+		return await configure.GetConfigurationById<AzureQueueConfiguration>($"provider-{Id.ToLowerInvariant()}");
+	}
+
+	public async Task SaveConfiguration(IConfigureTagzApp configure, IProviderConfiguration providerConfiguration)
+	{
+		await configure.SetConfigurationById($"provider-{Id.ToLowerInvariant()}", (AzureQueueConfiguration)providerConfiguration);
+		_Configuration = (AzureQueueConfiguration)providerConfiguration;
+	}
+
+	#endregion
+
 }
 
 

@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TagzApp.Communication;
@@ -20,15 +19,13 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 		IServiceProvider services,
 		INotifyNewMessages notifyNewMessages,
 		IMemoryCache cache,
-		IConfiguration configuration,
 		ILogger<BaseProviderManager> logger,
 		ILogger<AzureSafetyModeration> azureSafetyLogger,
-		IEnumerable<ISocialMediaProvider>? socialMediaProviders,
-		IProviderConfigurationRepository providerConfigurationRepository) :
-		base(configuration, logger, socialMediaProviders, providerConfigurationRepository)
+		IEnumerable<ISocialMediaProvider>? socialMediaProviders) :
+		base(logger, socialMediaProviders)
 	{
 		_Services = services;
-		_NotifyNewMessages = new AzureSafetyModeration(cache, notifyNewMessages, services, configuration, azureSafetyLogger);
+		_NotifyNewMessages = new AzureSafetyModeration(cache, notifyNewMessages, services, ConfigureTagzAppFactory.Current, azureSafetyLogger);
 	}
 
 	private List<string> _TagsTracked = new();
@@ -92,7 +89,7 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 		_TagsTracked.AddRange((await ctx.TagsWatched.ToArrayAsync()).Select(t => t.Text));
 
 		await InitProviders();
-		_Service = new PostgresMessaging(_Services, _ProviderConfigurationRepository!);
+		_Service = new PostgresMessaging(_Services);
 		await _Service.StartProviders(Providers, cancellationToken);
 
 		foreach (var tag in _TagsTracked)
@@ -106,11 +103,16 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 
 	}
 
-	public Task StopAsync(CancellationToken cancellationToken)
+	public async Task StopAsync(CancellationToken cancellationToken)
 	{
 
+		foreach (var provider in Providers)
+		{
+			await provider.StopAsync();
+			provider.Dispose();
+		}
+
 		_Service.Dispose();
-		return Task.CompletedTask;
 
 	}
 

@@ -1,6 +1,5 @@
 using Azure;
 using Azure.AI.ContentSafety;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
@@ -17,7 +16,6 @@ public class AzureSafetyModeration : INotifyNewMessages
 	private readonly IMemoryCache _Cache;
 	private INotifyNewMessages _NotifyNewMessages;
 	private readonly IServiceProvider _ServiceProvider;
-	private readonly IConfiguration _Configuration;
 	private readonly ILogger<AzureSafetyModeration> _AzureSafetyLogger;
 	private readonly bool _Enabled;
 	private readonly string? _ContentSafetyKey;
@@ -27,19 +25,20 @@ public class AzureSafetyModeration : INotifyNewMessages
 		IMemoryCache cache,
 		INotifyNewMessages notifyNewMessages,
 		IServiceProvider serviceProvider,
-		IConfiguration configuration,
+		IConfigureTagzApp configureTagzApp,
 		ILogger<AzureSafetyModeration> azureSafetyLogger)
 	{
 		_Cache = cache;
 		_NotifyNewMessages = notifyNewMessages;
 		_ServiceProvider = serviceProvider;
-		_Configuration = configuration;
 		_AzureSafetyLogger = azureSafetyLogger;
 
-		_Enabled = _Configuration["AzureContentSafety:Key"] != null && _Configuration.GetValue<bool>("AzureContentSafety:Enabled", true);
+		var config = configureTagzApp.GetConfigurationById<AzureSafetyConfiguration>(AzureSafetyConfiguration.ConfigurationKey).GetAwaiter().GetResult();
 
-		_ContentSafetyKey = _Configuration["AzureContentSafety:Key"];
-		_ContentSafetyEndpoint = _Configuration["AzureContentSafety:Endpoint"];
+		_Enabled = config.Enabled;
+
+		_ContentSafetyKey = config.Key;
+		_ContentSafetyEndpoint = config.Endpoint;
 
 		using IServiceScope scope = ReloadBlockedUserCache();
 
@@ -252,5 +251,19 @@ public class AzureSafetyModeration : INotifyNewMessages
 			return sb.ToString().Trim();
 		}
 	}
+
+}
+
+
+public class AzureSafetyConfiguration
+{
+
+	public const string ConfigurationKey = "azuresafety";
+
+	public bool Enabled { get; set; } = false;
+
+	public string Key { get; set; } = string.Empty;
+
+	public string Endpoint { get; set; } = string.Empty;
 
 }

@@ -4,10 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Options;
 using TagzApp.Communication;
 using TagzApp.Providers.YouTubeChat;
-using TagzApp.Storage.Postgres.ApplicationConfiguration;
 using TagzApp.Web.Data;
 using TagzApp.Web.Services;
 
@@ -15,8 +13,8 @@ namespace TagzApp.Web.Areas.Admin.Pages
 {
 	public class YouTubeChatModel : PageModel
 	{
-		private readonly IApplicationConfigurationRepository _Repository;
 		private readonly ApplicationConfiguration _AppConfiguration;
+		private readonly IConfigureTagzApp _ConfigureTagzApp;
 		private readonly UserManager<TagzAppUser> _UserManager;
 		private readonly IConfigurationRoot? _ConfigurationRoot;
 		private YouTubeChatApplicationConfiguration? _YouTubeChatConfiguration;
@@ -25,16 +23,15 @@ namespace TagzApp.Web.Areas.Admin.Pages
 
 		public YouTubeChatModel(
 			IMessagingService messagingService,
-			IApplicationConfigurationRepository repository,
-			IOptions<ApplicationConfiguration> appConfiguration,
+			IConfigureTagzApp configureTagzApp,
 			UserManager<TagzAppUser> userManager,
 			IConfiguration configurationRoot)
 		{
 
 			var providers = (messagingService as BaseProviderManager).Providers;
 			_Provider = providers.FirstOrDefault(p => p.Id == "YOUTUBE-CHAT") as YouTubeChatProvider;
-			_Repository = repository;
-			_AppConfiguration = appConfiguration.Value;
+			_AppConfiguration = ApplicationConfiguration.LoadFromConfiguration(configureTagzApp).GetAwaiter().GetResult();
+			_ConfigureTagzApp = configureTagzApp;
 			_UserManager = userManager;
 			_ConfigurationRoot = configurationRoot as IConfigurationRoot;
 
@@ -146,10 +143,7 @@ namespace TagzApp.Web.Areas.Admin.Pages
 			_YouTubeChatConfiguration.BroadcastTitle = broadcasts?.FirstOrDefault(b => b.LiveChatId == MonitoredChatId)?.Title ?? string.Empty;
 
 			_AppConfiguration.YouTubeChatConfiguration = JsonSerializer.Serialize(_YouTubeChatConfiguration);
-			await _Repository.SetValues(_AppConfiguration);
-
-			var thisProvider = _ConfigurationRoot.Providers.OfType<ApplicationConfigurationProvider>().First();
-			thisProvider.Reload();
+			await _AppConfiguration.SaveConfiguration(_ConfigureTagzApp);
 
 			return RedirectToPage("youtubechat", new { Area = "Admin" });
 

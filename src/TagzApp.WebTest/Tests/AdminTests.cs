@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using TagzApp.Web;
 using TagzApp.WebTest.Fixtures;
 
 namespace TagzApp.WebTest.Tests;
@@ -52,7 +51,7 @@ public class AdminTests : TestsBase
 	[Fact]
 	public async Task AdminCanAdmin()
 	{
-		await using var context = await WebApp.CreateAuthorisedPlaywrightBrowserPageAsync(Security.Role.Admin);
+		await using var context = await WebApp.CreateAuthorisedPlaywrightBrowserPageAsync(Web.Security.Role.Admin);
 		var page = context.Page;
 
 		await page.GotoAsync("/Admin");

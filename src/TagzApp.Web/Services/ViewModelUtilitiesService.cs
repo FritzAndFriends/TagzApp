@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.ComponentModel;
 using TagzApp.Common.Attributes;
+using System.Text.Json.Serialization;
 
 namespace TagzApp.Web.Services;
 
@@ -12,6 +13,8 @@ public class ViewModelUtilitiesService
 	{
 		_Logger = logger;
 	}
+
+	static string[] PropertiesToExclude = ["Keys", "Name", "Description"];
 
 	public PropertyInfo[]? LoadViewModel(string providerName)
 	{
@@ -25,9 +28,17 @@ public class ViewModelUtilitiesService
 			{
 				var assembly = Assembly.LoadFrom(dllPath);
 				var viewModelAssembly = assembly.GetTypes()
-					.FirstOrDefault(t => typeof(IProviderConfigurationViewModel).IsAssignableFrom(t) && !t.IsInterface);
+					.FirstOrDefault(t => typeof(IProviderConfiguration).IsAssignableFrom(t) && !t.IsInterface);
 
-				var properties = viewModelAssembly?.GetProperties();
+				var properties = viewModelAssembly?.GetProperties().Where(p => !PropertiesToExclude.Any(x => x == p.Name)).ToArray();
+
+				properties = properties.OrderBy(p =>
+				{
+					// get the JsonPropertyOrder custom attribute from the property
+					var jpo = p.GetCustomAttribute<JsonPropertyOrderAttribute>();
+					return jpo?.Order ?? 0;
+
+				}).ToArray();
 
 				return properties;
 			}
@@ -38,6 +49,7 @@ public class ViewModelUtilitiesService
 			catch (Exception ex)
 			{
 				_Logger.LogWarning(ex, $"Skipping {dllPath} due to error");
+				throw new Exception($"Unable to load view model for provider {providerName}!");
 			}
 		}
 
