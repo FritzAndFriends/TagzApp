@@ -11,11 +11,11 @@ public class SignalRNotifier : INotifyNewMessages
 	private readonly IHubContext<ModerationHub, IModerationClient> _ModContext;
 	private bool _ModerationEnabled = false;
 
-	public SignalRNotifier(IHubContext<MessageHub> hubContext, IHubContext<ModerationHub, IModerationClient> modContext, IConfiguration configuration)
+	public SignalRNotifier(IHubContext<MessageHub> hubContext, IHubContext<ModerationHub, IModerationClient> modContext, ApplicationConfiguration appConfiguration)
 	{
 		_HubContext = hubContext;
 		_ModContext = modContext;
-		_ModerationEnabled = configuration.GetValue<bool>("ModerationEnabled", false);
+		_ModerationEnabled = appConfiguration.ModerationEnabled;
 	}
 
 	public void NotifyNewContent(string hashtag, Content content)

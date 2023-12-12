@@ -1,22 +1,17 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using TagzApp.Providers.Youtube.Configuration;
-using TagzApp.Communication;
 
 namespace TagzApp.Providers.Youtube;
 
-public class StartYoutube : BaseConfigurationProvider, IConfigureProvider
+public class StartYoutube : IConfigureProvider
 {
 	private const string _DisplayName = "Youtube";
 	private YoutubeConfiguration? _YoutubeConfiguration;
 
-	public StartYoutube(IProviderConfigurationRepository providerConfigurationRepository)
-		: base(providerConfigurationRepository)
-	{
-	}
-
 	public async Task<IServiceCollection> RegisterServices(IServiceCollection services, CancellationToken cancellationToken)
 	{
-		await LoadConfigurationValuesAsync(_DisplayName, cancellationToken);
+
+		_YoutubeConfiguration = await ConfigureTagzAppFactory.Current.GetConfigurationById<YoutubeConfiguration>(YoutubeConfiguration.AppSettingsSection);
 
 		if (string.IsNullOrEmpty(_YoutubeConfiguration?.ApiKey))
 		{
@@ -29,16 +24,4 @@ public class StartYoutube : BaseConfigurationProvider, IConfigureProvider
 		return services;
 	}
 
-	protected override void MapConfigurationValues(ProviderConfiguration providerConfiguration)
-	{
-		var config = providerConfiguration.ConfigurationSettings;
-
-		if (config != null)
-		{
-			_YoutubeConfiguration = new YoutubeConfiguration
-			{
-				ApiKey = config["ApiKey"] ?? string.Empty,
-			};
-		}
-	}
 }

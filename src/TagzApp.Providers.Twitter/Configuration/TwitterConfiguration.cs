@@ -5,7 +5,7 @@ namespace TagzApp.Providers.Twitter.Configuration;
 /// <summary>
 /// Defines the Twitter configuration
 /// </summary>
-public class TwitterConfiguration : HttpClientOptions
+public class TwitterConfiguration : HttpClientOptions, IProviderConfiguration
 {
 
 	/// <summary>
@@ -13,35 +13,51 @@ public class TwitterConfiguration : HttpClientOptions
 	/// </summary>
 	public const string AppSettingsSection = "providers:twitter";
 
-	public bool Activated { get; set; } = false;
-
-	///// <summary>
-	///// Twitter issued API Key for the service
-	///// </summary>
-	//public string ApiKey { get; set; } = string.Empty;
-
-	///// <summary>
-	///// Twitter issued API Secret Key for the service
-	///// </summary>
-	//public string ApiSecretKey { get; set; } = string.Empty;
-
-	///// <summary>
-	///// Access token for Twitter
-	///// </summary>
-	//public string AccessToken { get; set; } = string.Empty;
-
-	///// <summary>
-	///// Access token secret for Twitter
-	///// </summary>
-	//public string AccessTokenSecret { get; set; } = string.Empty;
-
-	/// <summary>
-	/// Provider description
-	/// </summary>
-	public string Description { get; set; } = string.Empty;
+	public string Description => "Search the X (formerly Twitter) service for a specified hashtag";
+	public string Name => "X (formerly Twitter)";
+	public bool Enabled { get; set; }
+	public string[] Keys => ["Timeout", "DefaultHeaders", "UseHttp2"];
 
 	public TwitterConfiguration()
 	{
 		BaseAddress = new Uri("https://api.twitter.com");
+	}
+
+	public string GetConfigurationByKey(string key)
+	{
+		return key switch
+		{
+			"BaseAddress" => BaseAddress?.ToString() ?? string.Empty,
+			"Timeout" => Timeout.ToString(),
+			"DefaultHeaders" => DefaultHeaders?.Serialize() ?? string.Empty,
+			"UseHttp2" => UseHttp2.ToString(),
+			_ => string.Empty
+		};
+	}
+
+	public void SetConfigurationByKey(string key, string value)
+	{
+
+		switch (key)
+		{
+
+			case "BaseAddress":
+				BaseAddress = new Uri(value);
+				break;
+			case "Timeout":
+				Timeout = TimeSpan.Parse(value);
+				break;
+			case "DefaultHeaders":
+				DefaultHeaders = DeserializeHeaders(value);
+				break;
+			case "UseHttp2":
+				UseHttp2 = bool.Parse(value);
+				break;
+			default:
+				throw new NotImplementedException();
+
+		}
+
+
 	}
 }

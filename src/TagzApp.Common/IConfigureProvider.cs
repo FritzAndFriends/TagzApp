@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace TagzApp.Common;
 
@@ -15,12 +14,5 @@ public interface IConfigureProvider
 	/// <param name="cancellationToken"></param>
 	/// <returns>Service Collection</returns>
 	Task<IServiceCollection> RegisterServices(IServiceCollection services, CancellationToken cancellationToken = default);
-
-}
-
-public interface INeedConfiguration
-{
-
-	void SetConfiguration(IConfiguration configuration);
 
 }

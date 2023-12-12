@@ -3,7 +3,6 @@
 @using TagzApp.Web.Services;
 @model TagzApp.Web.Areas.Admin.Pages.ProvidersModel
 @inject ViewModelUtilitiesService vmUtilities
-@inject IProviderConfigurationRepository providerConfigRepo
 
 @{
 	ViewData["ActivePage"] = ManageNavPages.Providers;
@@ -16,6 +15,8 @@
 	{
 		var health = await provider.GetHealth();
 
+		var config = await provider.GetConfiguration(ConfigureTagzAppFactory.Current);
+		var properties = vmUtilities.LoadViewModel(provider.DllName);
 
 		<div class="accordion" id="providerAccordion">
 			<div class="accordion-item">
@@ -42,81 +43,85 @@
 					<p class="ps-3 pt-3 mb-0 fst-italic">Please fill in the configuration values below:</p>
 					<form method="post" class="p-3" id="@($"{provider.Id}-form")">
 						<input type="hidden" id="Name" name="Name" value="@provider.DisplayName" />
-						@foreach (var property in vmUtilities.LoadViewModel(provider.DllName) ?? new System.Reflection.PropertyInfo[0])
+						@foreach (var property in properties ?? new System.Reflection.PropertyInfo[0])
 						{
 							var displayName = vmUtilities.GetDisplayName(property);
 							displayName = string.IsNullOrWhiteSpace(displayName) ? property.Name : displayName;
 
-							var inputType = vmUtilities.GetInputType(property);
+							var inputType = vmUtilities.GetInputType(property).ToLowerInvariant();
 							inputType = string.IsNullOrEmpty(inputType) ? "text" : inputType;
+							
+
+							if (inputType == "text") {
+								inputType = ProvidersModel.PasswordEndings.Any(e => property.Name.EndsWith(e, StringComparison.InvariantCultureIgnoreCase)) ? "password" : "text";
+							}
 
 							var pattern = inputType == "url" ? "https://.*" : string.Empty;
 							pattern = inputType == "timeout" ? "\\d{2}:\\d{2}:\\d{2}" : pattern;
 
-							var config = await providerConfigRepo.GetConfigurationSettingsAsync(provider.DisplayName);
-							string? propertyValue = string.Empty;
-							config?.ConfigurationSettings?.TryGetValue(property.Name, out propertyValue);
 
-							switch (property.PropertyType)
+							var propertyValue = config?.GetConfigurationByKey(property.Name);
+
+							if (inputType == "url" || inputType == "timeout")
 							{
-								case Type _ when typeof(string).IsAssignableFrom(property.PropertyType):
-									<label for="@property.Name" class="form-label">@displayName</label>
-									if (inputType == "url" || inputType == "timeout")
-									{
-										<input name="@property.Name"
-													 class="form-control"
-													 type="@inputType"
-													 pattern="@pattern"
-													 value="@(propertyValue ?? string.Empty)" />
-									}
-									else
-									{
-										<input name="@property.Name" class="form-control" value="@(propertyValue ?? string.Empty)" />
-									}
-									break;
-								case Type _ when typeof(bool).IsAssignableFrom(property.PropertyType):
-									<div class="input-group pt-3">
-										@if (property.Name == "Activated")
-										{
-											// Special handling for the Activated Boolean property
-											propertyValue = config != null && config!.Activated ? bool.TrueString.ToLower() : bool.FalseString.ToLower();
+								<label for="@property.Name" class="form-label">@displayName</label>
+								<input name="@property.Name"
+											 class="form-control"
+											 type="@inputType"
+											 pattern="@pattern"
+											 value="@(propertyValue ?? string.Empty)" />
+							}
+							else
+							{
+								switch (property.PropertyType)
+								{
+									case Type _ when typeof(string).IsAssignableFrom(property.PropertyType):
+										<label for="@property.Name" class="form-label">@displayName</label>
+										<input name="@property.Name" type="@inputType" class="form-control" value="@(propertyValue ?? string.Empty)" />
+										break;
+									case Type _ when typeof(bool).IsAssignableFrom(property.PropertyType):
+										<div class="input-group pt-3">
+											@if (property.Name == nameof(IProviderConfiguration.Enabled))
+											{
+												// Special handling for the Enabled Boolean property
+												propertyValue = config!.Enabled.ToString();
 
-											<div class="form-check">
-												<label for="@property.Name" class="form-check-label">@displayName</label>
-												<input type="checkbox"
-															 class="form-check-input"
-															 id="@property.Name"
-															 name="@property.Name"
-															 checked="@(propertyValue != "false")" />
-												@if (config == null || (!config?.Activated ?? false))
-												{
-													<div id="@property.Name" class="form-text text-danger">
-														Toggling this will enable the provider. Please validate provider code for security concerns prior to activation!
-													</div>
-												}
-											</div>
-										}
-										else
-										{
-											// Configuration property handling of String/Boolean and checkbox value conversions
-											propertyValue = null;
-											config?.ConfigurationSettings?.TryGetValue(property.Name, out propertyValue);
-											var checkedValue = propertyValue == null ? false : bool.Parse(propertyValue);
-											<div class="form-check">
-												<label for="@property.Name" class="form-check-label">@displayName</label>
-												@if (!checkedValue)
-												{
-													<input type="checkbox" class="form-check-input" data-val=" true" data-val-required="Field is required." id="@property.Name" name="@property.Name" value="true">
-												}
-												else
-												{
-													<input type="checkbox" class="form-check-input" data-val="true" data-val-required="Field is required." id="@property.Name" name="@property.Name" value="true" checked>
-												}
-												<input name="@property.Name" type="hidden" value="false">
-											</div>
-										}
-									</div>
-									break;
+												<div class="form-check">
+													<label for="@property.Name" class="form-check-label">@displayName</label>
+													<input type="checkbox"
+																 class="form-check-input"
+																 id="@property.Name"
+																 name="@property.Name"
+																 checked="@(!propertyValue.Equals("false", StringComparison.InvariantCultureIgnoreCase))" />
+													@if (config == null || (!config?.Enabled ?? false))
+													{
+														<div id="@property.Name" class="form-text text-danger">
+															Toggling this will enable the provider. Please validate provider code for security concerns prior to activation!
+														</div>
+													}
+												</div>
+											}
+											else
+											{
+												// Configuration property handling of String/Boolean and checkbox value conversions
+												propertyValue = config?.GetConfigurationByKey(property.Name);
+												var checkedValue = string.IsNullOrEmpty(propertyValue) ? false : bool.Parse(propertyValue);
+												<div class="form-check">
+													<label for="@property.Name" class="form-check-label">@displayName</label>
+													@if (!checkedValue)
+													{
+														<input type="checkbox" class="form-check-input" data-val=" true" data-val-required="Field is required." id="@property.Name" name="@property.Name" value="true">
+													}
+													else
+													{
+														<input type="checkbox" class="form-check-input" data-val="true" data-val-required="Field is required." id="@property.Name" name="@property.Name" value="true" checked>
+													}
+													<input name="@property.Name" type="hidden" value="false">
+												</div>
+											}
+										</div>
+										break;
+								}
 							}
 						}
 						<button type="submit" class="btn btn-primary mt-3">Save</button>

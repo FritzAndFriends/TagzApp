@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
-using TagzApp.Communication.Extensions;
 using TagzApp.Web.Data;
 using TagzApp.Web.Hubs;
 using TagzApp.Web.Services;
@@ -12,52 +11,85 @@ namespace TagzApp.Web;
 
 public class Program
 {
-	private static void Main(string[] args)
+
+	private static CancellationTokenSource _Source = new();
+
+	private static bool _Restarting = true;
+
+	public static bool TestMode { get; set; } = false;
+
+	public static Task Restart()
+	{
+		_Restarting = true;
+		_Source.Cancel();
+		return Task.CompletedTask;
+	}
+
+	private static async Task Main(string[] args)
 	{
 
+		if (TestMode)
+		{
+			await StartWebsite(args);
+		}
+		else
+		{
+
+			while (_Restarting)
+			{
+
+				_Restarting = false;
+				_Source = new();
+
+				await StartWebsite(args);
+
+			}
+
+		}
+
+	}
+
+	private static async Task StartWebsite(string[] args)
+	{
 		var builder = WebApplication.CreateBuilder(args);
 
-		try
-		{
-			builder.Configuration.AddApplicationConfiguration();
-			builder.Services.Configure<ApplicationConfiguration>(
-				builder.Configuration.GetSection("ApplicationConfiguration")
-			);
-			builder.Services.AddSingleton<IConfigurationRoot>(builder.Configuration);
-		}
-		catch (Exception ex)
-		{
-			Console.WriteLine("This should fail when applying EF migrations");
-		}
+		var configure = ConfigureTagzAppFactory.Create(builder.Configuration, null);
+
+		var appConfig = await ApplicationConfiguration.LoadFromConfiguration(configure);
+		builder.Services.AddSingleton(appConfig);
 
 		// Late bind the connection string so that any changes to the configuration made later on, or in the test fixture can be picked up.
-		builder.Services.AddSecurityContext(builder.Configuration);
-
-		// Add DataProtection services
-		builder.Services.AddDataProtection()
-			.SetApplicationName("TagzApp")
-			.SetDefaultKeyLifetime(TimeSpan.FromDays(90))
-			.PersistKeysToDbContext<SecurityContext>();
-
-		builder.Services.AddDefaultIdentity<TagzAppUser>(options =>
-						options.SignIn.RequireConfirmedAccount = true
-				)
-				.AddRoles<IdentityRole>()
-				.AddEntityFrameworkStores<SecurityContext>();
-
-		_ = builder.Services.AddAuthentication(options =>
+		if (ConfigureTagzAppFactory.IsConfigured)
 		{
-			//options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-		})
-			.AddCookie()
-			.AddExternalProviders(builder.Configuration);
 
-		builder.Services.AddAuthorization(config =>
-		{
-			config.AddPolicy(Security.Policy.AdminRoleOnly, policy => { policy.RequireRole(Security.Role.Admin); });
-			config.AddPolicy(Security.Policy.Moderator,
-							policy => { policy.RequireRole(Security.Role.Moderator, Security.Role.Admin); });
-		});
+			// Stash a copy of the configuration in the services collection
+			builder.Services.AddSingleton(configure);
+
+			await builder.Services.AddSecurityContext(configure);
+
+			// Add DataProtection services
+			builder.Services.AddDataProtection()
+				.SetApplicationName("TagzApp")
+				.SetDefaultKeyLifetime(TimeSpan.FromDays(90))
+				.PersistKeysToDbContext<SecurityContext>();
+
+			builder.Services.AddDefaultIdentity<TagzAppUser>(options =>
+									options.SignIn.RequireConfirmedAccount = true
+							)
+							.AddRoles<IdentityRole>()
+							.AddEntityFrameworkStores<SecurityContext>();
+
+			_ = builder.Services.AddAuthentication()
+				.AddCookie()
+				.AddExternalProviders(builder.Configuration);
+
+			builder.Services.AddAuthorization(config =>
+			{
+				config.AddPolicy(Security.Policy.AdminRoleOnly, policy => { policy.RequireRole(Security.Role.Admin); });
+				config.AddPolicy(Security.Policy.Moderator,
+								policy => { policy.RequireRole(Security.Role.Moderator, Security.Role.Admin); });
+			});
+		}
 
 		// Add services to the container.
 		builder.Services.AddRazorPages(options =>
@@ -67,6 +99,7 @@ public class Program
 			options.Conventions.AuthorizePage("/BlockedUsers", Security.Policy.Moderator);
 		});
 
+		// Configure the forwarded headers to allow Container hosting support
 		builder.Services.Configure<ForwardedHeadersOptions>(options =>
 		{
 			options.ForwardedHeaders = ForwardedHeaders.All;
@@ -77,7 +110,7 @@ public class Program
 			options.KnownProxies.Clear();
 		});
 
-		builder.Services.AddTagzAppHostedServices(builder.Configuration);
+		await builder.Services.AddTagzAppHostedServices(configure);
 
 		builder.Services.AddSignalR();
 
@@ -89,8 +122,9 @@ public class Program
 		// configure TempData serialization with System.Text.Json
 		builder.Services.AddSingleton<TempDataSerializer, JsonTempDataSerializer>();
 
-		// Add the Polly policies
-		builder.Services.AddPolicies(builder.Configuration);
+		//// Add the Polly policies
+		/// Removing in favor of provider specific Polly Policies
+		//builder.Services.AddPolicies();
 
 		builder.Services.AddSingleton<ViewModelUtilitiesService>();
 
@@ -126,6 +160,8 @@ public class Program
 
 		app.MapRazorPages();
 
+		app.UseMiddleware<StartupConfigMiddleware>(app.Configuration);
+
 		app.MapHub<MessageHub>("/messages");
 		app.MapHub<ModerationHub>("/mod");
 
@@ -139,8 +175,11 @@ public class Program
 			});
 		}
 
-		app.Services.InitializeSecurity().GetAwaiter().GetResult(); // Ensure this runs before we start the app.
+		if (ConfigureTagzAppFactory.IsConfigured)
+		{
+			app.Services.InitializeSecurity().GetAwaiter().GetResult(); // Ensure this runs before we start the app.
+		}
 
-		app.Run();
+		await app.RunAsync(_Source.Token);
 	}
 }

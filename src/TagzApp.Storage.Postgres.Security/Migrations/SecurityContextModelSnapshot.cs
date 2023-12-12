@@ -4,14 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using TagzApp.Web.Data;
+using TagzApp.Security;
 
 #nullable disable
 
 namespace TagzApp.Storage.Postgres.Security.Migrations
 {
     [DbContext(typeof(SecurityContext))]
-    partial class SecurityContextModelSnapshot : ModelSnapshot
+    public partial class SecurityContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {

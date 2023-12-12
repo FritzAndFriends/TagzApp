@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using System.Security.Claims;
 using TagzApp.Providers.YouTubeChat;
-using TagzApp.Storage.Postgres;
 using TagzApp.Web.Data;
 using TagzApp.Web.Services;
 
@@ -12,21 +12,23 @@ namespace TagzApp.Web;
 public static class ServicesExtensions
 {
 
-	public static IServiceCollection AddTagzAppHostedServices(this IServiceCollection services, IConfigurationRoot configuration)
+	public static async Task<IServiceCollection> AddTagzAppHostedServices(this IServiceCollection services, IConfigureTagzApp configureTagzApp)
 	{
 
+		// TODO: Convert to a notification pipeline
 		services.AddSingleton<INotifyNewMessages, SignalRNotifier>();
 
-		if (!string.IsNullOrEmpty(configuration.GetConnectionString("TagzApp")))
+		// Get the content configuration bits
+		var connectionSettings = await configureTagzApp.GetConfigurationById<ConnectionSettings>(ConnectionSettings.ConfigurationKey);
+
+		if (connectionSettings.ContentProvider.Equals("postgres", StringComparison.InvariantCultureIgnoreCase))
 		{
-			services.AddScoped<IProviderConfigurationRepository, PostgresProviderConfigurationRepository>();
-			services.AddPostgresServices(configuration);
+			services.AddPostgresServices(configureTagzApp, connectionSettings);
 		}
 		else
 		{
 			services.AddSingleton<IMessagingService, InMemoryMessagingService>();
 			services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
-			services.AddSingleton<IProviderConfigurationRepository, InMemoryProviderConfigurationRepository>();
 		}
 
 		return services;
@@ -129,17 +131,17 @@ public static class ServicesExtensions
 		}
 	}
 
-	public static void AddSecurityContext(this IServiceCollection services, IConfiguration configuration)
+	public static async Task AddSecurityContext(this IServiceCollection services, IConfigureTagzApp configuration)
 	{
 
-		if (!string.IsNullOrEmpty(configuration.GetConnectionString("TagzAppSecurity")))
+		var connectionSettings = await configuration.GetConfigurationById<ConnectionSettings>(ConnectionSettings.ConfigurationKey);
+		if (connectionSettings.SecurityProvider.Equals("postgres", StringComparison.InvariantCultureIgnoreCase))
 		{
 
 			services.AddDbContext<SecurityContext>(options =>
 			{
-				options.UseNpgsql(configuration.GetConnectionString("TagzAppSecurity"),
-				pg => pg.MigrationsAssembly("TagzApp.Storage.Postgres.Security"));
-				// "TagzApp.Storage.Postgres.Security, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"));
+				options.UseNpgsql(connectionSettings.SecurityConnectionString,
+				pg => pg.MigrationsAssembly(typeof(TagzApp.Storage.Postgres.Security.Migrations.SecurityContextModelSnapshot).Assembly.FullName));
 			});
 
 			var serviceLocator = services.BuildServiceProvider();
@@ -149,17 +151,17 @@ public static class ServicesExtensions
 			{
 				securityContext.Database.Migrate();
 			}
-			catch (Exception ex)
+			catch (PostgresException ex)
 			{
 				Console.WriteLine($"Error while migrating security context to Postgres: {ex}");
 			}
 		}
-		else if (!string.IsNullOrEmpty(configuration.GetConnectionString("SecurityContextConnection")))
+		else if (connectionSettings.SecurityProvider.Equals("sqlite", StringComparison.InvariantCultureIgnoreCase))
 		{
 
 			services.AddDbContext<SecurityContext>(options =>
 			{
-				options.UseSqlite(configuration.GetConnectionString("SecurityContextConnection"));
+				options.UseSqlite(connectionSettings.SecurityConnectionString);
 			});
 
 		}
@@ -171,7 +173,6 @@ public static class ServicesExtensions
 			{
 				options.UseInMemoryDatabase("tagzapp");
 			});
-
 
 		}
 

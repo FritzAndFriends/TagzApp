@@ -33,6 +33,16 @@ internal class MastodonProvider : ISocialMediaProvider, IHasNewestId
 
 	public string NewestId { get; set; } = string.Empty;
 
+	public void Dispose()
+	{
+		// do nothing
+	}
+
+	public async Task<IProviderConfiguration> GetConfiguration(IConfigureTagzApp configure)
+	{
+		return await configure.GetConfigurationById<MastodonConfiguration>(MastodonConfiguration.AppSettingsSection);
+	}
+
 	public async Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since)
 	{
 
@@ -104,7 +114,17 @@ internal class MastodonProvider : ISocialMediaProvider, IHasNewestId
 		return Task.FromResult((_Status, _StatusMessage));
 	}
 
+	public async Task SaveConfiguration(IConfigureTagzApp configure, IProviderConfiguration providerConfiguration)
+	{
+		await configure.SetConfigurationById(MastodonConfiguration.AppSettingsSection, (MastodonConfiguration)providerConfiguration);
+	}
+
 	public Task StartAsync()
+	{
+		return Task.CompletedTask;
+	}
+
+	public Task StopAsync()
 	{
 		return Task.CompletedTask;
 	}

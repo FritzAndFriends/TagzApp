@@ -24,15 +24,15 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	private readonly ILogger<TwitchChatProvider> _Logger;
 	private readonly TwitchProfileRepository _ProfileRepository;
 
-	public TwitchChatProvider(TwitchChatConfiguration settings, ILogger<TwitchChatProvider> logger, IHttpClientFactory clientFactory)
+	public TwitchChatProvider(ILogger<TwitchChatProvider> logger, IHttpClientFactory clientFactory)
 	{
-		_Settings = settings;
+		_Settings = ConfigureTagzAppFactory.Current.GetConfigurationById<TwitchChatConfiguration>(Id).GetAwaiter().GetResult();
 		_Logger = logger;
 		_ProfileRepository = new TwitchProfileRepository(_Settings.ClientId, _Settings.ClientSecret, clientFactory.CreateClient("TwitchProfile"));
 
-		if (!string.IsNullOrWhiteSpace(settings.Description))
+		if (!string.IsNullOrWhiteSpace(_Settings.Description))
 		{
-			Description = settings.Description;
+			Description = _Settings.Description;
 		}
 	}
 
@@ -130,7 +130,9 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 
 			return Task.FromResult(Enumerable.Empty<Content>());
 
-		} else {
+		}
+		else
+		{
 			_Status = SocialMediaStatus.Healthy;
 			_StatusMessage = "OK";
 		}
@@ -159,7 +161,7 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 		{
 			if (disposing)
 			{
-				_Client.Dispose();
+				_Client?.Dispose();
 			}
 
 			// TODO: free unmanaged resources (unmanaged objects) and override finalizer
@@ -191,5 +193,20 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	public Task<(SocialMediaStatus Status, string Message)> GetHealth()
 	{
 		return Task.FromResult((_Status, _StatusMessage));
+	}
+
+	public Task StopAsync()
+	{
+		return Task.CompletedTask;
+	}
+
+	public async Task<IProviderConfiguration> GetConfiguration(IConfigureTagzApp configure)
+	{
+		return await configure.GetConfigurationById<TwitchChatConfiguration>(Id);
+	}
+
+	public async Task SaveConfiguration(IConfigureTagzApp configure, IProviderConfiguration providerConfiguration)
+	{
+		await configure.SetConfigurationById(Id, (TwitchChatConfiguration)providerConfiguration);
 	}
 }

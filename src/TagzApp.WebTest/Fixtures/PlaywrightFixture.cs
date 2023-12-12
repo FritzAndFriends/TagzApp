@@ -25,6 +25,11 @@ public class PlaywrightFixture : PlaywrightFixture<Web.Program>
 
 	protected override IHost CreateHost(IHostBuilder builder)
 	{
+
+		ConfigureTagzAppFactory.CreateInMemoryProvider();
+		TagzApp.Web.Program.TestMode = true;
+
+
 		//ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
 		builder.AddTestConfiguration(jsonConfiguration: CONFIGURATION);
 		builder.UseOnlyStubSocialMediaProvider();

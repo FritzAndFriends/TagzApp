@@ -11,6 +11,7 @@ internal sealed class BlazotProvider : ISocialMediaProvider
 	private readonly int _WindowSeconds;
 	private readonly int _WindowRequests;
 	private readonly ILogger<BlazotProvider> _Logger;
+	private readonly BlazotConfiguration _Settings;
 	private readonly IContentConverter _ContentConverter;
 	private readonly ITransmissionsService _TransmissionsService;
 	private readonly IAuthService _AuthService;
@@ -20,17 +21,18 @@ internal sealed class BlazotProvider : ISocialMediaProvider
 
 	private SocialMediaStatus _Status = SocialMediaStatus.Unhealthy;
 	private string _StatusMessage = "Not started";
+	private bool _DisposedValue;
 
 	public string Description { get; init; } = "Blazot is an all new social networking platform and your launchpad to the social universe!";
 
-	public BlazotProvider(ILogger<BlazotProvider> logger, BlazotSettings settings,
+	public BlazotProvider(ILogger<BlazotProvider> logger, BlazotConfiguration settings,
 		IContentConverter contentConverter, ITransmissionsService transmissionsService, IAuthService authService)
 	{
 		_ContentConverter = contentConverter ?? throw new ArgumentNullException(nameof(contentConverter));
 		_TransmissionsService = transmissionsService ?? throw new ArgumentNullException(nameof(transmissionsService));
 		_AuthService = authService ?? throw new ArgumentNullException(nameof(authService));
 		_Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
+		_Settings = settings;
 		_WindowSeconds = settings?.WindowSeconds ?? throw new ArgumentNullException(nameof(settings));
 		_WindowRequests = settings.WindowRequests;
 
@@ -43,6 +45,8 @@ internal sealed class BlazotProvider : ISocialMediaProvider
 	public async Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset dateTimeOffset)
 	{
 		var transmissions = new List<Transmission>();
+
+		if (!_Settings.Enabled) return Enumerable.Empty<Content>();
 
 		try
 		{
@@ -93,4 +97,48 @@ internal sealed class BlazotProvider : ISocialMediaProvider
 	}
 
 	public Task<(SocialMediaStatus Status, string Message)> GetHealth() => Task.FromResult((_Status, _StatusMessage));
+
+	public Task StopAsync()
+	{
+		return Task.CompletedTask;
+	}
+
+	private void Dispose(bool disposing)
+	{
+		if (!_DisposedValue)
+		{
+			if (disposing)
+			{
+				if (_TransmissionsService is IDisposable) ((IDisposable)_TransmissionsService).Dispose();
+			}
+
+			// TODO: free unmanaged resources (unmanaged objects) and override finalizer
+			// TODO: set large fields to null
+			_DisposedValue = true;
+		}
+	}
+
+	// // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+	// ~BlazotProvider()
+	// {
+	//     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+	//     Dispose(disposing: false);
+	// }
+
+	public void Dispose()
+	{
+		// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+		Dispose(disposing: true);
+		GC.SuppressFinalize(this);
+	}
+
+	public async Task<IProviderConfiguration> GetConfiguration(IConfigureTagzApp configure)
+	{
+		return await configure.GetConfigurationById<BlazotConfiguration>(Id);
+	}
+
+	public async Task SaveConfiguration(IConfigureTagzApp configure, IProviderConfiguration providerConfiguration)
+	{
+		await configure.SetConfigurationById(Id, (BlazotConfiguration)providerConfiguration);
+	}
 }

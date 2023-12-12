@@ -15,9 +15,7 @@ public static class FixtureExtensions
 		{
 			var testConfiguration = new Dictionary<string, string?>()
 			{
-				{ "ConnectionStrings:SecurityContextConnection", $"Data Source=TagzApp.Web.{id:N}.db" },
-				{ "ConnectionStrings:TagzAppSecurity", "" },
-				{ "ConnectionStrings:TagzApp", "" }
+				{ "ConnectionStrings:AppConfigProvider", "InMemory" }
 			};
 			configuration.AddInMemoryCollection(testConfiguration);
 		});
@@ -156,7 +154,7 @@ public static class InMemoryServiceExtensions
 	public static IServiceCollection UseOnlyInMemoryService(this IServiceCollection services)
 	{
 		services.RemoveAll<IMessagingService>();
-		services.AddSingleton<IProviderConfigurationRepository, InMemoryProviderConfigurationRepository>();
+		//services.AddSingleton<IProviderConfigurationRepository, InMemoryProviderConfigurationRepository>();
 		services.AddSingleton<IMessagingService, InMemoryMessagingService>();
 		services.AddHostedService(s => s.GetRequiredService<IMessagingService>());
 		return services;
