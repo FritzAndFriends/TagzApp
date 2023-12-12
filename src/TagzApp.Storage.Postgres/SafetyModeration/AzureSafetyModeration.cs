@@ -8,7 +8,7 @@ using System.Web;
 using TagzApp.Web.Services;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace TagzApp.Storage.Postgres;
+namespace TagzApp.Storage.Postgres.SafetyModeration;
 
 public class AzureSafetyModeration : INotifyNewMessages
 {
@@ -124,14 +124,15 @@ public class AzureSafetyModeration : INotifyNewMessages
 			return;
 		}
 
-		if (response != null && (response.Value.SexualResult.Severity > 0 || response.Value.HateResult.Severity > 0 || response.Value.SelfHarmResult.Severity > 0 || response.Value.ViolenceResult.Severity > 0))
+		if (response != null && (response.Value.CategoryResult(TextCategory.Sexual) > 0 || response.Value.CategoryResult(TextCategory.Hate) > 0 || response.Value.CategoryResult(TextCategory.SelfHarm) > 0 || response.Value.CategoryResult(TextCategory.Violence) > 0))
 		{
 
 			string reason = "";
-			if (response.Value.SexualResult.Severity > 0) reason += $"Sexual: {response.Value.SexualResult.Severity}. ";
-			if (response.Value.HateResult.Severity > 0) reason += $"Hate: {response.Value.HateResult.Severity}. ";
-			if (response.Value.SelfHarmResult.Severity > 0) reason += $"SelfHarm: {response.Value.SelfHarmResult.Severity}. ";
-			if (response.Value.ViolenceResult.Severity > 0) reason += $"Violence: {response.Value.ViolenceResult.Severity}. ";
+			// CategoriesAnalysis.FirstOrDefault(a => a.Category == TextCategory.Hate)
+			if (response.Value.CategoryResult(TextCategory.Sexual) > 0) reason += $"Sexual: {response.Value.CategoryResult(TextCategory.Sexual)}. ";
+			if (response.Value.CategoryResult(TextCategory.Hate) > 0) reason += $"Hate: {response.Value.CategoryResult(TextCategory.Hate)}. ";
+			if (response.Value.CategoryResult(TextCategory.SelfHarm) > 0) reason += $"SelfHarm: {response.Value.CategoryResult(TextCategory.SelfHarm)}. ";
+			if (response.Value.CategoryResult(TextCategory.Violence) > 0) reason += $"Violence: {response.Value.CategoryResult(TextCategory.Violence)}. ";
 
 			// Add moderation from Azure Content Safety
 			using var scope = _ServiceProvider.CreateScope();
@@ -189,7 +190,7 @@ public class AzureSafetyModeration : INotifyNewMessages
 		//add characters that are should not be removed to this regex
 		private static readonly Regex _notOkCharacter_ = new(@"[^\w;&#@.:/\\?=|%!() -]", RegexOptions.Compiled);
 
-		public static String UnHtml(String html)
+		public static string UnHtml(string html)
 		{
 			html = HttpUtility.UrlDecode(html);
 			html = HttpUtility.HtmlDecode(html);
@@ -206,16 +207,16 @@ public class AzureSafetyModeration : INotifyNewMessages
 			return html;
 		}
 
-		private static String RemoveTag(String html, String startTag, String endTag)
+		private static string RemoveTag(string html, string startTag, string endTag)
 		{
-			Boolean bAgain;
+			bool bAgain;
 			do
 			{
 				bAgain = false;
-				Int32 startTagPos = html.IndexOf(startTag, 0, StringComparison.CurrentCultureIgnoreCase);
+				int startTagPos = html.IndexOf(startTag, 0, StringComparison.CurrentCultureIgnoreCase);
 				if (startTagPos < 0)
 					continue;
-				Int32 endTagPos = html.IndexOf(endTag, startTagPos + 1, StringComparison.CurrentCultureIgnoreCase);
+				int endTagPos = html.IndexOf(endTag, startTagPos + 1, StringComparison.CurrentCultureIgnoreCase);
 				if (endTagPos <= startTagPos)
 					continue;
 				html = html.Remove(startTagPos, endTagPos - startTagPos + endTag.Length);
@@ -224,11 +225,11 @@ public class AzureSafetyModeration : INotifyNewMessages
 			return html;
 		}
 
-		private static String SingleSpacedTrim(String inString)
+		private static string SingleSpacedTrim(string inString)
 		{
 			StringBuilder sb = new();
-			Boolean inBlanks = false;
-			foreach (Char c in inString)
+			bool inBlanks = false;
+			foreach (char c in inString)
 			{
 				switch (c)
 				{
@@ -251,19 +252,5 @@ public class AzureSafetyModeration : INotifyNewMessages
 			return sb.ToString().Trim();
 		}
 	}
-
-}
-
-
-public class AzureSafetyConfiguration
-{
-
-	public const string ConfigurationKey = "azuresafety";
-
-	public bool Enabled { get; set; } = false;
-
-	public string Key { get; set; } = string.Empty;
-
-	public string Endpoint { get; set; } = string.Empty;
 
 }

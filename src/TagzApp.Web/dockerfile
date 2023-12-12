@@ -1,11 +1,11 @@
 # docker build -t web -f TagzApp.Web/dockerfile .
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0.0-rc.2 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/nightly/sdk:8.0.100-rc.2 AS build
+FROM mcr.microsoft.com/dotnet/nightly/sdk:8.0.100 AS build
 ARG BUILD_CONFIGURATION=Release
 ARG Build_Version=1.0.0
 WORKDIR /src

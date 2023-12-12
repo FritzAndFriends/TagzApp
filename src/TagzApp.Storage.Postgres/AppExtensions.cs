@@ -3,6 +3,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using TagzApp.Communication;
 using TagzApp.Storage.Postgres;
+using TagzApp.Storage.Postgres.SafetyModeration;
 using TagzApp.Web.Services;
 
 namespace Microsoft.Extensions.DependencyInjection;

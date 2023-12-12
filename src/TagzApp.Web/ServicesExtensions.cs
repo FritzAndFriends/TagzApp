@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using System.Security.Claims;
 using TagzApp.Providers.YouTubeChat;
-using TagzApp.Web.Data;
 using TagzApp.Web.Services;
 
 namespace TagzApp.Web;
@@ -71,6 +70,7 @@ public static class ServicesExtensions
 		builder.AddExternalProvider("Microsoft", configuration, options => builder.AddMicrosoftAccount(options));
 		builder.AddExternalProvider("GitHub", configuration, options => builder.AddGitHub(options));
 		builder.AddExternalProvider("LinkedIn", configuration, options => builder.AddLinkedIn(options));
+
 
 		if (!string.IsNullOrEmpty(configuration["Authentication:Google:ClientId"]))
 		{
