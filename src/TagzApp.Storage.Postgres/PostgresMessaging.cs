@@ -26,97 +26,117 @@ internal class PostgresMessaging : IDisposable
 	internal async Task StartProviders(IEnumerable<ISocialMediaProvider> providers, CancellationToken cancellationToken)
 	{
 		_ProviderTasks.Clear();
-		await LoadProviderConfiguration(providers);
+		var providerConfigs = await LoadProviderConfiguration(providers);
 
 		foreach (var providerItem in providers)
 		{
-			var providerConfig = _ProviderConfigurations.FirstOrDefault(x => x.Name.Equals(providerItem.DisplayName, StringComparison.InvariantCultureIgnoreCase));
+			var providerConfig = providerConfigs.FirstOrDefault(x => x.Name.Equals(providerItem.DisplayName, StringComparison.InvariantCultureIgnoreCase));
 
 			// Only add task if provider is activated
 			if (providerConfig != null && providerConfig.Enabled)
 			{
-				_ProviderTasks.Add(Task.Factory.StartNew(async (object? state) =>
-				{
-
-					var provider = state as ISocialMediaProvider;
-					// TODO: Check if this can done another way.
-					if (provider == null) return;
-					var lastQueryTime = DateTimeOffset.UtcNow.AddHours(-1);
-
-					await provider.StartAsync();
-
-					while (!cancellationToken.IsCancellationRequested)
-					{
-
-						if (!_Actions.Any())
-						{
-							await Task.Delay(TimeSpan.FromSeconds(1));
-							continue;
-						}
-
-						using var scope = _Services!.CreateScope();
-						var context = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
-
-						if (provider is IHasNewestId newestIdProvider)
-						{
-
-							var SevenDaysAgo = DateTime.UtcNow.AddDays(-7);
-
-							var newestId = await context.Content.AsNoTracking()
-								.Where(c => c.Provider == provider.Id && c.Timestamp > SevenDaysAgo)
-								.OrderByDescending(c => c.ProviderId)
-								.Select(c => c.ProviderId)
-								.FirstOrDefaultAsync();
-							if (newestId != null)
-							{
-								newestIdProvider.NewestId = newestId;
-							}
-						}
-
-						foreach (var tag in _Actions.Keys.Distinct<string>())
-						{
-
-							Hashtag thisTag = new() { Text = tag };
-							var contentIdentified = await provider.GetContentForHashtag(thisTag, lastQueryTime);
-							if (!contentIdentified.Any()) continue;
-
-							var providerIds = contentIdentified.Select(c => c.ProviderId).Distinct().ToArray();
-							lastQueryTime = DateTime.UtcNow;
-
-							// de-dupe with in-database collection
-							var inDb = await context.Content.AsNoTracking()
-							.Where(c => c.Provider == provider.Id && providerIds.Any(i => i == c.ProviderId))
-							.Select(c => c.ProviderId)
-							.ToArrayAsync();
-							contentIdentified = contentIdentified
-								.ExceptBy(inDb, c => c.ProviderId)
-								.ToArray();
-
-							if (contentIdentified.Any())
-							{
-
-								context.Content.AddRange(contentIdentified.Select(c => (PgContent)c).ToArray());
-								await context.SaveChangesAsync();
-
-								foreach (var item in contentIdentified.OrderBy<Content, DateTimeOffset>(c => c.Timestamp))
-								{
-									await PublishContentAsync(thisTag, item);
-								}
-
-							}
-
-						}
-
-						await Task.Delay(provider.NewContentRetrievalFrequency);
-
-					}
-
-				}, providerItem));
+				StartTaskForProvider(providerItem, providerConfig, cancellationToken);
 			}
 		}
 	}
 
-	internal async Task LoadProviderConfiguration(IEnumerable<ISocialMediaProvider> providers)
+	public void StartTaskForProvider(ISocialMediaProvider provider, IProviderConfiguration providerConfiguration, CancellationToken cancellationToken)
+	{
+
+		if (_ProviderConfigurations.Any(c => c.Name == providerConfiguration.Name)) {
+			_ProviderConfigurations.Remove(_ProviderConfigurations.First(p => p.Name == providerConfiguration.Name));
+		}
+
+		_ProviderConfigurations.Add(providerConfiguration);
+
+		_ProviderTasks.Add(Task.Factory.StartNew(async (object? state) =>
+		{
+
+			var provider = state as ISocialMediaProvider;
+			// TODO: Check if this can done another way.
+			if (provider == null) return;
+			var lastQueryTime = DateTimeOffset.UtcNow.AddHours(-1);
+
+			await provider.StartAsync();
+
+			lastQueryTime = await WatchForNewContent(provider, lastQueryTime, cancellationToken);
+
+		}, provider));
+
+	}
+
+	private async Task<DateTimeOffset> WatchForNewContent(ISocialMediaProvider? provider, DateTimeOffset lastQueryTime, CancellationToken cancellationToken)
+	{
+		while (!cancellationToken.IsCancellationRequested)
+		{
+
+			if (!_Actions.Any())
+			{
+				await Task.Delay(TimeSpan.FromSeconds(1));
+				continue;
+			}
+
+			using var scope = _Services!.CreateScope();
+			var context = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
+
+			if (provider is IHasNewestId newestIdProvider)
+			{
+
+				var SevenDaysAgo = DateTime.UtcNow.AddDays(-7);
+
+				var newestId = await context.Content.AsNoTracking()
+					.Where(c => c.Provider == provider.Id && c.Timestamp > SevenDaysAgo)
+					.OrderByDescending(c => c.ProviderId)
+					.Select(c => c.ProviderId)
+					.FirstOrDefaultAsync();
+				if (newestId != null)
+				{
+					newestIdProvider.NewestId = newestId;
+				}
+			}
+
+			foreach (var tag in _Actions.Keys.Distinct<string>())
+			{
+
+				Hashtag thisTag = new() { Text = tag };
+				var contentIdentified = await provider.GetContentForHashtag(thisTag, lastQueryTime);
+				if (!contentIdentified.Any()) continue;
+
+				var providerIds = contentIdentified.Select(c => c.ProviderId).Distinct().ToArray();
+				lastQueryTime = DateTime.UtcNow;
+
+				// de-dupe with in-database collection
+				var inDb = await context.Content.AsNoTracking()
+				.Where(c => c.Provider == provider.Id && providerIds.Any(i => i == c.ProviderId))
+				.Select(c => c.ProviderId)
+				.ToArrayAsync();
+				contentIdentified = contentIdentified
+					.ExceptBy(inDb, c => c.ProviderId)
+					.ToArray();
+
+				if (contentIdentified.Any())
+				{
+
+					context.Content.AddRange(contentIdentified.Select(c => (PgContent)c).ToArray());
+					await context.SaveChangesAsync();
+
+					foreach (var item in contentIdentified.OrderBy<Content, DateTimeOffset>(c => c.Timestamp))
+					{
+						await PublishContentAsync(thisTag, item);
+					}
+
+				}
+
+			}
+
+			await Task.Delay(provider.NewContentRetrievalFrequency);
+
+		}
+
+		return lastQueryTime;
+	}
+
+	internal async Task<List<IProviderConfiguration>> LoadProviderConfiguration(IEnumerable<ISocialMediaProvider> providers)
 	{
 
 		var outList = new List<IProviderConfiguration>();
@@ -130,7 +150,7 @@ internal class PostgresMessaging : IDisposable
 			}
 		}
 
-		_ProviderConfigurations = outList;
+		return outList;
 
 	}
 

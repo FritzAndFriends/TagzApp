@@ -50,9 +50,15 @@
 
 							var inputType = vmUtilities.GetInputType(property).ToLowerInvariant();
 							inputType = string.IsNullOrEmpty(inputType) ? "text" : inputType;
+							
+
+							if (inputType == "text") {
+								inputType = ProvidersModel.PasswordEndings.Any(e => property.Name.EndsWith(e, StringComparison.InvariantCultureIgnoreCase)) ? "password" : "text";
+							}
 
 							var pattern = inputType == "url" ? "https://.*" : string.Empty;
 							pattern = inputType == "timeout" ? "\\d{2}:\\d{2}:\\d{2}" : pattern;
+
 
 							var propertyValue = config?.GetConfigurationByKey(property.Name);
 
@@ -71,7 +77,7 @@
 								{
 									case Type _ when typeof(string).IsAssignableFrom(property.PropertyType):
 										<label for="@property.Name" class="form-label">@displayName</label>
-										<input name="@property.Name" class="form-control" value="@(propertyValue ?? string.Empty)" />
+										<input name="@property.Name" type="@inputType" class="form-control" value="@(propertyValue ?? string.Empty)" />
 										break;
 									case Type _ when typeof(bool).IsAssignableFrom(property.PropertyType):
 										<div class="input-group pt-3">

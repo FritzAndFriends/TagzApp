@@ -9,6 +9,8 @@ namespace TagzApp.Web.Areas.Admin.Pages
 		public IEnumerable<ISocialMediaProvider> Providers { get; set; }
 		private readonly IMessagingService _Service;
 
+		internal static readonly string[] PasswordEndings = ["token", "key", "secret"];
+
 		public ProvidersModel(IMessagingService service)
 		{
 			_Service = service;
@@ -68,7 +70,10 @@ namespace TagzApp.Web.Areas.Admin.Pages
 			//}
 
 			if (config != null)
+			{
 				await provider.SaveConfiguration(ConfigureTagzAppFactory.Current, config);
+				await Program.Restart();
+			}
 		}
 
 		private bool GetActivatedStatus(List<KeyValuePair<string, StringValues>>? values)

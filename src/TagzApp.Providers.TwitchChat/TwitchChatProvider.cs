@@ -24,15 +24,15 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	private readonly ILogger<TwitchChatProvider> _Logger;
 	private readonly TwitchProfileRepository _ProfileRepository;
 
-	public TwitchChatProvider(TwitchChatConfiguration settings, ILogger<TwitchChatProvider> logger, IHttpClientFactory clientFactory)
+	public TwitchChatProvider(ILogger<TwitchChatProvider> logger, IHttpClientFactory clientFactory)
 	{
-		_Settings = settings;
+		_Settings = ConfigureTagzAppFactory.Current.GetConfigurationById<TwitchChatConfiguration>(Id).GetAwaiter().GetResult();
 		_Logger = logger;
 		_ProfileRepository = new TwitchProfileRepository(_Settings.ClientId, _Settings.ClientSecret, clientFactory.CreateClient("TwitchProfile"));
 
-		if (!string.IsNullOrWhiteSpace(settings.Description))
+		if (!string.IsNullOrWhiteSpace(_Settings.Description))
 		{
-			Description = settings.Description;
+			Description = _Settings.Description;
 		}
 	}
 
@@ -161,7 +161,7 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 		{
 			if (disposing)
 			{
-				_Client.Dispose();
+				_Client?.Dispose();
 			}
 
 			// TODO: free unmanaged resources (unmanaged objects) and override finalizer

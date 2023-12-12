@@ -6,7 +6,7 @@ namespace TagzApp.Providers.AzureQueue;
 public class AzureQueueProvider : ISocialMediaProvider
 {
 	private const string QueueName = "tagzapp-content";
-	private readonly AzureQueueConfiguration _Configuration;
+	private AzureQueueConfiguration _Configuration;
 	private QueueClient _Client;
 	private SocialMediaStatus _Status = SocialMediaStatus.Unhealthy;
 	private string _StatusMessage = "Not started";
@@ -122,6 +122,7 @@ public class AzureQueueProvider : ISocialMediaProvider
 	public async Task SaveConfiguration(IConfigureTagzApp configure, IProviderConfiguration providerConfiguration)
 	{
 		await configure.SetConfigurationById($"provider-{Id.ToLowerInvariant()}", (AzureQueueConfiguration)providerConfiguration);
+		_Configuration = (AzureQueueConfiguration)providerConfiguration;
 	}
 
 	#endregion
