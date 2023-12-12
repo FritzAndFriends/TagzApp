@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using TagzApp.Web;
 using TagzApp.WebTest.Fixtures;
 
 namespace TagzApp.WebTest.Tests.WithModerationEnabled;
