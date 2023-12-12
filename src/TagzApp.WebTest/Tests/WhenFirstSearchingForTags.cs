@@ -1,5 +1,7 @@
 ﻿using C3D.Extensions.Playwright.AspNetCore.Xunit;
+using TagzApp.Web;
 using TagzApp.WebTest.Fixtures;
+using Program = TagzApp.Web.Program;
 
 namespace TagzApp.WebTest.Tests;
 
@@ -21,6 +23,10 @@ public class WhenFirstSearchingForTagsFixture : PlaywrightPageFixture<Web.Progra
 
 	protected override IHost CreateHost(IHostBuilder builder)
 	{
+
+		ConfigureTagzAppFactory.CreateInMemoryProvider();
+		Program.TestMode = true;
+
 		// ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
 		builder.AddTestConfiguration(jsonConfiguration: CONFIGURATION);
 		builder.UseOnlyStubSocialMediaProvider();
@@ -31,7 +37,10 @@ public class WhenFirstSearchingForTagsFixture : PlaywrightPageFixture<Web.Progra
 
 	private const string CONFIGURATION = """
 		{
-			"ModerationEnabled": "false"
+			"ModerationEnabled": "false",
+			"ConnectionStrings": {
+				"AppConfigProvider": "InMemory"
+			}
 		}
 	""";
 

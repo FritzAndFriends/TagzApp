@@ -1,5 +1,7 @@
 ﻿using C3D.Extensions.Playwright.AspNetCore.Xunit;
+using TagzApp.Web;
 using TagzApp.WebTest.Fixtures;
+using Program = TagzApp.Web.Program;
 
 namespace TagzApp.WebTest.Tests.WithModerationEnabled;
 
@@ -20,6 +22,9 @@ public class BaseModerationFixture : PlaywrightPageFixture<Web.Program>
 	protected override IHost CreateHost(IHostBuilder builder)
 	{
 
+		ConfigureTagzAppFactory.CreateInMemoryProvider();
+		Program.TestMode = true;
+
 		builder.AddTestConfiguration(jsonConfiguration: CONFIGURATION);
 		builder.UseOnlyStubSocialMediaProvider();
 		builder.UseOnlyInMemoryService();
@@ -29,7 +34,10 @@ public class BaseModerationFixture : PlaywrightPageFixture<Web.Program>
 
 	private const string CONFIGURATION = """
 		{
-			"ModerationEnabled": "true"
+			"ModerationEnabled": "true",
+				"ConnectionStrings": {
+					"AppConfigProvider": "InMemory"
+				}
 		}
 	""";
 

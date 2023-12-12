@@ -12,7 +12,7 @@ public class DbConfigureTagzApp : IConfigureTagzApp, IDisposable
 
 	private bool _DisposedValue;
 
-	public static IEnumerable<string> SupportedDbs = ["postgres", "sqlilte"];
+	public static IEnumerable<string> SupportedDbs = ["postgres", "sqlite"];
 	private static string _ProviderName;
 	private static string _ConnectionString;
 
