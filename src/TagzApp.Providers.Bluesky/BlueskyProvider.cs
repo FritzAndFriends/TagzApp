@@ -1,9 +1,12 @@
 ﻿
+using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using Drastic.Tools;
 using FishyFlip;
 using FishyFlip.Models;
+using FishyFlip.Tools;
 using Microsoft.Extensions.Logging.Debug;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TagzApp.Providers.Bluesky;
 
@@ -11,9 +14,9 @@ public class BlueskyProvider : ISocialMediaProvider
 {
 
 	private (SocialMediaStatus status, string message) _status = (SocialMediaStatus.Unknown, "Not yet started");
-	private ATWebSocketProtocol? _AtProtocol;
+	private ATWebSocketProtocol? _AtWebSocketProtocol;
 
-	public string Id => "bluesky";
+	public string Id => "BLUESKY";
 
 	public string DisplayName => "Bluesky";
 
@@ -21,12 +24,15 @@ public class BlueskyProvider : ISocialMediaProvider
 
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromMilliseconds(1000);
 
-	private ImmutableQueue<SubscribeRepoMessage> _messageQueue = ImmutableQueue<SubscribeRepoMessage>.Empty;
+	private ConcurrentQueue<Content> _messageQueue = new();
 	private BlueskyConfiguration _Config;
+
+	private HashSet<Hashtag> _Hashtags = new HashSet<Hashtag>();
+	private ATProtocol _AtProtocol;
 
 	public void Dispose()
 	{
-		_AtProtocol?.Dispose();
+		_AtWebSocketProtocol?.Dispose();
 	}
 
 	public async Task<IProviderConfiguration> GetConfiguration(IConfigureTagzApp configure)
@@ -36,7 +42,16 @@ public class BlueskyProvider : ISocialMediaProvider
 
 	public Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since)
 	{
-		return Task.FromResult(Enumerable.Empty<Content>());
+
+		if (!_Hashtags.Contains(tag)) _Hashtags.Add(tag);
+
+		var outMessages = _messageQueue.ToArray();
+		for (var i=0;i<outMessages.Count();i++)
+		{
+			_ = _messageQueue.TryDequeue(out _);
+		}
+
+		return Task.FromResult(outMessages.AsEnumerable());
 	}
 
 	public Task<(SocialMediaStatus Status, string Message)> GetHealth() => Task.FromResult(_status);
@@ -51,25 +66,26 @@ public class BlueskyProvider : ISocialMediaProvider
 
 		_Config = (await GetConfiguration(ConfigureTagzAppFactory.Current)) as BlueskyConfiguration ?? new BlueskyConfiguration();
 
-		if (_Config.Enabled is false) return;
-
 		var debugLog = new DebugLoggerProvider();
+
+		_AtProtocol = new ATProtocolBuilder()
+			.EnableAutoRenewSession(true)
+			.Build();
 
 		// You can set a custom url with WithInstanceUrl
 		var atProtocolBuilder = new ATWebSocketProtocolBuilder()
-				.WithLogger(debugLog.CreateLogger("FishyFlipDebug"));
-		_AtProtocol = atProtocolBuilder.Build();
-
-		_AtProtocol.OnSubscribedRepoMessage += (sender, args) =>
+				.WithLogger(debugLog.CreateLogger("BlueskyDebug"));
+		_AtWebSocketProtocol = atProtocolBuilder.Build();
+		_AtWebSocketProtocol.OnSubscribedRepoMessage += (sender, args) =>
 		{
 			Task.Run(() => HandleMessageAsync(args.Message)).FireAndForgetSafeAsync();
 		};
 
-		await _AtProtocol.StartSubscribeReposAsync();
+		await _AtWebSocketProtocol.StartSubscribeReposAsync();
 
 	}
 
-	private void HandleMessageAsync(SubscribeRepoMessage message)
+	private async Task HandleMessageAsync(SubscribeRepoMessage message)
 	{
 
 		if (message.Commit is null)
@@ -86,16 +102,46 @@ public class BlueskyProvider : ISocialMediaProvider
 
 		if (message.Record is Post post)
 		{
-			Console.WriteLine($"Post: {post.Text}");
+
+			// TODO: Handle more than 1 hashtag
+			var theTag = _Hashtags.FirstOrDefault()?.Text;
+			if (!string.IsNullOrEmpty(theTag) && post.Text!.Contains($" {theTag}", StringComparison.InvariantCultureIgnoreCase))
+			{
+				var actor = await _AtProtocol.Repo.GetActorAsync(message.Commit.Repo!);
+				if (!actor.IsT1)
+				{
+
+					_messageQueue.Enqueue(
+						new Content {
+							Author = new Creator {
+								DisplayName = actor.AsT0?.Value!.DisplayName!,
+								UserName = actor.AsT0?.Value!.Type,
+								ProfileImageUri = new Uri($"https://cdn.bsky.app/img/avatar/plain/{message.Commit.Repo!.ToString().Replace("did:plc:did:plc:", "did:plc:")}/{actor.AsT0?.Value.Avatar.Ref.Link}@jpeg"),
+								ProfileUri = new Uri("https://bsky.app") // Syntax is like: https://bsky.app/profile/csharpfritz.com
+							},
+							Provider = Id,
+							ProviderId = message.Commit.Commit.Hash.ToString(),
+							SourceUri = new Uri("https://bsky.app/"), // syntax is like:  https://bsky.app/profile/csharpfritz.com/post/3kgj4nty7vp2t
+							Timestamp = new DateTimeOffset(post.CreatedAt!.Value).ToUniversalTime(),
+							HashtagSought = theTag,
+							Text = post.Text,
+							Type = ContentType.Message
+						}
+					);
+
+				}
+				Console.WriteLine($"Post: {post.Text}");
+			}
+
 		}
 
 	}
 
 	public async Task StopAsync()
 	{
-		if (_AtProtocol is null) return;
+		if (_AtWebSocketProtocol is null) return;
 
-		await _AtProtocol.StopSubscriptionAsync();
+		await _AtWebSocketProtocol.StopSubscriptionAsync();
 	}
 
 }
