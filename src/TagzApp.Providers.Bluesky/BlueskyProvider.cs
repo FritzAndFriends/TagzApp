@@ -1,12 +1,10 @@
 ﻿
 using System.Collections.Concurrent;
-using System.Collections.Immutable;
 using Drastic.Tools;
 using FishyFlip;
 using FishyFlip.Models;
 using FishyFlip.Tools;
 using Microsoft.Extensions.Logging.Debug;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TagzApp.Providers.Bluesky;
 
@@ -27,7 +25,7 @@ public class BlueskyProvider : ISocialMediaProvider
 	private ConcurrentQueue<Content> _messageQueue = new();
 	private BlueskyConfiguration _Config;
 
-	private HashSet<Hashtag> _Hashtags = new HashSet<Hashtag>();
+	private HashSet<Hashtag> _Hashtags = new();
 	private ATProtocol _AtProtocol;
 
 	public void Dispose()
@@ -46,7 +44,7 @@ public class BlueskyProvider : ISocialMediaProvider
 		if (!_Hashtags.Contains(tag)) _Hashtags.Add(tag);
 
 		var outMessages = _messageQueue.ToArray();
-		for (var i=0;i<outMessages.Count();i++)
+		for (var i = 0; i < outMessages.Count(); i++)
 		{
 			_ = _messageQueue.TryDequeue(out _);
 		}
@@ -112,8 +110,10 @@ public class BlueskyProvider : ISocialMediaProvider
 				{
 
 					_messageQueue.Enqueue(
-						new Content {
-							Author = new Creator {
+						new Content
+						{
+							Author = new Creator
+							{
 								DisplayName = actor.AsT0?.Value!.DisplayName!,
 								UserName = actor.AsT0?.Value!.Type,
 								ProfileImageUri = new Uri($"https://cdn.bsky.app/img/avatar/plain/{message.Commit.Repo!.ToString().Replace("did:plc:did:plc:", "did:plc:")}/{actor.AsT0?.Value.Avatar.Ref.Link}@jpeg"),
