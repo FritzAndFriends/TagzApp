@@ -1,0 +1,64 @@
+﻿@using Microsoft.AspNetCore.Components.Sections
+@inherits LayoutComponentBase
+@inject IJSRuntime JS
+
+<div style="height: 100vh; width: 100vw; margin: 0; overflow: hidden;">
+
+	@if (UiState.FloatingHeader)
+	{
+		<div id="floatingHeader" class="scrollOut">
+			<Header />
+		</div>
+	}
+	else
+	{
+		<Header />
+	}
+
+	<CascadingValue Name="UiState" Value="UiState">
+		<main role="main" class="pb-3" style="max-width: 100%">
+			@Body
+		</main>
+	</CascadingValue>
+
+</div>
+
+
+<SectionOutlet SectionName="scripts" />
+
+@code {
+
+	public UiState UiState { get; set; } = new();
+
+	protected override void OnInitialized()
+	{
+
+		UiState.UiUpdate += async (sender, args) =>
+		{
+			Console.WriteLine("UiUpdate updated");
+			StateHasChanged();
+			if (UiState.FloatingHeader)
+			{
+				Console.WriteLine("calling the javascript");
+				await JS.InvokeVoidAsync("FormatFloatingHeader");
+			}
+		};
+
+		base.OnInitialized();
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+
+		if (UiState.FloatingHeader)
+		{
+			Console.WriteLine("calling the javascript");
+			await JS.InvokeVoidAsync("FormatFloatingHeader");
+		}
+
+		await base.OnAfterRenderAsync(firstRender);
+	}
+
+
+
+}

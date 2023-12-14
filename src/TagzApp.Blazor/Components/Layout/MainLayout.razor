@@ -1,0 +1,19 @@
+﻿@using Microsoft.AspNetCore.Components.Sections
+@inherits LayoutComponentBase
+
+<Header />
+
+<div class="container">
+	<main role="main" class="pb-3">
+		@Body
+	</main>
+</div>
+
+<Footer />
+
+
+<script src="/lib/jquery/dist/jquery.min.js"></script>
+<script src="/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/lib/microsoft-signalr/signalr.min.js"></script>
+
+<SectionOutlet SectionName="scripts"  />
