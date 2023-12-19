@@ -1,24 +1,114 @@
 ﻿@page "/Waterfall"
-@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Sections
+@inject IJSRuntime JSRuntime
+@inject IMessagingService MessagingService
 @layout Layout.WaterfallLayout
+@rendermode InteractiveServer
 
-Waterfall from the pages
-<Waterfall />
+<PageTitle>TagzApp - Waterfall Display</PageTitle>
+
+<div style="height: 100vh; width: 100vw; margin: 0; overflow: hidden;">
+
+	@if (UiState.FloatingHeader)
+	{
+
+		<div id="floatingHeader" class="scrollOut @_FloatingHeaderCssClass" @onmouseleave="OnHideFloatingHeader" @onclick="OnHideFloatingHeader">
+			<TagzApp.Blazor.Components.Layout.Header />
+		</div>
+
+	}
+	else
+	{
+		<TagzApp.Blazor.Components.Layout.Header />
+	}
+
+	<main role="main" class="pb-3" style="max-width: 100%">
+
+		<div class="waterfallHeader">
+
+			@((MarkupString)_WaterfallHeaderContent)
+
+			<div id="headerButton" class="btn" @onclick="OnFloatingHeaderClick">
+				<i class="bi bi-three-dots"></i>
+			</div>
+
+
+		</div>
+
+		<Waterfall TagTracked="@MessagingService.TagsTracked.First()" />
+
+	</main>
+
+</div>
+
+@* <SectionContent SectionName="scripts">
+<script>
+		window.onload = window.Masonry.resizeAllGridItems();
+		window.addEventListener("resize", Masonry.resizeAllGridItems);
+</script>
+</SectionContent>
+ *@
 
 @code {
 
-	[CascadingParameter(Name = "UiState")]
-	public UiState UiState { get; set; }
+	public UiState UiState { get; set; } = new UiState
+		{
+			FloatingHeader = true
+		};
 
-	protected override void OnInitialized()
+	private ApplicationConfiguration AppConfig = new();
+	private string _WaterfallHeaderContent;
+	private string _FloatingHeaderCssClass = "";
+	private bool _EnableHeaderScrollOut = false;
+
+	protected override Task OnInitializedAsync()
 	{
 
-		if (UiState is not null)
-		{
-			UiState.FloatingHeader = true;
-		}
+		// Convert markdown to HTML
+		_WaterfallHeaderContent = Markdig.Markdown.ToHtml(AppConfig.WaterfallHeaderMarkdown);   // TODO: Get the AppConfig from the server
+		AppConfig = new();
 
-		base.OnInitialized();
+		UiState.UiUpdate += async (sender, args) =>
+		{
+			Console.WriteLine("UiUpdate updated");
+			StateHasChanged();
+		};
+
+		return base.OnInitializedAsync();
 	}
 
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+
+		await JSRuntime.InvokeVoidAsync("window.Masonry.setupPage");
+
+		await base.OnAfterRenderAsync(firstRender);
+
+	}
+
+	void OnFloatingHeaderClick()
+	{
+
+		Task.Run(async () =>
+		{
+
+			await Task.Delay(TimeSpan.FromSeconds(3));
+			_EnableHeaderScrollOut = true;
+
+		});
+
+		_FloatingHeaderCssClass = "scrollIn";
+
+	}
+	private void OnHideFloatingHeader(MouseEventArgs e)
+	{
+
+		if (_FloatingHeaderCssClass.Contains("scrollIn") && _EnableHeaderScrollOut)
+		{
+			_FloatingHeaderCssClass = "";
+			_EnableHeaderScrollOut = false;
+		}
+
+	}
 }
+

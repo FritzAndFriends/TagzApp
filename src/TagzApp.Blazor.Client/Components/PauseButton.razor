@@ -1,0 +1,26 @@
+﻿<div id="pauseUpdates" @onclick="PauseClicked">
+	<i id="pauseButton" class="bi bi-@(IsPaused ? "play" : "pause")-circle-fill text-info"></i>
+	<i id="pauseButton-bg" class="bi bi-circle-fill"></i>
+</div>
+
+
+@code {
+
+	public bool IsPaused { get; private set; } = false;
+
+	public async Task PauseUpdates()
+	{
+		IsPaused = !IsPaused;
+		StateHasChanged();
+	}
+
+	[Parameter]
+	public EventCallback<bool> OnPauseUpdates { get; set; }
+
+	void PauseClicked()
+	{
+		IsPaused = !IsPaused;
+		OnPauseUpdates.InvokeAsync(IsPaused);
+	}
+
+}

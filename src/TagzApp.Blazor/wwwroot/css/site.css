@@ -61,6 +61,7 @@ body {
 	grid-template-rows: 36px 14px auto 1fr;
 	grid-column-gap: 10px;
 	grid-row-gap: 15px;
+	user-select: none;
 }
 
 #taggedContent .ProfilePicture,
@@ -448,6 +449,7 @@ span.invisible {
 	/*text-align: center;*/
 	transition: transform 0.4s;
 	transform-style: preserve-3d;
+	user-select: none;
 }
 
 .flip {
@@ -642,35 +644,6 @@ a {
 
 .emote {
 	height: 1.6em;
-}
-
-/** Pause button on waterfall */
-#pauseUpdates {
-	position: absolute;
-	left: 1em;
-	top: calc(100dvh - 6em);
-	cursor: pointer;
-	z-index: 50;
-	opacity: 0.6;
-}
-
-#pauseUpdates:hover {
-	opacity: 1;
-}
-
-#pauseButton {
-	position: absolute;
-	left: 0;
-	font-size: 4rem;
-	z-index: 1;
-}
-
-#pauseButton-bg {
-	position: absolute;
-	left: 0;
-	font-size: 4rem;
-	z-index: -1;
-	color: #fff;
 }
 
 /** Message Details screen */

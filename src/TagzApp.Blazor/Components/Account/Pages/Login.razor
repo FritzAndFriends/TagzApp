@@ -3,9 +3,8 @@
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
-@using TagzApp.Blazor.Data
 
-@inject SignInManager<ApplicationUser> SignInManager
+@inject SignInManager<TagzAppUser> SignInManager
 @inject ILogger<Login> Logger
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager

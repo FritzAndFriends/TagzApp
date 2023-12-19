@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Identity;
-using TagzApp.Blazor.Data;
 
 namespace TagzApp.Blazor.Components.Account;
-internal sealed class IdentityUserAccessor(UserManager<ApplicationUser> userManager, IdentityRedirectManager redirectManager)
+internal sealed class IdentityUserAccessor(UserManager<TagzAppUser> userManager, IdentityRedirectManager redirectManager)
 {
-	public async Task<ApplicationUser> GetRequiredUserAsync(HttpContext context)
+	public async Task<TagzAppUser> GetRequiredUserAsync(HttpContext context)
 	{
 		var user = await userManager.GetUserAsync(context.User);
 

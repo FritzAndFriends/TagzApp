@@ -1,9 +1,8 @@
 ﻿@page "/Account/Manage/GenerateRecoveryCodes"
 
 @using Microsoft.AspNetCore.Identity
-@using TagzApp.Blazor.Data
 
-@inject UserManager<ApplicationUser> UserManager
+@inject UserManager<TagzAppUser> UserManager
 @inject IdentityUserAccessor UserAccessor
 @inject IdentityRedirectManager RedirectManager
 @inject ILogger<GenerateRecoveryCodes> Logger
@@ -40,7 +39,7 @@ else
 
 @code {
     private string? message;
-    private ApplicationUser user = default!;
+	private TagzAppUser user = default!;
     private IEnumerable<string>? recoveryCodes;
 
     [CascadingParameter]

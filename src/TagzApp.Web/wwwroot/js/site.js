@@ -630,10 +630,6 @@
 		});
 	}
 
-	function DisableContextMenu() {
-		document.addEventListener('contextmenu', (ev) => ev.preventDefault());
-	}
-
 	function FormatPauseButton() {
 		if (paused) {
 			pauseButton.classList.remove('bi-pause-circle-fill');

@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TagzApp.Communication;
 using TagzApp.Storage.Postgres.SafetyModeration;
-using TagzApp.Web.Services;
 
 namespace TagzApp.Storage.Postgres;
 

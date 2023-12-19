@@ -1,20 +1,44 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>aspnet-TagzApp.Blazor-5e7de883-fcbd-4bb4-9ad3-0ee99e09cf99</UserSecretsId>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>aspnet-TagzApp.Blazor-5e7de883-fcbd-4bb4-9ad3-0ee99e09cf99</UserSecretsId>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
-    <ProjectReference Include="..\TagzApp.Blazor.Client\TagzApp.Blazor.Client.csproj" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<Content Remove="Components\FirstStartRouting.razor" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="Components\FirstStartRouting.razor" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
+		<ProjectReference Include="..\TagzApp.Blazor.Client\TagzApp.Blazor.Client.csproj" />
+		<ProjectReference Include="..\TagzApp.Security\TagzApp.Security.csproj" />
+		<ProjectReference Include="..\TagzApp.Storage.Postgres\TagzApp.Storage.Postgres.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="gravatar" Version="1.1.0" />
+		<PackageReference Include="AspNet.Security.OAuth.GitHub" Version="8.0.0" />
+		<PackageReference Include="AspNet.Security.OAuth.LinkedIn" Version="8.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="8.0.0" />
+		<PackageReference Include="Markdig" Version="0.34.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
 
 </Project>

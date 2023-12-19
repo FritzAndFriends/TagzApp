@@ -1,69 +1,120 @@
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+global using TagzApp.Security;
+using Microsoft.AspNetCore.HttpOverrides;
+using TagzApp.Blazor;
 using TagzApp.Blazor.Components;
-using TagzApp.Blazor.Components.Account;
-using TagzApp.Blazor.Data;
 
-var builder = WebApplication.CreateBuilder(args);
+internal class Program
+{
 
-builder.Services.AddTransient<ApplicationConfiguration>();
+	private static CancellationTokenSource _Source = new();
 
-// Add services to the container.
-builder.Services.AddRazorComponents()
-		.AddInteractiveServerComponents()
-		.AddInteractiveWebAssemblyComponents();
+	private static bool _Restarting = true;
 
-builder.Services.AddCascadingAuthenticationState();
-builder.Services.AddScoped<IdentityUserAccessor>();
-builder.Services.AddScoped<IdentityRedirectManager>();
-builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
+	public static bool TestMode { get; set; } = false;
 
-builder.Services.AddAuthentication(options =>
+	public static Task Restart()
+	{
+		_Restarting = true;
+		_Source.Cancel();
+		return Task.CompletedTask;
+	}
+
+
+	private static async Task Main(string[] args)
+	{
+
+		if (TestMode)
 		{
-			options.DefaultScheme = IdentityConstants.ApplicationScheme;
-			options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-		})
-		.AddIdentityCookies();
+			await StartWebsite(args);
+		}
+		else
+		{
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-		options.UseSqlServer(connectionString));
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+			while (_Restarting)
+			{
 
-builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
-		.AddEntityFrameworkStores<ApplicationDbContext>()
-		.AddSignInManager()
-		.AddDefaultTokenProviders();
+				_Restarting = false;
+				_Source = new();
 
-builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+				await StartWebsite(args);
 
-var app = builder.Build();
+			}
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-	app.UseWebAssemblyDebugging();
-	app.UseMigrationsEndPoint();
+		}
+
+	}
+
+	private static async Task StartWebsite(string[] args)
+	{
+
+		var builder = WebApplication.CreateBuilder(args);
+
+		var configure = ConfigureTagzAppFactory.Create(builder.Configuration, null);
+
+		var appConfig = await ApplicationConfiguration.LoadFromConfiguration(configure);
+		builder.Services.AddSingleton(appConfig);
+
+		// Add services to the container.
+		builder.Services.AddRazorComponents()
+				.AddInteractiveServerComponents()
+				.AddInteractiveWebAssemblyComponents();
+
+		builder.Services.AddSignalR();
+
+		await builder.Services.AddTagzAppHostedServices(configure);
+
+		// TODO: Convert from RazorPages policies to Blazor
+		//builder.Services.AddRazorPages(options =>
+		//{
+		//	options.Conventions.AuthorizeAreaFolder("Admin", "/", Security.Policy.AdminRoleOnly);
+		//	options.Conventions.AuthorizePage("/Moderation", Security.Policy.Moderator);
+		//	options.Conventions.AuthorizePage("/BlockedUsers", Security.Policy.Moderator);
+		//});
+
+
+		// Configure the forwarded headers to allow Container hosting support
+		builder.Services.Configure<ForwardedHeadersOptions>(options =>
+		{
+			options.ForwardedHeaders = ForwardedHeaders.All;
+			// Only loopback proxies are allowed by default.
+			// Clear that restriction because forwarders are enabled by explicit
+			// configuration.
+			options.KnownNetworks.Clear();
+			options.KnownProxies.Clear();
+		});
+
+		var app = builder.Build();
+
+		// Configure the HTTP request pipeline.
+		if (app.Environment.IsDevelopment())
+		{
+			app.UseWebAssemblyDebugging();
+			app.UseMigrationsEndPoint();
+		}
+		else
+		{
+			app.UseExceptionHandler("/Error", createScopeForErrors: true);
+			// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+			app.UseHsts();
+			app.UseResponseCompression();
+		}
+
+		app.UseHttpsRedirection();
+
+		app.UseStaticFiles();
+		app.UseAntiforgery();
+
+		app.MapRazorComponents<App>()
+				.AddInteractiveServerRenderMode()
+				.AddInteractiveWebAssemblyRenderMode()
+				.AddAdditionalAssemblies(typeof(TagzApp.Blazor.Client._Imports).Assembly);
+
+		// Add additional endpoints required by the Identity /Account Razor components.
+		app.MapAdditionalIdentityEndpoints();
+
+		app.MapHub<TagzApp.Blazor.Hubs.MessageHub>("/messages");
+
+		await app.RunAsync(_Source.Token);
+
+	}
 }
-else
-{
-	app.UseExceptionHandler("/Error", createScopeForErrors: true);
-	// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-	app.UseHsts();
-}
-
-app.UseHttpsRedirection();
-
-app.UseStaticFiles();
-app.UseAntiforgery();
-
-app.MapRazorComponents<App>()
-		.AddInteractiveServerRenderMode()
-		.AddInteractiveWebAssemblyRenderMode()
-		.AddAdditionalAssemblies(typeof(TagzApp.Blazor.Client._Imports).Assembly);
-
-// Add additional endpoints required by the Identity /Account Razor components.
-app.MapAdditionalIdentityEndpoints();
-
-app.Run();

@@ -1,8 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
-@using TagzApp.Blazor.Data
 
-@inject SignInManager<ApplicationUser> SignInManager
+@inject SignInManager<TagzAppUser> SignInManager
 @inject IdentityRedirectManager RedirectManager
 
 @if (externalLogins.Length == 0)
