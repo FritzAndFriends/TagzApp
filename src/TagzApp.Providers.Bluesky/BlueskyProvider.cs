@@ -109,6 +109,15 @@ public class BlueskyProvider : ISocialMediaProvider
 				if (!actor.IsT1)
 				{
 
+					var actorRecord = actor.HandleResult();
+
+					// The Actor Did.
+					var did = message.Commit.Repo;
+					// Commit.Ops are the actions used when creating the message.
+					// In this case, it's a create record for the post.
+					// The path contains the post action and path, we need the path, so we split to get it.
+					var postUrl = $"https://bsky.app/profile/{did}/post/{message.Commit.Ops![0]!.Path!.Split("/").Last()}";
+
 					_messageQueue.Enqueue(
 						new Content
 						{
@@ -116,12 +125,12 @@ public class BlueskyProvider : ISocialMediaProvider
 							{
 								DisplayName = actor.AsT0?.Value!.DisplayName!,
 								UserName = actor.AsT0?.Value!.Type,
-								ProfileImageUri = new Uri($"https://cdn.bsky.app/img/avatar/plain/{message.Commit.Repo!.ToString().Replace("did:plc:did:plc:", "did:plc:")}/{actor.AsT0?.Value.Avatar.Ref.Link}@jpeg"),
-								ProfileUri = new Uri("https://bsky.app") // Syntax is like: https://bsky.app/profile/csharpfritz.com
+								ProfileImageUri = new Uri($"https://{_AtProtocol.Options.Url.Host}{Constants.Urls.ATProtoSync.GetBlob}?did={actorRecord.Uri.Did!}&cid={actorRecord.Value.Avatar.Ref.Link}"),
+								ProfileUri = new Uri($"https://bsky.app/profile/{did}") // Syntax is like: https://bsky.app/profile/csharpfritz.com
 							},
 							Provider = Id,
 							ProviderId = message.Commit.Commit.Hash.ToString(),
-							SourceUri = new Uri("https://bsky.app/"), // syntax is like:  https://bsky.app/profile/csharpfritz.com/post/3kgj4nty7vp2t
+							SourceUri = new Uri(postUrl), 
 							Timestamp = new DateTimeOffset(post.CreatedAt!.Value).ToUniversalTime(),
 							HashtagSought = theTag,
 							Text = post.Text,
