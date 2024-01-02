@@ -130,7 +130,7 @@ public class BlueskyProvider : ISocialMediaProvider
 							},
 							Provider = Id,
 							ProviderId = message.Commit.Commit.Hash.ToString(),
-							SourceUri = new Uri(postUrl), 
+							SourceUri = new Uri(postUrl),
 							Timestamp = new DateTimeOffset(post.CreatedAt!.Value).ToUniversalTime(),
 							HashtagSought = theTag,
 							Text = post.Text,
