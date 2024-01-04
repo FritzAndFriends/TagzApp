@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
 using System.Text;
 using System.Web;
-using TagzApp.Web.Services;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace TagzApp.Storage.Postgres.SafetyModeration;

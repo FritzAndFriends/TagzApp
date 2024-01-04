@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using TagzApp.Web.Pages.Shared;
-using TagzApp.Web.Services;
 
 namespace TagzApp.Web.Areas.Admin.Pages;
 

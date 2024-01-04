@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using TagzApp.Web.Services;
 
 namespace TagzApp.Storage.Postgres;
 

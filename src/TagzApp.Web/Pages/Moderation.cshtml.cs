@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using TagzApp.Web.Services;
 
 namespace TagzApp.Web.Pages;
 

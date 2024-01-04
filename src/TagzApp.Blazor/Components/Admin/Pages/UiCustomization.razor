@@ -1,0 +1,70 @@
+﻿@page "/admin/uicustomization"
+@using PSC.Blazor.Components.MarkdownEditor
+@using PSC.Blazor.Components.MarkdownEditor.Enums
+@layout AdminLayout
+@inject ApplicationConfiguration ApplicationConfiguration
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<dl>
+
+	<dt><label for="SiteName">Site Name:</label></dt>
+	<dd><input name="SiteName" @bind="@ApplicationConfiguration.SiteName" /></dd>
+
+	<dt><label>Moderation Enabled:</label></dt>
+	<dd>
+		<InputRadioGroup @bind-Value="@ApplicationConfiguration.ModerationEnabled">
+			<InputRadio Value="true" />Enabled
+			<InputRadio Value="false" />Disabled
+		</InputRadioGroup>
+	</dd>
+
+	<dt><label for="WaterfallHeaderCss">Waterfall header CSS:</label></dt>
+	<dd>
+		<InputTextArea name="WaterfallHeaderCss"
+									 @bind-Value="@ApplicationConfiguration.WaterfallHeaderCss"
+									 style="width: 40em; height: 10em"></InputTextArea>
+	</dd>
+
+	<dt><label for="WaterfallHeaderMarkdown">Waterfall Header (markdown):</label></dt>
+	<dd data-permanent>
+		<MarkdownEditor Value="@ApplicationConfiguration.WaterfallHeaderMarkdown"
+										ValueChanged="@OnMarkdownValueChanged"
+										AutoDownloadFontAwesome="true">
+			<Toolbar>
+				<MarkdownToolbarButton Action="MarkdownAction.Bold" Icon="fa fa-bold" />
+				<MarkdownToolbarButton Action="MarkdownAction.Italic" Icon="fa fa-italic" />
+				<MarkdownToolbarButton Action="MarkdownAction.Heading" Separator Icon="fa fa-header" />
+				<MarkdownToolbarButton Action="MarkdownAction.HeadingSmaller" Icon="fa fa-sm fa-header" />
+				<MarkdownToolbarButton Action="MarkdownAction.HeadingBigger" Icon="fa fa-lg fa-header" />
+				<MarkdownToolbarButton Action="MarkdownAction.Heading1" Separator Icon="bi bi-type-h1" />
+				<MarkdownToolbarButton Action="MarkdownAction.Heading2" Icon="bi bi-type-h2" />
+				<MarkdownToolbarButton Action="MarkdownAction.Heading3" Icon="bi bi-type-h3" />
+				<MarkdownToolbarButton Action="MarkdownAction.Guide" Separator Icon="fa fa-question-circle" />
+			</Toolbar>
+		</MarkdownEditor>
+	</dd>
+
+</dl>
+
+<input type="submit" value="Save Changes" class="btn btn-primary" @onclick="SaveChanges" />
+
+@code {
+
+	Task OnMarkdownValueChanged(string value)
+	{
+		ApplicationConfiguration.WaterfallHeaderMarkdown = value;
+		return Task.CompletedTask;
+	}
+
+	async Task SaveChanges()
+	{
+
+		await ApplicationConfiguration.SaveConfiguration(ConfigureTagzAppFactory.Current);
+
+	}
+
+}

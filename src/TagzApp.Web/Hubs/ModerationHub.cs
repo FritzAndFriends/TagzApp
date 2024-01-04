@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 using TagzApp.Web.Data;
-using TagzApp.Web.Services;
 
 namespace TagzApp.Web.Hubs;
 

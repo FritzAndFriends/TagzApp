@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Primitives;
-using TagzApp.Web.Services;
 
 namespace TagzApp.Web.Areas.Admin.Pages
 {

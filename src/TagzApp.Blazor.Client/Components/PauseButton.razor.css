@@ -1,0 +1,27 @@
+﻿#pauseUpdates {
+	position: absolute;
+	left: 1em;
+	top: calc(100dvh - 6em);
+	cursor: pointer;
+	z-index: 50;
+	opacity: 0.6;
+}
+
+#pauseUpdates:hover {
+	opacity: 1;
+}
+
+#pauseButton {
+	position: absolute;
+	left: 0;
+	font-size: 4rem;
+	z-index: 1;
+}
+
+#pauseButton-bg {
+	position: absolute;
+	left: 0;
+	font-size: 4rem;
+	z-index: -1;
+	color: #fff;
+}

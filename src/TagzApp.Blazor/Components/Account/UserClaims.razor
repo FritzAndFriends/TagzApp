@@ -1,0 +1,65 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using System.Security.Claims
+@inject UserManager<TagzAppUser> UserManager
+
+<AuthorizeView>
+	<Authorized>
+		<p>Hello, @context.User.Claims.First(c => c.Type == "DisplayName").Value!</p>
+		<p>Click <NavLink href="Identity/Account/Manage">here</NavLink> to manage your profile.</p>
+
+		@* Write out the list of claims for this user *@
+		<dl class="row">
+			<dt class="col-sm-2">
+				Claim Type
+			</dt>
+			<dd class="col-sm-10">
+				Claim Value
+			</dd>
+			@foreach (var claim in context.User.Claims.Where(c => c.Type == ClaimTypes.Role))
+			{
+				<dt class="col-sm-2">
+					@claim.Type
+				</dt>
+				<dd class="col-sm-10">
+					@claim.Value
+				</dd>
+			}
+		</dl>
+
+		@* Write out the list of roles for this user *@
+		<dl class="row">
+			<dt class="col-sm-2">
+				Roles
+			</dt>
+			<dd class="col-sm-10">
+				@string.Join(", ", new string[] {
+				context.User.IsInRole(RolesAndPolicies.Role.Admin) ? "Admin" : "",
+				context.User.IsInRole(RolesAndPolicies.Role.Moderator) ? "Mod" : ""
+					})
+			</dd>
+		</dl>
+
+		<button @onclick="() => AddToAdmin(context.User)">Add to Admin</button>
+
+		@Message
+
+	</Authorized>
+</AuthorizeView>
+
+@code {
+
+	string Message = string.Empty;
+
+	async Task AddToAdmin(ClaimsPrincipal user)
+	{
+
+		var tzUser = await UserManager.GetUserAsync(user);
+		var result = await UserManager.AddClaimsAsync(tzUser, new Claim[] {
+			new Claim(ClaimTypes.Role, RolesAndPolicies.Role.Admin)
+	});
+
+		Message = result.Succeeded ? "Added to Admin" : "Failed to add to Admin";
+
+	}
+
+}

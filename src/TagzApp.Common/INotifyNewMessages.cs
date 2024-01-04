@@ -1,4 +1,4 @@
-﻿namespace TagzApp.Web.Services;
+﻿namespace TagzApp.Common;
 
 public interface INotifyNewMessages
 {

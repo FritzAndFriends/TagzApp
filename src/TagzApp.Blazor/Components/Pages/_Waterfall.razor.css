@@ -1,0 +1,43 @@
+﻿#floatingHeader {
+	position: fixed;
+	top: 0;
+	width: 100%;
+	z-index: 1000;
+}
+
+.scrollOut {
+	animation-name: scrollUp;
+	animation-duration: 2s;
+	animation-fill-mode: forwards;
+}
+
+.scrollIn {
+	animation-name: scrollIn;
+	animation-duration: 1s;
+	animation-fill-mode: forwards;
+}
+
+@keyframes scrollUp {
+	from {
+		top: 0;
+	}
+
+	to {
+		top: -200px;
+	}
+}
+
+@keyframes scrollIn {
+	from {
+		top: -200px;
+	}
+
+	to {
+		top: 0;
+	}
+}
+
+.container {
+	padding-right: 0 !important;
+	padding-left: 0 !important;
+}

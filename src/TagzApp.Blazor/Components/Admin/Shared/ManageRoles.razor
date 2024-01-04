@@ -1,0 +1,126 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<TagzAppUser> UserManager
+
+<div id="ManageRolesDialog" class="modal fade @modalClass" role="dialog"
+		 style="display:@modalDisplay; overflow-y: auto;"
+		 @onkeyup="HandleKeyPress"
+		 @onclick="Close">
+
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-inner">
+
+			<div class="modal-content" @onclick:stopPropagation="true">
+				<div class="modal-header">
+					<h3>Manage Roles for the user @CurrentUser.DisplayName</h3>
+					<button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" @onclick="Close">
+					</button>
+				</div>
+
+				<div class="modal-body">
+
+						<div class="form-group">
+							<label for="role">Assigned Roles:</label>
+							<p>
+								<select id="role" name="role" multiple class="mb-3" @bind="SelectedRoles">
+									@foreach (var role in Roles)
+									{
+										<option value="@role" selected="@UserRoles.Contains(role)">@role</option>
+									}
+								</select>
+							</p>
+						</div>
+						<div class="form-group">
+							<button @onclick="SaveRoles" class="btn btn-primary">Update Roles</button>
+						</div>
+
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+</div>
+
+@if (showBackdrop)
+{
+	<div class="modal-backdrop fade show"></div>
+}
+
+@code {
+
+	[Parameter]
+	public TagzAppUser CurrentUser { get; set; }
+
+	[Parameter]
+	public EventCallback OnComplete { get; set; }
+
+	private List<string> UserRoles { get; set; } = new();
+
+	private string[] SelectedRoles = [];
+
+	private IEnumerable<string> Roles { get; set; } = RolesAndPolicies.Role.AllRoles;
+
+	private string modalDisplay = "none;";
+	private string modalClass = string.Empty;
+	private bool showBackdrop = false;
+
+	protected override async Task OnParametersSetAsync()
+	{
+
+		if (CurrentUser.DisplayName is not null)
+		{
+			UserRoles = (await UserManager.GetRolesAsync(CurrentUser)).ToList();
+			SelectedRoles = UserRoles.ToArray();
+		}
+
+		await base.OnParametersSetAsync();
+
+	}
+
+	async Task SaveRoles()
+	{
+
+		var result = await UserManager.RemoveFromRolesAsync(CurrentUser, UserRoles); // remove existing roles
+
+		if (!result.Succeeded)
+		{
+			//MessageProcessingHandler = "Failed to remove existing role(s)";
+			return;
+		}
+
+		result = await UserManager.AddToRolesAsync(CurrentUser, SelectedRoles); // assign new roles
+
+		return;
+
+	}
+
+
+	public async Task HandleKeyPress(KeyboardEventArgs e)
+	{
+		if (e.Key == "Escape")
+		{
+			Close();
+		}
+	}
+
+	public async Task Open()
+	{
+		modalDisplay = "block";
+		modalClass = "show";
+		showBackdrop = true;
+		StateHasChanged();
+
+		await Task.Delay(700);
+		StateHasChanged();
+
+	}
+
+	public void Close()
+	{
+		modalDisplay = "none";
+		modalClass = string.Empty;
+		showBackdrop = false;
+		StateHasChanged();
+	}
+
+	}

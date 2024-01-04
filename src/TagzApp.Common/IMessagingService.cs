@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Hosting;
 
-namespace TagzApp.Web.Services;
+namespace TagzApp.Common;
 
 public interface IMessagingService : IHostedService
 {
