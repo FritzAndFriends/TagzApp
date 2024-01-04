@@ -1,0 +1,45 @@
+﻿@using Microsoft.AspNetCore.Components.Sections
+@inherits LayoutComponentBase
+@layout Layout.MainLayout
+
+<h1>System Administration</h1>
+
+<div>
+	<hr />
+	<div class="row">
+		<div class="col-md-3">
+			<AdminNavMenu />
+		</div>
+		<div class="col-md-9">
+			@Body
+		</div>
+	</div>
+</div>
+
+<HeadContent>
+	<link href="/_content/PSC.Blazor.Components.MarkdownEditor/css/easymde.min.css" rel="stylesheet" />
+	<style>
+		.editor-toolbar {
+			background-color: #FFF;
+		}
+		.editor-statusbar {
+			background-color: #CCC;
+			color: #333;
+		}
+		.editor-toolbar .fa, .editor-toolbar .bi {
+			color: #000;
+		}
+
+		.editor-toolbar button.heading-1::after { content: '' }
+		.editor-toolbar button.heading-2::after { content: '' }
+		.editor-toolbar button.heading-3::after { content: ''	}
+
+	</style>
+</HeadContent>
+
+<SectionContent SectionName="scripts">
+
+	<script src="/_content/PSC.Blazor.Components.MarkdownEditor/js/easymde.min.js"></script>
+	<script src="/_content/PSC.Blazor.Components.MarkdownEditor/js/markdownEditor.js"></script>
+
+</SectionContent>

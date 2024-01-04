@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
-using TagzApp.Security;
 using TagzApp.ViewModels.Data;
 
 namespace TagzApp.Blazor.Hubs;

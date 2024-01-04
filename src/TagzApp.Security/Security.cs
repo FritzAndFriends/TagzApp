@@ -11,6 +11,9 @@ public static class RolesAndPolicies
 		public const string Admin = "Admin";
 
 		public const string Moderator = "Moderator";
+
+		public static readonly string[] AllRoles = [Admin, Moderator];
+
 	}
 
 	public static class Policy

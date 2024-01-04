@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using TagzApp.Communication;
 using TagzApp.Providers.YouTubeChat;
-using TagzApp.Web.Data;
 
 namespace TagzApp.Web.Areas.Admin.Pages
 {

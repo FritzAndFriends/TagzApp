@@ -49,7 +49,7 @@
 		return base.OnAfterRenderAsync(firstRender);
 	}
 
-	internal static string MapProviderToIcon(string provider) =>
+	public static string MapProviderToIcon(string provider) =>
 	provider?.ToLowerInvariant().Trim() switch
 		{
 			"twitter" => "bi-twitter-x",

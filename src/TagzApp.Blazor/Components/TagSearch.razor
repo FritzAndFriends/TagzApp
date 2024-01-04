@@ -1,0 +1,49 @@
+﻿@rendermode InteractiveServer
+@inject IMessagingService MessagingService
+
+<form @onsubmit="AddTag" class="form-inline">
+<input name="NewTag" placeholder="New Hashtag" @bind="@Model.NewTag" disabled="@Model.Tags.Any()" />	
+
+<input type="submit" aria-role="button" 
+	name="Add" value="Add" disabled="@Model.Tags.Any()" 
+	 />
+
+</form>
+
+<ul>
+	@foreach (var tag in Model.Tags)
+	{
+		<li class="hashtags">@tag</li>
+	}
+</ul>
+
+@code {
+
+	public TagSearchModel Model { get; set; } = new();
+
+	protected override Task OnInitializedAsync()
+	{
+
+		Model.Tags = MessagingService.TagsTracked.ToList();
+
+		return base.OnInitializedAsync();
+	}
+
+	async Task AddTag()
+	{
+
+		Console.WriteLine("Adding Tag");
+
+		await MessagingService.AddHashtagToWatch(Model.NewTag);
+		Model.Tags.Add(Model.NewTag);
+		Model.NewTag = string.Empty;
+
+	}
+
+	public class TagSearchModel
+	{
+		public string NewTag { get; set; } = string.Empty;
+		public List<string> Tags { get; set; } = new List<string>();
+	}
+
+}

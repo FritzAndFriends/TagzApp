@@ -1,0 +1,102 @@
+﻿@page "/overlay"
+@using Microsoft.AspNetCore.Components.Sections
+@using Microsoft.AspNetCore.SignalR.Client
+@layout Layout.EmptyLayout
+@inject IMessagingService svc
+@inject IJSRuntime JS
+@rendermode InteractiveServer
+
+<HeadContent>
+	<style>
+		body {
+			background-color: #00b140;
+		}
+	</style>
+</HeadContent>
+
+@if (Content is not null)
+{
+	<div id="overlayDisplay" class="@(Content.PreviewCard is null ? "show" : "showPreview")" data-url="@Content.SourceUri" data-provider="@Content.Provider">
+		<img class="ProfilePicture" src="@Content.AuthorProfileImageUri" alt="@Content.AuthorDisplayName" onerror="this.src='/img/user.jpg';" />
+		<div class="byline">
+			<div class="author">@Content.AuthorDisplayName</div>
+			<div class="authorUserName">@Content.AuthorUserName</div>
+		</div>
+		<i class="provider bi @WaterfallMessage.MapProviderToIcon(Content.Provider)"></i>
+		<span class="time">${new Date(content.timestamp).toLocaleString(undefined, { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+
+		<span class="content">@Content.FormatContentWithEmotes()</span>
+
+		@if (Content.PreviewCard is not null)
+		{
+			<span class="contentcard">
+				<img src="@Content.PreviewCard.ImageUri" class="card-img-top" alt="@Content.PreviewCard.AltText}" onerror="this.onerror=null; window.TagzApp.FixEmbedImage(this);" />
+		</span>
+		}
+	</div>
+}
+
+<SectionContent SectionName="scripts">
+	<script>
+		function FormatDateTime(theDate) {
+			var formattedDateTime = new Date(theDate).toLocaleString(undefined, { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+			document.querySelector(".time").innerHTML = formattedDateTime;
+		}
+	</script>
+</SectionContent>
+
+
+@code {
+
+	public string Tag { get; set; }
+
+	public ViewModels.Data.ContentModel Content { get; set; } = null!;
+
+	protected override Task OnInitializedAsync()
+	{
+		Tag = svc.TagsTracked.Any() ? svc.TagsTracked.First() : string.Empty;
+		if (!string.IsNullOrEmpty(Tag)) ConnectToSignalR(Tag);
+		return base.OnInitializedAsync();
+	}
+
+	private async Task ConnectToSignalR(string tagTracked)
+	{
+
+		// Connect to the SignalR hub listening at /messages
+		// Create a new connection
+		var connection = new HubConnectionBuilder()
+				.WithUrl($"/messages?ot={tagTracked}")
+				.WithAutomaticReconnect([
+					TimeSpan.FromSeconds(0),
+			TimeSpan.FromSeconds(2),
+			TimeSpan.FromSeconds(5),
+			TimeSpan.FromSeconds(10),
+			TimeSpan.FromSeconds(30),
+			TimeSpan.FromSeconds(30),
+			TimeSpan.FromSeconds(30),
+			TimeSpan.FromSeconds(30),
+			TimeSpan.FromSeconds(30),
+			TimeSpan.FromSeconds(30),
+			TimeSpan.FromSeconds(30)
+				])
+				.Build();
+
+		connection.On<ViewModels.Data.ContentModel>("DisplayOverlay", async (content) =>
+		{
+			Content = content;
+			StateHasChanged();
+			await JS.InvokeVoidAsync("window.FormatDateTime", content.Timestamp);
+		});
+
+
+		// When the connection is closed, print out a message to the console.
+		connection.Closed += async (error) =>
+		{
+			await Task.Delay(new Random().Next(0, 5) * 1000);
+			await connection.StartAsync();
+		};
+
+
+	}
+
+}

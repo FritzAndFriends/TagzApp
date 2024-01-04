@@ -1,0 +1,57 @@
+﻿@page "/admin/users"
+@using Gravatar
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@layout Admin.Shared.AdminLayout
+@inject UserManager<TagzAppUser> UserManager
+@rendermode InteractiveServer
+
+<h3>User Roles Management</h3>
+
+<table>
+	<tr>
+		@*<th>User ID</th>*@
+		<th style="width:20em; padding-left: 85px;">Name</th>
+		<th>User Email</th>
+		<th>Action</th>
+	</tr>
+	@foreach (var user in UserList.OrderBy(u => u.DisplayName))
+	{
+		<tr>
+			<td>
+				<img class="gravatar" title="Gravatar" src="@user.Email.ToGravatar()" />
+				@user.DisplayName
+			</td>
+			<td>@user.Email</td>
+			<td><span style="cursor: pointer" class="link-primary nav-link" @onclick="@(() => AssignRoles(user))">Assign Roles</span></td>
+		</tr>
+	}
+</table>
+
+<ManageRoles @ref="ManageRolesDialog" CurrentUser="SelectedUser" OnComplete="CloseManageRoles" />
+
+@code {
+
+	private List<TagzAppUser> UserList { get; set; } = [];
+
+	private TagzAppUser SelectedUser { get; set; } = new();
+
+	private ManageRoles ManageRolesDialog = new();
+
+	override protected async Task OnInitializedAsync()
+	{
+		UserList = await UserManager.Users.ToListAsync();
+	}
+
+	private async Task AssignRoles(TagzAppUser user)
+	{
+		SelectedUser = user;
+		await ManageRolesDialog.Open();
+	}
+
+	private void CloseManageRoles()
+	{
+		SelectedUser = null;
+	}
+
+}

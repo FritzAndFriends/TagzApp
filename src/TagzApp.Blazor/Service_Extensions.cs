@@ -61,13 +61,11 @@ public static class Service_Extensions
 			await services.AddSecurityContext(configure);
 			services.AddDatabaseDeveloperPageExceptionFilter();
 
-			// Add DataProtection services
 			services.AddIdentityCore<TagzAppUser>(options =>
 									options.SignIn.RequireConfirmedAccount = true
 							)
+							.AddRoles<IdentityRole>()
 							.AddEntityFrameworkStores<SecurityContext>()
-							//.AddRoles<IdentityRole>()
-							//.AddRoleManager<IdentityRole>()
 							.AddSignInManager()
 							.AddDefaultTokenProviders();
 
@@ -99,7 +97,7 @@ public static class Service_Extensions
 		if (connectionSettings.SecurityProvider.Equals("postgres", StringComparison.InvariantCultureIgnoreCase))
 		{
 
-			services.AddPostgresSecurityServices( connectionSettings);
+			services.AddPostgresSecurityServices(connectionSettings);
 
 		}
 		else if (connectionSettings.SecurityProvider.Equals("sqlite", StringComparison.InvariantCultureIgnoreCase))

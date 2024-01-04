@@ -1,6 +1,7 @@
 ﻿@page "/Account/Register"
 
 @using System.ComponentModel.DataAnnotations
+@using System.Security.Claims
 @using System.Text
 @using System.Text.Encodings.Web
 @using Microsoft.AspNetCore.Identity
@@ -79,6 +80,8 @@
             return;
         }
 
+				await AssignAdminForFirstUser();
+
         Logger.LogInformation("User created a new account with password.");
 
         var userId = await UserManager.GetUserIdAsync(user);
@@ -122,6 +125,19 @@
         }
         return (IUserEmailStore<TagzAppUser>)UserStore;
     }
+
+		private async Task AssignAdminForFirstUser()
+		{
+
+			if (UserManager.Users.Count() == 1)
+			{
+
+				var user = UserManager.Users.First();
+				await UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, RolesAndPolicies.Role.Admin));
+
+			}
+
+		}
 
     private sealed class InputModel
     {

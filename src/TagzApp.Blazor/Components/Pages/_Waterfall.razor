@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Components.Sections
 @inject IJSRuntime JSRuntime
 @inject IMessagingService MessagingService
+@inject ApplicationConfiguration AppConfig
 @layout Layout.WaterfallLayout
 @rendermode InteractiveServer
 
@@ -35,13 +36,34 @@
 
 		</div>
 
-		<Waterfall TagTracked="@MessagingService.TagsTracked.First()" />
+		@if (MessagingService.TagsTracked.Any())
+		{
+			<Waterfall TagTracked="@MessagingService.TagsTracked.First()" />
+		} else
+		{
+		@* HAL - output a DIV that is centered on the screen and report that no tags are being tracked*@
+			<div class="d-flex justify-content-center align-items-center" style="height: 100vh; width: 100vw;">
+			<div class="text-center">
+				<h3 class="display-4">No Tags Tracked</h3>
+				<p class="lead">Click the <i class="bi bi-three-dots"></i> button in the header to start tracking tags.</p>
+			</div>
+			</div>
+		}
 
 	</main>
 
 	<div id="footerFade"></div>
 
 </div>
+
+@if (AppConfig.WaterfallHeaderCss is not null)
+{
+	<HeadContent>
+		<style>
+			@WaterfallHeaderCss
+		</style>
+</HeadContent>
+}
 
 @code {
 
@@ -50,7 +72,6 @@
 			FloatingHeader = true
 		};
 
-	private ApplicationConfiguration AppConfig = new();
 	private string _WaterfallHeaderContent;
 	private string _FloatingHeaderCssClass = "";
 	private bool _EnableHeaderScrollOut = false;
@@ -60,7 +81,6 @@
 
 		// Convert markdown to HTML
 		_WaterfallHeaderContent = Markdig.Markdown.ToHtml(AppConfig.WaterfallHeaderMarkdown);   // TODO: Get the AppConfig from the server
-		AppConfig = new();
 
 		UiState.UiUpdate += async (sender, args) =>
 		{
@@ -104,5 +124,38 @@
 		}
 
 	}
+
+	public string WaterfallHeaderCss
+	{
+		get
+		{
+			var theCSS = AppConfig.WaterfallHeaderCss;
+			if (string.IsNullOrWhiteSpace(theCSS))
+			{
+				return "";
+			}
+
+			var theRules = theCSS.Split('}', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+			var outCSS = new System.Text.StringBuilder();
+			foreach (var rule in theRules)
+			{
+
+				if (!rule.StartsWith(".waterfallHeader"))
+				{
+					outCSS.Append(".waterfallHeader ");
+				}
+
+				rule.Replace(Environment.NewLine, "");
+				outCSS.Append(rule);
+				outCSS.Append("}");
+				outCSS.Append(Environment.NewLine);
+
+			}
+
+			return outCSS.ToString();
+
+		}
+	}
+
 }
 

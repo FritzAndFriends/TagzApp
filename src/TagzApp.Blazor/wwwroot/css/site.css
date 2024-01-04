@@ -271,10 +271,13 @@ span.invisible {
 
 /** Overlay Display **/
 
+/*
+MOVED TO THE  HeadContent in Overlay.razor
+
 #overlayBody {
 	background-color: #00b140;
 }
-
+*/
 #overlayDisplay.show,
 #overlayDisplay.showPreview {
 	background-color: white;

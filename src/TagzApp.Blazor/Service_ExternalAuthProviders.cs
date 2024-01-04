@@ -44,7 +44,7 @@ public static class Service_ExternalAuthProviders
 		builder.AddExternalProvider("GitHub", configuration, options => builder.AddGitHub(options));
 		builder.AddExternalProvider("LinkedIn", configuration, options => builder.AddLinkedIn(options));
 
-		AddYouTubeProvider(builder, configuration);
+		// AddYouTubeProvider(builder, configuration);
 
 		return builder;
 	}

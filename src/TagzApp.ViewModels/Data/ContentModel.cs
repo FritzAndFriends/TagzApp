@@ -46,5 +46,10 @@ public record ContentModel(
 		);
 	}
 
+	public string FormatContentWithEmotes()
+	{
+		// TODO: Format the content with emotes
+		return Text;
+	}
 
 }

@@ -74,7 +74,7 @@
 			}
 		}
 
-if (Input.DisplayName != displayName)
+		if (Input.DisplayName != displayName)
 		{
 			user.DisplayName = Input.DisplayName;
 			var setDisplayNameResult = await UserManager.UpdateAsync(user);
@@ -84,7 +84,12 @@ if (Input.DisplayName != displayName)
 			}
 
 			// Set the DisplayName claim for this user
-			var setDisplayNameClaimResult = await UserManager.AddClaimAsync(user, new Claim("DisplayName", Input.DisplayName));
+			if ((await UserManager.GetClaimsAsync(user)).Any(c => c.Type == "DisplayName"))
+			{
+				var removeDisplayNameClaimResult = await UserManager.ReplaceClaimAsync(user, new Claim("DisplayName", displayName), new Claim("DisplayName", Input.DisplayName));
+			} else {
+				var setDisplayNameClaimResult = await UserManager.AddClaimAsync(user, new Claim("DisplayName", Input.DisplayName));
+			}
 
 		}
 
@@ -98,7 +103,7 @@ if (Input.DisplayName != displayName)
 		[Display(Name = "Phone number")]
 		public string? PhoneNumber { get; set; }
 
-		[Display(Name="Display name")]
+		[Display(Name = "Display name")]
 		public string? DisplayName { get; set; }
 
 	}
