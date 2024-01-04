@@ -26,18 +26,18 @@
 						{
 							<AuthorizeView Policy="@RolesAndPolicies.Policy.Moderator">
 								<li class="nav-item">
-									<a class="nav-link" asp-area="" asp-page="/Moderation">Moderation</a>
+									<NavLink class="nav-link" href="/Moderation">Moderation</NavLink>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link" asp-area="" asp-page="/BlockedUsers">Blocked Users</a>
+									<NavLink class="nav-link" href="/BlockedUsers">Blocked Users</NavLink>
 								</li>
 							</AuthorizeView>
 						}
 						<li class="nav-item">
-							<a class="nav-link" target="_blank" href="/Overlay">Overlay</a>
+							<NavLink class="nav-link" target="_blank" href="/Overlay">Overlay</NavLink>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link" target="_blank" href="/PortraitOverlay">Portrait Overlay</a>
+							<NavLink class="nav-link" target="_blank" href="/PortraitOverlay">Portrait Overlay</NavLink>
 						</li>
 					</ul>
 
