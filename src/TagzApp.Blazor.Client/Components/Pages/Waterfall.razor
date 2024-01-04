@@ -7,7 +7,7 @@
 
 <div id="taggedContent" class="">
 
-	@foreach (var content in _Content.Values)
+	@foreach (var content in _Content.Values.Reverse())
 	{
 		<WaterfallMessage Content="content" OnContentSelected="ShowModal" />
 	}
@@ -16,13 +16,11 @@
 
 <PauseButton @ref="thePauseButton" />
 
-<div id="footerFade"></div>
-
 <WaterfallModal @ref="Modal" Content="ModalContent" />
 
 @code {
 
-	private SortedList<DateTime, TagzApp.ViewModels.Data.ContentModel> _Content = new();
+	private SortedList<DateTimeOffset, TagzApp.ViewModels.Data.ContentModel> _Content = new();
 
 	WaterfallModal Modal = new();
 	ContentModel ModalContent = null!;
@@ -45,7 +43,7 @@
 
 		foreach (var content in existingContent)
 		{
-			_Content.Add(DateTime.Now, content);
+			_Content.Add(content.Timestamp, content);
 		}
 
 		// _Content.Add(
@@ -76,7 +74,7 @@
 
 		_Connection.On<ContentModel>("ReceiveContent", (content) =>
 		{
-			_Content.Add(DateTime.Now, content);
+			_Content.Add(content.Timestamp, content);
 			StateHasChanged();
 		});
 

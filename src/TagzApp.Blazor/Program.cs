@@ -59,6 +59,8 @@ internal class Program
 				.AddInteractiveServerComponents()
 				.AddInteractiveWebAssemblyComponents();
 
+		await builder.Services.AddTagzAppSecurity(configure, builder.Configuration);
+
 		builder.Services.AddSignalR();
 
 		await builder.Services.AddTagzAppHostedServices(configure);

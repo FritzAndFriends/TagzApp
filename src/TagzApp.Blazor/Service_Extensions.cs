@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -66,7 +66,8 @@ public static class Service_Extensions
 									options.SignIn.RequireConfirmedAccount = true
 							)
 							.AddEntityFrameworkStores<SecurityContext>()
-							.AddRoles<IdentityRole>()
+							//.AddRoles<IdentityRole>()
+							//.AddRoleManager<IdentityRole>()
 							.AddSignInManager()
 							.AddDefaultTokenProviders();
 

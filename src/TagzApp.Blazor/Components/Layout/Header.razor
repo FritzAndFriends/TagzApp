@@ -1,15 +1,17 @@
-﻿@* @using Microsoft.AspNetCore.Authorization; *@
-@* @inject IAuthorizationService AuthorizationService *@
+﻿@using Microsoft.AspNetCore.Authorization;
+@using TagzApp.Blazor.Components.Account
+@inject IAuthorizationService AuthorizationService
 @inject ApplicationConfiguration AppConfiguration
+
 
 <header>
 	<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3 bg-body">
 		<div class="container">
 			<a class="navbar-brand" href="/">@AppConfiguration.SiteName</a>
 
-@* 			@if (ConfigureTagzAppFactory.IsConfigured)
+			@if (ConfigureTagzAppFactory.IsConfigured)
 			{
- *@				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
 								aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
 				</button>
@@ -20,15 +22,17 @@
 							<NavLink class="nav-link" href="/Waterfall">Waterfall</NavLink>
 						</li>
 
-						@* if (AppConfiguration.ModerationEnabled && (await AuthorizationService.AuthorizeAsync(User, Security.Policy.Moderator)).Succeeded)
+						@if (AppConfiguration.ModerationEnabled)
 						{
-							<li class="nav-item">
-								<a class="nav-link" asp-area="" asp-page="/Moderation">Moderation</a>
-							</li>
-							<li class="nav-item">
-								<a class="nav-link" asp-area="" asp-page="/BlockedUsers">Blocked Users</a>
-							</li>
-						} *@
+							<AuthorizeView Policy="@RolesAndPolicies.Policy.Moderator">
+								<li class="nav-item">
+									<a class="nav-link" asp-area="" asp-page="/Moderation">Moderation</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" asp-area="" asp-page="/BlockedUsers">Blocked Users</a>
+								</li>
+							</AuthorizeView>
+						}
 						<li class="nav-item">
 							<a class="nav-link" target="_blank" href="/Overlay">Overlay</a>
 						</li>
@@ -37,16 +41,17 @@
 						</li>
 					</ul>
 
-					@* <partial name="_LoginPartial" /> *@
+					<LoginView />
 
 				</div>
-			@* } *@
+			}
 
 		</div>
 	</nav>
 </header>
-
-
 @code {
+
+	[CascadingParameter]
+	private HttpContext HttpContext { get; set; } = default!;
 
 }

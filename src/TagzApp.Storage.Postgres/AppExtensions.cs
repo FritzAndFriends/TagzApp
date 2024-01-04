@@ -50,7 +50,7 @@ public static class AppExtensions
 		{
 			options.UseNpgsql(connectionSettings.SecurityConnectionString,
 			pg => pg.MigrationsAssembly(typeof(TagzApp.Storage.Postgres.Security.Migrations.SecurityContextModelSnapshot).Assembly.FullName));
-		});
+		}); //, ServiceLifetime.Transient);
 
 		var serviceLocator = services.BuildServiceProvider();
 		var securityContext = serviceLocator.GetRequiredService<TagzApp.Security.SecurityContext>();

@@ -6,6 +6,15 @@ namespace TagzApp.Blazor.Components.Pages;
 public partial class FirstStartConfiguration
 {
 
+
+	[Inject]
+	public IHostApplicationLifetime _ApplicationLifetime { get; set; }
+
+	[Inject]
+	public NavigationManager? NavigationManager { get; set; }
+
+	public FirstStartConfig Config { get; set; } = new();
+
 	public async Task OnFormValidate()
 	{
 
@@ -45,8 +54,6 @@ public partial class FirstStartConfiguration
 
 }
 
-#region Models
-
 public class FirstStartConfig
 {
 
@@ -68,5 +75,3 @@ public class FirstStartConfig
 
 
 }
-
-#endregion

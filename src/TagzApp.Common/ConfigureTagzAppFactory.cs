@@ -57,7 +57,8 @@ public static class ConfigureTagzAppFactory
 
 		var thisFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 		var rawJson = await File.ReadAllTextAsync("appsettings.json");
-		var jsonObj = JsonNode.Parse(rawJson, documentOptions: new JsonDocumentOptions {
+		var jsonObj = JsonNode.Parse(rawJson, documentOptions: new JsonDocumentOptions
+		{
 			AllowTrailingCommas = true,
 			CommentHandling = JsonCommentHandling.Skip
 		});

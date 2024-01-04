@@ -41,9 +41,9 @@ body {
 
 #footerFade {
 	position: absolute;
-	bottom: 5em;
+	bottom: 3em;
 	width: 100%;
-	height: 5em;
+	height: 8em;
 	background: linear-gradient(180deg, transparent, #252525);
 }
 
