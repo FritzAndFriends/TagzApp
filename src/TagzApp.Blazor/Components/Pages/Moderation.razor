@@ -1,7 +1,12 @@
 ﻿@page "/Moderation"
-@rendermode InteractiveServer	
+@rendermode InteractiveServer
 @layout Layout.WaterfallLayout
+@using Microsoft.AspNetCore.SignalR.Client
+@using TagzApp.ViewModels.Data
+@using TagzApp.Blazor.Hubs
 @inject IMessagingService MessagingService
+@inject IModerationRepository ModerationRepository
+@inject NavigationManager NavigationManager
 
 <PageTitle>Moderation</PageTitle>
 
@@ -15,19 +20,26 @@
 	<div class="col-md-6 d-flex align-items-center" style="">
 		<span class="col-form-label-sm">Current Moderators:</span>
 		<span class="currentModerators">
-
+			@foreach (var moderator in _Moderators)
+			{
+				<img id="moderator-@moderator.Email" 
+					title="@moderator.DisplayName" 
+					src="@moderator.AvatarImageSource" />
+			}
 		</span>
 	</div>
 
-	<div class="col-md-6 d-flex justify-content-end align-items-center" >
+	<div class="col-md-6 d-flex justify-content-end align-items-center">
 
 		@* TODO: Add a badge with a number of currently blocked users *@
-		<a class="link-danger me-3" title="Blocked Users" href="/BlockedUsers"><span id="blockedCount">
-			@BlockedUserCount
-		</span> <i class="bi bi-x-circle-fill"></i></a>
+		<a class="link-danger me-3" title="Blocked Users" href="/BlockedUsers">
+			<span id="blockedCount">
+				@BlockedUserCount
+			</span> <i class="bi bi-x-circle-fill"></i>
+		</a>
 
 		<label for="approved" style="text-wrap: nowrap; margin-right: 1.4em">Approval Status:</label>
-		<select id="approved" >
+		<select id="approved">
 			<option value="-1">All</option>
 			<option value="1">Approved Only</option>
 			<option value="2">Rejected Only</option>
@@ -50,15 +62,10 @@
 </div>
 <div class="row" style="padding: 2px 10px!important">
 
-	<div id="pauseUpdates">
-		<i id="pauseButton" class="bi bi-pause-circle-fill text-info"></i>
-		<i id="pauseButton-bg" class="bi bi-circle-fill"></i>
-	</div>
-
 	<div id="taggedContent" class="">
-
-
 	</div>
+
+	<PauseButton @ref="ThePauseButton" />
 
 	<div id="moderationAction" style="display: none;">
 		<i class="bi bi-check2 approve" title="Approve this content"></i>
@@ -68,8 +75,8 @@
 
 </div>
 
-	@*
-	
+@*
+
 	section Scripts {
 
 		<script src="~/js/masonry.js" asp-append-version="true"></script>
@@ -112,16 +119,131 @@
 *@
 
 
-	@code {
+@code {
 
-		public int BlockedUserCount { get; set; } = 0;
+	public int BlockedUserCount { get; set; } = 0;
 
-		protected override Task OnInitializedAsync()
+	public PauseButton ThePauseButton { get; set; } = new();
+
+	private SortedList<DateTimeOffset, TagzApp.ViewModels.Data.ContentModel> _Content = new();
+
+	private HashSet<dynamic> _PauseQueue = new();
+
+	private HashSet<NewModerator> _Moderators = new();
+
+	private HubConnection _Connection = null!;
+
+	protected override async Task OnInitializedAsync()
+	{
+
+		BlockedUserCount = await ModerationRepository.GetCurrentBlockedUserCount();
+
+		await ListenForModerationContent();
+
+		await base.OnInitializedAsync();
+
+	}
+
+	async Task ListenForModerationContent()
+	{
+
+		var tag = MessagingService.TagsTracked.FirstOrDefault();
+
+		_Connection = new HubConnectionBuilder()
+			.WithUrl(NavigationManager.ToAbsoluteUri($"/mod?t={tag}"))
+			.WithAutomaticReconnect()
+			.Build();
+
+		_Connection.On<ContentModel>("NewWaterfallMessage", (content) =>
 		{
+			if (ThePauseButton.IsPaused)
+			{
+				_PauseQueue.Add(content);
+				return;
+			}
 
-			// TODO: Fetch the current count of blocked users
+			_Content.Add(content.Timestamp, content);
+		});
 
-			return base.OnInitializedAsync();
+		_Connection.On<ModerationContentModel>("NewApprovedMessage", HandleApprovedMessage);
+
+		_Connection.On<ModerationContentModel>("NewRejectedMessage", (content) => {
+			if (!ThePauseButton.IsPaused) {
+				// TODO: Write this method
+				//RejectMessage(content);
+			} else {
+
+				var existing = _PauseQueue.FirstOrDefault(p => p is ContentModel && p.ProviderId == content.ProviderId);
+				if (existing is not null)
+				{
+					_PauseQueue.Remove(existing);
+				}
+
+				_PauseQueue.Add(content);
+			}
+		});
+
+		_Connection.On<int>("NewBlockedUserCount", (newCount) => {
+			BlockedUserCount = newCount;
+			StateHasChanged();
+		});
+
+		_Connection.On<NewModerator>("NewModerator", (moderator) => {
+			_Moderators.Add(moderator);
+		});
+
+		_Connection.On<string>("RemoveModerator", (moderatorEmail) => {
+			var thisMod = _Moderators.FirstOrDefault(m => m.Email.Equals(moderatorEmail, StringComparison.InvariantCultureIgnoreCase));
+			if (thisMod is not null)
+			{
+				_Moderators.Remove(thisMod);
+			}	
+		});
+
+		/*
+			* 
+
+
+					// Start the connection.
+					await start();
+
+					ConfigurePauseButton();
+
+					connection.invoke('GetContentForTag', tag).then(function (result) {
+						result.forEach(function (content) {
+							FormatMessageForModeration(content);
+						});
+						window.Masonry.resizeAllGridItems();
+					});
+
+					connection.invoke('GetCurrentModerators').then(function (result) {
+						result.forEach(function (moderator) {
+							AddModerator(moderator);
+						});
+						window.Masonry.resizeAllGridItems();
+					});
+		*/
+
+	}
+
+	void HandleApprovedMessage(ModerationContentModel content)
+	{
+		if (!ThePauseButton.IsPaused)
+		{
+			// TODO: Approve the message
+			//ApproveMessage(content);
 		}
+		else
+		{
+			// Find item in the pauseQueue and set its state to ModerationState.Approved
+			var existing = _PauseQueue.FirstOrDefault(p => p is ContentModel && p.ProviderId == content.ProviderId);
+			if (existing is not null)
+			{
+				_PauseQueue.Remove(existing);
+			}
 
+			_PauseQueue.Add(content);
+
+		}
+	}
 }
