@@ -21,6 +21,7 @@
     <ProjectReference Include="..\TagzApp.Storage.Postgres.Security\TagzApp.Storage.Postgres.Security.csproj" />
     <ProjectReference Include="..\TagzApp.Storage.Postgres\TagzApp.Storage.Postgres.csproj" />
     <ProjectReference Include="..\TagzApp.Storage.Sqlite.Security\TagzApp.Storage.Sqlite.Security.csproj" />
+    <ProjectReference Include="..\TagzApp.ViewModels\TagzApp.ViewModels.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -50,6 +51,7 @@
     <Folder Include="Areas\Admin\Data\" />
     <Folder Include="Areas\Admin\Models\" />
     <Folder Include="Areas\Admin\Shared\" />
+    <Folder Include="Data\" />
     <Folder Include="Migrations\" />
     <Folder Include="wwwroot\lib\azure-icons\" />
   </ItemGroup>

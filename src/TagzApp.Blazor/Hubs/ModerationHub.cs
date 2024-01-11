@@ -68,15 +68,6 @@ public class ModerationHub : Hub<IModerationClient>
 	}
 
 
-	public async Task<IEnumerable<ModerationContentModel>> GetContentForTag(string tag)
-	{
-
-		return (await _Service.GetContentByTagForModeration(tag))
-			.Select(c => ModerationContentModel.ToModerationContentModel(c.Item1, c.Item2))
-			.ToArray();
-
-	}
-
 	public async Task SetStatus(string provider, string providerId, ModerationState newState)
 	{
 

@@ -138,8 +138,6 @@
 
 		<div class="content">${FormatContextWithEmotes(content)}</div>`;
 
-		if (content.providerId == '1697329414722199899') console.log(content);
-
 		if (content.previewCard) {
 			const tag =
 				content.previewCard.imageUri.split('.').pop() == 'mp4'

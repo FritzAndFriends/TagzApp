@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @layout Layout.WaterfallLayout
 @using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.AspNetCore.SignalR
 @using TagzApp.ViewModels.Data
 @using TagzApp.Blazor.Hubs
 @inject IMessagingService MessagingService
@@ -63,6 +64,12 @@
 <div class="row" style="padding: 2px 10px!important">
 
 	<div id="taggedContent" class="">
+
+	@foreach (var content in _Content.Values.Reverse())
+	{
+		<ModerationMessage Content="content" />
+	}
+
 	</div>
 
 	<PauseButton @ref="ThePauseButton" />
@@ -125,7 +132,7 @@
 
 	public PauseButton ThePauseButton { get; set; } = new();
 
-	private SortedList<DateTimeOffset, TagzApp.ViewModels.Data.ContentModel> _Content = new();
+	private SortedList<DateTimeOffset, TagzApp.ViewModels.Data.ModerationContentModel> _Content = new();
 
 	private HashSet<dynamic> _PauseQueue = new();
 
@@ -133,24 +140,36 @@
 
 	private HubConnection _Connection = null!;
 
+	string _Tag = string.Empty;
+
 	protected override async Task OnInitializedAsync()
 	{
 
 		BlockedUserCount = await ModerationRepository.GetCurrentBlockedUserCount();
 
+		_Tag = MessagingService.TagsTracked.FirstOrDefault();
+
 		await ListenForModerationContent();
 
 		await base.OnInitializedAsync();
+
+		await InitializeContent();
+
+		// connection.invoke('GetCurrentModerators').then(function (result) {
+		// 	result.forEach(function (moderator) {
+		// 		AddModerator(moderator);
+		// 	});
+		// 	window.Masonry.resizeAllGridItems();
+		// });
+
 
 	}
 
 	async Task ListenForModerationContent()
 	{
 
-		var tag = MessagingService.TagsTracked.FirstOrDefault();
-
 		_Connection = new HubConnectionBuilder()
-			.WithUrl(NavigationManager.ToAbsoluteUri($"/mod?t={tag}"))
+			.WithUrl(NavigationManager.ToAbsoluteUri($"/mod?t={_Tag}"))
 			.WithAutomaticReconnect()
 			.Build();
 
@@ -162,7 +181,7 @@
 				return;
 			}
 
-			_Content.Add(content.Timestamp, content);
+			_Content.Add(content.Timestamp, ModerationContentModel.ToModerationContentModel(content));
 		});
 
 		_Connection.On<ModerationContentModel>("NewApprovedMessage", HandleApprovedMessage);
@@ -200,29 +219,7 @@
 			}	
 		});
 
-		/*
-			* 
-
-
-					// Start the connection.
-					await start();
-
-					ConfigurePauseButton();
-
-					connection.invoke('GetContentForTag', tag).then(function (result) {
-						result.forEach(function (content) {
-							FormatMessageForModeration(content);
-						});
-						window.Masonry.resizeAllGridItems();
-					});
-
-					connection.invoke('GetCurrentModerators').then(function (result) {
-						result.forEach(function (moderator) {
-							AddModerator(moderator);
-						});
-						window.Masonry.resizeAllGridItems();
-					});
-		*/
+		await _Connection.StartAsync();
 
 	}
 
@@ -246,4 +243,19 @@
 
 		}
 	}
+
+	async Task InitializeContent()
+	{
+
+		var currentContent = (await MessagingService.GetContentByTagForModeration(_Tag))
+			.Select(c => ModerationContentModel.ToModerationContentModel(c.Item1, c.Item2))
+			.ToArray();
+		
+		foreach (var content in currentContent)
+		{
+			_Content.Add(content.Timestamp, content);
+		}
+
+	}
+
 }
