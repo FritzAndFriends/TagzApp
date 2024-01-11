@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using TagzApp.Blazor.Components.Account;
+using TagzApp.Blazor.Hubs;
 using TagzApp.Blazor.Services;
 
 namespace TagzApp.Blazor;
@@ -15,6 +17,8 @@ public static class Service_Extensions
 
 		// TODO: Convert to a notification pipeline
 		services.AddSingleton<INotifyNewMessages, SignalRNotifier>();
+
+		services.AddSingleton<ModerationService>();
 
 		services.AddMemoryCache();
 
@@ -76,7 +80,7 @@ public static class Service_Extensions
 			{
 				config.AddPolicy(RolesAndPolicies.Policy.AdminRoleOnly, policy => { policy.RequireRole(RolesAndPolicies.Role.Admin); });
 				config.AddPolicy(RolesAndPolicies.Policy.Moderator,
-								policy => { policy.RequireRole(RolesAndPolicies.Role.Moderator, RolesAndPolicies.Role.Admin); });
+								policy => { policy.RequireAuthenticatedUser(); });
 			});
 
 			services.AddDataProtection()

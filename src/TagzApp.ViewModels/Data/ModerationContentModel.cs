@@ -31,6 +31,22 @@ public record ModerationContentModel(
 )
 {
 
+	public ContentModel Content => new ContentModel(
+		Provider,
+		ProviderId,
+		Type,
+		SourceUri,
+		Timestamp,
+		AuthorDisplayName,
+		AuthorUserName,
+		AuthorProfileUri,
+		AuthorProfileImageUri,
+		Text,
+		PreviewCard,
+		Emotes
+	);
+
+	// TODO: Refactor to eliminate the direct reference to Common project
 	public static ModerationContentModel ToModerationContentModel(Content content, ModerationAction? action = null)
 	{
 		return new ModerationContentModel(
@@ -53,5 +69,28 @@ public record ModerationContentModel(
 		);
 	}
 
+	public static ModerationContentModel ToModerationContentModel(ContentModel content)
+	{
+
+		return new ModerationContentModel(
+			content.Provider,
+			content.ProviderId,
+			content.Type,
+			content.SourceUri,
+			content.Timestamp,
+			content.AuthorDisplayName,
+			content.AuthorUserName,
+			content.AuthorProfileUri,
+			content.AuthorProfileImageUri,
+			content.Text,
+			content.PreviewCard,
+			ModerationState.Pending,
+			null,
+			null,
+			null,
+			content.Emotes
+		);
+
+	}
 
 }

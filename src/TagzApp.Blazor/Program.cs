@@ -111,10 +111,15 @@ internal class Program
 				.AddInteractiveWebAssemblyRenderMode()
 				.AddAdditionalAssemblies(typeof(TagzApp.Blazor.Client._Imports).Assembly);
 
+		app.UseAuthentication();
+		app.UseAuthorization();
+
 		// Add additional endpoints required by the Identity /Account Razor components.
 		app.MapAdditionalIdentityEndpoints();
 
 		app.MapHub<TagzApp.Blazor.Hubs.MessageHub>("/messages");
+		app.MapHub<TagzApp.Blazor.Hubs.ModerationHub>("/mod");
+
 
 		await app.RunAsync(_Source.Token);
 

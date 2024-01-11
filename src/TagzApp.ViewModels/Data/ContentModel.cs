@@ -28,7 +28,8 @@ public record ContentModel(
 )
 {
 
-	public static implicit operator ContentModel(Content content)
+	// TODO: Refactor to not take a dependency on the Common library
+	public static explicit operator ContentModel(Content content)
 	{
 		return new ContentModel(
 			content.Provider,

@@ -1,13 +1,14 @@
 ﻿@page "/Moderation"
 @rendermode InteractiveServer
 @layout Layout.WaterfallLayout
-@using Microsoft.AspNetCore.SignalR.Client
-@using Microsoft.AspNetCore.SignalR
+@using Microsoft.AspNetCore.Identity
 @using TagzApp.ViewModels.Data
 @using TagzApp.Blazor.Hubs
+@implements IDisposable
 @inject IMessagingService MessagingService
-@inject IModerationRepository ModerationRepository
+@inject ModerationService ModerationService
 @inject NavigationManager NavigationManager
+@inject UserManager<TagzAppUser> UserManager
 
 <PageTitle>Moderation</PageTitle>
 
@@ -125,7 +126,6 @@
 	}
 *@
 
-
 @code {
 
 	public int BlockedUserCount { get; set; } = 0;
@@ -138,14 +138,17 @@
 
 	private HashSet<NewModerator> _Moderators = new();
 
-	private HubConnection _Connection = null!;
-
 	string _Tag = string.Empty;
+
+	TagzAppUser _User = null!;
+
+	[CascadingParameter]
+	private HttpContext HttpContext { get; set; } = default!;
 
 	protected override async Task OnInitializedAsync()
 	{
 
-		BlockedUserCount = await ModerationRepository.GetCurrentBlockedUserCount();
+		BlockedUserCount = ModerationService.BlockedUserCount;
 
 		_Tag = MessagingService.TagsTracked.FirstOrDefault();
 
@@ -155,71 +158,77 @@
 
 		await InitializeContent();
 
-		// connection.invoke('GetCurrentModerators').then(function (result) {
-		// 	result.forEach(function (moderator) {
-		// 		AddModerator(moderator);
-		// 	});
-		// 	window.Masonry.resizeAllGridItems();
-		// });
 
+
+	}
+
+	protected override async Task OnParametersSetAsync()
+	{
+
+		var userName = HttpContext?.User.Identity.Name;
+		if (userName is null) return;
+		_User = await UserManager.FindByNameAsync(userName);
+
+		ModerationService.AddModerator(_User.UserName, _User.DisplayName);
+		_Moderators = ModerationService.Moderators.ToHashSet();
 
 	}
 
 	async Task ListenForModerationContent()
 	{
 
-		_Connection = new HubConnectionBuilder()
-			.WithUrl(NavigationManager.ToAbsoluteUri($"/mod?t={_Tag}"))
-			.WithAutomaticReconnect()
-			.Build();
+		// _Connection = new HubConnectionBuilder()
+		// 	.WithUrl(NavigationManager.ToAbsoluteUri($"/mod?t={_Tag}"))
+		// 	.WithAutomaticReconnect()
+		// 	.Build();
 
-		_Connection.On<ContentModel>("NewWaterfallMessage", (content) =>
-		{
-			if (ThePauseButton.IsPaused)
-			{
-				_PauseQueue.Add(content);
-				return;
-			}
+		// _Connection.On<ContentModel>("NewWaterfallMessage", (content) =>
+		// {
+		// 	if (ThePauseButton.IsPaused)
+		// 	{
+		// 		_PauseQueue.Add(content);
+		// 		return;
+		// 	}
 
-			_Content.Add(content.Timestamp, ModerationContentModel.ToModerationContentModel(content));
-		});
+		// 	_Content.Add(content.Timestamp, ModerationContentModel.ToModerationContentModel(content));
+		// });
 
-		_Connection.On<ModerationContentModel>("NewApprovedMessage", HandleApprovedMessage);
+		// _Connection.On<ModerationContentModel>("NewApprovedMessage", HandleApprovedMessage);
 
-		_Connection.On<ModerationContentModel>("NewRejectedMessage", (content) => {
-			if (!ThePauseButton.IsPaused) {
-				// TODO: Write this method
-				//RejectMessage(content);
-			} else {
+		// _Connection.On<ModerationContentModel>("NewRejectedMessage", (content) => {
+		// 	if (!ThePauseButton.IsPaused) {
+		// 		// TODO: Write this method
+		// 		//RejectMessage(content);
+		// 	} else {
 
-				var existing = _PauseQueue.FirstOrDefault(p => p is ContentModel && p.ProviderId == content.ProviderId);
-				if (existing is not null)
-				{
-					_PauseQueue.Remove(existing);
-				}
+		// 		var existing = _PauseQueue.FirstOrDefault(p => p is ContentModel && p.ProviderId == content.ProviderId);
+		// 		if (existing is not null)
+		// 		{
+		// 			_PauseQueue.Remove(existing);
+		// 		}
 
-				_PauseQueue.Add(content);
-			}
-		});
+		// 		_PauseQueue.Add(content);
+		// 	}
+		// });
 
-		_Connection.On<int>("NewBlockedUserCount", (newCount) => {
-			BlockedUserCount = newCount;
-			StateHasChanged();
-		});
+		// _Connection.On<int>("NewBlockedUserCount", (newCount) => {
+		// 	BlockedUserCount = newCount;
+		// 	StateHasChanged();
+		// });
 
-		_Connection.On<NewModerator>("NewModerator", (moderator) => {
-			_Moderators.Add(moderator);
-		});
+		// _Connection.On<NewModerator>("NewModerator", (moderator) => {
+		// 	_Moderators.Add(moderator);
+		// });
 
-		_Connection.On<string>("RemoveModerator", (moderatorEmail) => {
-			var thisMod = _Moderators.FirstOrDefault(m => m.Email.Equals(moderatorEmail, StringComparison.InvariantCultureIgnoreCase));
-			if (thisMod is not null)
-			{
-				_Moderators.Remove(thisMod);
-			}	
-		});
+		// _Connection.On<string>("RemoveModerator", (moderatorEmail) => {
+		// 	var thisMod = _Moderators.FirstOrDefault(m => m.Email.Equals(moderatorEmail, StringComparison.InvariantCultureIgnoreCase));
+		// 	if (thisMod is not null)
+		// 	{
+		// 		_Moderators.Remove(thisMod);
+		// 	}	
+		// });
 
-		await _Connection.StartAsync();
+		// await _Connection.StartAsync();
 
 	}
 
@@ -257,5 +266,13 @@
 		}
 
 	}
+
+	public void Dispose()
+	{
+
+		ModerationService.RemoveModerator(_User.UserName);
+
+	}
+
 
 }
