@@ -1,5 +1,4 @@
 ﻿using Gravatar;
-using Microsoft.Extensions.Hosting;
 using System.Collections.Concurrent;
 using TagzApp.ViewModels.Data;
 
@@ -52,9 +51,10 @@ public class ModerationService
 		BlockedUserCount = count;
 		OnBlockedUserCountChanged?.Invoke(this, new BlockedUserCountArgs { BlockedUserCount = count });
 
-	}	
+	}
 
-	public void NewContent(Content content) {
+	public void NewContent(Content content)
+	{
 
 		OnNewContent?.Invoke(this, new NewContentArgs { Content = (ContentModel)content });
 
@@ -88,7 +88,7 @@ public class ModeratorArgs : EventArgs
 
 	public string DisplayName { get; set; }
 
-	public string Email {  get; set; }
+	public string Email { get; set; }
 
 	public Uri Avatar { get; set; }
 
