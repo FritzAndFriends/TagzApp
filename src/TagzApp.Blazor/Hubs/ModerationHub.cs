@@ -1,11 +1,4 @@
-﻿using Gravatar;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.SignalR;
-using System.Collections.Concurrent;
-using TagzApp.ViewModels.Data;
-
-namespace TagzApp.Blazor.Hubs;
+﻿namespace TagzApp.Blazor.Hubs;
 
 //[Authorize(Policy = RolesAndPolicies.Policy.Moderator)]
 //public class ModerationHub : Hub<IModerationClient>
