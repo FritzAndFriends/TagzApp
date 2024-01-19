@@ -31,7 +31,7 @@ public record ModerationContentModel(
 )
 {
 
-	public ContentModel Content => new ContentModel(
+	public ContentModel Content => new(
 		Provider,
 		ProviderId,
 		Type,

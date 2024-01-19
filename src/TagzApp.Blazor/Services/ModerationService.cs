@@ -1,4 +1,4 @@
-﻿using Gravatar;
+using Gravatar;
 using Microsoft.Extensions.Hosting;
 using System.Collections.Concurrent;
 using TagzApp.ViewModels.Data;
