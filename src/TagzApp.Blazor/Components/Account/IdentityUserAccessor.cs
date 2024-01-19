@@ -5,7 +5,7 @@ namespace TagzApp.Blazor.Components.Account;
 internal sealed class IdentityUserAccessor(UserManager<TagzAppUser> userManager, IdentityRedirectManager redirectManager)
 {
 
-	private TagzAppUser _User;
+	// private TagzAppUser _User;
 
 	public async Task<TagzAppUser> GetRequiredUserAsync(HttpContext context)
 	{
@@ -15,43 +15,43 @@ internal sealed class IdentityUserAccessor(UserManager<TagzAppUser> userManager,
 			redirectManager.RedirectToWithStatus("Account/InvalidUser", $"Error: Unable to load user.", context);
 		}
 
-		if (_User is not null)
+		//if (_User is not null)
+		//{
+		//	return _User;
+		//}
+
+		var user = await userManager.GetUserAsync(context.User)!;
+
+		if (user is null)
 		{
-			return _User;
+			redirectManager.RedirectToWithStatus("Account/InvalidUser", $"Error: Unable to load user with ID '{context.User}'.", context);
 		}
 
-		_User = (await userManager.GetUserAsync(context.User))!;
-
-		if (_User is null)
-		{
-			redirectManager.RedirectToWithStatus("Account/InvalidUser", $"Error: Unable to load user with ID '{userManager.GetUserId(context.User)}'.", context);
-		}
-
-		return _User;
+		return user;
 	}
 
-	public async Task<TagzAppUser> GetRequiredUserAsync(AuthenticationState context)
-	{
+	//public async Task<TagzAppUser> GetRequiredUserAsync(AuthenticationState context)
+	//{
 
-		if (_User is not null)
-		{
-			return _User;
-		}
+	//	if (_User is not null)
+	//	{
+	//		return _User;
+	//	}
 
-		if (context is null)
-		{
-			redirectManager.RedirectTo("/Index");
-		}
+	//	if (context is null)
+	//	{
+	//		redirectManager.RedirectTo("/Index");
+	//	}
 
-		_User = (await userManager.GetUserAsync(context.User))!;
+	//	_User = (await userManager.GetUserAsync(context.User))!;
 
-		if (_User is null)
-		{
-			redirectManager.RedirectTo("/Index");
-		}
+	//	if (_User is null)
+	//	{
+	//		redirectManager.RedirectTo("/Index");
+	//	}
 
-		return _User;
-	}
+	//	return _User;
+	//}
 
 
 

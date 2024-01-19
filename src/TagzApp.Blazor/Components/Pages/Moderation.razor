@@ -1,14 +1,18 @@
 ﻿@page "/Moderation"
-@rendermode InteractiveServer
-@layout Layout.WaterfallLayout
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@* @layout Layout.WaterfallLayout *@
 @using Microsoft.AspNetCore.Identity
 @using TagzApp.ViewModels.Data
 @using TagzApp.Blazor.Hubs
+@using TagzApp.Blazor.Components.Account
+@using Microsoft.EntityFrameworkCore
 @implements IDisposable
+@inject AuthenticationStateProvider AuthState
 @inject IMessagingService MessagingService
 @inject ModerationService ModerationService
 @inject NavigationManager NavigationManager
-@inject UserManager<TagzAppUser> UserManager
+@inject UserManager<TagzAppUser> UserMgr
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Moderation</PageTitle>
 
@@ -148,36 +152,56 @@
 	protected override async Task OnInitializedAsync()
 	{
 
+		NavigationManager.LocationChanged += (_, args) =>
+		{
+			JSRuntime.InvokeVoidAsync("StopHeartbeat");
+		};
+
 		BlockedUserCount = ModerationService.BlockedUserCount;
 
 		_Tag = MessagingService.TagsTracked.FirstOrDefault();
 
+		_Moderators = ModerationService.Moderators.ToHashSet();
+
 		await ListenForModerationContent();
+
+
+		var userName = await AuthState.GetAuthenticationStateAsync();
+		_User = await UserMgr.GetUserAsync(userName.User);
+
+		ModerationService.AddModerator(_User.UserName, _User.DisplayName);
 
 		await base.OnInitializedAsync();
 
 		await InitializeContent();
-
-
 
 	}
 
 	protected override async Task OnParametersSetAsync()
 	{
 
-		var userName = HttpContext?.User.Identity.Name;
-		if (userName is null) return;
-		_User = await UserManager.FindByNameAsync(userName);
 
-		ModerationService.AddModerator(_User.UserName, _User.DisplayName);
-		_Moderators = ModerationService.Moderators.ToHashSet();
+	}
 
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+
+		if (firstRender && _User is not null)
+		{
+			JSRuntime.InvokeVoidAsync($"Heartbeat", _User.UserName);
+		}
+
+		await base.OnAfterRenderAsync(firstRender);
 	}
 
 	async Task ListenForModerationContent()
 	{
 
-		// _Connection = new HubConnectionBuilder()
+		ModerationService.OnNewModerator += OnNewModerator;
+
+		ModerationService.OnDepartModerator += OnDepartModerator;
+
+		/* _Connection = new HubConnectionBuilder()
 		// 	.WithUrl(NavigationManager.ToAbsoluteUri($"/mod?t={_Tag}"))
 		// 	.WithAutomaticReconnect()
 		// 	.Build();
@@ -228,8 +252,8 @@
 		// 	}	
 		// });
 
-		// await _Connection.StartAsync();
-
+		 await _Connection.StartAsync();
+		 */
 	}
 
 	void HandleApprovedMessage(ModerationContentModel content)
@@ -259,7 +283,7 @@
 		var currentContent = (await MessagingService.GetContentByTagForModeration(_Tag))
 			.Select(c => ModerationContentModel.ToModerationContentModel(c.Item1, c.Item2))
 			.ToArray();
-		
+
 		foreach (var content in currentContent)
 		{
 			_Content.Add(content.Timestamp, content);
@@ -267,12 +291,38 @@
 
 	}
 
+	async void OnNewModerator(object? sender, ModeratorArgs args)
+	{
+		_Moderators.Add(new NewModerator(args.Email, args.Avatar.ToString(), args.DisplayName));
+		Console.WriteLine($"New moderator received {args.DisplayName}");
+		await InvokeAsync(StateHasChanged);
+		Console.WriteLine("Updating moderator list");
+	}
+
+	async void OnDepartModerator(object? sender, ModeratorArgs args)
+	{
+			Console.WriteLine($"Removing moderator {args.DisplayName}");
+		var thisMod = _Moderators.FirstOrDefault(m => m.Email.Equals(args.Email, StringComparison.InvariantCultureIgnoreCase));
+		if (thisMod is not null)
+		{
+			_Moderators.Remove(thisMod);
+		}
+		Console.WriteLine("Moderator departed");
+		await InvokeAsync(StateHasChanged);
+	}
+
 	public void Dispose()
 	{
 
-		ModerationService.RemoveModerator(_User.UserName);
+		if (ModerationService is not null)
+		{
+			ModerationService.OnNewModerator -= OnNewModerator;
+			ModerationService.OnDepartModerator -= OnDepartModerator;
+		}
+
+		// Console.WriteLine($">> Disposing Moderation.razor for user {_User?.UserName}");
+		// if (_User is not null) ModerationService?.RemoveModerator(_User.UserName);
 
 	}
-
 
 }

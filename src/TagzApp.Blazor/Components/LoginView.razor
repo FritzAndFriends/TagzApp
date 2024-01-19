@@ -56,9 +56,6 @@
 	[CascadingParameter]
 	private HttpContext HttpContext { get; set; } = default!;
 
-	[CascadingParameter]
-	private AuthenticationState AuthState { get; set; } = default!;
-
 	protected override async Task OnInitializedAsync()
 	{
 		currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
@@ -80,10 +77,10 @@
 		await base.OnInitializedAsync();
 	}
 
-	void GetUserDisplayNameAsync(AuthenticationState context)
+	void GetUserDisplayNameAsync()
 	{
 
-		_userTask = UserMgr.GetRequiredUserAsync(context);
+		_userTask = UserMgr.GetRequiredUserAsync(HttpContext);
 
 	}
 	

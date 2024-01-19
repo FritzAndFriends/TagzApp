@@ -2,6 +2,7 @@ global using TagzApp.Security;
 using Microsoft.AspNetCore.HttpOverrides;
 using TagzApp.Blazor;
 using TagzApp.Blazor.Components;
+using TagzApp.Blazor.Hubs;
 
 internal class Program
 {
@@ -118,7 +119,15 @@ internal class Program
 		app.MapAdditionalIdentityEndpoints();
 
 		app.MapHub<TagzApp.Blazor.Hubs.MessageHub>("/messages");
-		app.MapHub<TagzApp.Blazor.Hubs.ModerationHub>("/mod");
+		//app.MapHub<TagzApp.Blazor.Hubs.ModerationHub>("/mod");
+
+		app.MapGet("/svc/heartbeat", async (HttpContext context, ModerationService svc) =>
+		{
+			context.Response.ContentType = "text/plain";
+			var userName = context.Request.Query["user"];
+			svc.Heartbeat(userName);
+			await context.Response.WriteAsync("OK");
+		});
 
 
 		await app.RunAsync(_Source.Token);

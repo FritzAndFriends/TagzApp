@@ -9,7 +9,10 @@ public class ModerationService
 {
 
 	private readonly ConcurrentDictionary<string, string> _CurrentUsersModerating = new();
+	private readonly ConcurrentDictionary<string, DateTimeOffset> _CurrentUsersHeartbeating = new();
 	private readonly IServiceProvider _Services;
+	private readonly Timer _HeartbeatCleanup;
+
 
 	public event EventHandler<ModeratorArgs> OnNewModerator;
 
@@ -24,6 +27,7 @@ public class ModerationService
 	public ModerationService(IServiceProvider services)
 	{
 		_Services = services;
+		_HeartbeatCleanup = new Timer(HeartbeatCleanup, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5));
 	}
 
 	public NewModerator[] Moderators => _CurrentUsersModerating.Select(kvp => new NewModerator(kvp.Key, kvp.Key.ToGravatar(), kvp.Value)).ToArray();
@@ -31,8 +35,9 @@ public class ModerationService
 	public void AddModerator(string email, string displayName)
 	{
 
-		_CurrentUsersModerating.TryAdd(email, displayName);
-		OnNewModerator?.Invoke(this, new ModeratorArgs { DisplayName = displayName, Email = email, Avatar = new Uri(email.ToGravatar()) });
+		var added = _CurrentUsersModerating.TryAdd(email, displayName);
+		Console.WriteLine($"Added moderator {displayName} {(added ? "successfully" : "already exists")}");
+		if (added) OnNewModerator?.Invoke(this, new ModeratorArgs { DisplayName = displayName, Email = email, Avatar = new Uri(email.ToGravatar()) });
 
 	}
 
@@ -66,6 +71,32 @@ public class ModerationService
 		OnModeratedContent?.Invoke(this, new ModeratedContentArgs { Content = ModerationContentModel.ToModerationContentModel(content, action) });
 
 	}
+
+	public void Heartbeat(string displayName)
+	{
+		Console.WriteLine($"Heartbeat: {displayName}");
+		_CurrentUsersHeartbeating[displayName] = DateTimeOffset.UtcNow;
+	}
+
+	private void HeartbeatCleanup(object? state)
+	{
+
+		// If a moderator hasn't sent a heartbeat in 5 seconds, remove them
+		var now = DateTimeOffset.UtcNow;
+		foreach (var kvp in _CurrentUsersHeartbeating)
+		{
+			Console.WriteLine($"Checking if its time to evict {kvp.Key} {kvp.Value} - {now}");
+			if (now - kvp.Value > TimeSpan.FromSeconds(5))
+			{
+				Console.WriteLine($"Removing moderator without heartbeat: {kvp.Key}");
+				_CurrentUsersHeartbeating.TryRemove(kvp.Key, out _);
+				_CurrentUsersModerating.TryRemove(kvp.Key, out string displayName);
+				OnDepartModerator?.Invoke(this, new ModeratorArgs { DisplayName = displayName, Email = kvp.Key });
+			}
+		}
+
+	}
+
 
 }
 
