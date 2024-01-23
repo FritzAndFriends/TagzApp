@@ -1,5 +1,4 @@
-﻿@using TagzApp.Web.Data;
-@inject SignInManager<TagzAppUser> SignInManager
+﻿@inject SignInManager<TagzAppUser> SignInManager
 @{
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
 }

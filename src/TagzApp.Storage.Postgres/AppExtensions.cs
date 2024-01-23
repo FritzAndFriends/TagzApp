@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 using TagzApp.Communication;
 using TagzApp.Storage.Postgres;
 using TagzApp.Storage.Postgres.SafetyModeration;
-using TagzApp.Web.Services;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -38,6 +38,31 @@ public static class AppExtensions
 		using var builtServices = services.BuildServiceProvider();
 		var ctx = builtServices.GetRequiredService<TagzAppContext>();
 		_MigrateTask = ctx.Database.MigrateAsync();
+
+		return services;
+
+	}
+
+	public static IServiceCollection AddPostgresSecurityServices(this IServiceCollection services, ConnectionSettings connectionSettings)
+	{
+
+		services.AddDbContext<TagzApp.Security.SecurityContext>(options =>
+		{
+			options.UseNpgsql(connectionSettings.SecurityConnectionString,
+			pg => pg.MigrationsAssembly(typeof(TagzApp.Storage.Postgres.Security.Migrations.SecurityContextModelSnapshot).Assembly.FullName));
+		}); //, ServiceLifetime.Transient);
+
+		var serviceLocator = services.BuildServiceProvider();
+		var securityContext = serviceLocator.GetRequiredService<TagzApp.Security.SecurityContext>();
+
+		try
+		{
+			securityContext.Database.Migrate();
+		}
+		catch (PostgresException ex)
+		{
+			Console.WriteLine($"Error while migrating security context to Postgres: {ex}");
+		}
 
 		return services;
 

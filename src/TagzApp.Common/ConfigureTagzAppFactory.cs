@@ -10,7 +10,7 @@ namespace TagzApp.Common;
 public static class ConfigureTagzAppFactory
 {
 
-	public static bool IsConfigured;
+	public static bool IsConfigured { get; set; } = false;
 
 	public static IConfigureTagzApp Current = EmptyConfigureTagzApp.Instance;
 
@@ -57,7 +57,11 @@ public static class ConfigureTagzAppFactory
 
 		var thisFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 		var rawJson = await File.ReadAllTextAsync("appsettings.json");
-		var jsonObj = JsonNode.Parse(rawJson);
+		var jsonObj = JsonNode.Parse(rawJson, documentOptions: new JsonDocumentOptions
+		{
+			AllowTrailingCommas = true,
+			CommentHandling = JsonCommentHandling.Skip
+		});
 		jsonObj["ConnectionStrings"]["AppConfigProvider"] = provider;
 		jsonObj["ConnectionStrings"]["AppConfigConnection"] = configurationString;
 

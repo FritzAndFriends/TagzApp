@@ -1,0 +1,99 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Components.Authorization
+@using TagzApp.Blazor.Components.Account
+@inject IdentityUserAccessor UserMgr
+@inject NavigationManager NavigationManager
+@implements IDisposable
+
+<AuthorizeView Roles="@RolesAndPolicies.Role.Admin">
+<Authorized>
+		<div class="nav-item px-3">
+			<NavLink class="nav-link" href="Admin/Index">
+				<span class="bi bi-gear-fill-nav-menu" aria-hidden="true"></span> Admin
+			</NavLink>
+		</div>
+	</Authorized>
+</AuthorizeView>
+
+
+<AuthorizeView>
+	<Authorized>
+		<div class="nav-item px-3">
+			<NavLink class="nav-link" href="Account/Manage">
+				<span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> @context.User.Claims.FirstOrDefault(c => c.Type == "DisplayName")?.Value
+			</NavLink>
+		</div>
+		<div class="nav-item px-3">
+			<form action="Account/Logout" method="post">
+				<AntiforgeryToken />
+				<input type="hidden" name="ReturnUrl" value="@currentUrl" />
+				<button type="submit" class="btn btn-link" style="text-decoration: none;">
+					<span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
+				</button>
+			</form>
+		</div>
+	</Authorized>
+	<NotAuthorized>
+		<div class="nav-item px-3">
+			<NavLink class="nav-link" href="Account/Register">
+				<span class="bi bi-person-nav-menu" aria-hidden="true"></span> Register
+			</NavLink>
+		</div>
+		<div class="nav-item px-3">
+			<NavLink class="nav-link" href="Account/Login">
+				<span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Login
+			</NavLink>
+		</div>
+	</NotAuthorized>
+</AuthorizeView>
+
+@code {
+
+	private string? currentUrl;
+	private string UserDisplayName;
+	private Task<TagzAppUser> _userTask;
+
+	[CascadingParameter]
+	private HttpContext HttpContext { get; set; } = default!;
+
+	protected override async Task OnInitializedAsync()
+	{
+		currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+		NavigationManager.LocationChanged += OnLocationChanged;
+
+		// if (HttpContext is not null)
+		// {
+		// Console.WriteLine("HttpContext is not null");
+		// 	UserDisplayName = (await UserMgr.GetRequiredUserAsync(HttpContext))?.DisplayName ?? string.Empty;
+		// } else if (AuthState is not null)
+		// {
+		// 	Console.WriteLine("AuthState is not null");
+		// 	UserDisplayName = (await UserMgr.GetRequiredUserAsync(AuthState))?.DisplayName ?? string.Empty;
+		// } else
+		// {
+		// 	Console.WriteLine("it broke");
+		// }
+
+		await base.OnInitializedAsync();
+	}
+
+	void GetUserDisplayNameAsync()
+	{
+
+		_userTask = UserMgr.GetRequiredUserAsync(HttpContext);
+
+	}
+	
+	private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+	{
+		currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+		StateHasChanged();
+	}
+
+	public void Dispose()
+	{
+		NavigationManager.LocationChanged -= OnLocationChanged;
+	}
+
+
+}

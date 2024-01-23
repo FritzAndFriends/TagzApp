@@ -1,0 +1,31 @@
+﻿@using Microsoft.AspNetCore.Components.Sections
+@inject NavigationManager NavMgr
+@inherits LayoutComponentBase
+
+<Header />
+
+<div class="container">
+	<main role="main" class="pb-3">
+
+		@if (!IsConfigured && !NavMgr.Uri.Contains("/FirstStartConfiguration")) {
+			<TagzApp.Blazor.Components.Pages.FirstStartConfiguration></TagzApp.Blazor.Components.Pages.FirstStartConfiguration>
+		} else
+		{
+			@Body
+		}
+
+	</main>
+</div>
+
+<Footer />
+
+
+<SectionOutlet SectionName="scripts"  />
+
+@code {
+
+	public bool IsConfigured => ConfigureTagzAppFactory.IsConfigured;
+
+
+
+}

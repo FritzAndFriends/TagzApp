@@ -1,0 +1,82 @@
+﻿@using Microsoft.AspNetCore.Components.Sections
+@using Microsoft.AspNetCore.SignalR.Client
+@rendermode InteractiveAuto
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+@implements IAsyncDisposable
+
+<div id="taggedContent" class="">
+
+	@foreach (var content in _Content.Values.Reverse())
+	{
+		<WaterfallMessage Content="content" OnContentSelected="ShowModal" />
+	}
+
+</div>
+
+<PauseButton @ref="thePauseButton" />
+
+<WaterfallModal @ref="Modal" Content="ModalContent" />
+
+@code {
+
+	private SortedList<DateTimeOffset, TagzApp.ViewModels.Data.ContentModel> _Content = new();
+
+	WaterfallModal Modal = new();
+	ContentModel ModalContent = null!;
+
+	PauseButton thePauseButton = new();
+
+	HubConnection _Connection = null!;
+
+	[Parameter, EditorRequired]
+	public string TagTracked { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+
+		await StartSignalRHub();
+
+		var existingContent = await _Connection.InvokeAsync<IEnumerable<ContentModel>>("GetExistingContentForTag", TagTracked);
+
+		Console.WriteLine($"Received {existingContent.Count()} messages for tag {TagTracked}");
+
+		foreach (var content in existingContent)
+		{
+			_Content.Add(content.Timestamp, content);
+		}
+
+		await base.OnInitializedAsync();
+
+	}
+
+	private async Task StartSignalRHub()
+	{
+		_Connection = new HubConnectionBuilder()
+			.WithUrl(NavigationManager.ToAbsoluteUri("/messages"))
+			.Build();
+
+		_Connection.On<ContentModel>("ReceiveContent", (content) =>
+		{
+			_Content.Add(content.Timestamp, content);
+			StateHasChanged();
+		});
+
+		await _Connection.StartAsync();
+	}
+
+	async Task ShowModal(ContentModel content)
+	{
+		Console.WriteLine("Showing modal");
+		ModalContent = content;
+		await Modal.Open();
+
+	}
+
+	public ValueTask DisposeAsync()
+	{
+		if (_Connection is null) return ValueTask.CompletedTask;
+		return _Connection.DisposeAsync();
+	}
+
+}
