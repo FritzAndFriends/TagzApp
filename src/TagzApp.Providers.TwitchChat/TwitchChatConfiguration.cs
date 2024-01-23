@@ -64,8 +64,11 @@ public class TwitchChatConfiguration : IProviderConfiguration
 			case "OAuthToken":
 				OAuthToken = value;
 				break;
+			case "Enabled":
+				Enabled = bool.Parse(value);
+				break;
 			default:
-				throw new NotImplementedException();
+				throw new NotImplementedException($"Unable to set value for key '{key}'");
 
 		}
 	}

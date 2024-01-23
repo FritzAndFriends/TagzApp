@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using TagzApp.Blazor;
 using TagzApp.Blazor.Components;
 using TagzApp.Blazor.Hubs;
+using TagzApp.Communication.Extensions;
 
 internal class Program
 {
@@ -63,6 +64,9 @@ internal class Program
 		await builder.Services.AddTagzAppSecurity(configure, builder.Configuration);
 
 		builder.Services.AddSignalR();
+
+		builder.Services.AddHttpClientPolicies();
+		await builder.Services.AddTagzAppProviders();
 
 		await builder.Services.AddTagzAppHostedServices(configure);
 

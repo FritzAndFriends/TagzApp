@@ -1,0 +1,134 @@
+﻿@using System.ComponentModel.DataAnnotations
+<UiProviderConfig ProviderName="TwitchChat" Health="@Health" ProviderIconCssClass="bi-twitch">
+
+	<EditForm Model="Model" OnValidSubmit="SaveConfig">
+		<AntiforgeryToken />
+		<ValidationSummary />
+		<dl>
+			<dt><label for="ClientId">Client Id:</label></dt>
+			<dd>
+				<InputText name="ClientId" @bind-Value="Model.ClientId" placeholder="Twitch Client Id" />
+				<ValidationMessage For="() => Model.ClientId" class="text-danger" />
+			</dd>
+			<dt><label for="ClientSecret">Client Secret:</label></dt>
+			<dd>
+				<InputText name="ClientSecret" @bind-Value="Model.ClientSecret" placeholder="Twitch Client Secret" />
+				<ValidationMessage For="() => Model.ClientSecret" class="text-danger" />
+			</dd>
+			<dt><label for="ChatBotName">Chat Bot Name:</label></dt>
+			<dd>
+				<InputText name="ChatBotName" @bind-Value="Model.ChatBotName" placeholder="Twitch Chat Bot Name" />
+				<ValidationMessage For="() => Model.ChatBotName" class="text-danger" />
+			</dd>
+			<dt><label for="OAuthToken">OAuth Token:</label></dt>
+			<dd>
+				<InputText name="OAuthToken" @bind-Value="Model.OAuthToken" placeholder="Twitch OAuth Token" />
+				<ValidationMessage For="() => Model.OAuthToken" class="text-danger" />
+			</dd>
+			<dt><label for="ChannelName">Channel Name:</label></dt>
+			<dd>
+				<InputText name="ChannelName" @bind-Value="Model.ChannelName" placeholder="Twitch Channel Name" />
+				<ValidationMessage For="() => Model.ChannelName" class="text-danger" />
+			</dd>
+			<dt><label for="Enabled">Enabled:</label></dt>
+			<dd>
+				<InputCheckbox name="Enabled" @bind-Value="Model.Enabled" />
+			</dd>
+		</dl>
+
+		<button type="submit" class="btn btn-primary">Save</button>
+
+	</EditForm>
+
+</UiProviderConfig>
+
+@code {
+
+	[Parameter]
+	public string ClientId { get; set; }
+
+	[Parameter]
+	public string ClientSecret { get; set; }
+
+	[Parameter]
+	public string ChatBotName { get; set; } = string.Empty;
+
+	[Parameter]
+	public string OAuthToken { get; set; } = string.Empty;
+
+	[Parameter]
+	public string ChannelName { get; set; } = "csharpfritz";
+
+	[Parameter]
+	public bool Enabled { get; set; }
+
+	[Parameter]
+	public (SocialMediaStatus Status, string Message) Health { get; set; }
+
+	[Parameter]
+	public EventCallback<Dictionary<string,string>> OnSave { get; set; }
+
+	public ViewModel Model { get; set; } = new();
+
+	protected override Task OnParametersSetAsync()
+	{
+
+		Model = new ViewModel
+			{
+				ClientId = ClientId,
+				ClientSecret = ClientSecret,
+				ChatBotName = ChatBotName,
+				OAuthToken = OAuthToken,
+				ChannelName = ChannelName,
+				Enabled = Enabled
+			};
+
+		return base.OnParametersSetAsync();
+	}
+
+    private async Task SaveConfig()
+    {
+
+        var args = new Dictionary<string, string>();
+        args.Add("ProviderName", "TWITCH");
+
+        // Add each of the properties of the Model to args
+        args.Add("ClientId", Model.ClientId);
+        args.Add("ClientSecret", Model.ClientSecret);
+        args.Add("ChatBotName", Model.ChatBotName);
+        args.Add("OAuthToken", Model.OAuthToken);
+        args.Add("ChannelName", Model.ChannelName);
+        args.Add("Enabled", Model.Enabled.ToString());
+
+				Console.WriteLine($"Parameters saved: {string.Join(',', args.ToArray())}");
+
+        await OnSave.InvokeAsync(args);
+
+    }
+
+	public class ViewModel
+	{
+
+		// add properties for each of the fields you want to edit
+
+		[Required]
+		public string ClientId { get; set; }
+
+		[Required]
+		public string ClientSecret { get; set; }
+
+		[Required]
+		public string ChatBotName { get; set; } = string.Empty;
+
+		[Required]
+		public string OAuthToken { get; set; } = string.Empty;
+
+		[Required]
+		public string ChannelName { get; set; } = "csharpfritz";
+
+		public bool Enabled { get; set; }
+
+
+	}
+
+}

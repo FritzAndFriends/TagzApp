@@ -24,11 +24,11 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	private readonly ILogger<TwitchChatProvider> _Logger;
 	private readonly TwitchProfileRepository _ProfileRepository;
 
-	public TwitchChatProvider(ILogger<TwitchChatProvider> logger, IHttpClientFactory clientFactory)
+	public TwitchChatProvider(ILogger<TwitchChatProvider> logger, HttpClient client)
 	{
 		_Settings = ConfigureTagzAppFactory.Current.GetConfigurationById<TwitchChatConfiguration>(Id).GetAwaiter().GetResult();
 		_Logger = logger;
-		_ProfileRepository = new TwitchProfileRepository(_Settings.ClientId, _Settings.ClientSecret, clientFactory.CreateClient("TwitchProfile"));
+		_ProfileRepository = new TwitchProfileRepository(_Settings.ClientId, _Settings.ClientSecret, client);
 
 		if (!string.IsNullOrWhiteSpace(_Settings.Description))
 		{
