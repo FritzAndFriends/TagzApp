@@ -1,97 +1,23 @@
-﻿@page "/admin/providers"
+@page "/admin/providers"
 @rendermode InteractiveServer
 @using System.Reflection
 @layout Admin.Shared.AdminLayout
 @inject IMessagingService messagingService
+
 <h2>Provider Management</h2>
 
 <article class="mt-3">
-
 	@foreach (var provider in SocialMediaProviders)
 	{
-		
-		if (SocialMediaConfiguration.ContainsKey(provider.Id) == false)
-		{
-			continue;
-		}
-
-		<DynamicComponent 
-			Type="@(GetProviderUiType(provider))" 
-			Parameters="@SocialMediaConfiguration[provider.Id]">
-
-		</DynamicComponent>
-
+		<GenericProvider Provider="provider" />
 	}
-
 </article>
 
 @code {
+	private IEnumerable<ISocialMediaProvider> SocialMediaProviders { get; set; } = Enumerable.Empty<ISocialMediaProvider>();
 
-	private IEnumerable<ISocialMediaProvider> SocialMediaProviders { get; set; }
-
-	private Dictionary<string, Dictionary<string, object>> SocialMediaConfiguration { get; set; } = new();
-
-	protected override async Task OnInitializedAsync()
+	protected override void OnInitialized()
 	{
 		SocialMediaProviders = messagingService.Providers;
-
-		foreach (var provider in SocialMediaProviders)
-		{
-			SocialMediaConfiguration.Add(provider.Id, await GetParametersFromConfiguration(provider));
-		}
-
 	}
-
-	Type GetProviderUiType(ISocialMediaProvider provider)
-	{
-		var type = provider.GetType();
-		var typeSought = $"{type.Name.Replace("provider", "", StringComparison.InvariantCultureIgnoreCase)}_Config_Ui";
-		// Console.WriteLine($"Type sought: {typeSought}");
-
-		var allTypes = typeof(Waterfall).Assembly.GetTypes();
-		// foreach (var t in allTypes)
-		// {
-		// 	Console.WriteLine($"Type found: {t.Name}");
-		// }
-
-		var uiType = typeof(Waterfall).Assembly.GetTypes().FirstOrDefault(t => t.Name == typeSought);	
-		return uiType;
-
-	}
-
-	private static string[] ExcludeProperties = ["Name", "Description", "Keys"];
-
-	async Task<Dictionary<string,object>> GetParametersFromConfiguration(ISocialMediaProvider provider)
-	{
-
-		var config = await provider.GetConfiguration(ConfigureTagzAppFactory.Current);
-		var parameters = new Dictionary<string, object>();
-		foreach (var property in config.GetType().GetProperties(BindingFlags.SetField | BindingFlags.Instance | BindingFlags.Public).ExceptBy(ExcludeProperties,p => p.Name))
-		{
-			parameters.Add(property.Name, property.GetValue(config));
-		}
-
-		var health = await provider.GetHealth();
-		parameters.Add("health", health);
-
-		var saveAction = new EventCallback<Dictionary<string,string>>(this, async (Dictionary<string, string> args) =>
-		{
-			var providerName = args["ProviderName"];
-			var provider = SocialMediaProviders.First(p => p.Id == providerName);
-			var providerConfig = await provider.GetConfiguration(ConfigureTagzAppFactory.Current);
-
-			foreach(var config in args.Where(kv => kv.Key != "ProviderName"))
-			{
-				providerConfig.SetConfigurationByKey(config.Key, config.Value);
-			}
-
-			await ConfigureTagzAppFactory.Current.SetConfigurationById(provider.Id, providerConfig);
-
-		});
-		parameters.Add("OnSave", saveAction);
-
-		return parameters;
-		
-	}
-
 }

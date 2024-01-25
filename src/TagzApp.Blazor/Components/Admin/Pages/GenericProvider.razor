@@ -1,0 +1,35 @@
+﻿@using TagzApp.Providers.TwitchChat
+@using TagzApp.Blazor.Client.Components.Admin
+
+@typeparam TProvider
+
+@if (ProviderConfiguration != null)
+{
+    if (TwitchChatProvider != null)
+    {
+        <TwitchChat_Config_Ui ProviderConfiguration="ProviderConfiguration" />
+    }
+    @*if (another provider != null)
+    {
+        <configuration>
+    }*@
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public TProvider Provider { get; set; }
+
+    private TwitchChatProvider? TwitchChatProvider => Provider as TwitchChatProvider;
+
+    private IProviderConfiguration? ProviderConfiguration { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+        {
+            ProviderConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
+        }
+    }
+}

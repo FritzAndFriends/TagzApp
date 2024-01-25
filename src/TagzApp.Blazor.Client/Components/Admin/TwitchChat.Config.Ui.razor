@@ -43,6 +43,11 @@
 </UiProviderConfig>
 
 @code {
+	[Parameter, EditorRequired]
+	public IProviderConfiguration ProviderConfiguration { get; set; } = null!;
+
+	// not needed parameters because can be taken from ProviderConfiguration (I guess...)
+
 
 	[Parameter]
 	public string ClientId { get; set; }
