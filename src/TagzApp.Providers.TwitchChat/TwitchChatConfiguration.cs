@@ -41,6 +41,7 @@ public class TwitchChatConfiguration : IProviderConfiguration
 			"ClientId" => ClientId,
 			"ClientSecret" => ClientSecret,
 			"OAuthToken" => OAuthToken,
+			"Enabled" => Enabled.ToString(),
 			_ => string.Empty
 		};
 	}

@@ -3,33 +3,23 @@
 
 @typeparam TProvider
 
-@if (ProviderConfiguration != null)
+@switch (Provider.GetType().Name)
 {
-    if (TwitchChatProvider != null)
-    {
-        <TwitchChat_Config_Ui ProviderConfiguration="ProviderConfiguration" />
-    }
-    @*if (another provider != null)
-    {
-        <configuration>
-    }*@
+	case nameof(TwitchChatProvider):
+		{
+			<TwitchChat_Config_Ui Provider="@Provider" />
+			break;
+		}
+	default:
+		{
+			<p>Unknown provider type: @Provider?.GetType().Name</p>
+			break;
+		}
 }
 
+
 @code {
-    [Parameter, EditorRequired]
-    public TProvider Provider { get; set; }
+	[Parameter, EditorRequired]
+	public TProvider Provider { get; set; }
 
-    private TwitchChatProvider? TwitchChatProvider => Provider as TwitchChatProvider;
-
-    private IProviderConfiguration? ProviderConfiguration { get; set; }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        await base.OnAfterRenderAsync(firstRender);
-
-        if (firstRender)
-        {
-            ProviderConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
-        }
-    }
 }

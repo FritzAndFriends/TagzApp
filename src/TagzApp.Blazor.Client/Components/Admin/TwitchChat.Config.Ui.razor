@@ -43,73 +43,53 @@
 </UiProviderConfig>
 
 @code {
+
 	[Parameter, EditorRequired]
-	public IProviderConfiguration ProviderConfiguration { get; set; } = null!;
+	public ISocialMediaProvider Provider { get; set; } = null!;
 
-	// not needed parameters because can be taken from ProviderConfiguration (I guess...)
+	public (SocialMediaStatus Status, string Message) Health { get; set; } = (SocialMediaStatus.Unknown, string.Empty);
 
-
-	[Parameter]
-	public string ClientId { get; set; }
-
-	[Parameter]
-	public string ClientSecret { get; set; }
-
-	[Parameter]
-	public string ChatBotName { get; set; } = string.Empty;
-
-	[Parameter]
-	public string OAuthToken { get; set; } = string.Empty;
-
-	[Parameter]
-	public string ChannelName { get; set; } = "csharpfritz";
-
-	[Parameter]
-	public bool Enabled { get; set; }
-
-	[Parameter]
-	public (SocialMediaStatus Status, string Message) Health { get; set; }
-
-	[Parameter]
-	public EventCallback<Dictionary<string,string>> OnSave { get; set; }
 
 	public ViewModel Model { get; set; } = new();
 
-	protected override Task OnParametersSetAsync()
+	protected override async Task OnParametersSetAsync()
 	{
+
+		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
 
 		Model = new ViewModel
 			{
-				ClientId = ClientId,
-				ClientSecret = ClientSecret,
-				ChatBotName = ChatBotName,
-				OAuthToken = OAuthToken,
-				ChannelName = ChannelName,
-				Enabled = Enabled
+				ClientId = providerConfiguration.GetConfigurationByKey("ClientId"),
+				ClientSecret = providerConfiguration.GetConfigurationByKey("ClientSecret"),
+				ChatBotName = providerConfiguration.GetConfigurationByKey("ChatBotName"),
+				OAuthToken = providerConfiguration.GetConfigurationByKey("OAuthToken"),
+				ChannelName = providerConfiguration.GetConfigurationByKey("ChannelName"),
+				Enabled = string.IsNullOrEmpty(providerConfiguration.GetConfigurationByKey("Enabled")) ? false : bool.Parse(providerConfiguration.GetConfigurationByKey("Enabled"))
 			};
 
-		return base.OnParametersSetAsync();
+		Console.WriteLine($"Enabled: {providerConfiguration.GetConfigurationByKey("Enabled")}");
+
+		Health = await Provider.GetHealth();
+
+		await base.OnParametersSetAsync();
+
 	}
 
-    private async Task SaveConfig()
-    {
+	private async Task SaveConfig()
+	{
 
-        var args = new Dictionary<string, string>();
-        args.Add("ProviderName", "TWITCH");
+		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
 
-        // Add each of the properties of the Model to args
-        args.Add("ClientId", Model.ClientId);
-        args.Add("ClientSecret", Model.ClientSecret);
-        args.Add("ChatBotName", Model.ChatBotName);
-        args.Add("OAuthToken", Model.OAuthToken);
-        args.Add("ChannelName", Model.ChannelName);
-        args.Add("Enabled", Model.Enabled.ToString());
+		providerConfiguration.SetConfigurationByKey("ClientId", Model.ClientId);
+		providerConfiguration.SetConfigurationByKey("ClientSecret", Model.ClientSecret);
+		providerConfiguration.SetConfigurationByKey("ChatBotName", Model.ChatBotName);
+		providerConfiguration.SetConfigurationByKey("OAuthToken", Model.OAuthToken);
+		providerConfiguration.SetConfigurationByKey("ChannelName", Model.ChannelName);
+		providerConfiguration.SetConfigurationByKey("Enabled", Model.Enabled.ToString());
 
-				Console.WriteLine($"Parameters saved: {string.Join(',', args.ToArray())}");
+		await Provider.SaveConfiguration(ConfigureTagzAppFactory.Current, providerConfiguration);
 
-        await OnSave.InvokeAsync(args);
-
-    }
+	}
 
 	public class ViewModel
 	{
