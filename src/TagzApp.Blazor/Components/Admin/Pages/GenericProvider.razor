@@ -1,4 +1,5 @@
 ﻿@using TagzApp.Providers.TwitchChat
+@using TagzApp.Providers.Mastodon
 @using TagzApp.Blazor.Client.Components.Admin
 
 @typeparam TProvider
@@ -8,6 +9,11 @@
 	case nameof(TwitchChatProvider):
 		{
 			<TwitchChat_Config_Ui Provider="@Provider" />
+			break;
+		}
+	case nameof(MastodonProvider):
+		{
+			<Mastodon_Config_Ui Provider="@Provider" />
 			break;
 		}
 	default:

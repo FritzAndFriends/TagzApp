@@ -5,7 +5,7 @@ using TagzApp.Providers.Mastodon.Configuration;
 
 namespace TagzApp.Providers.Mastodon;
 
-internal class MastodonProvider : ISocialMediaProvider, IHasNewestId
+public class MastodonProvider : ISocialMediaProvider, IHasNewestId
 {
 
 	private readonly HttpClient _HttpClient;
