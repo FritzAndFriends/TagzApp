@@ -59,7 +59,7 @@ public class MastodonConfiguration : HttpClientOptions, IProviderConfiguration
 				UseHttp2 = bool.Parse(value);
 				break;
 			case "Enabled":
-				UseHttp2 = bool.Parse(value);
+				Enabled = bool.Parse(value);
 				break;
 			default:
 				throw new NotImplementedException();
