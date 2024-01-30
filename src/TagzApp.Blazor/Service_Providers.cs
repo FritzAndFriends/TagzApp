@@ -24,4 +24,12 @@ public static class Service_Providers
 
 	}
 
+	//public static void UseProviders(this WebApplication app)
+	//{
+
+	//	var messagingService = app.Services.GetRequiredService<IMessagingService>();
+	//	var 
+
+	//}
+
 }
