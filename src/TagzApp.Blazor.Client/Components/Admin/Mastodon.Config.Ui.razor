@@ -13,23 +13,14 @@
 			</dd>
 			<dt><label for="Timeout">Timeout:</label></dt>
 			<dd>
-				<input name="Timeout" @bind="Model.Timeout" pattern="\d{2}:\d{2}\d{2}" />
+				<input name="Timeout" @bind="Model.Timeout" pattern="\d{2}:\d{2}:\d{2}" />
 				<ValidationMessage For="() => Model.Timeout" class="text-danger" />
 			</dd>
 			<dt>Default Headers:</dt>
 			<dd>
 				@* Generate a set of textboxes to collect values for the DefaultHeaders dictionary in ViewModel*@
-				@foreach (var header in Model.DefaultHeaders)
-				{
-					<div class="row">
-						<div class="col-6">
-							<input name="defaultheader-key-@header.Key" @bind="header.Key" />
-						</div>
-						<div class="col-6">
-							<input name="defaultheader-value-@header.key" @bind="header.Value" />
-						</div>
-					</div>
-				}
+				<InputDictionary Value="@Model.DefaultHeaders" KeyCaption="Name" />
+
 			</dd>
 			<dt><label for="UseHttp2">UseHttp2:</label></dt>
 			<dd>
@@ -87,8 +78,11 @@
 
 		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
 
+		Model.DefaultHeaders.Remove(string.Empty);
+
 		providerConfiguration.SetConfigurationByKey("BaseAddress", Model.BaseAddress);
 		providerConfiguration.SetConfigurationByKey("Timeout", Model.Timeout.ToString());
+		providerConfiguration.SetConfigurationByKey("DefaultHeaders", JsonSerializer.Serialize(Model.DefaultHeaders));
 		providerConfiguration.SetConfigurationByKey("UseHttp2", Model.UseHttp2.ToString());
 		providerConfiguration.SetConfigurationByKey("Enabled", Model.Enabled.ToString());
 
