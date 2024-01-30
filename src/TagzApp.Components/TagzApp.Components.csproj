@@ -15,4 +15,12 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
+  </ItemGroup>
+
 </Project>
