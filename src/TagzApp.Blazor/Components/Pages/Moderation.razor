@@ -1,5 +1,7 @@
 ﻿@page "/Moderation"
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(policy: RolesAndPolicies.Policy.Moderator)]
 @* @layout Layout.WaterfallLayout *@
 @using Microsoft.AspNetCore.Identity
 @using TagzApp.ViewModels.Data
