@@ -18,9 +18,6 @@ public class TagzAppContext : DbContext
 
 	public DbSet<Tag> TagsWatched { get; set; }
 
-	public DbSet<ProviderConfiguration> ProviderConfigurations { get; set; }
-
-
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 
