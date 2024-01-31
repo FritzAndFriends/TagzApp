@@ -65,8 +65,6 @@
 				Enabled = string.IsNullOrEmpty(providerConfiguration.GetConfigurationByKey("Enabled")) ? false : bool.Parse(providerConfiguration.GetConfigurationByKey("Enabled"))
 			};
 
-		Console.WriteLine($"Enabled: {providerConfiguration.GetConfigurationByKey("Enabled")}");
-
 		Health = await Provider.GetHealth();
 
 		await base.OnParametersSetAsync();

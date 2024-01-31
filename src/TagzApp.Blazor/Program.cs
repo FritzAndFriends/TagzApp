@@ -63,6 +63,8 @@ internal class Program
 
 		await builder.Services.AddTagzAppSecurity(configure, builder.Configuration);
 
+		await Console.Out.WriteLineAsync($">> TagzApp configured: {ConfigureTagzAppFactory.IsConfigured}");
+
 		builder.Services.AddSignalR();
 
 		builder.Services.AddHttpClientPolicies();
@@ -116,8 +118,12 @@ internal class Program
 				.AddInteractiveWebAssemblyRenderMode()
 				.AddAdditionalAssemblies(typeof(TagzApp.Blazor.Client._Imports).Assembly);
 
-		app.UseAuthentication();
-		app.UseAuthorization();
+		// Only add security if we are configured and running properly
+		if (ConfigureTagzAppFactory.IsConfigured)
+		{
+			app.UseAuthentication();
+			app.UseAuthorization();
+		}
 
 		// Add additional endpoints required by the Identity /Account Razor components.
 		app.MapAdditionalIdentityEndpoints();

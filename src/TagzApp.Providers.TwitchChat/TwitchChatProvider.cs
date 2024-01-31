@@ -186,6 +186,14 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 
 	public Task StartAsync()
 	{
+
+		if (string.IsNullOrEmpty(_Settings.ChannelName) || string.IsNullOrEmpty(_Settings.OAuthToken))
+		{
+			_Status = SocialMediaStatus.Unhealthy;
+			_StatusMessage = "TwitchChat client is not configured";
+			return Task.CompletedTask;
+		}
+
 		ListenForMessages();
 		return Task.CompletedTask;
 	}
