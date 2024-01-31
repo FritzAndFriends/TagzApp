@@ -118,13 +118,6 @@ internal class Program
 				.AddInteractiveWebAssemblyRenderMode()
 				.AddAdditionalAssemblies(typeof(TagzApp.Blazor.Client._Imports).Assembly);
 
-		// Only add security if we are configured and running properly
-		if (ConfigureTagzAppFactory.IsConfigured)
-		{
-			app.UseAuthentication();
-			app.UseAuthorization();
-		}
-
 		// Add additional endpoints required by the Identity /Account Razor components.
 		app.MapAdditionalIdentityEndpoints();
 

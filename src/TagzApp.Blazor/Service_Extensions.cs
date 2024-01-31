@@ -64,6 +64,11 @@ public static class Service_Extensions
 			await services.AddSecurityContext(configure);
 			services.AddDatabaseDeveloperPageExceptionFilter();
 
+			services.AddDataProtection()
+				.SetApplicationName("TagzApp")
+				.SetDefaultKeyLifetime(TimeSpan.FromDays(90))
+				.PersistKeysToDbContext<SecurityContext>();
+
 			services.AddIdentityCore<TagzAppUser>(options =>
 									options.SignIn.RequireConfirmedAccount = true
 							)
@@ -81,11 +86,6 @@ public static class Service_Extensions
 				config.AddPolicy(RolesAndPolicies.Policy.Moderator,
 								policy => { policy.RequireAuthenticatedUser(); });
 			});
-
-			services.AddDataProtection()
-				.SetApplicationName("TagzApp")
-				.SetDefaultKeyLifetime(TimeSpan.FromDays(90))
-				.PersistKeysToDbContext<SecurityContext>();
 
 		}
 
