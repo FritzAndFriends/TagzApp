@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TagzApp.Blazor.Components.Account;
-using TagzApp.Blazor.Hubs;
 using TagzApp.Blazor.Services;
 
 namespace TagzApp.Blazor;
