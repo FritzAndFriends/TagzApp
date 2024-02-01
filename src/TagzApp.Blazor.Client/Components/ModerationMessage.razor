@@ -3,14 +3,15 @@
 @inject NavigationManager NavigationManager
 
 <article @ref="thisArticle" 
+	class="@AdditionalClasses"
 	@onmouseover="() => ShowModerationActions = true"
 	@onmouseleave="() => ShowModerationActions = false"> @* @onclick="() => OnContentSelected?.InvokeAsync(Content)"> *@
 
 	@if (ShowModerationActions)
 	{
 		<div id="moderationAction">
-			<i class="bi bi-check2 approve" title="Approve this content"></i>
-			<i class="bi bi-x-circle-fill reject" title="Reject this content"></i>
+			<i class="bi bi-check2 approve" title="Approve this content" @onclick="() => Moderate(ModerationState.Approved)"></i>
+			<i class="bi bi-x-circle-fill reject" title="Reject this content" @onclick="() => Moderate(ModerationState.Rejected)"></i>
 			<i class="bi bi-journal-text more" 
 				@onclick="@(() => NavigationManager.NavigateTo($"/MessageDetails/{Content.Provider}/{Content.ProviderId}"))"
 				title="More Actions"></i>
@@ -62,9 +63,43 @@
 	protected override Task OnAfterRenderAsync(bool firstRender)
 	{
 
-		JSRuntime.InvokeVoidAsync("window.Masonry.resizeGridItem", thisArticle);
+		if (firstRender)
+			JSRuntime.InvokeVoidAsync("window.Masonry.resizeGridItem", thisArticle);
 
 		return base.OnAfterRenderAsync(firstRender);
+	}
+
+	private const string CSS_APPROVED = "status-approved";
+	private const string CSS_REJECTED = "status-rejected";
+
+	public string AdditionalClasses => Content?.State switch
+	{
+		ModerationState.Approved => CSS_APPROVED,
+		ModerationState.Rejected => CSS_REJECTED,
+		_ => ""
+	};
+
+	async Task Moderate(ModerationState action)
+	{
+
+		Content = Content with
+			{
+				ModerationTimestamp = DateTimeOffset.Now,
+				State = action
+			}; 
+
+		await InvokeAsync(StateHasChanged);
+		Console.WriteLine($"Content state: {Content.State} {Content.ModerationTimestamp} {AdditionalClasses}");
+
+		await OnModerate.InvokeAsync(new ModerationAction { 
+			Provider = Content.Provider,
+			ProviderId = Content.ProviderId,
+			State = action,
+			Timestamp = DateTimeOffset.Now
+		});
+
+
+
 	}
 
 	public static string MapProviderToIcon(string provider) =>

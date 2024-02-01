@@ -68,7 +68,7 @@
 
 		@foreach (var content in _Content.Values.Reverse())
 		{
-			<ModerationMessage Content="content" />
+			<ModerationMessage Content="content" OnModerate="Moderate" />
 		}
 
 	</div>
@@ -171,6 +171,8 @@
 						.WithUrl(NavigationManager.ToAbsoluteUri("/mod"))
 					.Build();
 
+		await ListenForModerationContent();
+
 		await _Connection.StartAsync();
 
 	}
@@ -178,73 +180,65 @@
 	async Task ListenForModerationContent()
 	{
 
-		// ModerationService.OnNewModerator += OnNewModerator;
+		_Connection.On<ContentModel>("NewWaterfallMessage", async (content) =>
+		{
+			if (ThePauseButton.IsPaused)
+			{
+				_PauseQueue.Add(content);
+				return;
+			}
 
-		// ModerationService.OnDepartModerator += OnDepartModerator;
+			_Content.Add(content.Timestamp, ModerationContentModel.ToModerationContentModel(content));
+			await InvokeAsync(StateHasChanged);
+		});
 
-		// ModerationService.OnNewContent += OnNewContent;
+		_Connection.On<ModerationContentModel>("NewApprovedMessage", HandleApprovedMessage);
 
-		/* _Connection = new HubConnectionBuilder()
-		// 	.WithUrl(NavigationManager.ToAbsoluteUri($"/mod?t={_Tag}"))
-		// 	.WithAutomaticReconnect()
-		// 	.Build();
+		_Connection.On<ModerationContentModel>("NewRejectedMessage", async (content) => {
+			if (!ThePauseButton.IsPaused) {
+				// TODO: Write this method
+				//RejectMessage(content);
+				await InvokeAsync(StateHasChanged);
+			} else {
 
-		// _Connection.On<ContentModel>("NewWaterfallMessage", (content) =>
-		// {
-		// 	if (ThePauseButton.IsPaused)
-		// 	{
-		// 		_PauseQueue.Add(content);
-		// 		return;
-		// 	}
+				var existing = _PauseQueue.FirstOrDefault(p => p is ContentModel && p.ProviderId == content.ProviderId);
+				if (existing is not null)
+				{
+					_PauseQueue.Remove(existing);
+				}
 
-		// 	_Content.Add(content.Timestamp, ModerationContentModel.ToModerationContentModel(content));
-		// });
+				_PauseQueue.Add(content);
+			}
+		});
 
-		// _Connection.On<ModerationContentModel>("NewApprovedMessage", HandleApprovedMessage);
+		_Connection.On<int>("NewBlockedUserCount", async (newCount) => {
+			BlockedUserCount = newCount;
+			await InvokeAsync(StateHasChanged);
+		});
 
-		// _Connection.On<ModerationContentModel>("NewRejectedMessage", (content) => {
-		// 	if (!ThePauseButton.IsPaused) {
-		// 		// TODO: Write this method
-		// 		//RejectMessage(content);
-		// 	} else {
+		_Connection.On<NewModerator>("NewModerator", async (moderator) => {
+			_Moderators.Add(moderator);
+			await InvokeAsync(StateHasChanged);
+		});
 
-		// 		var existing = _PauseQueue.FirstOrDefault(p => p is ContentModel && p.ProviderId == content.ProviderId);
-		// 		if (existing is not null)
-		// 		{
-		// 			_PauseQueue.Remove(existing);
-		// 		}
+		_Connection.On<string>("RemoveModerator", async (moderatorEmail) => {
+			var thisMod = _Moderators.FirstOrDefault(m => m.Email.Equals(moderatorEmail, StringComparison.InvariantCultureIgnoreCase));
+			if (thisMod is not null)
+			{
+				_Moderators.Remove(thisMod);
+				await InvokeAsync(StateHasChanged);
+			}
+		});
 
-		// 		_PauseQueue.Add(content);
-		// 	}
-		// });
-
-		// _Connection.On<int>("NewBlockedUserCount", (newCount) => {
-		// 	BlockedUserCount = newCount;
-		// 	StateHasChanged();
-		// });
-
-		// _Connection.On<NewModerator>("NewModerator", (moderator) => {
-		// 	_Moderators.Add(moderator);
-		// });
-
-		// _Connection.On<string>("RemoveModerator", (moderatorEmail) => {
-		// 	var thisMod = _Moderators.FirstOrDefault(m => m.Email.Equals(moderatorEmail, StringComparison.InvariantCultureIgnoreCase));
-		// 	if (thisMod is not null)
-		// 	{
-		// 		_Moderators.Remove(thisMod);
-		// 	}
-		// });
-
-			await _Connection.StartAsync();
-			*/
 	}
 
-	void HandleApprovedMessage(ModerationContentModel content)
+	async Task HandleApprovedMessage(ModerationContentModel content)
 	{
 		if (!ThePauseButton.IsPaused)
 		{
 			// TODO: Approve the message
 			//ApproveMessage(content);
+			await InvokeAsync(StateHasChanged);
 		}
 		else
 		{
@@ -273,33 +267,13 @@
 
 	}
 
-	// async void OnNewModerator(object? sender, ModeratorArgs args)
-	// {
-	// 	_Moderators.Add(new NewModerator(args.Email, args.Avatar.ToString(), args.DisplayName));
-	// 	Console.WriteLine($"New moderator received {args.DisplayName}");
-	// 	await InvokeAsync(StateHasChanged);
-	// 	Console.WriteLine("Updating moderator list");
-	// }
+	async Task Moderate(ModerationAction action)
+	{
 
-	// async void OnDepartModerator(object? sender, ModeratorArgs args)
-	// {
-	// 	Console.WriteLine($"Removing moderator {args.DisplayName}");
-	// 	var thisMod = _Moderators.FirstOrDefault(m => m.Email.Equals(args.Email, StringComparison.InvariantCultureIgnoreCase));
-	// 	if (thisMod is not null)
-	// 	{
-	// 		_Moderators.Remove(thisMod);
-	// 	}
-	// 	Console.WriteLine("Moderator departed");
-	// 	await InvokeAsync(StateHasChanged);
-	// }
-
-	// async void OnNewContent(object? sender, NewContentArgs args)
-	// {
-
-	// 	_Content.Add(args.Content.Timestamp, ModerationContentModel.ToModerationContentModel(args.Content));
-	// 	await InvokeAsync(StateHasChanged);
-
-	// }
+		await _Connection.InvokeAsync("SetStatus", action.Provider, action.ProviderId, action.State);
+		// TODO: Tag message appropriately to indicate moderation state
+		
+	}
 
 	public async ValueTask DisposeAsync()
 	{
@@ -308,16 +282,6 @@
 		{
 			await _Connection.DisposeAsync();
 		}
-
-		// if (ModerationService is not null)
-		// {
-		// 	ModerationService.OnNewModerator -= OnNewModerator;
-		// 	ModerationService.OnDepartModerator -= OnDepartModerator;
-		// 	ModerationService.OnNewContent -= OnNewContent;
-		// }
-
-		// Console.WriteLine($">> Disposing Moderation.razor for user {_User?.UserName}");
-		// if (_User is not null) ModerationService?.RemoveModerator(_User.UserName);
 
 	}
 
