@@ -182,7 +182,7 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 	public async Task<IEnumerable<(Content, ModerationAction?)>> GetFilteredContentByTag(string tag, string[] providers, ModerationState[] states)
 	{
 
-		tag = $"#{tag}";
+		tag = $"#{tag.TrimStart('#')}";
 
 		using var scope = _Services.CreateScope();
 		var ctx = scope.ServiceProvider.GetRequiredService<TagzAppContext>();

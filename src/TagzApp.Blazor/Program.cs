@@ -121,17 +121,8 @@ internal class Program
 		// Add additional endpoints required by the Identity /Account Razor components.
 		app.MapAdditionalIdentityEndpoints();
 
-		app.MapHub<TagzApp.Blazor.Hubs.MessageHub>("/messages");
-		//app.MapHub<TagzApp.Blazor.Hubs.ModerationHub>("/mod");
-
-		app.MapGet("/svc/heartbeat", async (HttpContext context, ModerationService svc) =>
-		{
-			context.Response.ContentType = "text/plain";
-			var userName = context.Request.Query["user"];
-			svc.Heartbeat(userName);
-			await context.Response.WriteAsync("OK");
-		});
-
+		app.MapHub<MessageHub>("/messages");
+		app.MapHub<ModerationHub>("/mod");
 
 		await app.RunAsync(_Source.Token);
 

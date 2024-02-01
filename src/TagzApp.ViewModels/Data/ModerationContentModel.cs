@@ -94,3 +94,7 @@ public record ModerationContentModel(
 	}
 
 }
+
+public record NewModerator(string Email, string AvatarImageSource, string DisplayName);
+
+public record AvailableProvider(string Id, string Name);

@@ -8,10 +8,10 @@ public class SignalRNotifier : INotifyNewMessages
 {
 
 	private readonly IHubContext<MessageHub> _HubContext;
-	private readonly ModerationService _ModerationService;
+	private readonly IHubContext<ModerationHub, IModerationClient> _ModerationService;
 	private bool _ModerationEnabled = false;
 
-	public SignalRNotifier(IHubContext<MessageHub> hubContext, ModerationService moderationService, ApplicationConfiguration appConfiguration)
+	public SignalRNotifier(IHubContext<MessageHub> hubContext, IHubContext<ModerationHub, IModerationClient> moderationService, ApplicationConfiguration appConfiguration)
 	{
 		_HubContext = hubContext;
 		_ModerationService = moderationService;
@@ -24,7 +24,7 @@ public class SignalRNotifier : INotifyNewMessages
 		if (_ModerationEnabled)
 		{
 
-			_ModerationService.NewContent(content);
+			_ModerationService.Clients.All.NewWaterfallMessage((ContentModel)content);
 
 		}
 		else
@@ -41,7 +41,7 @@ public class SignalRNotifier : INotifyNewMessages
 	public void NotifyApprovedContent(string hashtag, Content content, ModerationAction action)
 	{
 
-		_ModerationService.ModerateContent(content, action);
+		_ModerationService.Clients.All.NewApprovedMessage(ModerationContentModel.ToModerationContentModel(content, action));
 
 		_HubContext.Clients
 			.Group(hashtag)
@@ -56,12 +56,12 @@ public class SignalRNotifier : INotifyNewMessages
 			.Group(hashtag)
 			.SendAsync("RemoveMessage", content.Provider, content.ProviderId);
 
-		_ModerationService.ModerateContent(content, action);
+		_ModerationService.Clients.All.NewRejectedMessage(ModerationContentModel.ToModerationContentModel(content, action));
 
 	}
 
 	public void NotifyNewBlockedCount(int blockedCount)
 	{
-		_ModerationService.SetBlockedUserCount(blockedCount);
+		_ModerationService.Clients.All.NewBlockedUserCount(blockedCount);
 	}
 }

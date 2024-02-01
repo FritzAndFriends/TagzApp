@@ -17,8 +17,6 @@ public static class Service_Extensions
 		// TODO: Convert to a notification pipeline
 		services.AddSingleton<INotifyNewMessages, SignalRNotifier>();
 
-		services.AddSingleton<ModerationService>();
-
 		services.AddMemoryCache();
 
 		// Get the content configuration bits
