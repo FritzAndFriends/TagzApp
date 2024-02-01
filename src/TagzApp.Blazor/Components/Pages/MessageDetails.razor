@@ -26,10 +26,12 @@
 			<div class="card-header @(Model.State == ModerationState.Rejected ? "rejected" : Model.State == ModerationState.Approved ? "approved" : "")">
 				<div class="row">
 					<div class="col-md-2">
-						<img src="@Model.AuthorProfileUri" onerror="this.src='/img/user.jpg';" class="rounded-circle" style="width: 50px; height: 50px;" />
+						<a href="@Model.AuthorProfileUri">
+							<img src="@Model.AuthorProfileImageUri" onerror="this.src='/img/user.jpg';" class="rounded-circle" style="width: 50px; height: 50px;" />
+						</a>
 					</div>
 					<div class="col-md-10">
-						<h5 class="card-title">@Model.AuthorDisplayName</h5>
+						<h5 class="card-title"><a class="h6" style="color: inherit; text-decoration: none;" target="_blank" href="@Model.AuthorProfileUri">@Model.AuthorDisplayName</a></h5>
 						@if (!Model.AuthorUserName.TrimStart('@').Equals(Model.AuthorDisplayName, StringComparison.CurrentCultureIgnoreCase)) {
 							<p class="card-text">@Model.AuthorUserName</p>
 						}
@@ -52,7 +54,7 @@
 			</div>
 
 			<div class="card-body">
-				<p id="messageContent" class="card-text"></p>
+				<p id="messageContent" class="card-text">@Model.Text</p>
 			</div>
 		</div>
 	</div>

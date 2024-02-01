@@ -185,6 +185,7 @@
 			if (ThePauseButton.IsPaused)
 			{
 				_PauseQueue.Add(content);
+				ThePauseButton.Counter = _PauseQueue.Count;
 				return;
 			}
 
@@ -257,7 +258,7 @@
 	async Task InitializeContent()
 	{
 
-		var currentContent = (await _Connection.InvokeAsync<IEnumerable<ModerationContentModel>>("GetFilteredContentByTag", _Tag, new string[] { "TWITCH" }, ""))
+		var currentContent = (await _Connection.InvokeAsync<IEnumerable<ModerationContentModel>>("GetFilteredContentByTag", _Tag, _Providers.Select(p => p.Id).ToArray(), ""))
 			.ToArray();
 
 		foreach (var content in currentContent)
