@@ -3,15 +3,15 @@
 @inject NavigationManager NavigationManager
 
 <article @ref="thisArticle" 
-	class="@AdditionalClasses"
+	class="modMessage @AdditionalClasses"
 	@onmouseover="() => ShowModerationActions = true"
 	@onmouseleave="() => ShowModerationActions = false"> @* @onclick="() => OnContentSelected?.InvokeAsync(Content)"> *@
 
 	@if (ShowModerationActions)
 	{
 		<div id="moderationAction">
-			<i class="bi bi-check2 approve" title="Approve this content" @onclick="() => Moderate(ModerationState.Approved)"></i>
-			<i class="bi bi-x-circle-fill reject" title="Reject this content" @onclick="() => Moderate(ModerationState.Rejected)"></i>
+			<i class="bi bi-check2 approve" title="Approve this content" @onclick="async () => await Moderate(ModerationState.Approved)"></i>
+			<i class="bi bi-x-circle-fill reject" title="Reject this content" @onclick="async () => await Moderate(ModerationState.Rejected)"></i>
 			<i class="bi bi-journal-text more" 
 				@onclick="@(() => NavigationManager.NavigateTo($"/MessageDetails/{Content.Provider}/{Content.ProviderId}"))"
 				title="More Actions"></i>
@@ -35,7 +35,7 @@
 	<i class="provider bi @MapProviderToIcon(Content.Provider)"></i>
 
 	<div class="time">
-		<div>@Content.Timestamp.ToString("d") @Content.Timestamp.ToString("t")</div>
+		<div>@Content.Timestamp.ToLocalTime().ToString("d") @Content.Timestamp.ToLocalTime().ToString("t")</div>
 		<div class="autoModReason"></div>
 	</div>
 
@@ -50,8 +50,11 @@
 	[Parameter]
 	public ModerationContentModel Content { get; set; }
 
-	[Parameter]
-	public EventCallback<ModerationAction> OnModerate { get; set; }
+	// [Parameter]
+	// public EventCallback<ModerationAction> OnModerate { get; set; }
+
+	[CascadingParameter]
+	public Components.Pages.Moderation ModerationPage { get; set; }
 
 	private ElementReference thisArticle;
 
@@ -82,23 +85,19 @@
 	async Task Moderate(ModerationState action)
 	{
 
-		Content = Content with
-			{
-				ModerationTimestamp = DateTimeOffset.Now,
-				State = action
-			}; 
+		Content.ModerationTimestamp = DateTimeOffset.Now;
+		Content.State = action;
 
-		await InvokeAsync(StateHasChanged);
-		Console.WriteLine($"Content state: {Content.State} {Content.ModerationTimestamp} {AdditionalClasses}");
+		ShowModerationActions = false;
 
-		await OnModerate.InvokeAsync(new ModerationAction { 
+		StateHasChanged();
+
+		await ModerationPage.Moderate(new ModerationAction { 
 			Provider = Content.Provider,
 			ProviderId = Content.ProviderId,
 			State = action,
 			Timestamp = DateTimeOffset.Now
 		});
-
-
 
 	}
 

@@ -66,10 +66,12 @@
 
 	<div id="taggedContent" class="">
 
-		@foreach (var content in _Content.Values.Reverse())
-		{
-			<ModerationMessage Content="content" OnModerate="Moderate" />
-		}
+		<CascadingValue Value="this">
+			@foreach (var content in _Content.Values.Reverse())
+			{
+				<ModerationMessage Content="content" />
+			}
+		</CascadingValue>
 
 	</div>
 
@@ -197,10 +199,21 @@
 
 		_Connection.On<ModerationContentModel>("NewRejectedMessage", async (content) => {
 			if (!ThePauseButton.IsPaused) {
-				// TODO: Write this method
-				//RejectMessage(content);
-				await InvokeAsync(StateHasChanged);
-			} else {
+				var existing = _Content.FirstOrDefault(p => p.Value.ProviderId == content.ProviderId);
+				if (existing.Value is not null && existing.Value.State == ModerationState.Rejected) return;
+
+				if (existing.Value is not null)
+				{
+					existing.Value.State = ModerationState.Rejected;
+					existing.Value.ModerationTimestamp = content.ModerationTimestamp;
+				}
+				else
+				{
+					_Content.Add(content.Timestamp, content);
+				}
+			}
+			else
+			{
 
 				var existing = _PauseQueue.FirstOrDefault(p => p is ContentModel && p.ProviderId == content.ProviderId);
 				if (existing is not null)
@@ -237,8 +250,18 @@
 	{
 		if (!ThePauseButton.IsPaused)
 		{
-			// TODO: Approve the message
-			//ApproveMessage(content);
+			var existing = _Content.FirstOrDefault(p => p.Value.ProviderId == content.ProviderId);
+			if (existing.Value is not null && existing.Value.State == ModerationState.Approved) return;
+
+			if (existing.Value is not null)
+			{
+				existing.Value.State = ModerationState.Approved;
+				existing.Value.ModerationTimestamp = content.ModerationTimestamp;
+			}
+			else
+			{
+				_Content.Add(content.Timestamp, content);
+			}
 			await InvokeAsync(StateHasChanged);
 		}
 		else
@@ -268,7 +291,7 @@
 
 	}
 
-	async Task Moderate(ModerationAction action)
+	public async Task Moderate(ModerationAction action)
 	{
 
 		await _Connection.InvokeAsync("SetStatus", action.Provider, action.ProviderId, action.State);

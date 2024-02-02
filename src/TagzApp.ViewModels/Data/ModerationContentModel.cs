@@ -11,7 +11,10 @@ namespace TagzApp.ViewModels.Data;
 /// <param name="AuthorProfileUri">Profile URI of the author of the content</param>
 /// <param name="AuthorProfileImageUri">Profile Image URI of the author of the content</param>
 /// <param name="Text">Text of the content</param>
-public record ModerationContentModel(
+public class ModerationContentModel
+{
+
+	public ModerationContentModel(
 	string Provider,
 	string ProviderId,
 	string Type,
@@ -29,7 +32,25 @@ public record ModerationContentModel(
 	DateTimeOffset? ModerationTimestamp,
 	Emote[] Emotes
 )
-{
+	{
+		this.Provider = Provider;
+		this.ProviderId = ProviderId;
+		this.Type = Type;
+		this.SourceUri = SourceUri;
+		this.Timestamp = Timestamp;
+		this.AuthorDisplayName = AuthorDisplayName;
+		this.AuthorUserName = AuthorUserName;
+		this.AuthorProfileUri = AuthorProfileUri;
+		this.AuthorProfileImageUri = AuthorProfileImageUri;
+		this.Text = Text;
+		this.PreviewCard = PreviewCard;
+		this.State = State;
+		this.Reason = Reason;
+		this.Moderator = Moderator;
+		this.ModerationTimestamp = ModerationTimestamp;
+		this.Emotes = Emotes;
+
+	}
 
 	public ContentModel Content => new(
 		Provider,
@@ -45,6 +66,23 @@ public record ModerationContentModel(
 		PreviewCard,
 		Emotes
 	);
+
+	public string Provider { get; }
+	public string ProviderId { get; }
+	public string Type { get; }
+	public string SourceUri { get; }
+	public DateTimeOffset Timestamp { get; }
+	public string AuthorDisplayName { get; }
+	public string AuthorUserName { get; set; }
+	public string AuthorProfileUri { get; set; }
+	public string AuthorProfileImageUri { get; set; }
+	public string Text { get; set; }
+	public Card? PreviewCard { get; set; }
+	public ModerationState State { get; set; }
+	public string? Reason { get; set; }
+	public string? Moderator { get; set; }
+	public DateTimeOffset? ModerationTimestamp { get; set; }
+	public Emote[] Emotes { get; set; }
 
 	// TODO: Refactor to eliminate the direct reference to Common project
 	public static ModerationContentModel ToModerationContentModel(Content content, ModerationAction? action = null)

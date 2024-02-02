@@ -17,7 +17,7 @@
 	<i class="provider bi @MapProviderToIcon(Content.Provider)"></i>
 
 	<div class="time">
-		<div>@Content.Timestamp.ToString("d") @Content.Timestamp.ToString("t")</div>
+		<div>@Content.Timestamp.ToLocalTime().ToString("d") @Content.Timestamp.ToLocalTime().ToString("t")</div>
 		<div class="autoModReason"></div>
 	</div>
 
