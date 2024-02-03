@@ -7,7 +7,7 @@
 <div class="container">
 	<main role="main" class="pb-3">
 
-		@if (!IsConfigured && !NavMgr.Uri.Contains("/FirstStartConfiguration")) {
+		@if (ShouldStartFirstConfiguration) {
 			<TagzApp.Blazor.Components.Pages.FirstStartConfiguration></TagzApp.Blazor.Components.Pages.FirstStartConfiguration>
 		} else
 		{
@@ -17,8 +17,11 @@
 	</main>
 </div>
 
-<Footer />
-
+@* Hide the footer if the page is Moderation *@
+@if (!NavMgr.Uri.Contains("/Moderation"))
+{
+	<Footer />
+}
 
 <SectionOutlet SectionName="scripts"  />
 
@@ -26,6 +29,6 @@
 
 	public bool IsConfigured => ConfigureTagzAppFactory.IsConfigured;
 
-
+	public bool ShouldStartFirstConfiguration => !IsConfigured && !NavMgr.Uri.Contains("/FirstStartConfiguration");
 
 }

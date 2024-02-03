@@ -64,7 +64,7 @@
 </div>
 <div class="row" style="padding: 2px 10px!important">
 
-	<div id="taggedContent" class="">
+	<div id="taggedContent" style="position:absolute; left: 0;height: calc(100vh - 210px)">
 
 		<CascadingValue Value="this">
 			@foreach (var content in _Content.Values.Reverse())
@@ -130,6 +130,8 @@
 
 @code {
 
+	[CascadingParameter(Name ="HideFooter")] public bool HideFooter { get; set; }
+
 	public int BlockedUserCount { get; set; } = 0;
 
 	public PauseButton ThePauseButton { get; set; } = new();
@@ -148,6 +150,8 @@
 
 	protected override async Task OnInitializedAsync()
 	{
+
+		HideFooter = true;
 
 		await ConfigureSignalRConnection();
 

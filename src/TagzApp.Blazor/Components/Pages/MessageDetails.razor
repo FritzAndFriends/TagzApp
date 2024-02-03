@@ -54,7 +54,7 @@
 			</div>
 
 			<div class="card-body">
-				<p id="messageContent" class="card-text">@Model.Text</p>
+				<p id="messageContent" class="card-text">@((MarkupString)(Model.Text))</p>
 			</div>
 		</div>
 	</div>
