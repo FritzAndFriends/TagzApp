@@ -69,6 +69,7 @@
 	{
 		Console.WriteLine("Showing modal");
 		ModalContent = content;
+		await _Connection.InvokeAsync("SendMessageToOverlay", TagTracked, content.Provider, content.ProviderId);
 		await Modal.Open();
 
 	}

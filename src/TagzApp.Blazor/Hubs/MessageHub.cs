@@ -64,6 +64,8 @@ public class MessageHub : Hub
 		var formattedTag = Hashtag.ClearFormatting(tag);
 		var message = await _Service.GetContentByIds(provider, providerId);
 
+		System.Console.WriteLine($"SendMessageToOverlay: {tag} {provider} {providerId} {message}");
+
 		if (message is null) return;
 
 		await Clients.User(Context.UserIdentifier)

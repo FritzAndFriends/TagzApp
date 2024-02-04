@@ -4,6 +4,7 @@
 @layout Layout.EmptyLayout
 @inject IMessagingService svc
 @inject IJSRuntime JS
+@inject NavigationManager NavManager
 @rendermode InteractiveServer
 
 <HeadContent>
@@ -52,11 +53,11 @@
 
 	public ViewModels.Data.ContentModel Content { get; set; } = null!;
 
-	protected override Task OnInitializedAsync()
+	protected override async Task OnInitializedAsync()
 	{
 		Tag = svc.TagsTracked.Any() ? svc.TagsTracked.First() : string.Empty;
-		if (!string.IsNullOrEmpty(Tag)) ConnectToSignalR(Tag);
-		return base.OnInitializedAsync();
+		if (!string.IsNullOrEmpty(Tag)) await ConnectToSignalR(Tag);
+		await base.OnInitializedAsync();
 	}
 
 	private async Task ConnectToSignalR(string tagTracked)
@@ -65,7 +66,7 @@
 		// Connect to the SignalR hub listening at /messages
 		// Create a new connection
 		var connection = new HubConnectionBuilder()
-				.WithUrl($"/messages?ot={tagTracked}")
+				.WithUrl(NavManager.ToAbsoluteUri("/messages?ot={tagTracked}"))
 				.WithAutomaticReconnect([
 					TimeSpan.FromSeconds(0),
 			TimeSpan.FromSeconds(2),
@@ -96,6 +97,8 @@
 			await connection.StartAsync();
 		};
 
+		// Start the connection
+		await connection.StartAsync();
 
 	}
 
