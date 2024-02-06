@@ -9,7 +9,7 @@
 
 	@foreach (var content in _Content.Values.Reverse())
 	{
-		<WaterfallMessage Content="content" OnContentSelected="ShowModal" />
+		<WaterfallMessage Content="content" @key="content" OnContentSelected="ShowModal" />
 	}
 
 </div>

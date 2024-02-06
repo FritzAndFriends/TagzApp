@@ -69,7 +69,7 @@
 		<CascadingValue Value="this">
 			@foreach (var content in _Content.Values.Reverse())
 			{
-				<ModerationMessage Content="content" />
+				<ModerationMessage @key="content" Content="content" />
 			}
 		</CascadingValue>
 
