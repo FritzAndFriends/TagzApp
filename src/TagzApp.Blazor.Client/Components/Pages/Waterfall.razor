@@ -1,6 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Components.Sections
 @using Microsoft.AspNetCore.SignalR.Client
-@rendermode InteractiveAuto
+@rendermode InteractiveWebAssembly
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 @implements IAsyncDisposable
@@ -53,13 +53,24 @@
 	private async Task StartSignalRHub()
 	{
 		_Connection = new HubConnectionBuilder()
-			.WithUrl(NavigationManager.ToAbsoluteUri("/messages"))
+			.WithUrl(NavigationManager.ToAbsoluteUri($"/messages?t={TagTracked}"))
 			.Build();
 
-		_Connection.On<ContentModel>("ReceiveContent", (content) =>
+		_Connection.On<ContentModel>("NewWaterfallMessage", (content) =>
 		{
 			_Content.Add(content.Timestamp, content);
 			StateHasChanged();
+		});
+
+		_Connection.On<string,string>("RemoveMessage", (provider, providerId) =>
+		{
+			var thisMessage = _Content.FirstOrDefault(c => c.Value.Provider == provider && c.Value.ProviderId == providerId);
+			if (thisMessage.Value is not null)
+			{
+				// TODO: Change this to not use the DateTimeOffset as a key
+				_Content.Remove(thisMessage.Key);
+				StateHasChanged();
+			}
 		});
 
 		await _Connection.StartAsync();
@@ -78,6 +89,7 @@
 	{
 		if (_Connection is null) return ValueTask.CompletedTask;
 		return _Connection.DisposeAsync();
+		// return ValueTask.CompletedTask;
 	}
 
 }

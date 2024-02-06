@@ -43,6 +43,8 @@ public class SignalRNotifier : INotifyNewMessages
 
 		_ModerationService.Clients.All.NewApprovedMessage(ModerationContentModel.ToModerationContentModel(content, action));
 
+		Console.WriteLine($"Sending new waterfall message for tag {hashtag} for content: {content.Text}");
+
 		_HubContext.Clients
 			.Group(hashtag)
 			.SendAsync("NewWaterfallMessage", (ContentModel)content);
