@@ -10,7 +10,7 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 
-<PageTitle>Moderation</PageTitle>
+<PageTitle>Message Moderation</PageTitle>
 
 <div class="row">
 	<div class="col-md-12">
@@ -64,18 +64,29 @@
 </div>
 <div class="row" style="padding: 2px 10px!important">
 
-	<div id="taggedContent" style="position:absolute; left: 0;height: calc(100vh - 210px)">
+	@if (_Content.Any())
+	{
+		<div id="taggedContent" style="position:absolute; left: 0;height: calc(100vh - 210px)">
 
-		<CascadingValue Value="this">
-			@foreach (var content in _Content.Values.Reverse())
-			{
-				<ModerationMessage @key="content" Content="content" />
-			}
-		</CascadingValue>
 
-	</div>
+			<CascadingValue Value="this">
+				@foreach (var content in _Content.Values.Reverse())
+				{
+					<ModerationMessage @key="content" Content="content" />
+				}
+			</CascadingValue>
 
-	<PauseButton @ref="ThePauseButton" />
+		</div>
+
+	}
+	else
+	{
+		<div class=" d-flex justify-content-center align-items-center" style="height: calc(100vh - 210px); text-align: center;">
+			<div class="spinner-border" role="status"> <span class="visually-hidden">Loading...</span> </div>
+		</div>
+	}
+
+	<PauseButton @ref="ThePauseButton" OnPauseUpdates="OnPauseClick" />
 
 	<div id="moderationAction" style="display: none;">
 		<i class="bi bi-check2 approve" title="Approve this content"></i>
@@ -130,7 +141,7 @@
 
 @code {
 
-	[CascadingParameter(Name ="HideFooter")] public bool HideFooter { get; set; }
+	[CascadingParameter(Name = "HideFooter")] public bool HideFooter { get; set; }
 
 	public int BlockedUserCount { get; set; } = 0;
 
@@ -190,8 +201,11 @@
 		{
 			if (ThePauseButton.IsPaused)
 			{
-				_PauseQueue.Add(content);
-				ThePauseButton.Counter = _PauseQueue.Count;
+				if (!_PauseQueue.Any(p => p.ProviderId == content.ProviderId) && !_Content.Any(c => c.Value.ProviderId == content.ProviderId)) {
+					_PauseQueue.Add(content);
+					ThePauseButton.Counter = _PauseQueue.Count();
+				}
+
 				return;
 			}
 
@@ -201,45 +215,54 @@
 
 		_Connection.On<ModerationContentModel>("NewApprovedMessage", HandleApprovedMessage);
 
-		_Connection.On<ModerationContentModel>("NewRejectedMessage", async (content) => {
-			if (!ThePauseButton.IsPaused) {
-				var existing = _Content.FirstOrDefault(p => p.Value.ProviderId == content.ProviderId);
-				if (existing.Value is not null && existing.Value.State == ModerationState.Rejected) return;
+		_Connection.On<ModerationContentModel>("NewRejectedMessage", async (content) =>
+		{
 
-				if (existing.Value is not null)
+			if (ThePauseButton.IsPaused)
+			{
+				if (!_PauseQueue.Any(p => p.ProviderId == content.ProviderId) && !_Content.Any(c => c.Value.ProviderId == content.ProviderId))
 				{
-					existing.Value.State = ModerationState.Rejected;
-					existing.Value.ModerationTimestamp = content.ModerationTimestamp;
+					_PauseQueue.Add(content);
 				}
-				else
+				else if (_PauseQueue.Any(p => p.ProviderId == content.ProviderId))
 				{
-					_Content.Add(content.Timestamp, content);
+					_PauseQueue.RemoveWhere(p => p.ProviderId == content.ProviderId);
+					_PauseQueue.Add(content);
 				}
+				ThePauseButton.Counter = _PauseQueue.Count();
+
+				return;
+			}
+			
+			var existing = _Content.FirstOrDefault(p => p.Value.ProviderId == content.ProviderId);
+			if (existing.Value is not null && existing.Value.State == ModerationState.Rejected) return;
+
+			if (existing.Value is not null)
+			{
+				existing.Value.State = ModerationState.Rejected;
+				existing.Value.ModerationTimestamp = content.ModerationTimestamp;
 			}
 			else
 			{
-
-				var existing = _PauseQueue.FirstOrDefault(p => p is ContentModel && p.ProviderId == content.ProviderId);
-				if (existing is not null)
-				{
-					_PauseQueue.Remove(existing);
-				}
-
-				_PauseQueue.Add(content);
+				_Content.Add(content.Timestamp, content);
 			}
+
 		});
 
-		_Connection.On<int>("NewBlockedUserCount", async (newCount) => {
+		_Connection.On<int>("NewBlockedUserCount", async (newCount) =>
+		{
 			BlockedUserCount = newCount;
 			await InvokeAsync(StateHasChanged);
 		});
 
-		_Connection.On<NewModerator>("NewModerator", async (moderator) => {
+		_Connection.On<NewModerator>("NewModerator", async (moderator) =>
+		{
 			_Moderators.Add(moderator);
 			await InvokeAsync(StateHasChanged);
 		});
 
-		_Connection.On<string>("RemoveModerator", async (moderatorEmail) => {
+		_Connection.On<string>("RemoveModerator", async (moderatorEmail) =>
+		{
 			var thisMod = _Moderators.FirstOrDefault(m => m.Email.Equals(moderatorEmail, StringComparison.InvariantCultureIgnoreCase));
 			if (thisMod is not null)
 			{
@@ -252,34 +275,34 @@
 
 	async Task HandleApprovedMessage(ModerationContentModel content)
 	{
-		if (!ThePauseButton.IsPaused)
-		{
-			var existing = _Content.FirstOrDefault(p => p.Value.ProviderId == content.ProviderId);
-			if (existing.Value is not null && existing.Value.State == ModerationState.Approved) return;
 
-			if (existing.Value is not null)
-			{
-				existing.Value.State = ModerationState.Approved;
-				existing.Value.ModerationTimestamp = content.ModerationTimestamp;
+		if (ThePauseButton.IsPaused)
+		{
+			if (!_PauseQueue.Any(p => p.ProviderId == content.ProviderId) && !_Content.Any(c => c.Value.ProviderId == content.ProviderId)) {
+				_PauseQueue.Add(content);
+				ThePauseButton.Counter = _PauseQueue.Count();
+			} else if (_PauseQueue.Any(p => p.ProviderId == content.ProviderId)) {
+				_PauseQueue.RemoveWhere(p => p.ProviderId == content.ProviderId);
+				_PauseQueue.Add(content);
+				ThePauseButton.Counter = _PauseQueue.Count();
 			}
-			else
-			{
-				_Content.Add(content.Timestamp, content);
-			}
-			await InvokeAsync(StateHasChanged);
+			return;
+		}
+
+		var existing = _Content.FirstOrDefault(p => p.Value.ProviderId == content.ProviderId);
+		if (existing.Value is not null && existing.Value.State == ModerationState.Approved) return;
+
+		if (existing.Value is not null)
+		{
+			existing.Value.State = ModerationState.Approved;
+			existing.Value.ModerationTimestamp = content.ModerationTimestamp;
 		}
 		else
 		{
-			// Find item in the pauseQueue and set its state to ModerationState.Approved
-			var existing = _PauseQueue.FirstOrDefault(p => p is ContentModel && p.ProviderId == content.ProviderId);
-			if (existing is not null)
-			{
-				_PauseQueue.Remove(existing);
-			}
-
-			_PauseQueue.Add(content);
-
+			_Content.Add(content.Timestamp, content);
 		}
+		await InvokeAsync(StateHasChanged);
+
 	}
 
 	async Task InitializeContent()
@@ -288,7 +311,7 @@
 		var currentContent = (await _Connection.InvokeAsync<IEnumerable<ModerationContentModel>>("GetFilteredContentByTag", _Tag, _Providers.Select(p => p.Id).ToArray(), ""))
 			.ToArray();
 
-		foreach (var content in currentContent)
+		foreach (var content in currentContent.OrderByDescending(c => c.Timestamp).ToArray())
 		{
 			_Content.Add(content.Timestamp, content);
 		}
@@ -300,7 +323,29 @@
 
 		await _Connection.InvokeAsync("SetStatus", action.Provider, action.ProviderId, action.State);
 		// TODO: Tag message appropriately to indicate moderation state
-		
+
+	}
+
+	public async Task OnPauseClick(bool newPauseState)
+	{
+
+		Console.WriteLine($"New Pause State: {newPauseState}");
+
+		if (!newPauseState)
+		{
+			// Add all the items in the pause queue to the waterfall
+			foreach (var item in _PauseQueue)
+			{
+				if (item is ContentModel content)
+				{
+					_Content.Add(content.Timestamp, ModerationContentModel.ToModerationContentModel(content));
+				}
+			}
+			_PauseQueue.Clear();
+			ThePauseButton.Counter = 0;
+		}
+
+		await InvokeAsync(StateHasChanged);
 	}
 
 	public async ValueTask DisposeAsync()

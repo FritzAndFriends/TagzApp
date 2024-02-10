@@ -1,20 +1,32 @@
 ﻿@using Microsoft.AspNetCore.Components.Sections
 @using Microsoft.AspNetCore.SignalR.Client
-@rendermode InteractiveWebAssembly
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 @implements IAsyncDisposable
 
-<div id="taggedContent" class="">
+@if (!_Content.Any())
+{
 
-	@foreach (var content in _Content.Values.Reverse())
-	{
-		<WaterfallMessage Content="content" @key="content" OnContentSelected="ShowModal" />
-	}
+	<div class="d-flex justify-content-center align-items-center" style="height: calc(100vh - 210px); text-align: center;">
+		<div class="spinner-border" role="status"> <span class="visually-hidden">Loading...</span> </div>
+	</div>
 
-</div>
+}
+else
+{
+	<div id="taggedContent" class="">
 
-<PauseButton @ref="thePauseButton" />
+
+		@foreach (var content in _Content.Values.Reverse())
+		{
+			<WaterfallMessage Content="content" @key="content" OnContentSelected="ShowModal" />
+		}
+
+	</div>
+}
+
+<PauseButton @ref="thePauseButton" OnPauseUpdates="OnPauseClick" />
 
 <WaterfallModal @ref="Modal" Content="ModalContent" />
 
@@ -26,6 +38,8 @@
 	ContentModel ModalContent = null!;
 
 	PauseButton thePauseButton = new();
+
+	private HashSet<dynamic> _PauseQueue = new();
 
 	HubConnection _Connection = null!;
 
@@ -39,7 +53,7 @@
 
 		var existingContent = await _Connection.InvokeAsync<IEnumerable<ContentModel>>("GetExistingContentForTag", TagTracked);
 
-		Console.WriteLine($"Received {existingContent.Count()} messages for tag {TagTracked}");
+		// Console.WriteLine($"Received {existingContent.Count()} messages for tag {TagTracked}");
 
 		foreach (var content in existingContent)
 		{
@@ -50,6 +64,22 @@
 
 	}
 
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+
+		if (firstRender)
+		{
+			await JSRuntime.InvokeVoidAsync("WaterfallUi.setupWaterfall");
+		}
+
+		await JSRuntime.InvokeVoidAsync("window.Masonry.setupPage");
+
+		await base.OnAfterRenderAsync(firstRender);
+
+	}
+
+
+
 	private async Task StartSignalRHub()
 	{
 		_Connection = new HubConnectionBuilder()
@@ -58,12 +88,23 @@
 
 		_Connection.On<ContentModel>("NewWaterfallMessage", (content) =>
 		{
+
+			if (thePauseButton.IsPaused)
+			{
+				_PauseQueue.Add(content);
+				thePauseButton.Counter = _PauseQueue.Count;
+				return;
+			}
+
 			_Content.Add(content.Timestamp, content);
 			StateHasChanged();
 		});
 
-		_Connection.On<string,string>("RemoveMessage", (provider, providerId) =>
+		_Connection.On<string, string>("RemoveMessage", (provider, providerId) =>
 		{
+
+			// NOTE: Remove messages immediately from the waterfall regardless of pause state
+
 			var thisMessage = _Content.FirstOrDefault(c => c.Value.Provider == provider && c.Value.ProviderId == providerId);
 			if (thisMessage.Value is not null)
 			{
@@ -71,6 +112,7 @@
 				_Content.Remove(thisMessage.Key);
 				StateHasChanged();
 			}
+
 		});
 
 		await _Connection.StartAsync();
@@ -83,6 +125,25 @@
 		await _Connection.InvokeAsync("SendMessageToOverlay", TagTracked, content.Provider, content.ProviderId);
 		await Modal.Open();
 
+	}
+
+	public async Task OnPauseClick(bool newPauseState)
+	{
+		if (!newPauseState)
+		{
+			// Add all the items in the pause queue to the waterfall
+			foreach (var item in _PauseQueue)
+			{
+				if (item is ContentModel content)
+				{
+					_Content.Add(content.Timestamp, content);
+				}
+			}
+			_PauseQueue.Clear();
+			thePauseButton.Counter = 0;
+		}
+
+		await InvokeAsync(StateHasChanged);
 	}
 
 	public ValueTask DisposeAsync()

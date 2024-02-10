@@ -1,7 +1,7 @@
 ﻿<div id="pauseUpdates" @onclick="PauseClicked">
 	<i id="pauseButton" class="bi bi-@(IsPaused ? "play" : "pause")-circle-fill text-info"></i>
 	<i id="pauseButton-bg" class="bi bi-circle-fill"></i>
-	<span style="@CounterDisplay">@Counter</span>
+	<div id="pauseCounter" style="@CounterDisplay">@Counter</div>
 </div>
 
 
@@ -18,9 +18,24 @@
 	[Parameter]
 	public EventCallback<bool> OnPauseUpdates { get; set; }
 
-	public int Counter { get; set; } = 0;
+	private int _counter = 0;
+	public int Counter
+	{
+		get { return _counter; }
+		set { 
+			_counter = value;
+			SetCounterDisplay();
+			StateHasChanged();
+		}
+	}
 
-	public string CounterDisplay => !IsPaused && Counter > 0 ? "display: none;" : "display: block;";
+	private void SetCounterDisplay()
+	{
+		CounterDisplay = (!IsPaused || Counter == 0) ? "display: none;" : "display: block;";
+		Console.WriteLine($"New CounterDisplay({Counter}): {CounterDisplay}");
+	}
+
+	public string CounterDisplay { get; set; } = "display: none;";
 
 	void PauseClicked()
 	{

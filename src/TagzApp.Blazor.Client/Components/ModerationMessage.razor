@@ -69,7 +69,6 @@
 		if (firstRender)
 		{
 			JSRuntime.InvokeVoidAsync("window.Masonry.resizeGridItem", thisArticle);
-			Console.WriteLine($"Rendered message from {Content.AuthorDisplayName}");
 		}
 
 		return base.OnAfterRenderAsync(firstRender);

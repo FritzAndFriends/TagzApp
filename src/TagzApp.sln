@@ -57,7 +57,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Blazor.Client", "Ta
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.ViewModels", "TagzApp.ViewModels\TagzApp.ViewModels.csproj", "{D135C491-2B45-49A1-B7CD-B41141475C7C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagzApp.Components", "TagzApp.Components\TagzApp.Components.csproj", "{6751D128-B522-4C1A-9B37-5271C0E6C263}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Components", "TagzApp.Components\TagzApp.Components.csproj", "{6751D128-B522-4C1A-9B37-5271C0E6C263}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

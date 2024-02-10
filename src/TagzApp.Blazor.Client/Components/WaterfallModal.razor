@@ -18,7 +18,7 @@
 					<i class="provider bi @WaterfallMessage.MapProviderToIcon(Content?.Provider)"></i>
 					<button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" @onclick="Close">
 					</button>
-					<div class="time">@Content?.Timestamp.ToString("d") @Content?.Timestamp.ToString("t")</div>
+					<div class="time">@Content?.Timestamp.ToLocalTime().ToString("d") @Content?.Timestamp.ToLocalTime().ToString("t")</div>
 				</div>
 
 				<div class="modal-body">

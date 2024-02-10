@@ -5,6 +5,7 @@
 	cursor: pointer;
 	z-index: 50;
 	opacity: 0.6;
+	width: 4rem;
 }
 
 #pauseUpdates:hover {
@@ -26,14 +27,13 @@
 	color: #fff;
 }
 
-#pauseUpdates span {
+#pauseUpdates #pauseCounter {
 	display: block;
-	width: 2.5rem;
+	width: 100%;
 	text-align: center;
-	position: absolute;
 	font-weight: bold;
 	z-index: 100;
-	position: absolute;
 	top: 3.8rem;
 	font-size: 0.8em;
+	position: absolute;
 }
