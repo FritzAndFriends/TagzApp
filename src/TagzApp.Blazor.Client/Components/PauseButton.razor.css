@@ -28,12 +28,12 @@
 }
 
 #pauseUpdates #pauseCounter {
-	display: block;
 	width: 100%;
 	text-align: center;
 	font-weight: bold;
 	z-index: 100;
-	top: 3.8rem;
-	font-size: 0.8em;
 	position: absolute;
+	top: 3.8rem;
+	left: 0;
+	font-size: 0.8em;
 }
