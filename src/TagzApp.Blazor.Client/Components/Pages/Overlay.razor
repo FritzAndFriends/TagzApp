@@ -2,10 +2,10 @@
 @using Microsoft.AspNetCore.Components.Sections
 @using Microsoft.AspNetCore.SignalR.Client
 @layout Layout.EmptyLayout
-@inject IMessagingService svc
 @inject IJSRuntime JS
 @inject NavigationManager NavManager
-@rendermode InteractiveServer
+@inject ILogger<Overlay> Logger
+@rendermode InteractiveWebAssembly 
 
 <HeadContent>
 	<style>
@@ -26,7 +26,7 @@
 		<i class="provider bi @WaterfallMessage.MapProviderToIcon(Content.Provider)"></i>
 		<span class="time">${new Date(content.timestamp).toLocaleString(undefined, { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
 
-		<span class="content">@Content.FormatContentWithEmotes()</span>
+		<span class="content">@((MarkupString)(Content.FormatContentWithEmotes()))</span>
 
 		@if (Content.PreviewCard is not null)
 		{
@@ -55,8 +55,9 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		Tag = svc.TagsTracked.Any() ? svc.TagsTracked.First() : string.Empty;
-		if (!string.IsNullOrEmpty(Tag)) await ConnectToSignalR(Tag);
+
+		//if (!string.IsNullOrEmpty(Tag)) await ConnectToSignalR(Tag);
+		ConnectToSignalR("tag");
 		await base.OnInitializedAsync();
 	}
 
@@ -66,7 +67,7 @@
 		// Connect to the SignalR hub listening at /messages
 		// Create a new connection
 		var connection = new HubConnectionBuilder()
-				.WithUrl(NavManager.ToAbsoluteUri("/messages?ot={tagTracked}"))
+				.WithUrl(NavManager.ToAbsoluteUri("/messages"))
 				.WithAutomaticReconnect([
 					TimeSpan.FromSeconds(0),
 			TimeSpan.FromSeconds(2),
@@ -84,6 +85,7 @@
 
 		connection.On<ViewModels.Data.ContentModel>("DisplayOverlay", async (content) =>
 		{
+			Console.WriteLine(">> Received content from SignalR");
 			Content = content;
 			StateHasChanged();
 			await JS.InvokeVoidAsync("window.FormatDateTime", content.Timestamp);

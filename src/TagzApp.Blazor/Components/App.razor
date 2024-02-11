@@ -16,21 +16,6 @@
 
 <body>
 	<Routes />
-	<script>
-
-		var _heartbeatTimeout;
-
-		function Heartbeat(userName) {
-			_heartbeatTimeout = window.setInterval(() => {
-				window.fetch(`/svc/heartbeat?user=${userName}`);
-			}, 1000)
-		}
-
-		function StopHeartbeat()
-		{
-			window.clearInterval(_heartbeatTimeout);
-		}
-	</script>
 	<script src="_framework/blazor.web.js"></script>
 	<script src="/lib/jquery/dist/jquery.min.js"></script>
 	<script src="/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

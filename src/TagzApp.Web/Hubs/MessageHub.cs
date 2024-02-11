@@ -32,6 +32,14 @@ public class MessageHub : Hub
 		if (!string.IsNullOrEmpty(overlay))
 		{
 			await Groups.AddToGroupAsync(Context.ConnectionId, FormatOverlayGroupname(overlay));
+		} else {
+			// get the default tag and watch that
+			var tag = _Service.TagsTracked.FirstOrDefault();
+			if (tag != null)
+			{
+				System.Console.WriteLine($"Default tag: {tag}");
+				await Groups.AddToGroupAsync(Context.ConnectionId, FormatOverlayGroupname(tag));
+			}
 		}
 
 		await base.OnConnectedAsync();
@@ -60,10 +68,13 @@ public class MessageHub : Hub
 
 	public async Task SendMessageToOverlay(string tag, string provider, string providerId)
 	{
+
 		var formattedTag = Hashtag.ClearFormatting(tag);
 		var message = await _Service.GetContentByIds(provider, providerId);
 
 		if (message is null) return;
+
+		System.Console.WriteLine($"SendMessageToOverlay: {tag} {provider} {providerId}");
 
 		await Clients.User(Context.UserIdentifier)
 			.SendAsync("DisplayOverlay", (ContentModel)message);
