@@ -1,4 +1,5 @@
 ﻿@page "/overlay"
+
 @using Microsoft.AspNetCore.Components.Sections
 @using Microsoft.AspNetCore.SignalR.Client
 @layout Layout.EmptyLayout
@@ -12,7 +13,12 @@
 		body {
 			background-color: #00b140;
 		}
+
+		* {
+			color: #111!important;
+		}
 	</style>
+	<meta name="color-scheme" content="light">
 </HeadContent>
 
 @if (Content is not null)
@@ -31,7 +37,7 @@
 		@if (Content.PreviewCard is not null)
 		{
 			<span class="contentcard">
-				<img src="@Content.PreviewCard.ImageUri" class="card-img-top" alt="@Content.PreviewCard.AltText}" onerror="this.onerror=null; window.TagzApp.FixEmbedImage(this);" />
+				<img src="@Content.PreviewCard.ImageUri" class="card-img-top" alt="@Content.PreviewCard.AltText}" onerror="this.onerror=null; window.WaterfallUi.FixEmbedImage(this);" />
 		</span>
 		}
 	</div>
