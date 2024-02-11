@@ -18,7 +18,7 @@
 				});
 		},
 
-		FixEmbedImage: function(img) {
+		FixEmbedImage: function (img) {
 			var theArticle = img.closest('[data-provider]');
 
 			if (
@@ -30,14 +30,12 @@
 					'.jpg';
 			} else {
 				img.parentElement.style.display = 'none';
-				if (img.parentElement.parentElement.classList.contains("showPreview"))
-				{
-					img.parentElement.parentElement.classList.remove("showPreview");
-					img.parentElement.parentElement.classList.add("show");
+				if (img.parentElement.parentElement.classList.contains('showPreview')) {
+					img.parentElement.parentElement.classList.remove('showPreview');
+					img.parentElement.parentElement.classList.add('show');
 				}
 			}
-		}
-
+		},
 	};
 
 	window.WaterfallUi = waterfallUi;
