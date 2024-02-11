@@ -32,7 +32,9 @@ public class MessageHub : Hub
 		if (!string.IsNullOrEmpty(overlay))
 		{
 			await Groups.AddToGroupAsync(Context.ConnectionId, FormatOverlayGroupname(overlay));
-		} else {
+		}
+		else
+		{
 			// get the default tag and watch that
 			var tag = _Service.TagsTracked.FirstOrDefault();
 			if (tag != null)
