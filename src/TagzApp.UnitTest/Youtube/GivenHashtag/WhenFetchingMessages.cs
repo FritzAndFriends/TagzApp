@@ -1,4 +1,4 @@
-﻿t// Ignore Spelling: Sut
+﻿// Ignore Spelling: Sut
 
 using Microsoft.Extensions.Configuration;
 using TagzApp.Providers.Youtube;

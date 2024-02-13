@@ -30,7 +30,7 @@
 			<div class="authorUserName">@Content.AuthorUserName</div>
 		</div>
 		<i class="provider bi @WaterfallMessage.MapProviderToIcon(Content.Provider)"></i>
-		<span class="time">${new Date(content.timestamp).toLocaleString(undefined, { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+		<span class="time">@Content.Timestamp.ToLocalTime().ToString("d") @Content.Timestamp.ToLocalTime().ToString("t")</span>
 
 		<span class="content">@((MarkupString)(Content.FormatContentWithEmotes()))</span>
 
@@ -43,14 +43,6 @@
 	</div>
 }
 
-<SectionContent SectionName="scripts">
-	<script>
-		function FormatDateTime(theDate) {
-			var formattedDateTime = new Date(theDate).toLocaleString(undefined, { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-			document.querySelector(".time").innerHTML = formattedDateTime;
-		}
-	</script>
-</SectionContent>
 
 
 @code {
@@ -94,7 +86,7 @@
 			Console.WriteLine(">> Received content from SignalR");
 			Content = content;
 			StateHasChanged();
-			await JS.InvokeVoidAsync("window.FormatDateTime", content.Timestamp);
+			// await JS.InvokeVoidAsync("window.FormatDateTime", content.Timestamp);
 		});
 
 
