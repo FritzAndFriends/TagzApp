@@ -1,5 +1,3 @@
-using static System.Net.Mime.MediaTypeNames;
-using TagzApp.Common.Models;
 using System.Net;
 
 namespace TagzApp.ViewModels.Data;
