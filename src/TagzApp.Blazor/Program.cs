@@ -1,4 +1,8 @@
 global using TagzApp.Security;
+global using TagzApp.Blazor.Components;
+global using TagzApp.Blazor.Components.Account.Pages;
+global using TagzApp.Blazor.Components.Account.Pages.Manage;
+
 using Microsoft.AspNetCore.HttpOverrides;
 using TagzApp.Blazor;
 using TagzApp.Blazor.Hubs;
