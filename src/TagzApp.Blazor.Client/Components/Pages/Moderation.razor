@@ -41,11 +41,11 @@
 		</a>
 
 		<label for="approved" style="text-wrap: nowrap; margin-right: 1.4em">Approval Status:</label>
-		<select id="approved">
-			<option value="-1">All</option>
-			<option value="1">Approved Only</option>
-			<option value="2">Rejected Only</option>
-			<option value="0">Needs Review</option>
+		<select id="approved" @bind="FilterApprovalStatus">
+			<option value="@FilterModerationState.All">All</option>
+			<option value="@FilterModerationState.Approved">Approved Only</option>
+			<option value="@FilterModerationState.Rejected">Rejected Only</option>
+			<option value="@FilterModerationState.Pending">Needs Review</option>
 		</select>
 
 		<label for="providers" class="px-2">Providers:</label>
@@ -154,6 +154,22 @@
 
 	private List<string> _FilteredProviders = [];
 
+	private FilterModerationState _FilterApprovalStatus = FilterModerationState.All;
+	private FilterModerationState FilterApprovalStatus
+	{
+		get { return _FilterApprovalStatus; }
+		set
+		{
+			_FilterApprovalStatus = value;
+			_Content.Clear();
+			StateHasChanged();
+			FilterContent = InitializeContent().ContinueWith(async t => {
+				await InvokeAsync(StateHasChanged);
+				FilterContent = null;
+			});
+		}
+	}
+
 	private HubConnection _Connection;
 
 	string _Tag = string.Empty;
@@ -200,7 +216,8 @@
 		_Connection.On<ContentModel>("NewWaterfallMessage", async (content) =>
 		{
 
-			if (!_FilteredProviders.Contains(content.ProviderId)) return;
+			if (!_FilteredProviders.Contains(content.Provider)) return;
+			if (_FilterApprovalStatus != FilterModerationState.All || _FilterApprovalStatus != FilterModerationState.Pending) return;
 
 			if (ThePauseButton.IsPaused)
 			{
@@ -311,7 +328,8 @@
 	async Task InitializeContent()
 	{
 
-		var currentContent = (await _Connection.InvokeAsync<IEnumerable<ModerationContentModel>>("GetFilteredContentByTag", _Tag, _FilteredProviders.ToArray(), ""))
+		var approvalStatus = (int)_FilterApprovalStatus;
+		var currentContent = (await _Connection.InvokeAsync<IEnumerable<ModerationContentModel>>("GetFilteredContentByTag", _Tag, _FilteredProviders.ToArray(), approvalStatus.ToString()))
 			.ToArray();
 
 		foreach (var content in currentContent.OrderByDescending(c => c.Timestamp).ToArray())
@@ -374,6 +392,13 @@
 
 	private Task FilterContent;
 
+	private enum FilterModerationState
+	{
+		All = -1,
+		Pending = 0,
+		Approved = 1,
+		Rejected = 2,
+	};
 
 	public async ValueTask DisposeAsync()
 	{
