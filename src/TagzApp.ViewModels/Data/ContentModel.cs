@@ -1,7 +1,4 @@
-﻿using static System.Net.Mime.MediaTypeNames;
-using TagzApp.Common.Models;
-
-namespace TagzApp.ViewModels.Data;
+﻿namespace TagzApp.ViewModels.Data;
 
 
 /// <summary>
@@ -53,7 +50,8 @@ public record ContentModel(
 	public string FormatContentWithEmotes()
 	{
 
-		if (!Emotes?.Any() ?? true) 		{
+		if (!Emotes?.Any() ?? true)
+		{
 			return Text;
 		}
 
