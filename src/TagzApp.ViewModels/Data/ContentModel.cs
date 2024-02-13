@@ -1,9 +1,8 @@
-﻿using static System.Net.Mime.MediaTypeNames;
+using static System.Net.Mime.MediaTypeNames;
 using TagzApp.Common.Models;
 using System.Net;
 
 namespace TagzApp.ViewModels.Data;
-
 
 /// <summary>
 /// Content to be shared with the web client
@@ -54,7 +53,8 @@ public record ContentModel(
 	public string FormatContentWithEmotes()
 	{
 
-		if (!Emotes?.Any() ?? true) 		{
+		if (!Emotes?.Any() ?? true)
+		{
 			return Text;
 		}
 
