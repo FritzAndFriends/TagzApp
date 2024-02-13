@@ -36,7 +36,9 @@
 
 	<div class="time">
 		<div>@Content.Timestamp.ToLocalTime().ToString("d") @Content.Timestamp.ToLocalTime().ToString("t")</div>
-		<div class="autoModReason"></div>
+		<div class="autoModReason">@if (!string.IsNullOrEmpty(AutomodReason)){
+				<text>AI Reason ( @AutomodReason )</text>
+		}</div>
 	</div>
 
 	<div class="content">@((MarkupString)(Content.Content.FormatContentWithEmotes()))</div>
@@ -49,6 +51,20 @@
 
 	[Parameter]
 	public ModerationContentModel Content { get; set; }
+
+	private string AutomodReason { get
+		{
+
+			var outText = Content?.Reason ?? string.Empty;
+			outText = outText.Replace("2", "Low");
+			outText = outText.Replace("4", "Medium");
+			outText = outText.Replace("6", "High");
+			outText = outText.Replace(".", "");
+
+			return outText;
+
+		}
+	}
 
 	// [Parameter]
 	// public EventCallback<ModerationAction> OnModerate { get; set; }
@@ -76,12 +92,14 @@
 
 	private const string CSS_APPROVED = "status-approved";
 	private const string CSS_REJECTED = "status-rejected status-humanmod";
+	private const string CSS_AZURECONTENTSAFETY = "status-rejected status-automod";
 
-	public string AdditionalClasses => Content?.State switch
+	public string AdditionalClasses => (Content?.State, Content?.Moderator) switch
 	{
-		ModerationState.Approved => CSS_APPROVED,
-		ModerationState.Rejected => CSS_REJECTED,
-		_ => ""
+		(ModerationState.Approved, _) => CSS_APPROVED,
+		(ModerationState.Rejected, "AZURE-CONTENTSAFETY") => CSS_AZURECONTENTSAFETY,
+		(ModerationState.Rejected, _) => CSS_REJECTED,
+		(_,_) => ""
 	};
 
 	async Task Moderate(ModerationState action)
