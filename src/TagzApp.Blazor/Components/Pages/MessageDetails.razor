@@ -1,8 +1,10 @@
 ﻿@page "/MessageDetails/{provider}/{providerId}"
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
 @using TagzApp.ViewModels.Data
 @attribute [Authorize(policy: RolesAndPolicies.Policy.Moderator)]
 @inject IModerationRepository ModerationRepository
+@inject UserManager<TagzAppUser> UserManager
 @using Humanizer
 
 
@@ -68,7 +70,7 @@
 				}
 
 				<h5 class="card-title">Actions</h5>
-				<form method="post">
+				<EditForm FormName="BlockUser" Model="Model" OnSubmit="BlockUser" Enhance>
 					<ul>
 						@* Add a block user button *@
 						<li>
@@ -77,11 +79,10 @@
 							@* TODO: Wire up the GO button
 
 							*@
-							
 							<input type="submit" name="blockUser" value="Go" />
 						</li>
 					</ul>
-				</form>
+				</EditForm>
 			</div>
 		</div>
 	</div>
@@ -96,6 +97,9 @@
 	[Parameter]
 	public string ProviderId { get; set; } = null!;
 
+	[CascadingParameter]
+	private HttpContext HttpContext { get; set; } = default!;
+
 	public ModerationContentModel Model { get; set; }
 
 	private string ValidationMessage { get; set; }
@@ -108,6 +112,16 @@
 
 		await base.OnInitializedAsync();
 
+	}
+
+	async Task BlockUser()
+	{
+
+		var user = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+
+		await ModerationRepository.BlockUser(Model.AuthorUserName, Model.Provider, user.DisplayName, new DateTimeOffset(new DateTime(2050, 1, 1), TimeSpan.Zero));
+		ValidationMessage = $"User {Model.AuthorUserName} has been blocked on {Model.Provider.ToLowerInvariant().Humanize(LetterCasing.Title)}";
+		
 	}
 
 }

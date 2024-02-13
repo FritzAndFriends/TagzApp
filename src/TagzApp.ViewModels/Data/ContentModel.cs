@@ -60,7 +60,6 @@ public record ContentModel(
 
 		var originalText = WebUtility.HtmlDecode(Text);
 		var formattedContent = originalText;
-		Console.WriteLine($"decoding {Text} as {formattedContent}");
 
 		var toReplace = new List<EmoteFormat>();
 		foreach (var emote in Emotes)
