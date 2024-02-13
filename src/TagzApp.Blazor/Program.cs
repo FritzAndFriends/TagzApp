@@ -1,6 +1,7 @@
 global using TagzApp.Security;
 using Microsoft.AspNetCore.HttpOverrides;
 using TagzApp.Blazor;
+using TagzApp.Blazor.Components;
 using TagzApp.Blazor.Hubs;
 using TagzApp.Communication.Extensions;
 

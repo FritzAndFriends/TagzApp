@@ -54,7 +54,10 @@
 			@foreach (var provider in _Providers)
 			{
 				<input type="checkbox" class="btn-check" name="options" id="@provider.Id" checked autocomplete="off">
-				<label title="@provider.Name" class="btn btn-outline-primary providerSwitch" for="@provider.Id"><i class="provider bi @WaterfallMessage.MapProviderToIcon(provider.Id)"></i></label>
+				<label title="@provider.Name" 
+					class="btn btn-outline-primary providerSwitch" 
+					@onclick="() => ToggleProviderFilter(provider.Id)"
+					for="@provider.Id"><i class="provider bi @WaterfallMessage.MapProviderToIcon(provider.Id)"></i></label>
 			}
 
 		</div>
@@ -87,12 +90,6 @@
 	}
 
 	<PauseButton @ref="ThePauseButton" OnPauseUpdates="OnPauseClick" />
-
-	<div id="moderationAction" style="display: none;">
-		<i class="bi bi-check2 approve" title="Approve this content"></i>
-		<i class="bi bi-x-circle-fill reject" title="Reject this content"></i>
-		<i class="bi bi-journal-text more" title="More Actions"></i>
-	</div>
 
 </div>
 
@@ -155,6 +152,8 @@
 
 	private IEnumerable<AvailableProvider> _Providers = Enumerable.Empty<AvailableProvider>();
 
+	private List<string> _FilteredProviders = [];
+
 	private HubConnection _Connection;
 
 	string _Tag = string.Empty;
@@ -172,6 +171,7 @@
 		BlockedUserCount = await _Connection.InvokeAsync<int>("GetBlockedUserCount");
 
 		_Providers = await _Connection.InvokeAsync<IEnumerable<AvailableProvider>>("GetAvailableProviders");
+		_FilteredProviders = _Providers.Select(p => p.Id).ToList();
 
 		_Moderators = (await _Connection.InvokeAsync<NewModerator[]>("GetCurrentModerators")).ToHashSet();
 
@@ -199,6 +199,9 @@
 
 		_Connection.On<ContentModel>("NewWaterfallMessage", async (content) =>
 		{
+
+			if (!_FilteredProviders.Contains(content.ProviderId)) return;
+
 			if (ThePauseButton.IsPaused)
 			{
 				if (!_PauseQueue.Any(p => p.ProviderId == content.ProviderId) && !_Content.Any(c => c.Value.ProviderId == content.ProviderId)) {
@@ -233,7 +236,7 @@
 
 				return;
 			}
-			
+
 			var existing = _Content.FirstOrDefault(p => p.Value.ProviderId == content.ProviderId);
 			if (existing.Value is not null && existing.Value.State == ModerationState.Rejected) return;
 
@@ -308,7 +311,7 @@
 	async Task InitializeContent()
 	{
 
-		var currentContent = (await _Connection.InvokeAsync<IEnumerable<ModerationContentModel>>("GetFilteredContentByTag", _Tag, _Providers.Select(p => p.Id).ToArray(), ""))
+		var currentContent = (await _Connection.InvokeAsync<IEnumerable<ModerationContentModel>>("GetFilteredContentByTag", _Tag, _FilteredProviders.ToArray(), ""))
 			.ToArray();
 
 		foreach (var content in currentContent.OrderByDescending(c => c.Timestamp).ToArray())
@@ -347,6 +350,30 @@
 
 		await InvokeAsync(StateHasChanged);
 	}
+
+	async Task ToggleProviderFilter(string providerId)
+	{
+
+		if (_FilteredProviders.Contains(providerId))
+		{
+			_FilteredProviders.Remove(providerId);
+		}
+		else
+		{
+			_FilteredProviders.Add(providerId);
+		}
+
+		_Content.Clear();
+		StateHasChanged();
+		FilterContent = InitializeContent().ContinueWith(async t => {
+			await InvokeAsync(StateHasChanged);
+			FilterContent = null;
+		});
+
+	}
+
+	private Task FilterContent;
+
 
 	public async ValueTask DisposeAsync()
 	{
