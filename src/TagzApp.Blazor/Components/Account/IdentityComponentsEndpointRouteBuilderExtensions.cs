@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using System.Security.Claims;
 using System.Text.Json;
+using TagzApp.Blazor.Components.Account.Pages;
+using TagzApp.Blazor.Components.Account.Pages.Manage;
 
 namespace Microsoft.AspNetCore.Routing;
 internal static class IdentityComponentsEndpointRouteBuilderExtensions
