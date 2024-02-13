@@ -39,7 +39,7 @@
 		<div class="autoModReason"></div>
 	</div>
 
-	<div class="content">@((MarkupString)Content.Text)</div>
+	<div class="content">@((MarkupString)(Content.Content.FormatContentWithEmotes()))</div>
 
 
 </article>
