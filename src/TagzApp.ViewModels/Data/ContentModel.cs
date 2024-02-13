@@ -1,5 +1,6 @@
 ﻿using static System.Net.Mime.MediaTypeNames;
 using TagzApp.Common.Models;
+using System.Net;
 
 namespace TagzApp.ViewModels.Data;
 
@@ -57,14 +58,17 @@ public record ContentModel(
 			return Text;
 		}
 
-		var formattedContent = Text;
+		var originalText = WebUtility.HtmlDecode(Text);
+		var formattedContent = originalText;
+		Console.WriteLine($"decoding {Text} as {formattedContent}");
+
 		var toReplace = new List<EmoteFormat>();
 		foreach (var emote in Emotes)
 		{
 
 			var emoteUrl = emote.ImageUrl;
 
-			var emoteName = Text
+			var emoteName = originalText
 				.Substring(emote.Pos, emote.Length)
 				.Trim();
 			var emoteHtml = $"""<img class="emote" src="{emoteUrl}"  />""";
