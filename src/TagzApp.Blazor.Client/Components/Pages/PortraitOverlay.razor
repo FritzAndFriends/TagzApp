@@ -1,0 +1,121 @@
+﻿@page "/PortraitOverlay"
+
+@using Microsoft.AspNetCore.Components.Sections
+@using Microsoft.AspNetCore.SignalR.Client
+@layout Layout.EmptyLayout
+@inject IJSRuntime JS
+@inject NavigationManager NavManager
+@inject ILogger<Overlay> Logger
+@rendermode InteractiveWebAssembly
+
+<HeadContent>
+	<style>
+		body {
+			background-color: #00b140;
+		}
+
+		* {
+			color: #111 !important;
+		}
+	</style>
+	<meta name="color-scheme" content="light">
+</HeadContent>
+
+@if (Content is not null)
+{
+
+	<div id="portraitOverlayDisplay" class="@(Content.PreviewCard is null ? "show" : "showPreview")" 
+		data-url="@Content.SourceUri" 
+		data-provider="@Content.Provider">
+
+		<img class="ProfilePicture" src="@Content.AuthorProfileImageUri" alt="@Content.AuthorDisplayName" onerror="this.src='/img/user.jpg';" />
+		<div class="byline">
+			<div class="author">@Content.AuthorDisplayName</div>
+			<div class="authorUserName">@Content.AuthorUserName</div>
+		</div>
+		<span class="time">
+			@Content.Timestamp.ToLocalTime().ToString("d") @Content.Timestamp.ToLocalTime().ToString("t")
+			<i class="provider bi ${window.TagzApp.MapProviderToIconClass(content.provider)}"></i>
+		</span>
+		<span class="content">@((MarkupString)(Content.FormatContentWithEmotes()))</span>
+
+		@if (Content.PreviewCard is not null)
+		{
+			<span class="contentcard">
+				<img src="@Content.PreviewCard.ImageUri" class="card-img-top" alt="@Content.PreviewCard.AltText}" onerror="this.onerror=null; window.WaterfallUi.FixEmbedImage(this);" />
+			</span>
+		}
+
+	</div>
+
+}
+
+
+<SectionContent SectionName="scripts">
+	<script>
+		function FormatDateTime(theDate) {
+			var formattedDateTime = new Date(theDate).toLocaleString(undefined, { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+			document.querySelector(".time").innerHTML = formattedDateTime;
+		}
+	</script>
+</SectionContent>
+
+
+@code {
+
+	public string Tag { get; set; }
+
+	public ViewModels.Data.ContentModel Content { get; set; } = null!;
+
+	protected override async Task OnInitializedAsync()
+	{
+
+		//if (!string.IsNullOrEmpty(Tag)) await ConnectToSignalR(Tag);
+		ConnectToSignalR("tag");
+		await base.OnInitializedAsync();
+	}
+
+	private async Task ConnectToSignalR(string tagTracked)
+	{
+
+		// Connect to the SignalR hub listening at /messages
+		// Create a new connection
+		var connection = new HubConnectionBuilder()
+				.WithUrl(NavManager.ToAbsoluteUri("/messages"))
+				.WithAutomaticReconnect([
+					TimeSpan.FromSeconds(0),
+		TimeSpan.FromSeconds(2),
+		TimeSpan.FromSeconds(5),
+		TimeSpan.FromSeconds(10),
+		TimeSpan.FromSeconds(30),
+		TimeSpan.FromSeconds(30),
+		TimeSpan.FromSeconds(30),
+		TimeSpan.FromSeconds(30),
+		TimeSpan.FromSeconds(30),
+		TimeSpan.FromSeconds(30),
+		TimeSpan.FromSeconds(30)
+				])
+				.Build();
+
+		connection.On<ViewModels.Data.ContentModel>("DisplayOverlay", async (content) =>
+		{
+			Console.WriteLine(">> Received content from SignalR");
+			Content = content;
+			StateHasChanged();
+			// await JS.InvokeVoidAsync("window.FormatDateTime", content.Timestamp);
+		});
+
+
+		// When the connection is closed, print out a message to the console.
+		connection.Closed += async (error) =>
+		{
+			await Task.Delay(new Random().Next(0, 5) * 1000);
+			await connection.StartAsync();
+		};
+
+		// Start the connection
+		await connection.StartAsync();
+
+	}
+
+}
