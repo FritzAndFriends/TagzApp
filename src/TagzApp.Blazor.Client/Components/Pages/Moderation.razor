@@ -51,7 +51,7 @@
 		<label for="providers" class="px-2">Providers:</label>
 		<div class="btn-group" role="group">
 
-			@foreach (var provider in _Providers)
+			@foreach (var provider in _Providers.OrderBy(p => p.Name))
 			{
 				<input type="checkbox" class="btn-check" name="options" id="@provider.Id" checked autocomplete="off">
 				<label title="@provider.Name" 
