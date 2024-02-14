@@ -1,5 +1,4 @@
 (function () {
-
 	const messages = [];
 
 	var waterfallUi = {
@@ -44,8 +43,7 @@
 			messages.push({ id: id, message: message });
 		},
 
-		Messages : messages
-
+		Messages: messages,
 	};
 
 	window.WaterfallUi = waterfallUi;
