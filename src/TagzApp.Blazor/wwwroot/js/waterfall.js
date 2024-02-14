@@ -49,9 +49,7 @@
 		},
 
 		ConfigureKeyboardSupport: function () {
-
 			window.onkeydown = function (e) {
-
 				// Pause/Resume
 				if (e.key === 'p') {
 					if (pauseButtonRef) {
@@ -59,9 +57,7 @@
 						return;
 					}
 				}
-
 			};
-
 		},
 
 		Messages: messages,
