@@ -183,7 +183,7 @@
 		{
 
 			if (!_FilteredProviders.Any(c => c.Equals(content.Provider, StringComparison.InvariantCultureIgnoreCase))) return;
-			if (_FilterApprovalStatus != FilterModerationState.All || _FilterApprovalStatus != FilterModerationState.Pending) return;
+			if (_FilterApprovalStatus != FilterModerationState.All && _FilterApprovalStatus != FilterModerationState.Pending) return;
 
 			if (ThePauseButton.IsPaused)
 			{
