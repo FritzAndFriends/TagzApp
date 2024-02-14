@@ -1,12 +1,12 @@
 ﻿@using TagzApp.ViewModels.Data
 
-<div @ref="_OuterModal" class="modal fade @modalClass" 
-		id="contentModal" tabindex="-1" 
-		role="dialog" 
-		style="display:@modalDisplay; overflow-y: auto;" 
-		aria-labelledby="contentModalLabel" aria-hidden="true" 
-		@onkeyup="HandleKeyPress" 
-		@onclick="Close">
+<div @ref="_OuterModal" class="modal fade @modalClass"
+		 id="contentModal" tabindex="-1"
+		 role="dialog"
+		 style="display:@modalDisplay; overflow-y: auto;"
+		 aria-labelledby="contentModalLabel" aria-hidden="true"
+		 @onkeyup="HandleKeyPress"
+		 @onclick="Close">
 	<div class="modal-dialog modal-dialog-centered">
 		<div class="modal-inner @_InnerModalCssClass">
 
@@ -23,7 +23,25 @@
 
 				<div class="modal-body">
 					@((MarkupString)Content?.FormatContentWithEmotes())
+
+					@if (Content?.PreviewCard is not null)
+					{
+						if (Content?.PreviewCard.ImageUri.ToString().EndsWith(".mp4") ?? false)
+						{
+							<div class="contentcard">
+								<video muted="muted" controls="controls" autoplay src="@Content?.PreviewCard.ImageUri" class="card-img-top" alt="@Content?.PreviewCard.AltText"></video>
+							</div>
+						}
+						else
+						{
+							<div class="contentcard">
+								<img onerror="this.onerror=null; window.WaterfallUi.FixEmbedImage(this);" src="@Content?.PreviewCard.ImageUri" class="card-img-top" alt="@Content?.PreviewCard.AltText" />
+							</div>
+						}
+					}
+
 				</div>
+
 			</div>
 
 			<div class="modal-back modal-content">
@@ -65,6 +83,9 @@
 
 	public async Task Open()
 	{
+
+		Console.WriteLine($"Content has preview: {Content.PreviewCard is not null} and Uri: {Content.PreviewCard?.ImageUri}");
+
 		modalDisplay = "block";
 		modalClass = "show";
 		showBackdrop = true;

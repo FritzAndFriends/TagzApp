@@ -57,6 +57,23 @@
 
 			<div class="card-body">
 				<p id="messageContent" class="card-text">@((MarkupString)(Model.Content.FormatContentWithEmotes()))</p>
+
+				@if (Model.PreviewCard is not null)
+				{
+					if (Model.PreviewCard.ImageUri.ToString().EndsWith(".mp4"))
+					{
+						<div class="contentcard">
+							<video muted="muted" controls="controls" autoplay src="@Model.PreviewCard.ImageUri" class="card-img-top" alt="@Model.PreviewCard.AltText"></video>
+						</div>
+					}
+					else
+					{
+						<div class="contentcard">
+							<img onerror="this.onerror=null; window.WaterfallUi.FixEmbedImage(this);" src="@Model.PreviewCard.ImageUri" class="card-img-top" alt="@Model.PreviewCard.AltText" />
+						</div>
+					}
+				}
+
 			</div>
 		</div>
 	</div>

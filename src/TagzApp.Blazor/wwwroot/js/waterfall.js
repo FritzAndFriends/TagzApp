@@ -1,4 +1,7 @@
 (function () {
+
+	const messages = [];
+
 	var waterfallUi = {
 		setupWaterfall: function () {
 			const floatingHeader = document.getElementById('floatingHeader');
@@ -36,6 +39,13 @@
 				}
 			}
 		},
+
+		AddMessage: function (id, message) {
+			messages.push({ id: id, message: message });
+		},
+
+		Messages : messages
+
 	};
 
 	window.WaterfallUi = waterfallUi;

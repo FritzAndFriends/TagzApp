@@ -113,7 +113,7 @@ internal class Program
 		app.UseStaticFiles();
 		app.UseAntiforgery();
 
-		app.MapRazorComponents<App>()
+		app.MapRazorComponents<TagzApp.Blazor.Components.App>()
 				.AddInteractiveServerRenderMode()
 				.AddInteractiveWebAssemblyRenderMode()
 				.AddAdditionalAssemblies(typeof(TagzApp.Blazor.Client._Imports).Assembly);

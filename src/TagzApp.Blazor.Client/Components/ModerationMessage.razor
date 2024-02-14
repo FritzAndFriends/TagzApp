@@ -2,7 +2,7 @@
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 
-<article @ref="thisArticle" 
+<article @ref="thisArticle" data-providerid="@Content.ProviderId"
 	class="modMessage @AdditionalClasses"
 	@onmouseover="() => ShowModerationActions = true"
 	@onmouseleave="() => ShowModerationActions = false"> @* @onclick="() => OnContentSelected?.InvokeAsync(Content)"> *@
@@ -42,6 +42,24 @@
 	</div>
 
 	<div class="content">@((MarkupString)(Content.Content.FormatContentWithEmotes()))</div>
+
+	@* MISSING THE PREVIEW IMAGE *@
+	@if (Content.Content.PreviewCard is not null) {
+
+		if (Content.Content.PreviewCard.ImageUri.ToString().EndsWith(".mp4"))
+		{
+			<div class="contentcard">
+				<video muted="muted" controls="controls" autoplay src="@Content.Content.PreviewCard.ImageUri" class="card-img-top" alt="@Content.Content.PreviewCard.AltText"></video>
+			</div>
+		}
+		else
+		{
+			<div class="contentcard">
+				<img onerror="this.onerror=null; window.WaterfallUi.FixEmbedImage(this);" src="@Content.Content.PreviewCard.ImageUri" class="card-img-top" alt="@Content.Content.PreviewCard.AltText" />
+			</div>
+		}
+
+	}
 
 
 </article>
@@ -85,6 +103,11 @@
 		if (firstRender)
 		{
 			JSRuntime.InvokeVoidAsync("window.Masonry.resizeGridItem", thisArticle);
+
+			var thisRef = DotNetObjectReference.Create(this);
+			JSRuntime.InvokeVoidAsync("window.WaterfallUi.AddMessage", Content.ProviderId, thisRef);
+
+
 		}
 
 		return base.OnAfterRenderAsync(firstRender);
@@ -106,8 +129,6 @@
 	{
 
 		var prevState = Content.State;
-
-		Console.WriteLine($"Moderating from {prevState} to {action}");
 
 		if (prevState == ModerationState.Rejected && action == ModerationState.Approved)
 		{

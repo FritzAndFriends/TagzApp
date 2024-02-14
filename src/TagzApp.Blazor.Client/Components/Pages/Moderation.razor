@@ -182,7 +182,7 @@
 		_Connection.On<ContentModel>("NewWaterfallMessage", async (content) =>
 		{
 
-			if (!_FilteredProviders.Contains(content.Provider)) return;
+			if (!_FilteredProviders.Any(c => c.Equals(content.Provider, StringComparison.InvariantCultureIgnoreCase))) return;
 			if (_FilterApprovalStatus != FilterModerationState.All || _FilterApprovalStatus != FilterModerationState.Pending) return;
 
 			if (ThePauseButton.IsPaused)
