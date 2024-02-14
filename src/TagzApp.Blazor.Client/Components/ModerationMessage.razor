@@ -105,6 +105,17 @@
 	async Task Moderate(ModerationState action)
 	{
 
+		var prevState = Content.State;
+
+		Console.WriteLine($"Moderating from {prevState} to {action}");
+
+		if (prevState == ModerationState.Rejected && action == ModerationState.Approved)
+		{
+			// Confirm that the user wants to approve a previously rejected message
+			var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to approve a message that was previously rejected?");
+			if (!confirmed) return;
+		}
+
 		Content.ModerationTimestamp = DateTimeOffset.Now;
 		Content.State = action;
 
@@ -115,6 +126,7 @@
 		await ModerationPage.Moderate(new ModerationAction { 
 			Provider = Content.Provider,
 			ProviderId = Content.ProviderId,
+			PreviousState = prevState,
 			State = action,
 			Timestamp = DateTimeOffset.Now
 		});
