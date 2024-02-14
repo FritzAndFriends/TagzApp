@@ -1,5 +1,6 @@
 (function () {
 	const messages = [];
+	let pauseButtonRef = null;
 
 	var waterfallUi = {
 		setupWaterfall: function () {
@@ -41,6 +42,26 @@
 
 		AddMessage: function (id, message) {
 			messages.push({ id: id, message: message });
+		},
+
+		RegisterPauseButton: function (buttonRef) {
+			pauseButtonRef = buttonRef;
+		},
+
+		ConfigureKeyboardSupport: function () {
+
+			window.onkeydown = function (e) {
+
+				// Pause/Resume
+				if (e.key === 'p') {
+					if (pauseButtonRef) {
+						pauseButtonRef.invokeMethodAsync('PauseClicked');
+						return;
+					}
+				}
+
+			};
+
 		},
 
 		Messages: messages,

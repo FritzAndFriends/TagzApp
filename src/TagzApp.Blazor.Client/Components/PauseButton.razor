@@ -1,4 +1,6 @@
-﻿<div id="pauseUpdates" @onclick="PauseClicked">
+﻿@inject IJSRuntime JSRuntime
+
+<div id="pauseUpdates" @onclick="PauseClicked">
 	<i id="pauseButton" class="bi bi-@(IsPaused ? "play" : "pause")-circle-fill text-info"></i>
 	<i id="pauseButton-bg" class="bi bi-circle-fill"></i>
 	<div id="pauseCounter" style="@CounterDisplay">@Counter</div>
@@ -32,15 +34,24 @@
 	private void SetCounterDisplay()
 	{
 		CounterDisplay = (!IsPaused || Counter == 0) ? "display: none;" : "display: block;";
-		Console.WriteLine($"New CounterDisplay({Counter}): {CounterDisplay}");
+		// Console.WriteLine($"New CounterDisplay({Counter}): {CounterDisplay}");
 	}
 
 	public string CounterDisplay { get; set; } = "display: none;";
 
-	void PauseClicked()
+	[JSInvokable]
+	public void PauseClicked()
 	{
 		IsPaused = !IsPaused;
 		OnPauseUpdates.InvokeAsync(IsPaused);
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			await JSRuntime.InvokeVoidAsync("window.WaterfallUi.RegisterPauseButton", DotNetObjectReference.Create(this));
+		}
 	}
 
 }

@@ -1,12 +1,12 @@
 ﻿@page "/Moderation"
 @rendermode @(new InteractiveWebAssemblyRenderMode(false))
-@using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(policy: "Moderator")]
+@implements IAsyncDisposable
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using Microsoft.AspNetCore.SignalR.Client
 @using System.Net
 @using TagzApp.ViewModels.Data
-@implements IAsyncDisposable
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 
@@ -163,6 +163,12 @@
 
 	}
 
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		await JSRuntime.InvokeVoidAsync("window.WaterfallUi.ConfigureKeyboardSupport");
+		await base.OnAfterRenderAsync(firstRender);
+	}
+
 	async Task ConfigureSignalRConnection()
 	{
 
@@ -316,7 +322,7 @@
 	public async Task OnPauseClick(bool newPauseState)
 	{
 
-		Console.WriteLine($"New Pause State: {newPauseState}");
+		// Console.WriteLine($"New Pause State: {newPauseState}");
 
 		if (!newPauseState)
 		{
