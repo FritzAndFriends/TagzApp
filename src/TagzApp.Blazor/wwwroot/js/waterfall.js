@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 (function () {
 	const messages = [];
 	let pauseButtonRef = null;
@@ -24,7 +24,6 @@
 
 	let cursorProviderId = null;
 	function HandleMoveCursor(key) {
-
 		let height = 0;
 		try {
 			height = document.querySelector('article .bi').offsetHeight;
@@ -257,7 +256,24 @@
 
 		FixEmbedImage: function (img) {
 			var theArticle = img.closest('[data-provider]');
+		FixEmbedImage: function (img) {
+			var theArticle = img.closest('[data-provider]');
 
+			if (
+				theArticle.dataset.provider == 'TWITTER' &&
+				!img.src.toString().includes('d.fxtwitter.com')
+			) {
+				img.src =
+					theArticle.dataset.url.replace('twitter.com', 'd.fxtwitter.com') +
+					'.jpg';
+			} else {
+				img.parentElement.style.display = 'none';
+				if (img.parentElement.parentElement.classList.contains('showPreview')) {
+					img.parentElement.parentElement.classList.remove('showPreview');
+					img.parentElement.parentElement.classList.add('show');
+				}
+			}
+		},
 			if (
 				theArticle.dataset.provider == 'TWITTER' &&
 				!img.src.toString().includes('d.fxtwitter.com')
@@ -277,7 +293,13 @@
 		AddMessage: function (id, message) {
 			messages.push({ id: id, message: message });
 		},
+		AddMessage: function (id, message) {
+			messages.push({ id: id, message: message });
+		},
 
+		RegisterPauseButton: function (buttonRef) {
+			pauseButtonRef = buttonRef;
+		},
 		RegisterPauseButton: function (buttonRef) {
 			pauseButtonRef = buttonRef;
 		},
@@ -302,7 +324,21 @@
 						var thisCard = document.querySelector(
 							`[data-providerid='${cursorProviderId}']`,
 						);
+						var thisCard = document.querySelector(
+							`[data-providerid='${cursorProviderId}']`,
+						);
 
+						// Approve the current message
+						let approveFunc = function () {
+							connection.invoke(
+								'SetStatus',
+								thisCard.getAttribute('data-provider'),
+								thisCard.getAttribute('data-providerid'),
+								ModerationState.Approved,
+							);
+							thisCard.classList.remove('status-rejected');
+							thisCard.classList.add('status-approved');
+						};
 						// Approve the current message
 						let approveFunc = function () {
 							connection.invoke(
@@ -338,6 +374,9 @@
 						let rejectCard = document.querySelector(
 							`[data-providerid='${cursorProviderId}']`,
 						);
+						let rejectCard = document.querySelector(
+							`[data-providerid='${cursorProviderId}']`,
+						);
 
 						connection.invoke(
 							'SetStatus',
@@ -365,7 +404,14 @@
 		PauseNewContent: function (duration) {
 			PauseNewContentForDuration(duration);
 		},
+		PauseNewContent: function (duration) {
+			PauseNewContentForDuration(duration);
+		},
 
+		SetPauseState: function (paused) {
+			isPaused = paused;
+			rollOverPause = false;
+		},
 		SetPauseState: function (paused) {
 			isPaused = paused;
 			rollOverPause = false;
