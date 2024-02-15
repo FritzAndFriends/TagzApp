@@ -4,8 +4,8 @@
 
 <article @ref="thisArticle" data-providerid="@Content.ProviderId"
 	class="modMessage @AdditionalClasses"
-	@onmouseover="() => ShowModerationActions = true"
-	@onmouseleave="() => ShowModerationActions = false"> @* @onclick="() => OnContentSelected?.InvokeAsync(Content)"> *@
+	@onmouseover="() => DisplayModeration(true)"
+	@onmouseleave="() => DisplayModeration(false)"> @* @onclick="() => OnContentSelected?.InvokeAsync(Content)"> *@
 
 	@if (ShowModerationActions)
 	{
@@ -152,6 +152,29 @@
 			Timestamp = DateTimeOffset.Now
 		});
 
+	}
+
+	public async Task DisplayModeration(bool show)
+	{
+		ShowModerationActions = show;
+
+		if (show)
+			await JSRuntime.InvokeVoidAsync("window.WaterfallUi.PauseNewContent", 5000);
+		else 
+			await JSRuntime.InvokeVoidAsync("window.WaterfallUi.ResumeContent");
+	}
+
+	[JSInvokable]
+	public void SetCursorFocus(bool focus)
+	{
+		if (focus)
+		{
+			_CssClasses.Add("keyboard-cursor");
+		}
+		else
+		{
+			_CssClasses.Remove("keyboard-cursor");
+		}
 	}
 
 	public static string MapProviderToIcon(string provider) =>

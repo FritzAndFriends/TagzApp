@@ -39,11 +39,35 @@
 
 	public string CounterDisplay { get; set; } = "display: none;";
 
-	[JSInvokable]
-	public void PauseClicked()
+	public async Task PauseClicked()
 	{
 		IsPaused = !IsPaused;
-		OnPauseUpdates.InvokeAsync(IsPaused);
+		Console.WriteLine($"PauseClicked: {IsPaused}");
+		await JSRuntime.InvokeVoidAsync("window.WaterfallUi.SetPauseState", IsPaused);
+		await OnPauseUpdates.InvokeAsync(IsPaused);
+	}
+
+	[JSInvokable]
+	public bool Paused() => IsPaused;
+
+	[JSInvokable]
+	public void SetPauseState(bool newState)
+	{
+		if (!newState && !IsPaused) return;
+		if (newState && IsPaused) return;
+
+		if (newState)
+		{
+			IsPaused = true;
+			OnPauseUpdates.InvokeAsync(IsPaused);
+			StateHasChanged();
+		}
+		else 
+		{
+			IsPaused = false;
+			OnPauseUpdates.InvokeAsync(IsPaused);
+			StateHasChanged();
+		}
 	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
