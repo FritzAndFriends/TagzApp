@@ -256,24 +256,7 @@
 
 		FixEmbedImage: function (img) {
 			var theArticle = img.closest('[data-provider]');
-		FixEmbedImage: function (img) {
-			var theArticle = img.closest('[data-provider]');
 
-			if (
-				theArticle.dataset.provider == 'TWITTER' &&
-				!img.src.toString().includes('d.fxtwitter.com')
-			) {
-				img.src =
-					theArticle.dataset.url.replace('twitter.com', 'd.fxtwitter.com') +
-					'.jpg';
-			} else {
-				img.parentElement.style.display = 'none';
-				if (img.parentElement.parentElement.classList.contains('showPreview')) {
-					img.parentElement.parentElement.classList.remove('showPreview');
-					img.parentElement.parentElement.classList.add('show');
-				}
-			}
-		},
 			if (
 				theArticle.dataset.provider == 'TWITTER' &&
 				!img.src.toString().includes('d.fxtwitter.com')
@@ -293,13 +276,7 @@
 		AddMessage: function (id, message) {
 			messages.push({ id: id, message: message });
 		},
-		AddMessage: function (id, message) {
-			messages.push({ id: id, message: message });
-		},
 
-		RegisterPauseButton: function (buttonRef) {
-			pauseButtonRef = buttonRef;
-		},
 		RegisterPauseButton: function (buttonRef) {
 			pauseButtonRef = buttonRef;
 		},
