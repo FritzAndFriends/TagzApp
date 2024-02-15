@@ -92,7 +92,7 @@
 
 	private ElementReference thisArticle;
 
-	private List<string> _CssClasses = new();
+	private HashSet<string> _CssClasses = new();
 	private string CssClass => string.Join(" ", _CssClasses);
 
 	private bool ShowModerationActions = false;

@@ -153,7 +153,8 @@
 							break;
 						}
 
-						document.getElementById('taggedContent').scrollBy(0, -72);
+						// dont scroll up if we are at the top of the page
+						if (taggedContent.scrollTop != 0) taggedContent.scrollBy(0, -72);
 					}
 				}
 
