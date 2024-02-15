@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 (function () {
 	const messages = [];
 	let pauseButtonRef = null;
@@ -23,7 +23,6 @@
 
 	let cursorProviderId = null;
 	function HandleMoveCursor(key) {
-
 		let height = 0;
 		try {
 			height = document.querySelector('article .bi').offsetHeight;
@@ -242,151 +241,140 @@
 	}
 
 	var waterfallUi = {
-	setupWaterfall: function () {
-		const floatingHeader = document.getElementById('floatingHeader');
+		setupWaterfall: function () {
+			const floatingHeader = document.getElementById('floatingHeader');
 
-		document
-			.getElementById('headerButton')
-			.addEventListener('click', function () {
-				window.setTimeout(() => {
-					floatingHeader.addEventListener('mouseleave', (el) => {
-						floatingHeader.classList.remove('scrollIn');
-					});
-					floatingHeader.addEventListener('click', (el) => {
-						floatingHeader.classList.remove('scrollIn');
-					});
-				}, 3000);
-				floatingHeader.classList.add('scrollIn');
-			});
-	},
+			document
+				.getElementById('headerButton')
+				.addEventListener('click', function () {
+					window.setTimeout(() => {
+						floatingHeader.addEventListener('mouseleave', (el) => {
+							floatingHeader.classList.remove('scrollIn');
+						});
+						floatingHeader.addEventListener('click', (el) => {
+							floatingHeader.classList.remove('scrollIn');
+						});
+					}, 3000);
+					floatingHeader.classList.add('scrollIn');
+				});
+		},
 
-	FixEmbedImage: function (img) {
-		var theArticle = img.closest('[data-provider]');
+		FixEmbedImage: function (img) {
+			var theArticle = img.closest('[data-provider]');
 
-		if (
-			theArticle.dataset.provider == 'TWITTER' &&
-			!img.src.toString().includes('d.fxtwitter.com')
-		) {
-			img.src =
-				theArticle.dataset.url.replace('twitter.com', 'd.fxtwitter.com') +
-				'.jpg';
-		} else {
-			img.parentElement.style.display = 'none';
-			if (img.parentElement.parentElement.classList.contains('showPreview')) {
-				img.parentElement.parentElement.classList.remove('showPreview');
-				img.parentElement.parentElement.classList.add('show');
-			}
-		}
-	},
-
-	AddMessage: function (id, message) {
-		messages.push({ id: id, message: message });
-	},
-
-	RegisterPauseButton: function (buttonRef) {
-		pauseButtonRef = buttonRef;
-	},
-
-	ConfigureKeyboardSupport: function () {
-
-		window.onkeydown = function (e) {
-
-			// Pause/Resume
-			if (e.key === 'p') {
-				if (pauseButtonRef) {
-					pauseButtonRef.invokeMethodAsync('PauseClicked');
-					return;
+			if (
+				theArticle.dataset.provider == 'TWITTER' &&
+				!img.src.toString().includes('d.fxtwitter.com')
+			) {
+				img.src =
+					theArticle.dataset.url.replace('twitter.com', 'd.fxtwitter.com') +
+					'.jpg';
+			} else {
+				img.parentElement.style.display = 'none';
+				if (img.parentElement.parentElement.classList.contains('showPreview')) {
+					img.parentElement.parentElement.classList.remove('showPreview');
+					img.parentElement.parentElement.classList.add('show');
 				}
-			} else if (e.key === 'y' || e.key === 'n') {
+			}
+		},
 
-				if (e.key == 'y') {
-					if (document.querySelector('.active_panel') == null) return;
+		AddMessage: function (id, message) {
+			messages.push({ id: id, message: message });
+		},
 
-					var thisCard = document.querySelector(
-						`[data-providerid='${cursorProviderId}']`,
-					);
+		RegisterPauseButton: function (buttonRef) {
+			pauseButtonRef = buttonRef;
+		},
 
-					// Approve the current message
-					let approveFunc = function () {
+		ConfigureKeyboardSupport: function () {
+			window.onkeydown = function (e) {
+				// Pause/Resume
+				if (e.key === 'p') {
+					if (pauseButtonRef) {
+						pauseButtonRef.invokeMethodAsync('PauseClicked');
+						return;
+					}
+				} else if (e.key === 'y' || e.key === 'n') {
+					if (e.key == 'y') {
+						if (document.querySelector('.active_panel') == null) return;
+
+						var thisCard = document.querySelector(
+							`[data-providerid='${cursorProviderId}']`,
+						);
+
+						// Approve the current message
+						let approveFunc = function () {
+							connection.invoke(
+								'SetStatus',
+								thisCard.getAttribute('data-provider'),
+								thisCard.getAttribute('data-providerid'),
+								ModerationState.Approved,
+							);
+							thisCard.classList.remove('status-rejected');
+							thisCard.classList.add('status-approved');
+						};
+
+						if (thisCard.classList.contains('status-rejected')) {
+							// Confirm that we are flipping this
+							swal({
+								title: 'Are you sure?',
+								text: 'This message was previously rejected. Are you sure you want to approve it?',
+								icon: 'warning',
+								buttons: true,
+								dangerMode: true,
+							}).then((willApprove) => {
+								if (willApprove) {
+									approveFunc();
+								}
+							});
+						} else {
+							approveFunc();
+						}
+					} else {
+						if (document.querySelector('.active_panel') == null) return;
+
+						let rejectCard = document.querySelector(
+							`[data-providerid='${cursorProviderId}']`,
+						);
+
 						connection.invoke(
 							'SetStatus',
-							thisCard.getAttribute('data-provider'),
-							thisCard.getAttribute('data-providerid'),
-							ModerationState.Approved,
+							rejectCard.getAttribute('data-provider'),
+							rejectCard.getAttribute('data-providerid'),
+							ModerationState.Rejected,
 						);
-						thisCard.classList.remove('status-rejected');
-						thisCard.classList.add('status-approved');
-					};
-
-					if (thisCard.classList.contains('status-rejected')) {
-						// Confirm that we are flipping this
-						swal({
-							title: 'Are you sure?',
-							text: 'This message was previously rejected. Are you sure you want to approve it?',
-							icon: 'warning',
-							buttons: true,
-							dangerMode: true,
-						}).then((willApprove) => {
-							if (willApprove) {
-								approveFunc();
-							}
-						});
-					} else {
-						approveFunc();
+						rejectCard.classList.remove('status-approved');
+						rejectCard.classList.add('status-rejected');
+						rejectCard.classList.add('status-humanmod');
 					}
-
 				} else {
-					if (document.querySelector('.active_panel') == null) return;
-
-					let rejectCard = document.querySelector(
-						`[data-providerid='${cursorProviderId}']`,
-					);
-
-					connection.invoke(
-						'SetStatus',
-						rejectCard.getAttribute('data-provider'),
-						rejectCard.getAttribute('data-providerid'),
-						ModerationState.Rejected,
-					);
-					rejectCard.classList.remove('status-approved');
-					rejectCard.classList.add('status-rejected');
-					rejectCard.classList.add('status-humanmod');
-
+					// move cursor to next article in the correct direction
+					HandleMoveCursor(e.key);
 				}
+			};
+		},
 
-			} else {
+		PauseNewContent: function (duration) {
+			PauseNewContentForDuration(duration);
+		},
 
-				// move cursor to next article in the correct direction
-				HandleMoveCursor(e.key);
-
-			}
-
-		};
-
-	},
-
-	PauseNewContent: function (duration) {
-		PauseNewContentForDuration(duration);
-	},
-
-	SetPauseState: function (paused) {
-		isPaused = paused;
-		rollOverPause = false;
-	},
-
-	ResumeContent: function () {
-		if (rollOverPause) {
-			window.clearTimeout(pauseTimeout);
-			isPaused = false;
+		SetPauseState: function (paused) {
+			isPaused = paused;
 			rollOverPause = false;
-			pauseButtonRef.invokeMethodAsync('SetPauseState', false);
-		}
-	},
+		},
 
-	Messages: messages,
-};
+		ResumeContent: function () {
+			if (rollOverPause) {
+				window.clearTimeout(pauseTimeout);
+				isPaused = false;
+				rollOverPause = false;
+				pauseButtonRef.invokeMethodAsync('SetPauseState', false);
+			}
+		},
 
-window.WaterfallUi = waterfallUi;
-let taggedContent = document.getElementById("taggedContent");
+		Messages: messages,
+	};
 
-}) ();
+	window.WaterfallUi = waterfallUi;
+	let taggedContent = document.getElementById('taggedContent');
+})();
