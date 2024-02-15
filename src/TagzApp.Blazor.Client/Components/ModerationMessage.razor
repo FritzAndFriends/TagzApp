@@ -3,7 +3,7 @@
 @inject NavigationManager NavigationManager
 
 <article @ref="thisArticle" data-providerid="@Content.ProviderId"
-	class="modMessage @AdditionalClasses"
+	class="modMessage @AdditionalClasses @CssClass"
 	@onmouseover="() => DisplayModeration(true)"
 	@onmouseleave="() => DisplayModeration(false)"> @* @onclick="() => OnContentSelected?.InvokeAsync(Content)"> *@
 
@@ -174,7 +174,9 @@
 		else
 		{
 			_CssClasses.Remove("keyboard-cursor");
+			ShowModerationActions = false;
 		}
+		StateHasChanged();
 	}
 
 	public static string MapProviderToIcon(string provider) =>
