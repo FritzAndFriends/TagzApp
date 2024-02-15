@@ -66,7 +66,6 @@
 
 					// check if above is an article element
 					if (above && above.tagName == 'ARTICLE') {
-
 						let currentMsg = messages.find((msg) => msg.id == cursorProviderId);
 						currentMsg.message.invokeMethodAsync('SetCursorFocus', false);
 						cursorProviderId = above.getAttribute('data-providerid');
@@ -146,7 +145,9 @@
 
 						// check if above is an article element
 						if (above && above.tagName == 'ARTICLE') {
-							let currentMsg = messages.find((msg) => msg.id == cursorProviderId);
+							let currentMsg = messages.find(
+								(msg) => msg.id == cursorProviderId,
+							);
 							currentMsg.message.invokeMethodAsync('SetCursorFocus', false);
 							cursorProviderId = above.getAttribute('data-providerid');
 							break;
@@ -187,7 +188,9 @@
 
 						// check if above is an article element
 						if (above && above.tagName == 'ARTICLE') {
-							let currentMsg = messages.find((msg) => msg.id == cursorProviderId);
+							let currentMsg = messages.find(
+								(msg) => msg.id == cursorProviderId,
+							);
 							currentMsg.message.invokeMethodAsync('SetCursorFocus', false);
 							cursorProviderId = above.getAttribute('data-providerid');
 							break;
@@ -282,11 +285,9 @@
 		},
 
 		ConfigureKeyboardSupport: function () {
-
-			taggedContent = document.getElementById("taggedContent");
+			taggedContent = document.getElementById('taggedContent');
 
 			window.onkeydown = function (e) {
-
 				// Pause/Resume
 				if (e.key === 'p') {
 					if (pauseButtonRef) {
@@ -294,7 +295,6 @@
 						return;
 					}
 				} else if (e.key === 'y' || e.key === 'n') {
-
 					if (e.key == 'y') {
 						if (document.querySelector('.active_panel') == null) return;
 
@@ -344,7 +344,6 @@
 						} else {
 							approveFunc();
 						}
-
 					} else {
 						if (document.querySelector('.active_panel') == null) return;
 
@@ -364,18 +363,12 @@
 						rejectCard.classList.remove('status-approved');
 						rejectCard.classList.add('status-rejected');
 						rejectCard.classList.add('status-humanmod');
-
 					}
-
 				} else {
-
 					// move cursor to next article in the correct direction
 					HandleMoveCursor(e.key);
-
 				}
-
 			};
-
 		},
 
 		PauseNewContent: function (duration) {
@@ -407,5 +400,4 @@
 	};
 
 	window.WaterfallUi = waterfallUi;
-
 })();
