@@ -8,6 +8,12 @@
 		<ContainerRepository>fritzandfriends/tagzapp</ContainerRepository>
 	</PropertyGroup>
 
+	<Target Name="SetContainerTagTarget" BeforeTargets="CoreCompile">
+		<PropertyGroup>
+			<ContainerImageTags>$(Version);latest</ContainerImageTags>
+		</PropertyGroup>
+	</Target>
+
 	<ItemGroup>
 		<Content Remove="Components\FirstStartRouting.razor" />
 	</ItemGroup>
@@ -45,6 +51,10 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Nerdbank.GitVersioning" Version="3.6.133">
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		  <PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 		<PackageReference Include="PSC.Blazor.Components.MarkdownEditor" Version="2.0.19" />
 	</ItemGroup>
