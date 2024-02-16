@@ -5,6 +5,9 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UserSecretsId>aspnet-TagzApp.Blazor-5e7de883-fcbd-4bb4-9ad3-0ee99e09cf99</UserSecretsId>
+		<ContainerRepository>fritzandfriends/tagzapp</ContainerRepository>
+		<!-- <ContainerRegistry>ghcr.io</ContainerRegistry> -->
+		<ContainerImageTags>$(Version);latest</ContainerImageTags>
 	</PropertyGroup>
 
 	<ItemGroup>
