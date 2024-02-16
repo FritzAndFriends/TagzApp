@@ -112,5 +112,5 @@ jobs:
         working-directory: ./src/TagzApp.Blazor
   
       - name: Publish
-        run: dotnet publish --os linux --arch x64 -t:PublishContainer /p:ContainerRegistry=ghcr.io
+        run: dotnet publish --os linux --arch x64 -t:PublishContainer /p:ContainerImageTags='"${{ steps.nbgv_version.outputs.Version }};latest"' /p:ContainerRegistry=ghcr.io
         working-directory: ./src/TagzApp.Blazor
