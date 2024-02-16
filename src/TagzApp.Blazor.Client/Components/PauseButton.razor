@@ -1,0 +1,81 @@
+﻿@inject IJSRuntime JSRuntime
+
+<div id="pauseUpdates" @onclick="PauseClicked">
+	<i id="pauseButton" class="bi bi-@(IsPaused ? "play" : "pause")-circle-fill text-info"></i>
+	<i id="pauseButton-bg" class="bi bi-circle-fill"></i>
+	<div id="pauseCounter" style="@CounterDisplay">@Counter</div>
+</div>
+
+
+@code {
+
+	public bool IsPaused { get; private set; } = false;
+
+	public async Task PauseUpdates()
+	{
+		IsPaused = !IsPaused;
+		StateHasChanged();
+	}
+
+	[Parameter]
+	public EventCallback<bool> OnPauseUpdates { get; set; }
+
+	private int _counter = 0;
+	public int Counter
+	{
+		get { return _counter; }
+		set { 
+			_counter = value;
+			SetCounterDisplay();
+			StateHasChanged();
+		}
+	}
+
+	private void SetCounterDisplay()
+	{
+		CounterDisplay = (!IsPaused || Counter == 0) ? "display: none;" : "display: block;";
+		// Console.WriteLine($"New CounterDisplay({Counter}): {CounterDisplay}");
+	}
+
+	public string CounterDisplay { get; set; } = "display: none;";
+
+	public async Task PauseClicked()
+	{
+		IsPaused = !IsPaused;
+		Console.WriteLine($"PauseClicked: {IsPaused}");
+		await JSRuntime.InvokeVoidAsync("window.WaterfallUi.SetPauseState", IsPaused);
+		await OnPauseUpdates.InvokeAsync(IsPaused);
+	}
+
+	[JSInvokable]
+	public bool Paused() => IsPaused;
+
+	[JSInvokable]
+	public void SetPauseState(bool newState)
+	{
+		if (!newState && !IsPaused) return;
+		if (newState && IsPaused) return;
+
+		if (newState)
+		{
+			IsPaused = true;
+			OnPauseUpdates.InvokeAsync(IsPaused);
+			StateHasChanged();
+		}
+		else 
+		{
+			IsPaused = false;
+			OnPauseUpdates.InvokeAsync(IsPaused);
+			StateHasChanged();
+		}
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			await JSRuntime.InvokeVoidAsync("window.WaterfallUi.RegisterPauseButton", DotNetObjectReference.Create(this));
+		}
+	}
+
+}

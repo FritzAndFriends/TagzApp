@@ -11,6 +11,8 @@ public class ModerationAction
 
 	public required string ProviderId { get; set; }
 
+	public ModerationState PreviousState { get; set; } = ModerationState.Pending;
+
 	public required ModerationState State { get; set; } = ModerationState.Pending;
 
 	[MaxLength(100)]

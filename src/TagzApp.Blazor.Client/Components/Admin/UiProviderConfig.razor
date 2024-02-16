@@ -1,0 +1,64 @@
+﻿<div class="accordion" id="providerAccordion">
+	<div class="accordion-item">
+
+		<h3 class="accordion-header" id="heading-@ProviderName">
+			<button class="accordion-button collapsed"
+							type="button"
+							data-bs-toggle="collapse"
+							data-bs-target="#@ProviderName"
+							aria-expanded="false"
+							aria-controls="@ProviderName">
+				<i class="@GetClassForHealth(Health.Status)" title="@Health.Message"></i>
+				<i class="bi @ProviderIconCssClass"></i>
+				@ProviderName
+			</button>
+		</h3>
+
+		<div id="@ProviderName"
+				 class="accordion-collapse collapse"
+				 aria-labelledby="heading-@ProviderName"
+				 data-bs-parent="#providerAccordion">
+
+			<p class="ps-3 pt-3 mb-1"><b>Status:</b> @Health.Status - @Health.Message</p>
+			<p class="ps-3 pt-3 mb-0 fst-italic">Please fill in the configuration values below:</p>
+
+			<div class="p-3">
+
+				@ChildContent
+
+			</div>
+
+		</div>
+
+	</div>
+</div>
+
+@code {
+
+	[Parameter]
+	public string ProviderName { get; set; }
+
+	[Parameter]
+	public string ProviderIconCssClass { get; set; }
+
+	[Parameter]
+	public RenderFragment ChildContent { get; set; }
+
+	[Parameter]
+	public (SocialMediaStatus Status, string Message) Health { get; set; }
+
+	public string GetClassForHealth(SocialMediaStatus status)
+	{
+
+		// return a css class appropriate for the status
+		return status switch
+		{
+			SocialMediaStatus.Healthy => "bi bi-check-circle-fill text-success",
+			SocialMediaStatus.Degraded => "bi bi-exclamation-circle-fill text-warning",
+			SocialMediaStatus.Unhealthy => "bi bi-x-circle-fill text-danger",
+			_ => "bi text-primary"
+		};
+
+	}
+
+}

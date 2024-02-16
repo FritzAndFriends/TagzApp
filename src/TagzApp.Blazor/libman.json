@@ -1,0 +1,43 @@
+{
+	"version": "1.0",
+	"defaultProvider": "cdnjs",
+	"libraries": [
+		{
+			"library": "microsoft-signalr@7.0.9",
+			"destination": "wwwroot/lib/microsoft-signalr/"
+		},
+		{
+			"provider": "cdnjs",
+			"library": "bootstrap-icons@1.11.1",
+			"destination": "wwwroot/lib/bootstrap-icons/",
+			"files": [
+				"font/fonts/bootstrap-icons.woff",
+				"font/fonts/bootstrap-icons.woff2",
+				"font/bootstrap-icons.css",
+				"font/bootstrap-icons.json",
+				"font/bootstrap-icons.min.css"
+			]
+		},
+		{
+			"provider": "jsdelivr",
+			"library": "bootstrap-dark-5@1.1.3",
+			"destination": "wwwroot/lib/bootstrap-dark-5/",
+			"files": [
+				"dist/css/bootstrap-dark.min.css"
+			]
+		},
+		{
+			"provider": "cdnjs",
+			"library": "simplemde@1.11.2",
+			"destination": "wwwroot/lib/simplemde/"
+		},
+		{
+			"provider": "jsdelivr",
+			"library": "sweetalert@2.1.2",
+			"destination": "wwwroot/lib/sweetalert/",
+			"files":[
+				"dist/sweetalert.min.js"
+			]
+		}
+	]
+}

@@ -1,0 +1,156 @@
+﻿@using Microsoft.AspNetCore.Components.Sections
+@using Microsoft.AspNetCore.SignalR.Client
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+@implements IAsyncDisposable
+
+@if (!_Content.Any())
+{
+
+	<div class="d-flex justify-content-center align-items-center" style="height: calc(100vh - 210px); text-align: center;">
+		<div class="spinner-border" role="status"> <span class="visually-hidden">Loading...</span> </div>
+	</div>
+
+}
+else
+{
+	<div id="taggedContent" class="">
+
+
+		@foreach (var content in _Content.Values.Reverse())
+		{
+			<WaterfallMessage Content="content" @key="content" OnContentSelected="ShowModal" />
+		}
+
+	</div>
+}
+
+<PauseButton @ref="thePauseButton" OnPauseUpdates="OnPauseClick" />
+
+<WaterfallModal @ref="Modal" Content="ModalContent" />
+
+@code {
+
+	private SortedList<DateTimeOffset, TagzApp.ViewModels.Data.ContentModel> _Content = new();
+
+	WaterfallModal Modal = new();
+	ContentModel ModalContent = null!;
+
+	PauseButton thePauseButton = new();
+
+	private HashSet<dynamic> _PauseQueue = new();
+
+	HubConnection _Connection = null!;
+
+	[Parameter, EditorRequired]
+	public string TagTracked { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+
+		await StartSignalRHub();
+
+		var existingContent = await _Connection.InvokeAsync<IEnumerable<ContentModel>>("GetExistingContentForTag", TagTracked);
+
+		// Console.WriteLine($"Received {existingContent.Count()} messages for tag {TagTracked}");
+
+		foreach (var content in existingContent)
+		{
+			_Content.Add(content.Timestamp, content);
+		}
+
+		await base.OnInitializedAsync();
+
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+
+		if (firstRender)
+		{
+			await JSRuntime.InvokeVoidAsync("WaterfallUi.setupWaterfall");
+		}
+
+		await JSRuntime.InvokeVoidAsync("window.Masonry.setupPage");
+
+		await base.OnAfterRenderAsync(firstRender);
+
+	}
+
+
+
+	private async Task StartSignalRHub()
+	{
+		_Connection = new HubConnectionBuilder()
+			.WithUrl(NavigationManager.ToAbsoluteUri($"/messages?t={TagTracked}"))
+			.Build();
+
+		_Connection.On<ContentModel>("NewWaterfallMessage", (content) =>
+		{
+
+			if (thePauseButton.IsPaused)
+			{
+				_PauseQueue.Add(content);
+				thePauseButton.Counter = _PauseQueue.Count;
+				return;
+			}
+
+			_Content.Add(content.Timestamp, content);
+			StateHasChanged();
+		});
+
+		_Connection.On<string, string>("RemoveMessage", (provider, providerId) =>
+		{
+
+			// NOTE: Remove messages immediately from the waterfall regardless of pause state
+
+			var thisMessage = _Content.FirstOrDefault(c => c.Value.Provider == provider && c.Value.ProviderId == providerId);
+			if (thisMessage.Value is not null)
+			{
+				// TODO: Change this to not use the DateTimeOffset as a key
+				_Content.Remove(thisMessage.Key);
+				StateHasChanged();
+			}
+
+		});
+
+		await _Connection.StartAsync();
+	}
+
+	async Task ShowModal(ContentModel content)
+	{
+
+		ModalContent = content;
+		await _Connection.InvokeAsync("SendMessageToOverlay", TagTracked, content.Provider, content.ProviderId);
+		await Modal.Open();
+
+	}
+
+	public async Task OnPauseClick(bool newPauseState)
+	{
+		if (!newPauseState)
+		{
+			// Add all the items in the pause queue to the waterfall
+			foreach (var item in _PauseQueue)
+			{
+				if (item is ContentModel content)
+				{
+					_Content.Add(content.Timestamp, content);
+				}
+			}
+			_PauseQueue.Clear();
+			thePauseButton.Counter = 0;
+		}
+
+		await InvokeAsync(StateHasChanged);
+	}
+
+	public ValueTask DisposeAsync()
+	{
+		if (_Connection is null) return ValueTask.CompletedTask;
+		return _Connection.DisposeAsync();
+		// return ValueTask.CompletedTask;
+	}
+
+}

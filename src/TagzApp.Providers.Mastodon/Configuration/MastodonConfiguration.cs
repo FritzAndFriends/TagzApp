@@ -6,7 +6,7 @@ namespace TagzApp.Providers.Mastodon.Configuration;
 /// <summary>
 /// Defines the Mastodon configuration
 /// </summary>
-internal class MastodonConfiguration : HttpClientOptions, IProviderConfiguration
+public class MastodonConfiguration : HttpClientOptions, IProviderConfiguration
 {
 	/// <summary>
 	/// Declare the section name used
@@ -37,6 +37,7 @@ internal class MastodonConfiguration : HttpClientOptions, IProviderConfiguration
 			"Timeout" => Timeout.ToString(),
 			"DefaultHeaders" => DefaultHeaders?.Serialize() ?? string.Empty,
 			"UseHttp2" => UseHttp2.ToString(),
+			"Enabled" => Enabled.ToString(),
 			_ => string.Empty
 		};
 	}
@@ -56,6 +57,9 @@ internal class MastodonConfiguration : HttpClientOptions, IProviderConfiguration
 				break;
 			case "UseHttp2":
 				UseHttp2 = bool.Parse(value);
+				break;
+			case "Enabled":
+				Enabled = bool.Parse(value);
 				break;
 			default:
 				throw new NotImplementedException();

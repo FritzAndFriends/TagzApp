@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using TagzApp.Web.Data;
+using TagzApp.ViewModels.Data;
 using TagzApp.Web.Hubs;
 
 namespace TagzApp.Web.Services;

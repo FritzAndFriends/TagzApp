@@ -1,0 +1,144 @@
+﻿@page "/MessageDetails/{provider}/{providerId}"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using TagzApp.ViewModels.Data
+@attribute [Authorize(policy: RolesAndPolicies.Policy.Moderator)]
+@inject IModerationRepository ModerationRepository
+@inject UserManager<TagzAppUser> UserManager
+@using Humanizer
+
+
+<PageTitle>Message Details</PageTitle>
+<h3>Message Details</h3>
+
+<div class="row">
+	<div class="col-md-12">
+		<h1 class="text-center">Message Details</h1>
+	</div>
+</div>
+
+@* Create two columns one that is four columns wide that contains the formatted message and the right side of the screen should then contain all of the actions that we can take on the message  *@
+@if (Model is not null) 
+{
+<div id="messageDetailsUI" class="row">
+	<div class="col-md-4">
+		<div class="card">
+
+			@* Add a card head with the message author information *@
+			<div class="card-header @(Model.State == ModerationState.Rejected ? "rejected" : Model.State == ModerationState.Approved ? "approved" : "")">
+				<div class="row">
+					<div class="col-md-2">
+						<a href="@Model.AuthorProfileUri">
+							<img src="@Model.AuthorProfileImageUri" onerror="this.src='/img/user.jpg';" class="rounded-circle" style="width: 50px; height: 50px;" />
+						</a>
+					</div>
+					<div class="col-md-10">
+						<h5 class="card-title"><a class="h6" style="color: inherit; text-decoration: none;" target="_blank" href="@Model.AuthorProfileUri">@Model.AuthorDisplayName</a></h5>
+						@if (!Model.AuthorUserName.TrimStart('@').Equals(Model.AuthorDisplayName, StringComparison.CurrentCultureIgnoreCase)) {
+							<p class="card-text">@Model.AuthorUserName</p>
+						}
+						@if (Model.State  != ModerationState.Pending)
+						{
+							<text>@Model.State.ToString() </text>
+							@if (Model.State == ModerationState.Rejected || Model.State == ModerationState.Approved)
+							{
+								<text>by @Model.Moderator</text>
+
+								<br />
+							}
+							@if (!string.IsNullOrEmpty(Model.Reason))
+							{
+								<text>for @Model.Reason</text>
+							}
+						}
+					</div>
+				</div>
+			</div>
+
+			<div class="card-body">
+				<p id="messageContent" class="card-text">@((MarkupString)(Model.Content.FormatContentWithEmotes()))</p>
+
+				@if (Model.PreviewCard is not null)
+				{
+					if (Model.PreviewCard.ImageUri.ToString().EndsWith(".mp4"))
+					{
+						<div class="contentcard">
+							<video muted="muted" controls="controls" autoplay src="@Model.PreviewCard.ImageUri" class="card-img-top" alt="@Model.PreviewCard.AltText"></video>
+						</div>
+					}
+					else
+					{
+						<div class="contentcard">
+							<img onerror="this.onerror=null; window.WaterfallUi.FixEmbedImage(this);" src="@Model.PreviewCard.ImageUri" class="card-img-top" alt="@Model.PreviewCard.AltText" />
+						</div>
+					}
+				}
+
+			</div>
+		</div>
+	</div>
+	<div class="col-md-8">
+		<div class="card">
+			<div class="card-body actions">
+
+				@if (!string.IsNullOrEmpty(ValidationMessage))
+				{
+					<p class="alert-danger alert">@ValidationMessage</p>
+				}
+
+				<h5 class="card-title">Actions</h5>
+				<EditForm FormName="BlockUser" Model="Model" OnSubmit="BlockUser" Enhance>
+					<ul>
+						@* Add a block user button *@
+						<li>
+							Block @Model.AuthorDisplayName on @Model.Provider.ToLowerInvariant().Humanize(LetterCasing.Title)
+							
+							@* TODO: Wire up the GO button
+
+							*@
+							<input type="submit" name="blockUser" value="Go" />
+						</li>
+					</ul>
+				</EditForm>
+			</div>
+		</div>
+	</div>
+</div>
+}
+
+@code {
+
+	[Parameter]
+	public string Provider { get; set; } = null!;
+
+	[Parameter]
+	public string ProviderId { get; set; } = null!;
+
+	[CascadingParameter]
+	private HttpContext HttpContext { get; set; } = default!;
+
+	public ModerationContentModel Model { get; set; }
+
+	private string ValidationMessage { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+
+		var content = await ModerationRepository.GetContentWithModeration(Provider, ProviderId);
+		Model = ModerationContentModel.ToModerationContentModel(content.Content, content.Action);
+
+		await base.OnInitializedAsync();
+
+	}
+
+	async Task BlockUser()
+	{
+
+		var user = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+
+		await ModerationRepository.BlockUser(Model.AuthorUserName, Model.Provider, user.DisplayName, new DateTimeOffset(new DateTime(2050, 1, 1), TimeSpan.Zero));
+		ValidationMessage = $"User {Model.AuthorUserName} has been blocked on {Model.Provider.ToLowerInvariant().Humanize(LetterCasing.Title)}";
+		
+	}
+
+}

@@ -1,0 +1,78 @@
+﻿@using TagzApp.ViewModels.Data
+@inject IJSRuntime JSRuntime
+
+<article @ref="thisArticle" @onclick="() => OnContentSelected.InvokeAsync(Content)">
+	<img class="ProfilePicture"
+			 src="@Content.AuthorProfileImageUri"
+			 alt="@Content.AuthorDisplayName"
+			 onerror="this.src='/img/user.jpg';" />
+
+	<div class="byline">
+		<div class="author">@Content.AuthorDisplayName <i class="autoMod"></i></div>
+		<div class="authorUserName" title="@Content.AuthorUserName">
+			@Content.AuthorUserName
+		</div>
+	</div>
+
+	<i class="provider bi @MapProviderToIcon(Content.Provider)"></i>
+
+	<div class="time">
+		<div>@Content.Timestamp.ToLocalTime().ToString("d") @Content.Timestamp.ToLocalTime().ToString("t")</div>
+		<div class="autoModReason"></div>
+	</div>
+
+	<div class="content">@((MarkupString)(Content.FormatContentWithEmotes()))</div>
+
+	@* MISSING THE PREVIEW IMAGE *@
+	@if (Content.PreviewCard is not null)
+	{
+
+		if (Content.PreviewCard.ImageUri.ToString().EndsWith(".mp4"))
+		{
+			<div class="contentcard">
+				<video muted="muted" controls="controls" autoplay src="@Content.PreviewCard.ImageUri" class="card-img-top" alt="@Content.PreviewCard.AltText"></video>
+			</div>
+		}
+		else
+		{
+			<div class="contentcard">
+				<img onerror="this.onerror=null; window.WaterfallUi.FixEmbedImage(this);" src="@Content.PreviewCard.ImageUri" class="card-img-top" alt="@Content.PreviewCard.AltText" />
+			</div>
+		}
+	}
+
+</article>
+
+@code {
+
+	[Parameter]
+	public ContentModel Content { get; set; }
+
+	[Parameter]
+	public EventCallback<ContentModel> OnContentSelected { get; set; }
+
+
+	private ElementReference thisArticle;
+
+
+	private List<string> _CssClasses = new();
+	private string CssClass => string.Join(" ", _CssClasses);
+
+	protected override Task OnAfterRenderAsync(bool firstRender)
+	{
+
+		JSRuntime.InvokeVoidAsync("window.Masonry.resizeGridItem", thisArticle);
+
+		return base.OnAfterRenderAsync(firstRender);
+	}
+
+	public static string MapProviderToIcon(string provider) =>
+	provider?.ToLowerInvariant().Trim() switch
+	{
+		"twitter" => "bi-twitter-x",
+		"website" => "bi-globe2",
+		"youtube-chat" => "bi-youtube",
+		_ => $"bi-{provider?.ToLowerInvariant().Trim() ?? "question-circle"}"
+	};
+
+}

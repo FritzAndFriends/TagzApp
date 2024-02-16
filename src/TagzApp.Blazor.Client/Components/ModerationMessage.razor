@@ -1,0 +1,191 @@
+﻿@using TagzApp.ViewModels.Data
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+
+<article @ref="thisArticle" data-providerid="@Content.ProviderId"
+	class="modMessage @AdditionalClasses @CssClass"
+	@onmouseover="() => DisplayModeration(true)"
+	@onmouseleave="() => DisplayModeration(false)"> @* @onclick="() => OnContentSelected?.InvokeAsync(Content)"> *@
+
+	@if (ShowModerationActions)
+	{
+		<div id="moderationAction">
+			<i class="bi bi-check2 approve" title="Approve this content" @onclick="async () => await Moderate(ModerationState.Approved)"></i>
+			<i class="bi bi-x-circle-fill reject" title="Reject this content" @onclick="async () => await Moderate(ModerationState.Rejected)"></i>
+			<i class="bi bi-journal-text more" 
+				@onclick="@(() => NavigationManager.NavigateTo($"/MessageDetails/{Content.Provider}/{Content.ProviderId}"))"
+				title="More Actions"></i>
+		</div>
+	}
+
+	<img class="ProfilePicture" 
+		src="@Content.AuthorProfileImageUri" 
+		alt="@Content.AuthorDisplayName"
+		onerror="this.src='/img/user.jpg';" />
+
+		<div class="byline">
+			<div class="author">@Content.AuthorDisplayName <i class="autoMod"></i></div>
+			<div class="authorUserName" title="@Content.AuthorUserName">
+				@if (!Content.AuthorUserName.TrimStart('@').Equals(Content.AuthorDisplayName)) { 
+					@Content.AuthorUserName
+				}
+			</div>
+		</div>
+
+	<i class="provider bi @MapProviderToIcon(Content.Provider)"></i>
+
+	<div class="time">
+		<div>@Content.Timestamp.ToLocalTime().ToString("d") @Content.Timestamp.ToLocalTime().ToString("t")</div>
+		<div class="autoModReason">@if (!string.IsNullOrEmpty(AutomodReason)){
+				<text>AI Reason ( @AutomodReason )</text>
+		}</div>
+	</div>
+
+	<div class="content">@((MarkupString)(Content.Content.FormatContentWithEmotes()))</div>
+
+	@* MISSING THE PREVIEW IMAGE *@
+	@if (Content.Content.PreviewCard is not null) {
+
+		if (Content.Content.PreviewCard.ImageUri.ToString().EndsWith(".mp4"))
+		{
+			<div class="contentcard">
+				<video muted="muted" controls="controls" autoplay src="@Content.Content.PreviewCard.ImageUri" class="card-img-top" alt="@Content.Content.PreviewCard.AltText"></video>
+			</div>
+		}
+		else
+		{
+			<div class="contentcard">
+				<img onerror="this.onerror=null; window.WaterfallUi.FixEmbedImage(this);" src="@Content.Content.PreviewCard.ImageUri" class="card-img-top" alt="@Content.Content.PreviewCard.AltText" />
+			</div>
+		}
+
+	}
+
+
+</article>
+
+
+@code {
+
+	[Parameter]
+	public ModerationContentModel Content { get; set; }
+
+	private string AutomodReason { get
+		{
+
+			var outText = Content?.Reason ?? string.Empty;
+			outText = outText.Replace("2", "Low");
+			outText = outText.Replace("4", "Medium");
+			outText = outText.Replace("6", "High");
+			outText = outText.Replace(".", "");
+
+			return outText;
+
+		}
+	}
+
+	// [Parameter]
+	// public EventCallback<ModerationAction> OnModerate { get; set; }
+
+	[CascadingParameter]
+	public Components.Pages.Moderation ModerationPage { get; set; }
+
+	private ElementReference thisArticle;
+
+	private HashSet<string> _CssClasses = new();
+	private string CssClass => string.Join(" ", _CssClasses);
+
+	private bool ShowModerationActions = false;
+
+	protected override Task OnAfterRenderAsync(bool firstRender)
+	{
+
+		if (firstRender)
+		{
+			JSRuntime.InvokeVoidAsync("window.Masonry.resizeGridItem", thisArticle);
+
+			var thisRef = DotNetObjectReference.Create(this);
+			JSRuntime.InvokeVoidAsync("window.WaterfallUi.AddMessage", Content.ProviderId, thisRef);
+
+
+		}
+
+		return base.OnAfterRenderAsync(firstRender);
+	}
+
+	private const string CSS_APPROVED = "status-approved";
+	private const string CSS_REJECTED = "status-rejected status-humanmod";
+	private const string CSS_AZURECONTENTSAFETY = "status-rejected status-automod";
+
+	public string AdditionalClasses => (Content?.State, Content?.Moderator) switch
+	{
+		(ModerationState.Approved, _) => CSS_APPROVED,
+		(ModerationState.Rejected, "AZURE-CONTENTSAFETY") => CSS_AZURECONTENTSAFETY,
+		(ModerationState.Rejected, _) => CSS_REJECTED,
+		(_,_) => ""
+	};
+
+	async Task Moderate(ModerationState action)
+	{
+
+		var prevState = Content.State;
+
+		if (prevState == ModerationState.Rejected && action == ModerationState.Approved)
+		{
+			// Confirm that the user wants to approve a previously rejected message
+			var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to approve a message that was previously rejected?");
+			if (!confirmed) return;
+		}
+
+		Content.ModerationTimestamp = DateTimeOffset.Now;
+		Content.State = action;
+
+		ShowModerationActions = false;
+
+		StateHasChanged();
+
+		await ModerationPage.Moderate(new ModerationAction { 
+			Provider = Content.Provider,
+			ProviderId = Content.ProviderId,
+			PreviousState = prevState,
+			State = action,
+			Timestamp = DateTimeOffset.Now
+		});
+
+	}
+
+	public async Task DisplayModeration(bool show)
+	{
+		ShowModerationActions = show;
+
+		if (show)
+			await JSRuntime.InvokeVoidAsync("window.WaterfallUi.PauseNewContent", 5000);
+		else 
+			await JSRuntime.InvokeVoidAsync("window.WaterfallUi.ResumeContent");
+	}
+
+	[JSInvokable]
+	public void SetCursorFocus(bool focus)
+	{
+		if (focus)
+		{
+			_CssClasses.Add("keyboard-cursor");
+		}
+		else
+		{
+			_CssClasses.Remove("keyboard-cursor");
+			ShowModerationActions = false;
+		}
+		StateHasChanged();
+	}
+
+	public static string MapProviderToIcon(string provider) =>
+	provider?.ToLowerInvariant().Trim() switch
+		{
+			"twitter" => "bi-twitter-x",
+			"website" => "bi-globe2",
+			"youtube-chat" => "bi-youtube",
+		_ => $"bi-{provider?.ToLowerInvariant().Trim() ?? "question-circle"}"
+		};
+
+}

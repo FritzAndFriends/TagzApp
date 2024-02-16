@@ -1,0 +1,111 @@
+﻿@using TagzApp.ViewModels.Data
+
+<div @ref="_OuterModal" class="modal fade @modalClass"
+		 id="contentModal" tabindex="-1"
+		 role="dialog"
+		 style="display:@modalDisplay; overflow-y: auto;"
+		 aria-labelledby="contentModalLabel" aria-hidden="true"
+		 @onkeyup="HandleKeyPress"
+		 @onclick="Close">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-inner @_InnerModalCssClass">
+
+			<div class="modal-front modal-content" @onclick:stopPropagation="true">
+				<div class="modal-header">
+					<img class="ProfilePicture" src="@Content?.AuthorProfileImageUri" alt="@Content?.AuthorDisplayName" onerror="this.src='/img/user.jpg';" />
+					<div class="author">@Content?.AuthorDisplayName</div>
+					<div class="authorUserName" title="@Content?.AuthorUserName">@Content?.AuthorUserName</div>
+					<i class="provider bi @WaterfallMessage.MapProviderToIcon(Content?.Provider)"></i>
+					<button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" @onclick="Close">
+					</button>
+					<div class="time">@Content?.Timestamp.ToLocalTime().ToString("d") @Content?.Timestamp.ToLocalTime().ToString("t")</div>
+				</div>
+
+				<div class="modal-body">
+					@((MarkupString)Content?.FormatContentWithEmotes())
+
+					@if (Content?.PreviewCard is not null)
+					{
+						if (Content?.PreviewCard.ImageUri.ToString().EndsWith(".mp4") ?? false)
+						{
+							<div class="contentcard">
+								<video muted="muted" controls="controls" autoplay src="@Content?.PreviewCard.ImageUri" class="card-img-top" alt="@Content?.PreviewCard.AltText"></video>
+							</div>
+						}
+						else
+						{
+							<div class="contentcard">
+								<img onerror="this.onerror=null; window.WaterfallUi.FixEmbedImage(this);" src="@Content?.PreviewCard.ImageUri" class="card-img-top" alt="@Content?.PreviewCard.AltText" />
+							</div>
+						}
+					}
+
+				</div>
+
+			</div>
+
+			<div class="modal-back modal-content">
+				<div class="modal-back-content">
+					The back of the modal
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+</div>
+
+@if (showBackdrop)
+{
+	<div class="modal-backdrop fade show"></div>
+}
+
+@code {
+
+	[Parameter]
+	public ContentModel Content { get; set; }
+
+	ElementReference _OuterModal;
+
+	private string modalDisplay = "none;";
+	private string modalClass = string.Empty;
+	private bool showBackdrop = false;
+
+	private string _InnerModalCssClass = string.Empty;
+
+	public async Task HandleKeyPress(KeyboardEventArgs e)
+	{
+		if (e.Key == "Escape")
+		{
+			Close();
+		}
+	}
+
+	public async Task Open()
+	{
+
+		Console.WriteLine($"Content has preview: {Content.PreviewCard is not null} and Uri: {Content.PreviewCard?.ImageUri}");
+
+		modalDisplay = "block";
+		modalClass = "show";
+		showBackdrop = true;
+		StateHasChanged();
+
+		await Task.Delay(700);
+		_InnerModalCssClass = "flip";
+		StateHasChanged();
+
+		await _OuterModal.FocusAsync();
+
+	}
+
+	public void Close()
+	{
+		modalDisplay = "none";
+		modalClass = string.Empty;
+		showBackdrop = false;
+		_InnerModalCssClass = string.Empty;
+		StateHasChanged();
+	}
+
+}
