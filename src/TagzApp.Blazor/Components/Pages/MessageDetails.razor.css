@@ -1,0 +1,8 @@
+#messageDetailsUI A.authorName {
+	color: var(--bs-cyan);
+	font-weight: bold;
+}
+
+#messageDetailsUI A.authorName:hover {
+	text-decoration: underline !important;
+}
