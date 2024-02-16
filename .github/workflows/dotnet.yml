@@ -26,6 +26,16 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           global-json-file: ./global.json
+
+      - name: Cache NuGet Packages
+        id: nuget-packages
+        uses: actions/cache@v3
+        env:
+          cache-name: nuget-package-cache
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-${{ env.cache-name }}
+
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
@@ -85,6 +95,15 @@ jobs:
         with:
           setAllVars: true
   
+      - name: Cache NuGet Packages
+        id: nuget-packages
+        uses: actions/cache@v3
+        env:
+          cache-name: nuget-package-cache
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-${{ env.cache-name }}
+  
       - name: Restore
         run: dotnet restore
   
@@ -93,5 +112,5 @@ jobs:
         working-directory: ./src/TagzApp.Blazor
   
       - name: Publish
-        run: dotnet publish --os linux --arch x64 -t:PublishContainer /p:ContainerImageTag=${{ steps.nbgv_version.outputs.Version }} /p:ContainerRegistry=ghcr.io
+        run: dotnet publish --os linux --arch x64 -t:PublishContainer /p:ContainerImageTags='"${{ steps.nbgv_version.outputs.Version }};latest"' /p:ContainerRegistry=ghcr.io
         working-directory: ./src/TagzApp.Blazor
