@@ -7,12 +7,19 @@ on:
   push:
     branches: ["main"]
     paths: ["src/**"]
+    paths-ignore:
+      - "**/*.md"
+      - "**/*.gitignore"
+      - "**/*.gitattributes"
   pull_request:
     branches: ["main"]
     types: [opened, synchronize, reopened, closed]
     paths: ["src/**"]
+    paths-ignore:
+      - "**/*.md"
+      - "**/*.gitignore"
+      - "**/*.gitattributes"
   workflow_dispatch:
-    branches: ["main"]
 
 jobs:
   build:
@@ -22,9 +29,9 @@ jobs:
       run:
         working-directory: ./src
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           global-json-file: ./global.json
       - name: Restore dependencies
@@ -61,7 +68,10 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository_owner == 'FritzAndFriends')
     name: "Create docker image for Web"
     runs-on: ubuntu-latest
-    # needs: [playwright]
+    needs: [build]
+    defaults:
+      run:
+        working-directory: ./src
     steps:
       - uses: actions/checkout@v4
         with:
@@ -76,8 +86,6 @@ jobs:
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
     
       - name: Version stamping
         id: nbgv_version
@@ -90,6 +98,8 @@ jobs:
   
       - name: Build
         run: dotnet build --configuration Release --no-restore
+        working-directory: ./src/TagzApp.Blazor
   
       - name: Publish
         run: dotnet publish --os linux --arch x64 -t:PublishContainer /p:ContainerImageTag=${{ steps.nbgv_version.outputs.Version }} /p:ContainerRegistry=ghcr.io
+        working-directory: ./src/TagzApp.Blazor
