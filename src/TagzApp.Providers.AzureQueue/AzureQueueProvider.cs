@@ -1,5 +1,4 @@
 ﻿using Azure.Storage.Queues;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 namespace TagzApp.Providers.AzureQueue;
