@@ -1,5 +1,6 @@
 ﻿using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
+using Microsoft.Extensions.Configuration;
 using TagzApp.Providers.Youtube.Configuration;
 
 namespace TagzApp.Providers.Youtube;
@@ -17,9 +18,12 @@ internal class YoutubeProvider : ISocialMediaProvider
 
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(30);
 
+	public bool Enabled { get; }
+
 	public YoutubeProvider(YoutubeConfiguration options)
 	{
 		_Configuration = options;
+		Enabled = options.Enabled;
 	}
 
 	public async Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since)

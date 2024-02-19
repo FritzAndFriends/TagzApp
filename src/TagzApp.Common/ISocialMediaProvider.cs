@@ -24,6 +24,11 @@ public interface ISocialMediaProvider : IDisposable
 	string Description { get; }
 
 	/// <summary>
+	/// Whether the provider is enabled
+	/// </summary>
+	bool Enabled { get; }
+
+	/// <summary>
 	/// How frequently new content should be retrieved from the provider
 	/// </summary>
 	TimeSpan NewContentRetrievalFrequency { get; }

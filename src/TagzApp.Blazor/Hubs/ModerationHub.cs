@@ -105,6 +105,7 @@ public class ModerationHub : Hub<IModerationClient>
 	{
 
 		return _Service.Providers
+			.Where(p => p.Enabled)
 			.Select(p => new AvailableProvider(p.Id, p.DisplayName))
 			.ToArray();
 

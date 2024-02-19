@@ -18,6 +18,7 @@ public class MastodonProvider : ISocialMediaProvider, IHasNewestId
 	{
 		_HttpClient = httpClientFactory.CreateClient(nameof(MastodonProvider));
 		_Logger = logger;
+		Enabled = configuration.Enabled;
 
 		if (!string.IsNullOrWhiteSpace(configuration.Description))
 		{
@@ -32,6 +33,7 @@ public class MastodonProvider : ISocialMediaProvider, IHasNewestId
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(20);
 
 	public string NewestId { get; set; } = string.Empty;
+	public bool Enabled { get; }
 
 	public void Dispose()
 	{
