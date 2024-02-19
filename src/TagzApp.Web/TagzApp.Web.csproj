@@ -21,6 +21,7 @@
     <ProjectReference Include="..\TagzApp.Storage.Postgres.Security\TagzApp.Storage.Postgres.Security.csproj" />
     <ProjectReference Include="..\TagzApp.Storage.Postgres\TagzApp.Storage.Postgres.csproj" />
     <ProjectReference Include="..\TagzApp.Storage.Sqlite.Security\TagzApp.Storage.Sqlite.Security.csproj" />
+    <ProjectReference Include="..\TagzApp.Providers.Bluesky\TagzApp.Providers.Bluesky.csproj" />
     <ProjectReference Include="..\TagzApp.ViewModels\TagzApp.ViewModels.csproj" />
   </ItemGroup>
 

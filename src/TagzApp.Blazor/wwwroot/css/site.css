@@ -662,3 +662,13 @@ a {
 	width: 10em;
 	margin-right: 2em;
 }
+
+.icon-bluesky {
+	width: 23px;
+	height: 20px;
+	margin-top: 4px;
+	display: inline-block;
+	background-image: url(/img/Bluesky_Logo.svg);
+	background-size: contain;
+	filter: brightness(0) invert(1);
+}
