@@ -12,7 +12,7 @@
 			</dd>
 			<dt><label for="ClientSecret">Client Secret:</label></dt>
 			<dd>
-				<InputText name="ClientSecret" @bind-Value="Model.ClientSecret" placeholder="Twitch Client Secret" />
+				<InputText type="password" name="ClientSecret" @bind-Value="Model.ClientSecret" placeholder="Twitch Client Secret" />
 				<ValidationMessage For="() => Model.ClientSecret" class="text-danger" />
 			</dd>
 			<dt><label for="ChatBotName">Chat Bot Name:</label></dt>
@@ -22,7 +22,7 @@
 			</dd>
 			<dt><label for="OAuthToken">OAuth Token:</label></dt>
 			<dd>
-				<InputText name="OAuthToken" @bind-Value="Model.OAuthToken" placeholder="Twitch OAuth Token" />
+				<InputText type="password" name="OAuthToken" @bind-Value="Model.OAuthToken" placeholder="Twitch OAuth Token" />
 				<ValidationMessage For="() => Model.OAuthToken" class="text-danger" />
 			</dd>
 			<dt><label for="ChannelName">Channel Name:</label></dt>

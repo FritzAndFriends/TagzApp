@@ -13,7 +13,7 @@
 			</dd>
 			<dt><label for="SecretAuthKey">Secret Auth Key:</label></dt>
 			<dd>
-				<InputText name="SecretAuthKey" @bind-Value="Model.SecretAuthKey" placeholder="Secret Auth Key" />
+				<InputText type="password" name="SecretAuthKey" @bind-Value="Model.SecretAuthKey" placeholder="Secret Auth Key" />
 				<ValidationMessage For="() => Model.SecretAuthKey" class="text-danger" />
 			</dd>
 			<dt><label for="BaseAddress">Base Address:</label></dt>
