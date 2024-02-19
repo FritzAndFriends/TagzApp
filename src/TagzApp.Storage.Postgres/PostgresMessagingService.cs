@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TagzApp.Communication;
 using TagzApp.Storage.Postgres.SafetyModeration;
-using TagzApp.Web.Services;
 
 namespace TagzApp.Storage.Postgres;
 
@@ -17,7 +16,7 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 	public PostgresMessagingService(
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-		IServiceProvider services,
+		IServiceProvider services,  // Can this be EFContextFactory
 		INotifyNewMessages notifyNewMessages,
 		IMemoryCache cache,
 		ILogger<BaseProviderManager> logger,
@@ -183,7 +182,7 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 	public async Task<IEnumerable<(Content, ModerationAction?)>> GetFilteredContentByTag(string tag, string[] providers, ModerationState[] states)
 	{
 
-		tag = $"#{tag}";
+		tag = $"#{tag.TrimStart('#')}";
 
 		using var scope = _Services.CreateScope();
 		var ctx = scope.ServiceProvider.GetRequiredService<TagzAppContext>();

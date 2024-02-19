@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using TagzApp.Web.Data;
+
 
 namespace TagzApp.Web.Areas.Identity.Pages.Account;
 

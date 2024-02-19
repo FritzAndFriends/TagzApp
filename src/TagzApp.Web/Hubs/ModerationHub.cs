@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
-using TagzApp.Web.Data;
-using TagzApp.Web.Services;
+using TagzApp.ViewModels.Data;
+
 
 namespace TagzApp.Web.Hubs;
 

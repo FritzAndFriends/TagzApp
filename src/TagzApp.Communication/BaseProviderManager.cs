@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Reflection;
 using TagzApp.Communication.Extensions;
 
 namespace TagzApp.Communication;
@@ -25,10 +24,11 @@ public class BaseProviderManager
 	{
 		if (!Providers.Any())
 		{
-			await LoadConfigurationProviders();
+			/// await LoadConfigurationProviders();
 		}
 	}
 
+	/*
 	private async Task LoadConfigurationProviders()
 	{
 		List<IConfigureProvider> configProviders = new();
@@ -73,7 +73,9 @@ public class BaseProviderManager
 			await ConfigureProviders(configProviders);
 		}
 	}
+	*/
 
+	// TODO: Remove?
 	private async Task ConfigureProviders(IEnumerable<IConfigureProvider> configurationProviders)
 	{
 
@@ -85,7 +87,7 @@ public class BaseProviderManager
 		}
 
 		// TEMP: Commented out to get working
-		_Services.AddPolicies();
+		_Services.AddHttpClientPolicies();
 		var sp = _Services.BuildServiceProvider();
 		socialMediaProviders.AddRange(sp.GetServices<ISocialMediaProvider>());
 		Providers = socialMediaProviders;

@@ -1,0 +1,117 @@
+﻿@using System.ComponentModel.DataAnnotations
+<UiProviderConfig ProviderName="TwitchChat" Health="@Health" ProviderIconCssClass="bi-twitch">
+
+	<EditForm Model="Model" OnValidSubmit="SaveConfig">
+		<AntiforgeryToken />
+		<ValidationSummary />
+		<dl>
+			<dt><label for="ClientId">Client Id:</label></dt>
+			<dd>
+				<InputText name="ClientId" @bind-Value="Model.ClientId" placeholder="Twitch Client Id" />
+				<ValidationMessage For="() => Model.ClientId" class="text-danger" />
+			</dd>
+			<dt><label for="ClientSecret">Client Secret:</label></dt>
+			<dd>
+				<InputText name="ClientSecret" @bind-Value="Model.ClientSecret" placeholder="Twitch Client Secret" />
+				<ValidationMessage For="() => Model.ClientSecret" class="text-danger" />
+			</dd>
+			<dt><label for="ChatBotName">Chat Bot Name:</label></dt>
+			<dd>
+				<InputText name="ChatBotName" @bind-Value="Model.ChatBotName" placeholder="Twitch Chat Bot Name" />
+				<ValidationMessage For="() => Model.ChatBotName" class="text-danger" />
+			</dd>
+			<dt><label for="OAuthToken">OAuth Token:</label></dt>
+			<dd>
+				<InputText name="OAuthToken" @bind-Value="Model.OAuthToken" placeholder="Twitch OAuth Token" />
+				<ValidationMessage For="() => Model.OAuthToken" class="text-danger" />
+			</dd>
+			<dt><label for="ChannelName">Channel Name:</label></dt>
+			<dd>
+				<InputText name="ChannelName" @bind-Value="Model.ChannelName" placeholder="Twitch Channel Name" />
+				<ValidationMessage For="() => Model.ChannelName" class="text-danger" />
+			</dd>
+			<dt><label for="Enabled">Enabled:</label></dt>
+			<dd>
+				<InputCheckbox name="Enabled" @bind-Value="Model.Enabled" />
+			</dd>
+		</dl>
+
+		<button type="submit" class="btn btn-primary">Save</button>
+
+	</EditForm>
+
+</UiProviderConfig>
+
+@code {
+
+	[Parameter, EditorRequired]
+	public ISocialMediaProvider Provider { get; set; } = null!;
+
+	public (SocialMediaStatus Status, string Message) Health { get; set; } = (SocialMediaStatus.Unknown, string.Empty);
+
+
+	public ViewModel Model { get; set; } = new();
+
+	protected override async Task OnParametersSetAsync()
+	{
+
+		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
+
+		Model = new ViewModel
+			{
+				ClientId = providerConfiguration.GetConfigurationByKey("ClientId"),
+				ClientSecret = providerConfiguration.GetConfigurationByKey("ClientSecret"),
+				ChatBotName = providerConfiguration.GetConfigurationByKey("ChatBotName"),
+				OAuthToken = providerConfiguration.GetConfigurationByKey("OAuthToken"),
+				ChannelName = providerConfiguration.GetConfigurationByKey("ChannelName"),
+				Enabled = string.IsNullOrEmpty(providerConfiguration.GetConfigurationByKey("Enabled")) ? false : bool.Parse(providerConfiguration.GetConfigurationByKey("Enabled"))
+			};
+
+		Health = await Provider.GetHealth();
+
+		await base.OnParametersSetAsync();
+
+	}
+
+	private async Task SaveConfig()
+	{
+
+		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
+
+		providerConfiguration.SetConfigurationByKey("ClientId", Model.ClientId);
+		providerConfiguration.SetConfigurationByKey("ClientSecret", Model.ClientSecret);
+		providerConfiguration.SetConfigurationByKey("ChatBotName", Model.ChatBotName);
+		providerConfiguration.SetConfigurationByKey("OAuthToken", Model.OAuthToken);
+		providerConfiguration.SetConfigurationByKey("ChannelName", Model.ChannelName);
+		providerConfiguration.SetConfigurationByKey("Enabled", Model.Enabled.ToString());
+
+		await Provider.SaveConfiguration(ConfigureTagzAppFactory.Current, providerConfiguration);
+
+	}
+
+	public class ViewModel
+	{
+
+		// add properties for each of the fields you want to edit
+
+		[Required]
+		public string ClientId { get; set; }
+
+		[Required]
+		public string ClientSecret { get; set; }
+
+		[Required]
+		public string ChatBotName { get; set; } = string.Empty;
+
+		[Required]
+		public string OAuthToken { get; set; } = string.Empty;
+
+		[Required]
+		public string ChannelName { get; set; } = "csharpfritz";
+
+		public bool Enabled { get; set; }
+
+
+	}
+
+}

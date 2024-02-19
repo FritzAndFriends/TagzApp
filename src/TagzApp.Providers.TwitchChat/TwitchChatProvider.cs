@@ -24,11 +24,11 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	private readonly ILogger<TwitchChatProvider> _Logger;
 	private readonly TwitchProfileRepository _ProfileRepository;
 
-	public TwitchChatProvider(ILogger<TwitchChatProvider> logger, IHttpClientFactory clientFactory)
+	public TwitchChatProvider(ILogger<TwitchChatProvider> logger, HttpClient client)
 	{
 		_Settings = ConfigureTagzAppFactory.Current.GetConfigurationById<TwitchChatConfiguration>(Id).GetAwaiter().GetResult();
 		_Logger = logger;
-		_ProfileRepository = new TwitchProfileRepository(_Settings.ClientId, _Settings.ClientSecret, clientFactory.CreateClient("TwitchProfile"));
+		_ProfileRepository = new TwitchProfileRepository(_Settings.ClientId, _Settings.ClientSecret, client);
 
 		if (!string.IsNullOrWhiteSpace(_Settings.Description))
 		{
@@ -186,6 +186,14 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 
 	public Task StartAsync()
 	{
+
+		if (string.IsNullOrEmpty(_Settings.ChannelName) || string.IsNullOrEmpty(_Settings.OAuthToken))
+		{
+			_Status = SocialMediaStatus.Unhealthy;
+			_StatusMessage = "TwitchChat client is not configured";
+			return Task.CompletedTask;
+		}
+
 		ListenForMessages();
 		return Task.CompletedTask;
 	}

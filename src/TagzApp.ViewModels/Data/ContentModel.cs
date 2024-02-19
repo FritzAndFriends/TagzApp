@@ -1,4 +1,6 @@
-namespace TagzApp.Web.Data;
+using System.Net;
+
+namespace TagzApp.ViewModels.Data;
 
 /// <summary>
 /// Content to be shared with the web client
@@ -11,7 +13,7 @@ namespace TagzApp.Web.Data;
 /// <param name="AuthorProfileUri">Profile URI of the author of the content</param>
 /// <param name="AuthorProfileImageUri">Profile Image URI of the author of the content</param>
 /// <param name="Text">Text of the content</param>
-public record ModerationContentModel(
+public record ContentModel(
 	string Provider,
 	string ProviderId,
 	string Type,
@@ -23,17 +25,14 @@ public record ModerationContentModel(
 	string AuthorProfileImageUri,
 	string Text,
 	Card? PreviewCard,
-	ModerationState State,
-	string? Reason,
-	string? Moderator,
-	DateTimeOffset? ModerationTimestamp,
 	Emote[] Emotes
 )
 {
 
-	public static ModerationContentModel ToModerationContentModel(Content content, ModerationAction? action = null)
+	// TODO: Refactor to not take a dependency on the Common library
+	public static explicit operator ContentModel(Content content)
 	{
-		return new ModerationContentModel(
+		return new ContentModel(
 			content.Provider,
 			content.ProviderId,
 			content.Type.ToString(),
@@ -45,13 +44,43 @@ public record ModerationContentModel(
 			content.Author.ProfileImageUri.ToString(),
 			content.Text,
 			content.PreviewCard,
-			action?.State ?? ModerationState.Pending,
-			action?.Reason,
-			action?.Moderator,
-			action?.Timestamp,
 			content.Emotes ?? new Emote[0]
 		);
 	}
 
+	public string FormatContentWithEmotes()
+	{
+
+		if (!Emotes?.Any() ?? true)
+		{
+			return Text;
+		}
+
+		var originalText = WebUtility.HtmlDecode(Text);
+		var formattedContent = originalText;
+
+		var toReplace = new List<EmoteFormat>();
+		foreach (var emote in Emotes)
+		{
+
+			var emoteUrl = emote.ImageUrl;
+
+			var emoteName = originalText
+				.Substring(emote.Pos, emote.Length)
+				.Trim();
+			var emoteHtml = $"""<img class="emote" src="{emoteUrl}"  />""";
+			toReplace.Add(new EmoteFormat(emoteName, emoteHtml));
+		}
+
+		foreach (var r in toReplace)
+		{
+			formattedContent = formattedContent.Replace(r.Name, r.HTML);
+		}
+
+		return formattedContent;
+
+	}
 
 }
+
+internal record EmoteFormat(string Name, string HTML);

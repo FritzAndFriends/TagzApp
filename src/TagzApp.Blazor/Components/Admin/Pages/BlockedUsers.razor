@@ -1,0 +1,127 @@
+@page "/BlockedUsers"
+
+@attribute [Authorize(policy: RolesAndPolicies.Policy.Moderator)]
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using System.ComponentModel.DataAnnotations
+@inject IMessagingService _Service
+@inject UserManager<TagzAppUser> _UserManager
+@inject IModerationRepository _Repository
+
+<h2>Currently Blocked Users</h2>
+
+@* Create a form that allows submission of a provider and username to block *@
+<form action="" id="blockNewUser" @formname="BlockNewUser" method="post" @onsubmit="BlockNewUser">
+	<select name="provider" @bind="@SelectedProvider">
+		<option value="">Select a provider</option>
+		@foreach (var provider in Providers)
+		{
+			<option value="@provider.Id">@provider.DisplayName</option>
+		}
+	</select>
+	<input id="username" name="username" maxlength="20" placeholder="User Name" @bind="@UserToBlock" />
+	<AntiforgeryToken />
+	<button type="submit" class="btn btn-primary">Block User</button>
+</form>
+
+
+@if (Users?.Any() ?? false)
+{
+	<table class="table">
+		<thead>
+			<tr>
+				<th></th>
+				<th>Provider</th>
+				<th>Username</th>
+				<th>Blocked By</th>
+				<th>Blocked On</th>
+				<th>Blocked Until</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var user in Users)
+			{
+				<tr>
+
+					<td>
+						<EditForm Model="EditModel" FormName="@($"Unblock_{user.BlockedDate}_{user.UserName}")" OnValidSubmit="() => UnblockUser(user.Provider, user.UserName)">
+						<button class="btn btn-danger" type="submit">
+							<i class="bi bi-x-circle-fill"></i>
+						</button>
+						</EditForm>
+					</td>
+					<td>@user.Provider</td>
+					<td>@@@(user.UserName.TrimStart('@'))</td>
+					<td>@user.BlockingUser</td>
+					<td data-utc="@user.BlockedDate">@user.BlockedDate.ToLocalTime().ToString("d")</td>
+					<td>@(user.ExpirationDate > DateTime.Now.AddYears(1) ? "No end date" : user.ExpirationDate.Value.Date.ToLocalTime().ToString("d"))</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+else
+{
+	<p>No users are currently blocked.</p>
+}
+
+@code {
+
+	private IEnumerable<ISocialMediaProvider> Providers { get; set; }
+	private IEnumerable<BlockedUser> Users { get; set; }
+
+	[CascadingParameter]
+	private HttpContext HttpContext { get; set; } = default!;
+
+	[SupplyParameterFromForm(FormName = "BlockNewUser", Name = "provider")]
+	private string SelectedProvider { get; set; } = string.Empty;
+
+	[SupplyParameterFromForm(FormName = "BlockNewUser", Name = "username")]
+	private string UserToBlock { get; set; } = string.Empty;
+
+	private object EditModel = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+
+		Providers = _Service.Providers
+			.OrderBy(x => x.DisplayName).ToArray();
+		Users = await _Repository.GetBlockedUsers();
+
+
+	}
+
+	public async Task BlockNewUser()
+	{
+
+		Console.WriteLine($"Blocking user {UserToBlock} on {SelectedProvider}");
+
+		var user = await _UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+		if (user != null) 
+		{
+			await _Repository.BlockUser($"@{UserToBlock.TrimStart('@')}", SelectedProvider, user.DisplayName, new DateTimeOffset(new DateTime(2050, 1, 1), TimeSpan.Zero));
+		}
+
+		// reload  the users list
+		Users = await _Repository.GetBlockedUsers();
+		SelectedProvider = string.Empty;
+		UserToBlock = string.Empty;
+
+	}
+
+	public async Task UnblockUser(string provider, string userToUnblock)
+	{
+		Console.WriteLine($"Unblocking user {userToUnblock} on {provider}");
+		await _Repository.UnblockUser(userToUnblock, provider);
+		Users = await _Repository.GetBlockedUsers();
+
+	}
+
+	public async Task OnGetUnblock(string provider, string username)
+	{
+		await _Repository.UnblockUser(provider, username);
+		Users = await _Repository.GetBlockedUsers();
+	}
+
+}

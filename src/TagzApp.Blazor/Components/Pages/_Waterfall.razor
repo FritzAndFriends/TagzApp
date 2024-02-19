@@ -1,0 +1,107 @@
+﻿@page "/Waterfall"
+@using Microsoft.AspNetCore.Components.Sections
+@attribute [StreamRendering]
+@inject IJSRuntime JSRuntime
+@inject IMessagingService MessagingService
+@inject ApplicationConfiguration AppConfig
+@layout Layout.WaterfallLayout
+
+<PageTitle>@AppConfig.SiteName - Waterfall Display</PageTitle>
+
+<div style="height: 100vh; width: 100vw; margin: 0; overflow: hidden;">
+
+	<div id="floatingHeader" class="scrollOut" 
+		<TagzApp.Blazor.Components.Layout.Header />
+	</div>
+
+	<main role="main" class="pb-3" style="max-width: 100%">
+
+		<div class="waterfallHeader">
+
+			@((MarkupString)_WaterfallHeaderContent)
+
+			<div id="headerButton" class="btn">
+				<i class="bi bi-three-dots"></i>
+			</div>
+
+
+		</div>
+
+		@if (MessagingService.TagsTracked.Any())
+		{
+			<Waterfall TagTracked="@MessagingService.TagsTracked.First()" />
+		} else
+		{
+		@* HAL - output a DIV that is centered on the screen and report that no tags are being tracked*@
+			<div class="d-flex justify-content-center align-items-center" style="height: 100vh; width: 100vw;">
+			<div class="text-center">
+				<h3 class="display-4">No Tags Tracked</h3>
+				<p class="lead">Click the <i class="bi bi-three-dots"></i> button in the header to start tracking tags.</p>
+			</div>
+			</div>
+		}
+
+	</main>
+
+	<div id="footerFade"></div>
+
+</div>
+
+@if (AppConfig.WaterfallHeaderCss is not null)
+{
+	<HeadContent>
+		<style>
+			@WaterfallHeaderCss
+		</style>
+</HeadContent>
+}
+
+@code {
+
+	private string _WaterfallHeaderContent;
+	private bool _EnableHeaderScrollOut = false;
+
+	protected override Task OnInitializedAsync()
+	{
+
+		// Convert markdown to HTML
+		_WaterfallHeaderContent = Markdig.Markdown.ToHtml(AppConfig.WaterfallHeaderMarkdown);   
+		// TODO: Get the AppConfig from the server
+
+		return base.OnInitializedAsync();
+	}
+
+	public string WaterfallHeaderCss
+	{
+		get
+		{
+			var theCSS = AppConfig.WaterfallHeaderCss;
+			if (string.IsNullOrWhiteSpace(theCSS))
+			{
+				return "";
+			}
+
+			var theRules = theCSS.Split('}', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+			var outCSS = new System.Text.StringBuilder();
+			foreach (var rule in theRules)
+			{
+
+				if (!rule.StartsWith(".waterfallHeader"))
+				{
+					outCSS.Append(".waterfallHeader ");
+				}
+
+				rule.Replace(Environment.NewLine, "");
+				outCSS.Append(rule);
+				outCSS.Append("}");
+				outCSS.Append(Environment.NewLine);
+
+			}
+
+			return outCSS.ToString();
+
+		}
+	}
+
+}
+

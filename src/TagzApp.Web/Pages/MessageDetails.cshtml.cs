@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using TagzApp.Web.Data;
-using TagzApp.Web.Services;
 using Humanizer;
 
 namespace TagzApp.Web.Pages

@@ -150,7 +150,7 @@ public static class IServiceCollectionExtensions
 	/// <param name="configuration">Reference to the application configuration instance</param>
 	/// <param name="configurationSectionName">Section name to use when configuring the Http client</param>
 	/// <exception cref="ArgumentNullException">Raised whenever any of the provided arguments is null</exception>
-	public static IServiceCollection AddPolicies(this IServiceCollection services, string configurationSectionName = PolicyConstants.HttpPolicies)
+	public static IServiceCollection AddHttpClientPolicies(this IServiceCollection services, string configurationSectionName = PolicyConstants.HttpPolicies)
 	{
 
 		var configuration = ConfigureTagzAppFactory.Current;

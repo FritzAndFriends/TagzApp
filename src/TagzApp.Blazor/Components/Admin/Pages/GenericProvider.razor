@@ -1,0 +1,31 @@
+﻿@using TagzApp.Providers.TwitchChat
+@using TagzApp.Providers.Mastodon
+@using TagzApp.Blazor.Client.Components.Admin
+
+@typeparam TProvider
+
+@switch (Provider.GetType().Name)
+{
+	case nameof(TwitchChatProvider):
+		{
+			<TwitchChat_Config_Ui Provider="@Provider" />
+			break;
+		}
+	case nameof(MastodonProvider):
+		{
+			<Mastodon_Config_Ui Provider="@Provider" />
+			break;
+		}
+	default:
+		{
+			<p>Unknown provider type: @Provider?.GetType().Name</p>
+			break;
+		}
+}
+
+
+@code {
+	[Parameter, EditorRequired]
+	public TProvider Provider { get; set; }
+
+}

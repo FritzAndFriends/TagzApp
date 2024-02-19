@@ -41,6 +41,7 @@ public class TwitchChatConfiguration : IProviderConfiguration
 			"ClientId" => ClientId,
 			"ClientSecret" => ClientSecret,
 			"OAuthToken" => OAuthToken,
+			"Enabled" => Enabled.ToString(),
 			_ => string.Empty
 		};
 	}
@@ -64,8 +65,11 @@ public class TwitchChatConfiguration : IProviderConfiguration
 			case "OAuthToken":
 				OAuthToken = value;
 				break;
+			case "Enabled":
+				Enabled = bool.Parse(value);
+				break;
 			default:
-				throw new NotImplementedException();
+				throw new NotImplementedException($"Unable to set value for key '{key}'");
 
 		}
 	}

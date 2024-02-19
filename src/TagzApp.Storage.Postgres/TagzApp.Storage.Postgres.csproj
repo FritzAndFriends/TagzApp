@@ -8,13 +8,14 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.AI.ContentSafety" Version="1.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
     <ProjectReference Include="..\TagzApp.Communication\TagzApp.Communication.csproj" />
+    <ProjectReference Include="..\TagzApp.Security\TagzApp.Security.csproj" />
+    <ProjectReference Include="..\TagzApp.Storage.Postgres.Security\TagzApp.Storage.Postgres.Security.csproj" />
   </ItemGroup>
 
 </Project>

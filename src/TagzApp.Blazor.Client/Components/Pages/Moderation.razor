@@ -1,0 +1,385 @@
+﻿@page "/Moderation"
+@rendermode @(new InteractiveWebAssemblyRenderMode(false))
+@attribute [Authorize(policy: "Moderator")]
+@implements IAsyncDisposable
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Microsoft.AspNetCore.SignalR.Client
+@using System.Net
+@using TagzApp.ViewModels.Data
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Message Moderation</PageTitle>
+
+<div class="row">
+	<div class="col-md-12">
+		<h1 class="text-center">Moderate Content for TagzApp (@_Tag)</h1>
+	</div>
+</div>
+
+<div class="row" style="padding: 0  10px!important;">
+	<div class="col-md-6 d-flex align-items-center" style="">
+		<span class="col-form-label-sm">Current Moderators:</span>
+		<span class="currentModerators">
+			@foreach (var moderator in _Moderators)
+			{
+				<img id="moderator-@moderator.Email"
+						 title="@moderator.DisplayName"
+						 src="@moderator.AvatarImageSource" />
+			}
+		</span>
+	</div>
+
+	<div class="col-md-6 d-flex justify-content-end align-items-center">
+
+		@* TODO: Add a badge with a number of currently blocked users *@
+		<a class="link-danger me-3" title="Blocked Users" href="/BlockedUsers">
+			<span id="blockedCount">
+				@BlockedUserCount
+			</span> <i class="bi bi-x-circle-fill"></i>
+		</a>
+
+		<label for="approved" style="text-wrap: nowrap; margin-right: 1.4em">Approval Status:</label>
+		<select id="approved" @bind="FilterApprovalStatus">
+			<option value="@FilterModerationState.All">All</option>
+			<option value="@FilterModerationState.Approved">Approved Only</option>
+			<option value="@FilterModerationState.Rejected">Rejected Only</option>
+			<option value="@FilterModerationState.Pending">Needs Review</option>
+		</select>
+
+		<label for="providers" class="px-2">Providers:</label>
+		<div class="btn-group" role="group">
+
+			@foreach (var provider in _Providers.OrderBy(p => p.Name))
+			{
+				<input type="checkbox" class="btn-check" name="options" id="@provider.Id" checked autocomplete="off">
+				<label title="@provider.Name" 
+					class="btn btn-outline-primary providerSwitch" 
+					@onclick="() => ToggleProviderFilter(provider.Id)"
+					for="@provider.Id"><i class="provider bi @WaterfallMessage.MapProviderToIcon(provider.Id)"></i></label>
+			}
+
+		</div>
+
+	</div>
+
+</div>
+<div class="row" style="padding: 2px 10px!important">
+
+	@if (_Content.Any())
+	{
+		<div id="taggedContent" style="position:absolute; left: 0;height: calc(100vh - 210px)">
+
+
+			<CascadingValue Value="this">
+				@foreach (var content in _Content.Values.Reverse())
+				{
+					<ModerationMessage @key="content" Content="content" />
+				}
+			</CascadingValue>
+
+		</div>
+
+	}
+	else
+	{
+		<div class=" d-flex justify-content-center align-items-center" style="height: calc(100vh - 210px); text-align: center;">
+			<div class="spinner-border" role="status"> <span class="visually-hidden">Loading...</span> </div>
+		</div>
+	}
+
+	<PauseButton @ref="ThePauseButton" OnPauseUpdates="OnPauseClick" />
+
+</div>
+
+@*
+
+			window.TagzApp.ActivateKeyboardNavigation();
+
+			window.onload = window.Masonry.resizeAllGridItems();
+			window.addEventListener("resize", Masonry.resizeAllGridItems);
+
+*@
+
+@code {
+
+	[CascadingParameter(Name = "HideFooter")] public bool HideFooter { get; set; }
+
+	public int BlockedUserCount { get; set; } = 0;
+
+	public PauseButton ThePauseButton { get; set; } = new();
+
+	private SortedList<DateTimeOffset, TagzApp.ViewModels.Data.ModerationContentModel> _Content = new();
+
+	private HashSet<dynamic> _PauseQueue = new();
+
+	private HashSet<NewModerator> _Moderators = new();
+
+	private IEnumerable<AvailableProvider> _Providers = Enumerable.Empty<AvailableProvider>();
+
+	private List<string> _FilteredProviders = [];
+
+	private FilterModerationState _FilterApprovalStatus = FilterModerationState.All;
+	private FilterModerationState FilterApprovalStatus
+	{
+		get { return _FilterApprovalStatus; }
+		set
+		{
+			_FilterApprovalStatus = value;
+			_Content.Clear();
+			StateHasChanged();
+			FilterContent = InitializeContent().ContinueWith(async t => {
+				await InvokeAsync(StateHasChanged);
+				FilterContent = null;
+			});
+		}
+	}
+
+	private HubConnection _Connection;
+
+	string _Tag = string.Empty;
+
+	protected override async Task OnInitializedAsync()
+	{
+
+		HideFooter = true;
+
+		await ConfigureSignalRConnection();
+
+		_Tag = (await _Connection.InvokeAsync<string[]>("GetTags"))?.First();
+
+
+		BlockedUserCount = await _Connection.InvokeAsync<int>("GetBlockedUserCount");
+
+		_Providers = await _Connection.InvokeAsync<IEnumerable<AvailableProvider>>("GetAvailableProviders");
+		_FilteredProviders = _Providers.Select(p => p.Id).ToList();
+
+		_Moderators = (await _Connection.InvokeAsync<NewModerator[]>("GetCurrentModerators")).ToHashSet();
+
+		await base.OnInitializedAsync();
+
+		await InitializeContent();
+
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		await JSRuntime.InvokeVoidAsync("window.WaterfallUi.ConfigureKeyboardSupport");
+		await base.OnAfterRenderAsync(firstRender);
+	}
+
+	async Task ConfigureSignalRConnection()
+	{
+
+		_Connection = new HubConnectionBuilder()
+						.WithUrl(NavigationManager.ToAbsoluteUri("/mod"))
+					.Build();
+
+		await ListenForModerationContent();
+
+		await _Connection.StartAsync();
+
+	}
+
+	async Task ListenForModerationContent()
+	{
+
+		_Connection.On<ContentModel>("NewWaterfallMessage", async (content) =>
+		{
+
+			if (!_FilteredProviders.Any(c => c.Equals(content.Provider, StringComparison.InvariantCultureIgnoreCase))) return;
+			if (_FilterApprovalStatus != FilterModerationState.All && _FilterApprovalStatus != FilterModerationState.Pending) return;
+
+			if (ThePauseButton.IsPaused)
+			{
+				if (!_PauseQueue.Any(p => p.ProviderId == content.ProviderId) && !_Content.Any(c => c.Value.ProviderId == content.ProviderId)) {
+					_PauseQueue.Add(content);
+					ThePauseButton.Counter = _PauseQueue.Count();
+				}
+
+				return;
+			}
+
+			_Content.Add(content.Timestamp, ModerationContentModel.ToModerationContentModel(content));
+			await InvokeAsync(StateHasChanged);
+		});
+
+		_Connection.On<ModerationContentModel>("NewApprovedMessage", HandleApprovedMessage);
+
+		_Connection.On<ModerationContentModel>("NewRejectedMessage", async (content) =>
+		{
+
+			if (ThePauseButton.IsPaused)
+			{
+				if (!_PauseQueue.Any(p => p.ProviderId == content.ProviderId) && !_Content.Any(c => c.Value.ProviderId == content.ProviderId))
+				{
+					_PauseQueue.Add(content);
+				}
+				else if (_PauseQueue.Any(p => p.ProviderId == content.ProviderId))
+				{
+					_PauseQueue.RemoveWhere(p => p.ProviderId == content.ProviderId);
+					_PauseQueue.Add(content);
+				}
+				ThePauseButton.Counter = _PauseQueue.Count();
+
+				return;
+			}
+
+			var existing = _Content.FirstOrDefault(p => p.Value.ProviderId == content.ProviderId);
+			if (existing.Value is not null && existing.Value.State == ModerationState.Rejected) return;
+
+			if (existing.Value is not null)
+			{
+				existing.Value.State = ModerationState.Rejected;
+				existing.Value.ModerationTimestamp = content.ModerationTimestamp;
+			}
+			else
+			{
+				_Content.Add(content.Timestamp, content);
+			}
+
+		});
+
+		_Connection.On<int>("NewBlockedUserCount", async (newCount) =>
+		{
+			BlockedUserCount = newCount;
+			await InvokeAsync(StateHasChanged);
+		});
+
+		_Connection.On<NewModerator>("NewModerator", async (moderator) =>
+		{
+			_Moderators.Add(moderator);
+			await InvokeAsync(StateHasChanged);
+		});
+
+		_Connection.On<string>("RemoveModerator", async (moderatorEmail) =>
+		{
+			var thisMod = _Moderators.FirstOrDefault(m => m.Email.Equals(moderatorEmail, StringComparison.InvariantCultureIgnoreCase));
+			if (thisMod is not null)
+			{
+				_Moderators.Remove(thisMod);
+				await InvokeAsync(StateHasChanged);
+			}
+		});
+
+	}
+
+	async Task HandleApprovedMessage(ModerationContentModel content)
+	{
+
+		if (ThePauseButton.IsPaused)
+		{
+			if (!_PauseQueue.Any(p => p.ProviderId == content.ProviderId) && !_Content.Any(c => c.Value.ProviderId == content.ProviderId)) {
+				_PauseQueue.Add(content);
+				ThePauseButton.Counter = _PauseQueue.Count();
+			} else if (_PauseQueue.Any(p => p.ProviderId == content.ProviderId)) {
+				_PauseQueue.RemoveWhere(p => p.ProviderId == content.ProviderId);
+				_PauseQueue.Add(content);
+				ThePauseButton.Counter = _PauseQueue.Count();
+			}
+			return;
+		}
+
+		var existing = _Content.FirstOrDefault(p => p.Value.ProviderId == content.ProviderId);
+		if (existing.Value is not null && existing.Value.State == ModerationState.Approved) return;
+
+		if (existing.Value is not null)
+		{
+			existing.Value.State = ModerationState.Approved;
+			existing.Value.ModerationTimestamp = content.ModerationTimestamp;
+		}
+		else
+		{
+			_Content.Add(content.Timestamp, content);
+		}
+		await InvokeAsync(StateHasChanged);
+
+	}
+
+	async Task InitializeContent()
+	{
+
+		var approvalStatus = (int)_FilterApprovalStatus;
+		var currentContent = (await _Connection.InvokeAsync<IEnumerable<ModerationContentModel>>("GetFilteredContentByTag", _Tag, _FilteredProviders.ToArray(), approvalStatus.ToString()))
+			.ToArray();
+
+		foreach (var content in currentContent.OrderByDescending(c => c.Timestamp).ToArray())
+		{
+			_Content.Add(content.Timestamp, content);
+		}
+
+	}
+
+	public async Task Moderate(ModerationAction action)
+	{
+
+		await _Connection.InvokeAsync("SetStatus", action.Provider, action.ProviderId, action.State);
+		// TODO: Tag message appropriately to indicate moderation state
+
+	}
+
+	public async Task OnPauseClick(bool newPauseState)
+	{
+
+		// Console.WriteLine($"New Pause State: {newPauseState}");
+
+		if (!newPauseState)
+		{
+			// Add all the items in the pause queue to the waterfall
+			foreach (var item in _PauseQueue)
+			{
+				if (item is ContentModel content)
+				{
+					_Content.Add(content.Timestamp, ModerationContentModel.ToModerationContentModel(content));
+				}
+			}
+			_PauseQueue.Clear();
+			ThePauseButton.Counter = 0;
+		}
+
+		await InvokeAsync(StateHasChanged);
+	}
+
+	async Task ToggleProviderFilter(string providerId)
+	{
+
+		if (_FilteredProviders.Contains(providerId))
+		{
+			_FilteredProviders.Remove(providerId);
+		}
+		else
+		{
+			_FilteredProviders.Add(providerId);
+		}
+
+		_Content.Clear();
+		StateHasChanged();
+		FilterContent = InitializeContent().ContinueWith(async t => {
+			await InvokeAsync(StateHasChanged);
+			FilterContent = null;
+		});
+
+	}
+
+	private Task FilterContent;
+
+	private enum FilterModerationState
+	{
+		All = -1,
+		Pending = 0,
+		Approved = 1,
+		Rejected = 2,
+	};
+
+	public async ValueTask DisposeAsync()
+	{
+
+		if (_Connection is not null)
+		{
+			await _Connection.DisposeAsync();
+		}
+
+	}
+
+}

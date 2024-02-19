@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
 using System.Text;
 using System.Web;
-using TagzApp.Web.Services;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace TagzApp.Storage.Postgres.SafetyModeration;
@@ -65,11 +64,11 @@ public class AzureSafetyModeration : INotifyNewMessages
 
 		// TODO: Establish a notification pipeline that allows for multiple moderation providers
 
-
 		// Check if this content is created by one of the blocked users listed in the cache
-		var isBlocked = _Cache.GetOrCreate(KEY_BLOCKEDUSERS_CACHE, _ => new List<(string Provider, string UserName)>())
+		var usersBlocked = _Cache.GetOrCreate(KEY_BLOCKEDUSERS_CACHE, _ => new List<(string Provider, string UserName)>());
+		var isBlocked = usersBlocked
 			.Any(a => a.Provider.Equals(content.Provider, StringComparison.InvariantCultureIgnoreCase)
-				&& a.UserName.Equals(content.Author.UserName.Trim('@').Trim(), StringComparison.InvariantCultureIgnoreCase));
+				&& a.UserName.Equals('@' + content.Author.UserName.TrimStart('@'), StringComparison.InvariantCultureIgnoreCase));
 
 		if (isBlocked)
 		{

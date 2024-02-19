@@ -1,0 +1,68 @@
+﻿<div class="InputDictionary">
+
+	<table class="table">
+		<thead>
+			<tr>
+				<th>@KeyCaption</th>
+				<th>@ValueCaption</th>
+				<th>
+					<button type="button" class="btn btn-primary" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;" @onclick="AddRow">Add</button>
+
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			@for (var i =0; i<Value.Count; i++)
+			{
+				var pos = i;
+				<tr>
+					<td><input value="@Value.Skip(pos).First().Key" placeholder="Key" @onchange="(args) => UpdateKey(pos, args)"  /></td>
+					<td><input value="@Value.Skip(pos).First().Value" placeholder="Value" @onchange="(args) => UpdateValue(pos, args)"  /></td>
+					<td>
+						<button type="button" class="btn btn-danger" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;"
+										@onclick="() => Value.Remove(Value.Skip(pos).First().Key)">Remove</button>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+
+</div>
+
+
+@code {
+
+	[Parameter]
+	public string KeyCaption { get; set; } = "Key";
+
+	[Parameter]
+	public string ValueCaption { get; set; } = "Value";
+
+	[Parameter]
+	public Dictionary<string, string> Value { get; set; } = new();
+
+	void UpdateKey(int pos, ChangeEventArgs args)
+	{
+		var kv = Value.Skip(pos).First();
+		Value.Remove(kv.Key);
+		Value.Add(args.Value.ToString(), kv.Value);
+	}
+
+	void UpdateValue(int pos, ChangeEventArgs args)
+	{
+		var kv = Value.Skip(pos).First();
+		Value[kv.Key] = args.Value.ToString();
+	}
+
+	void AddRow()
+	{
+
+		if (!Value.Any(v => v.Key == string.Empty))
+		{
+			Value.Add(string.Empty, string.Empty);
+		}
+
+	}
+
+
+}

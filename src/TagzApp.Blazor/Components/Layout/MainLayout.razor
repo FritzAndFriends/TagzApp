@@ -1,0 +1,38 @@
+﻿@using Microsoft.AspNetCore.Components.Sections
+@inject NavigationManager NavMgr
+@inherits LayoutComponentBase
+
+<HeadContent>
+	<meta name="color-scheme" content="light dark">
+</HeadContent>
+
+<Header />
+
+<div class="container">
+	<main role="main" class="pb-3">
+
+		@if (ShouldStartFirstConfiguration) {
+			<TagzApp.Blazor.Components.Pages.FirstStartConfiguration></TagzApp.Blazor.Components.Pages.FirstStartConfiguration>
+		} else
+		{
+			@Body
+		}
+
+	</main>
+</div>
+
+@* Hide the footer if the page is Moderation *@
+@if (!NavMgr.Uri.Contains("/Moderation"))
+{
+	<Footer />
+}
+
+<SectionOutlet SectionName="scripts"  />
+
+@code {
+
+	public bool IsConfigured => ConfigureTagzAppFactory.IsConfigured;
+
+	public bool ShouldStartFirstConfiguration => !IsConfigured && !NavMgr.Uri.Contains("/FirstStartConfiguration");
+
+}
