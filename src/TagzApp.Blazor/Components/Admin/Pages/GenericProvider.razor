@@ -1,12 +1,25 @@
-﻿@using TagzApp.Providers.Bluesky
+﻿@using TagzApp.Providers.AzureQueue
+@using TagzApp.Providers.Blazot
+@using TagzApp.Providers.Bluesky
 @using TagzApp.Providers.TwitchChat
 @using TagzApp.Providers.Mastodon
 @using TagzApp.Blazor.Client.Components.Admin
+@using TagzApp.Providers.Twitter
 
 @typeparam TProvider
 
 @switch (Provider.GetType().Name)
 {
+	case nameof(AzureQueueProvider):
+		{
+			<AzureQueue_Config_Ui Provider="@Provider" />
+			break;
+		}
+	case nameof(BlazotProvider):
+	{
+			<Blazot_Config_Ui Provider="@Provider" />
+			break;
+		}
 	case nameof(BlueskyProvider):
 		{
 			<Bluesky_Config_Ui Provider="@Provider" />
@@ -20,6 +33,11 @@
 	case nameof(TwitchChatProvider):
 		{
 			<TwitchChat_Config_Ui Provider="@Provider" />
+			break;
+		}
+	case nameof(TwitterProvider):
+		{
+			<Twitter_Config_Ui Provider="@Provider" />
 			break;
 		}
 	default:

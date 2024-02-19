@@ -104,7 +104,9 @@ public class ModerationHub : Hub<IModerationClient>
 	public AvailableProvider[] GetAvailableProviders()
 	{
 
-		return _Service.Providers.Select(p => new AvailableProvider(p.Id, p.DisplayName)).ToArray();
+		return _Service.Providers
+			.Select(p => new AvailableProvider(p.Id, p.DisplayName))
+			.ToArray();
 
 	}
 

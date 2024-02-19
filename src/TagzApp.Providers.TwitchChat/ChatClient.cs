@@ -217,7 +217,12 @@ public class ChatClient : IChatClient
 
 		}
 
-		Logger.LogWarning("Exiting ReceiveMessages Loop");
+		try
+		{
+			Logger.LogWarning("Exiting ReceiveMessages Loop");
+		} catch {
+			// Error while shutting down
+		}
 
 	}
 

@@ -6,7 +6,7 @@ using TagzApp.Providers.Blazot.Configuration;
 
 namespace TagzApp.Providers.Blazot;
 
-internal sealed class BlazotProvider : ISocialMediaProvider
+public sealed class BlazotProvider : ISocialMediaProvider
 {
 	private readonly int _WindowSeconds;
 	private readonly int _WindowRequests;

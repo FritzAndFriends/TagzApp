@@ -2,7 +2,7 @@
 
 namespace TagzApp.Providers.Blazot.Interfaces;
 
-internal interface ITransmissionsService
+public interface ITransmissionsService
 {
 	bool HasMadeTooManyRequests { get; }
 	Task StartInitialWindowTimerAsync();

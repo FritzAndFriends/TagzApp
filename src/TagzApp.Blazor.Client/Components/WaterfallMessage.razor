@@ -10,7 +10,10 @@
 	<div class="byline">
 		<div class="author">@Content.AuthorDisplayName <i class="autoMod"></i></div>
 		<div class="authorUserName" title="@Content.AuthorUserName">
-			@Content.AuthorUserName
+			@if (!Content.AuthorUserName.TrimStart('@').Equals(Content.AuthorDisplayName))
+			{
+				@Content.AuthorUserName
+			}
 		</div>
 	</div>
 

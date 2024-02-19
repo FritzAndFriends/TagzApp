@@ -14,7 +14,13 @@
 				<div class="modal-header">
 					<img class="ProfilePicture" src="@Content?.AuthorProfileImageUri" alt="@Content?.AuthorDisplayName" onerror="this.src='/img/user.jpg';" />
 					<div class="author">@Content?.AuthorDisplayName</div>
-					<div class="authorUserName" title="@Content?.AuthorUserName">@Content?.AuthorUserName</div>
+					<div class="authorUserName" title="@Content?.AuthorUserName">
+						@if (!Content.AuthorUserName.TrimStart('@').Equals(Content.AuthorDisplayName))
+						{
+						
+									@Content?.AuthorUserName
+						}
+					</div>
 					<i class="provider bi @ContentModel.MapProviderToIcon(Content?.Provider)"></i>
 					<button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" @onclick="Close">
 					</button>

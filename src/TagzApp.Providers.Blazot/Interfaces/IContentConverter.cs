@@ -2,7 +2,7 @@
 
 namespace TagzApp.Providers.Blazot.Interfaces;
 
-internal interface IContentConverter
+public interface IContentConverter
 {
 	IEnumerable<Content> ConvertToContent(List<Transmission>? transmissions, Hashtag tag);
 }
