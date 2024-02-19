@@ -11,6 +11,8 @@ public class StubSocialMediaProvider : ISocialMediaProvider
 
 	public string Description => "TEST";
 
+	public bool Enabled { get; } = true;
+
 	public void Dispose()
 	{
 		// do nothing
