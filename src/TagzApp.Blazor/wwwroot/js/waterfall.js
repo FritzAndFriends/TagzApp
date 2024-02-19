@@ -260,6 +260,8 @@
 		FixEmbedImage: function (img) {
 			var theArticle = img.closest('[data-provider]');
 
+			if (theArticle == null) return;
+
 			if (
 				theArticle.dataset.provider == 'TWITTER' &&
 				!img.src.toString().includes('d.fxtwitter.com')
@@ -316,17 +318,6 @@
 							thisCard.classList.remove('status-rejected');
 							thisCard.classList.add('status-approved');
 						};
-						// Approve the current message
-						let approveFunc = function () {
-							connection.invoke(
-								'SetStatus',
-								thisCard.getAttribute('data-provider'),
-								thisCard.getAttribute('data-providerid'),
-								ModerationState.Approved,
-							);
-							thisCard.classList.remove('status-rejected');
-							thisCard.classList.add('status-approved');
-						};
 
 						if (thisCard.classList.contains('status-rejected')) {
 							// Confirm that we are flipping this
@@ -347,9 +338,6 @@
 					} else {
 						if (document.querySelector('.active_panel') == null) return;
 
-						let rejectCard = document.querySelector(
-							`[data-providerid='${cursorProviderId}']`,
-						);
 						let rejectCard = document.querySelector(
 							`[data-providerid='${cursorProviderId}']`,
 						);
@@ -374,14 +362,7 @@
 		PauseNewContent: function (duration) {
 			PauseNewContentForDuration(duration);
 		},
-		PauseNewContent: function (duration) {
-			PauseNewContentForDuration(duration);
-		},
 
-		SetPauseState: function (paused) {
-			isPaused = paused;
-			rollOverPause = false;
-		},
 		SetPauseState: function (paused) {
 			isPaused = paused;
 			rollOverPause = false;
