@@ -28,6 +28,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
 		<ProjectReference Include="..\TagzApp.Blazor.Client\TagzApp.Blazor.Client.csproj" />
+		<ProjectReference Include="..\TagzApp.Providers.Bluesky\TagzApp.Providers.Bluesky.csproj" />
 		<ProjectReference Include="..\TagzApp.Providers.Mastodon\TagzApp.Providers.Mastodon.csproj" />
 		<ProjectReference Include="..\TagzApp.Providers.TwitchChat\TagzApp.Providers.TwitchChat.csproj" />
 		<ProjectReference Include="..\TagzApp.Security\TagzApp.Security.csproj" />

@@ -81,6 +81,9 @@ public class BlueskyProvider : ISocialMediaProvider
 
 		await _AtWebSocketProtocol.StartSubscribeReposAsync();
 
+		_status.status = SocialMediaStatus.Healthy;
+		_status.message = "Connected to Bluesky";
+
 	}
 
 	private async Task HandleMessageAsync(SubscribeRepoMessage message)
@@ -151,6 +154,10 @@ public class BlueskyProvider : ISocialMediaProvider
 		if (_AtWebSocketProtocol is null) return;
 
 		await _AtWebSocketProtocol.StopSubscriptionAsync();
+
+		_status.status = SocialMediaStatus.Unhealthy;
+		_status.message = "Disconnected from Bluesky";
+
 	}
 
 }

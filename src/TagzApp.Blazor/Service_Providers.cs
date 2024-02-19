@@ -1,4 +1,5 @@
-﻿using TagzApp.Providers.Mastodon;
+﻿using TagzApp.Providers.Bluesky;
+using TagzApp.Providers.Mastodon;
 using TagzApp.Providers.TwitchChat;
 
 namespace TagzApp.Blazor;
@@ -8,8 +9,9 @@ public static class Service_Providers
 
 	private static readonly List<IConfigureProvider> _Providers = new()
 	{
+		new StartBluesky(),
+		new StartMastodon(),
 		new StartTwitchChat(),
-		new StartMastodon()
 	};
 
 	public static async Task<IServiceCollection> AddTagzAppProviders(this IServiceCollection services)

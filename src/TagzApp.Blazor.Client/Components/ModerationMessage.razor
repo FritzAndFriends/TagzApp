@@ -3,48 +3,54 @@
 @inject NavigationManager NavigationManager
 
 <article @ref="thisArticle" data-providerid="@Content.ProviderId"
-	class="modMessage @AdditionalClasses @CssClass"
-	@onmouseover="() => DisplayModeration(true)"
-	@onmouseleave="() => DisplayModeration(false)"> @* @onclick="() => OnContentSelected?.InvokeAsync(Content)"> *@
+				 class="modMessage @AdditionalClasses @CssClass"
+				 @onmouseover="() => DisplayModeration(true)"
+				 @onmouseleave="() => DisplayModeration(false)">
+	@* @onclick="() => OnContentSelected?.InvokeAsync(Content)"> *@
 
 	@if (ShowModerationActions)
 	{
 		<div id="moderationAction">
 			<i class="bi bi-check2 approve" title="Approve this content" @onclick="async () => await Moderate(ModerationState.Approved)"></i>
 			<i class="bi bi-x-circle-fill reject" title="Reject this content" @onclick="async () => await Moderate(ModerationState.Rejected)"></i>
-			<i class="bi bi-journal-text more" 
-				@onclick="@(() => NavigationManager.NavigateTo($"/MessageDetails/{Content.Provider}/{Content.ProviderId}"))"
-				title="More Actions"></i>
+			<i class="bi bi-journal-text more"
+				 @onclick="@(() => NavigationManager.NavigateTo($"/MessageDetails/{Content.Provider}/{Content.ProviderId}"))"
+				 title="More Actions"></i>
 		</div>
 	}
 
-	<img class="ProfilePicture" 
-		src="@Content.AuthorProfileImageUri" 
-		alt="@Content.AuthorDisplayName"
-		onerror="this.src='/img/user.jpg';" />
+	<img class="ProfilePicture"
+			 src="@Content.AuthorProfileImageUri"
+			 alt="@Content.AuthorDisplayName"
+			 onerror="this.src='/img/user.jpg';" />
 
-		<div class="byline">
-			<div class="author">@Content.AuthorDisplayName <i class="autoMod"></i></div>
-			<div class="authorUserName" title="@Content.AuthorUserName">
-				@if (!Content.AuthorUserName.TrimStart('@').Equals(Content.AuthorDisplayName)) { 
-					@Content.AuthorUserName
-				}
-			</div>
+	<div class="byline">
+		<div class="author">@Content.AuthorDisplayName <i class="autoMod"></i></div>
+		<div class="authorUserName" title="@Content.AuthorUserName">
+			@if (!Content.AuthorUserName.TrimStart('@').Equals(Content.AuthorDisplayName))
+			{
+				@Content.AuthorUserName
+			}
 		</div>
+	</div>
 
 	<i class="provider bi @MapProviderToIcon(Content.Provider)"></i>
 
 	<div class="time">
 		<div>@Content.Timestamp.ToLocalTime().ToString("d") @Content.Timestamp.ToLocalTime().ToString("t")</div>
-		<div class="autoModReason">@if (!string.IsNullOrEmpty(AutomodReason)){
+		<div class="autoModReason">
+			@if (!string.IsNullOrEmpty(AutomodReason))
+			{
 				<text>AI Reason ( @AutomodReason )</text>
-		}</div>
+			}
+		</div>
 	</div>
 
 	<div class="content">@((MarkupString)(Content.Content.FormatContentWithEmotes()))</div>
 
 	@* MISSING THE PREVIEW IMAGE *@
-	@if (Content.Content.PreviewCard is not null) {
+	@if (Content.Content.PreviewCard is not null)
+	{
 
 		if (Content.Content.PreviewCard.ImageUri.ToString().EndsWith(".mp4"))
 		{
@@ -70,7 +76,9 @@
 	[Parameter]
 	public ModerationContentModel Content { get; set; }
 
-	private string AutomodReason { get
+	private string AutomodReason
+	{
+		get
 		{
 
 			var outText = Content?.Reason ?? string.Empty;
@@ -122,7 +130,7 @@
 		(ModerationState.Approved, _) => CSS_APPROVED,
 		(ModerationState.Rejected, "AZURE-CONTENTSAFETY") => CSS_AZURECONTENTSAFETY,
 		(ModerationState.Rejected, _) => CSS_REJECTED,
-		(_,_) => ""
+		(_, _) => ""
 	};
 
 	async Task Moderate(ModerationState action)
@@ -144,13 +152,14 @@
 
 		StateHasChanged();
 
-		await ModerationPage.Moderate(new ModerationAction { 
-			Provider = Content.Provider,
-			ProviderId = Content.ProviderId,
-			PreviousState = prevState,
-			State = action,
-			Timestamp = DateTimeOffset.Now
-		});
+		await ModerationPage.Moderate(new ModerationAction
+			{
+				Provider = Content.Provider,
+				ProviderId = Content.ProviderId,
+				PreviousState = prevState,
+				State = action,
+				Timestamp = DateTimeOffset.Now
+			});
 
 	}
 
@@ -160,7 +169,7 @@
 
 		if (show)
 			await JSRuntime.InvokeVoidAsync("window.WaterfallUi.PauseNewContent", 5000);
-		else 
+		else
 			await JSRuntime.InvokeVoidAsync("window.WaterfallUi.ResumeContent");
 	}
 
@@ -181,11 +190,12 @@
 
 	public static string MapProviderToIcon(string provider) =>
 	provider?.ToLowerInvariant().Trim() switch
-		{
-			"twitter" => "bi-twitter-x",
-			"website" => "bi-globe2",
-			"youtube-chat" => "bi-youtube",
+	{
+		"bluesky" => "icon-bluesky",
+		"twitter" => "bi-twitter-x",
+		"website" => "bi-globe2",
+		"youtube-chat" => "bi-youtube",
 		_ => $"bi-{provider?.ToLowerInvariant().Trim() ?? "question-circle"}"
-		};
+	};
 
 }

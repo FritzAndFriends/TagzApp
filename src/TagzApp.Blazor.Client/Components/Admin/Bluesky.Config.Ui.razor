@@ -1,0 +1,70 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using System.Text.Json
+<UiProviderConfig ProviderName="Bluesky" Health="@Health" ProviderIconCssClass="icon-bluesky">
+
+	<EditForm Model="Model" OnValidSubmit="SaveConfig">
+		<AntiforgeryToken />
+		<ValidationSummary />
+		<dl>
+			<dt><label for="Enabled">Enabled:</label></dt>
+			<dd>
+				<InputCheckbox name="Enabled" @bind-Value="Model.Enabled" />
+			</dd>
+		</dl>
+
+		<button type="submit" class="btn btn-primary">Save</button>
+
+	</EditForm>
+
+</UiProviderConfig>
+
+@code {
+
+	[Parameter, EditorRequired]
+	public ISocialMediaProvider Provider { get; set; } = null!;
+
+	public (SocialMediaStatus Status, string Message) Health { get; set; } = (SocialMediaStatus.Unknown, string.Empty);
+
+
+	public ViewModel Model { get; set; } = new();
+
+	protected override async Task OnParametersSetAsync()
+	{
+
+		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
+
+		var headers = providerConfiguration.GetConfigurationByKey("DefaultHeaders");
+		var headerDictionary = string.IsNullOrEmpty(headers) ? new() : JsonSerializer.Deserialize<Dictionary<string, string>>(headers);
+
+		Model = new ViewModel
+			{
+				Enabled = string.IsNullOrEmpty(providerConfiguration.GetConfigurationByKey("Enabled")) ? false : bool.Parse(providerConfiguration.GetConfigurationByKey("Enabled"))
+			};
+
+		Health = await Provider.GetHealth();
+
+		await base.OnParametersSetAsync();
+
+	}
+
+	private async Task SaveConfig()
+	{
+
+		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
+
+		providerConfiguration.SetConfigurationByKey("Enabled", Model.Enabled.ToString());
+
+		await Provider.SaveConfiguration(ConfigureTagzAppFactory.Current, providerConfiguration);
+
+	}
+
+	public class ViewModel
+	{
+
+		public bool Enabled { get; set; }
+
+
+	}
+
+
+}
