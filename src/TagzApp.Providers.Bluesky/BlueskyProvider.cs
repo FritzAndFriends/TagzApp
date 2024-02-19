@@ -27,6 +27,7 @@ public class BlueskyProvider : ISocialMediaProvider
 
 	private HashSet<Hashtag> _Hashtags = new();
 	private ATProtocol _AtProtocol;
+	private string? _TheTag;
 
 	public void Dispose()
 	{
@@ -42,6 +43,11 @@ public class BlueskyProvider : ISocialMediaProvider
 	{
 
 		if (!_Hashtags.Contains(tag)) _Hashtags.Add(tag);
+		if (string.IsNullOrEmpty(_TheTag))
+		{
+			_TheTag = _Hashtags.FirstOrDefault()?.Text;
+		}
+
 
 		var outMessages = _messageQueue.ToArray();
 		for (var i = 0; i < outMessages.Count(); i++)
@@ -105,46 +111,46 @@ public class BlueskyProvider : ISocialMediaProvider
 		{
 
 			// TODO: Handle more than 1 hashtag
-			var theTag = _Hashtags.FirstOrDefault()?.Text;
-			if (!string.IsNullOrEmpty(theTag) && post.Text!.Contains($" {theTag}", StringComparison.InvariantCultureIgnoreCase))
+			if (string.IsNullOrEmpty(_TheTag) || !post.Text!.Contains($"{_TheTag}", StringComparison.InvariantCultureIgnoreCase))
+				return;
+
+
+			var actor = await _AtProtocol.Repo.GetActorAsync(message.Commit.Repo!);
+			if (!actor.IsT1)
 			{
-				var actor = await _AtProtocol.Repo.GetActorAsync(message.Commit.Repo!);
-				if (!actor.IsT1)
-				{
 
-					var actorRecord = actor.HandleResult();
+				var actorRecord = actor.HandleResult();
 
-					// The Actor Did.
-					var did = message.Commit.Repo;
-					// Commit.Ops are the actions used when creating the message.
-					// In this case, it's a create record for the post.
-					// The path contains the post action and path, we need the path, so we split to get it.
-					var postUrl = $"https://bsky.app/profile/{did}/post/{message.Commit.Ops![0]!.Path!.Split("/").Last()}";
+				// The Actor Did.
+				var did = message.Commit.Repo;
+				// Commit.Ops are the actions used when creating the message.
+				// In this case, it's a create record for the post.
+				// The path contains the post action and path, we need the path, so we split to get it.
+				var postUrl = $"https://bsky.app/profile/{did}/post/{message.Commit.Ops![0]!.Path!.Split("/").Last()}";
+				var repo = (await _AtProtocol.Repo.DescribeRepoAsync(did)).HandleResult();
 
-					_messageQueue.Enqueue(
-						new Content
+				_messageQueue.Enqueue(
+					new Content
+					{
+						Author = new Creator
 						{
-							Author = new Creator
-							{
-								DisplayName = actor.AsT0?.Value!.DisplayName!,
-								UserName = actor.AsT0?.Value!.Type,
-								ProfileImageUri = new Uri($"https://{_AtProtocol.Options.Url.Host}{Constants.Urls.ATProtoSync.GetBlob}?did={actorRecord.Uri.Did!}&cid={actorRecord.Value.Avatar.Ref.Link}"),
-								ProfileUri = new Uri($"https://bsky.app/profile/{did}") // Syntax is like: https://bsky.app/profile/csharpfritz.com
-							},
-							Provider = Id,
-							ProviderId = message.Commit.Commit.Hash.ToString(),
-							SourceUri = new Uri(postUrl),
-							Timestamp = new DateTimeOffset(post.CreatedAt!.Value).ToUniversalTime(),
-							HashtagSought = theTag,
-							Text = post.Text,
-							Type = ContentType.Message
-						}
-					);
+							DisplayName = actor.AsT0?.Value!.DisplayName!,
+							UserName = $"@{repo.Handle}",
+							ProfileImageUri = new Uri($"https://{_AtProtocol.Options.Url.Host}{Constants.Urls.ATProtoSync.GetBlob}?did={actorRecord.Uri.Did!}&cid={actorRecord.Value.Avatar.Ref.Link}"),
+							ProfileUri = new Uri($"https://bsky.app/profile/{did}") // Syntax is like: https://bsky.app/profile/csharpfritz.com
+						},
+						Provider = Id,
+						ProviderId = message.Commit.Commit.Hash.ToString(),
+						SourceUri = new Uri(postUrl),
+						Timestamp = new DateTimeOffset(post.CreatedAt!.Value).ToUniversalTime(),
+						HashtagSought = _TheTag,
+						Text = post.Text,
+						Type = ContentType.Message
+					}
+				);
 
-				}
-				Console.WriteLine($"Post: {post.Text}");
 			}
-
+			Console.WriteLine($"Post: {post.Text}");
 		}
 
 	}
