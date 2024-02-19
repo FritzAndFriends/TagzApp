@@ -24,6 +24,7 @@ public sealed class BlazotProvider : ISocialMediaProvider
 	private bool _DisposedValue;
 
 	public string Description { get; init; } = "Blazot is an all new social networking platform and your launchpad to the social universe!";
+	public bool Enabled { get; }
 
 	public BlazotProvider(ILogger<BlazotProvider> logger, BlazotConfiguration settings,
 		IContentConverter contentConverter, ITransmissionsService transmissionsService, IAuthService authService)
@@ -35,6 +36,8 @@ public sealed class BlazotProvider : ISocialMediaProvider
 		_Settings = settings;
 		_WindowSeconds = settings?.WindowSeconds ?? throw new ArgumentNullException(nameof(settings));
 		_WindowRequests = settings.WindowRequests;
+
+		Enabled = settings.Enabled;
 
 		if (!string.IsNullOrWhiteSpace(settings.Description))
 		{

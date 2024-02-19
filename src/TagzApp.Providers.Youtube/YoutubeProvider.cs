@@ -17,9 +17,12 @@ internal class YoutubeProvider : ISocialMediaProvider
 
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(30);
 
+	public bool Enabled { get; }
+
 	public YoutubeProvider(YoutubeConfiguration options)
 	{
 		_Configuration = options;
+		Enabled = options.Enabled;
 	}
 
 	public async Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since)

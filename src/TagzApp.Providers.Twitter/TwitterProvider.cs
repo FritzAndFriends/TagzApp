@@ -32,6 +32,7 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 	public string NewestId { get; set; } = string.Empty;
 
 	public string Description { get; init; } = "Twitter is a service for friends, family, and coworkers to communicate and stay connected through the exchange of quick, frequent messages";
+	public bool Enabled { get; }
 
 	public TwitterProvider(IHttpClientFactory httpClientFactory, ILogger<TwitterProvider> logger,
 		TwitterConfiguration configuration)
@@ -39,6 +40,7 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 		_HttpClient = httpClientFactory.CreateClient(nameof(TwitterProvider));
 		_Configuration = configuration;
 		_Logger = logger;
+		Enabled = configuration.Enabled;
 
 		if (!string.IsNullOrWhiteSpace(configuration.Description))
 		{

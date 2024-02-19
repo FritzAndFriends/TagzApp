@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Web;
@@ -14,6 +15,7 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	public string DisplayName => "TwitchChat";
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(1);
 	public string Description { get; init; } = "Twitch is where millions of people come together live every day to chat, interact, and make their own entertainment together.";
+	public bool Enabled { get; }
 
 	private SocialMediaStatus _Status = SocialMediaStatus.Unhealthy;
 	private string _StatusMessage = "Not started";
@@ -29,6 +31,7 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 		_Settings = ConfigureTagzAppFactory.Current.GetConfigurationById<TwitchChatConfiguration>(Id).GetAwaiter().GetResult();
 		_Logger = logger;
 		_ProfileRepository = new TwitchProfileRepository(_Settings.ClientId, _Settings.ClientSecret, client);
+		Enabled = _Settings.Enabled;
 
 		if (!string.IsNullOrWhiteSpace(_Settings.Description))
 		{

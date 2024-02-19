@@ -4,6 +4,7 @@ using Drastic.Tools;
 using FishyFlip;
 using FishyFlip.Models;
 using FishyFlip.Tools;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Debug;
 
 namespace TagzApp.Providers.Bluesky;
@@ -21,6 +22,8 @@ public class BlueskyProvider : ISocialMediaProvider
 	public string Description => "BlueSky social media using the AT Protocol";
 
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromMilliseconds(1000);
+
+	public bool Enabled { get; private set; }
 
 	private ConcurrentQueue<Content> _messageQueue = new();
 	private BlueskyConfiguration _Config;
@@ -69,6 +72,8 @@ public class BlueskyProvider : ISocialMediaProvider
 	{
 
 		_Config = (await GetConfiguration(ConfigureTagzAppFactory.Current)) as BlueskyConfiguration ?? new BlueskyConfiguration();
+
+		Enabled = _Config.Enabled;
 
 		var debugLog = new DebugLoggerProvider();
 

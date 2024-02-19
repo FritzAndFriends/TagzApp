@@ -18,9 +18,12 @@ public class AzureQueueProvider : ISocialMediaProvider
 	public string Description => "Q+A submitted through a website form";
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(3);
 
+	public bool Enabled { get; private set; }
+
 	public AzureQueueProvider(AzureQueueConfiguration configuration)
 	{
 		_Configuration = configuration;
+		Enabled = configuration.Enabled;
 	}
 
 
