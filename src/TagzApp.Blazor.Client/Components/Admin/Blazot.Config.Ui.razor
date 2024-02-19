@@ -1,0 +1,143 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using System.Text.Json
+<UiProviderConfig ProviderName="Blazot" Health="@Health" ProviderIconCssClass="bi-blazot">
+
+	<EditForm Model="Model" OnValidSubmit="SaveConfig">
+		<AntiforgeryToken />
+		<ValidationSummary />
+		<dl>
+			<dt><label for="ApiKey">Api Key:</label></dt>
+			<dd>
+				<InputText name="ApiKey" @bind-Value="Model.ApiKey" placeholder="Api Key" />
+				<ValidationMessage For="() => Model.ApiKey" class="text-danger" />
+			</dd>
+			<dt><label for="SecretAuthKey">Secret Auth Key:</label></dt>
+			<dd>
+				<InputText name="SecretAuthKey" @bind-Value="Model.SecretAuthKey" placeholder="Secret Auth Key" />
+				<ValidationMessage For="() => Model.SecretAuthKey" class="text-danger" />
+			</dd>
+			<dt><label for="BaseAddress">Base Address:</label></dt>
+			<dd>
+				<InputText name="BaseAddress" @bind-Value="Model.BaseAddress" placeholder="Base Address of Mastodon Server" />
+				<ValidationMessage For="() => Model.BaseAddress" class="text-danger" />
+			</dd>
+			<dt><label for="Timeout">Timeout:</label></dt>
+			<dd>
+				<input name="Timeout" @bind="Model.Timeout" pattern="\d{2}:\d{2}:\d{2}" />
+				<ValidationMessage For="() => Model.Timeout" class="text-danger" />
+			</dd>
+			<dt>Default Headers:</dt>
+			<dd>
+				@* Generate a set of textboxes to collect values for the DefaultHeaders dictionary in ViewModel*@
+				<InputDictionary Value="@Model.DefaultHeaders" KeyCaption="Name" />
+
+			</dd>
+			<dt><label for="UseHttp2">UseHttp2:</label></dt>
+			<dd>
+				<InputCheckbox name="UseHttp2" @bind-Value="Model.UseHttp2" />
+			</dd>
+			<dt><label for="WindowRequests">Window Requests:</label></dt>
+			<dd>
+				<InputNumber name="WindowRequests" @bind-Value="Model.WindowRequests" />
+				<ValidationMessage For="() => Model.WindowRequests" class="text-danger" />
+			</dd>
+			<dt><label for="WindowSeconds">Window Seconds:</label></dt>
+			<dd>
+				<InputNumber name="WindowSeconds" @bind-Value="Model.WindowSeconds" />
+				<ValidationMessage For="() => Model.WindowSeconds" class="text-danger" />
+			</dd>
+
+			<dt><label for="Enabled">Enabled:</label></dt>
+			<dd>
+				<InputCheckbox name="Enabled" @bind-Value="Model.Enabled" />
+			</dd>
+		</dl>
+
+		<button type="submit" class="btn btn-primary">Save</button>
+
+	</EditForm>
+
+</UiProviderConfig>
+
+@code {
+
+	[Parameter, EditorRequired]
+	public ISocialMediaProvider Provider { get; set; } = null!;
+
+	public (SocialMediaStatus Status, string Message) Health { get; set; } = (SocialMediaStatus.Unknown, string.Empty);
+
+
+	public ViewModel Model { get; set; } = new();
+
+	protected override async Task OnParametersSetAsync()
+	{
+
+		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
+
+		var headers = providerConfiguration.GetConfigurationByKey("DefaultHeaders");
+		var headerDictionary = string.IsNullOrEmpty(headers) ? new() : JsonSerializer.Deserialize<Dictionary<string, string>>(headers);
+
+		Model = new ViewModel
+			{
+				BaseAddress = providerConfiguration.GetConfigurationByKey("BaseAddress"),
+				DefaultHeaders = headerDictionary,
+				Timeout = TimeSpan.Parse(providerConfiguration.GetConfigurationByKey("Timeout")),
+				UseHttp2 = string.IsNullOrEmpty(providerConfiguration.GetConfigurationByKey("UseHttp2")) ? false : bool.Parse(providerConfiguration.GetConfigurationByKey("UseHttp2")),
+				Enabled = string.IsNullOrEmpty(providerConfiguration.GetConfigurationByKey("Enabled")) ? false : bool.Parse(providerConfiguration.GetConfigurationByKey("Enabled"))
+			};
+
+		Health = await Provider.GetHealth();
+
+		await base.OnParametersSetAsync();
+
+	}
+
+	private async Task SaveConfig()
+	{
+
+		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
+
+		Model.DefaultHeaders.Remove(string.Empty);
+
+		providerConfiguration.SetConfigurationByKey("BaseAddress", Model.BaseAddress);
+		providerConfiguration.SetConfigurationByKey("Timeout", Model.Timeout.ToString());
+		providerConfiguration.SetConfigurationByKey("DefaultHeaders", JsonSerializer.Serialize(Model.DefaultHeaders));
+		providerConfiguration.SetConfigurationByKey("UseHttp2", Model.UseHttp2.ToString());
+		providerConfiguration.SetConfigurationByKey("Enabled", Model.Enabled.ToString());
+
+		await Provider.SaveConfiguration(ConfigureTagzAppFactory.Current, providerConfiguration);
+
+	}
+
+	public class ViewModel
+	{
+
+		// add properties for each of the fields you want to edit
+		[Required]
+		public string ApiKey { get; set; }
+
+		[Required]
+		public string BaseAddress { get; set; }
+
+		public Dictionary<string, string> DefaultHeaders { get; set; } = new();
+
+		[Required]
+		public string SecretAuthKey { get; set; }
+
+		[Required]
+		public TimeSpan Timeout { get; set; }
+
+		public bool UseHttp2 { get; set; }
+
+		[Required]
+		public int WindowSeconds { get; set; }
+
+		[Required]
+		public int WindowRequests { get; set; }
+
+		public bool Enabled { get; set; }
+
+	}
+
+
+}

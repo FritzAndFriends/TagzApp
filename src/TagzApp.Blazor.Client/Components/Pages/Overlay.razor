@@ -29,7 +29,7 @@
 			<div class="author">@Content.AuthorDisplayName</div>
 			<div class="authorUserName">@Content.AuthorUserName</div>
 		</div>
-		<i class="provider bi @WaterfallMessage.MapProviderToIcon(Content.Provider)"></i>
+		<i class="provider bi @ContentModel.MapProviderToIcon(Content.Provider)"></i>
 		<span class="time">@Content.Timestamp.ToLocalTime().ToString("d") @Content.Timestamp.ToLocalTime().ToString("t")</span>
 
 		<span class="content">@((MarkupString)(Content.FormatContentWithEmotes()))</span>

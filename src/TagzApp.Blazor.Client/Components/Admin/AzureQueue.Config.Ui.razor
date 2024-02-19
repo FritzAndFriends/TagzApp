@@ -1,0 +1,77 @@
+﻿@using System.ComponentModel.DataAnnotations
+<UiProviderConfig ProviderName="AzureQueue" Health="@Health" ProviderIconCssClass="bi-globe2">
+
+	<EditForm Model="Model" OnValidSubmit="SaveConfig">
+		<AntiforgeryToken />
+		<ValidationSummary />
+		<dl>
+			<dt><label for="QueueConnectionString">Queue Connection String:</label></dt>
+			<dd>
+				<InputText name="QueueConnectionString" @bind-Value="Model.QueueConnectionString" placeholder="Queue Connection String" />
+				<ValidationMessage For="() => Model.QueueConnectionString" class="text-danger" />
+			</dd>
+			<dt><label for="Enabled">Enabled:</label></dt>
+			<dd>
+				<InputCheckbox name="Enabled" @bind-Value="Model.Enabled" />
+			</dd>
+		</dl>
+
+		<button type="submit" class="btn btn-primary">Save</button>
+
+	</EditForm>
+
+</UiProviderConfig>
+
+@code {
+
+	[Parameter, EditorRequired]
+	public ISocialMediaProvider Provider { get; set; } = null!;
+
+	public (SocialMediaStatus Status, string Message) Health { get; set; } = (SocialMediaStatus.Unknown, string.Empty);
+
+
+	public ViewModel Model { get; set; } = new();
+
+	protected override async Task OnParametersSetAsync()
+	{
+
+		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
+
+		Model = new ViewModel
+			{
+				QueueConnectionString = providerConfiguration.GetConfigurationByKey("QueueConnectionString"),
+				Enabled = string.IsNullOrEmpty(providerConfiguration.GetConfigurationByKey("Enabled")) ? false : bool.Parse(providerConfiguration.GetConfigurationByKey("Enabled"))
+			};
+
+		Health = await Provider.GetHealth();
+
+		await base.OnParametersSetAsync();
+
+	}
+
+	private async Task SaveConfig()
+	{
+
+		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
+
+		providerConfiguration.SetConfigurationByKey("QueueConnectionString", Model.QueueConnectionString);
+		providerConfiguration.SetConfigurationByKey("Enabled", Model.Enabled.ToString());
+
+		await Provider.SaveConfiguration(ConfigureTagzAppFactory.Current, providerConfiguration);
+
+	}
+
+	public class ViewModel
+	{
+
+		// add properties for each of the fields you want to edit
+
+		[Required]
+		public string QueueConnectionString { get; set; }
+
+		public bool Enabled { get; set; }
+
+
+	}
+
+}

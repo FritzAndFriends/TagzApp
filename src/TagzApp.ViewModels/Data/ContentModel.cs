@@ -81,6 +81,19 @@ public record ContentModel(
 
 	}
 
+	public static string MapProviderToIcon(string provider) =>
+		provider?.ToLowerInvariant().Trim() switch
+		{
+			"blazot" => "bi-blazot",
+			"bluesky" => "icon-bluesky",
+			"twitter" => "bi-twitter-x",
+			"website" => "bi-globe2",
+			"youtube-chat" => "bi-youtube",
+			_ => $"bi-{provider?.ToLowerInvariant().Trim() ?? "question-circle"}"
+		};
+
+
+
 }
 
 internal record EmoteFormat(string Name, string HTML);

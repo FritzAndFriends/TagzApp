@@ -35,7 +35,7 @@
 		</div>
 		<span class="time">
 			@Content.Timestamp.ToLocalTime().ToString("d") @Content.Timestamp.ToLocalTime().ToString("t")
-			<i class="provider bi ${window.TagzApp.MapProviderToIconClass(content.provider)}"></i>
+			<i class="provider bi @ContentModel.MapProviderToIcon(Content.Provider)"></i>
 		</span>
 		<span class="content">@((MarkupString)(Content.FormatContentWithEmotes()))</span>
 

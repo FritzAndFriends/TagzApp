@@ -10,11 +10,14 @@
 	<div class="byline">
 		<div class="author">@Content.AuthorDisplayName <i class="autoMod"></i></div>
 		<div class="authorUserName" title="@Content.AuthorUserName">
-			@Content.AuthorUserName
+			@if (!Content.AuthorUserName.TrimStart('@').Equals(Content.AuthorDisplayName))
+			{
+				@Content.AuthorUserName
+			}
 		</div>
 	</div>
 
-	<i class="provider bi @MapProviderToIcon(Content.Provider)"></i>
+	<i class="provider bi @ContentModel.MapProviderToIcon(Content.Provider)"></i>
 
 	<div class="time">
 		<div>@Content.Timestamp.ToLocalTime().ToString("d") @Content.Timestamp.ToLocalTime().ToString("t")</div>
@@ -65,15 +68,5 @@
 
 		return base.OnAfterRenderAsync(firstRender);
 	}
-
-	public static string MapProviderToIcon(string provider) =>
-	provider?.ToLowerInvariant().Trim() switch
-	{
-		"bluesky" => "icon-bluesky",
-		"twitter" => "bi-twitter-x",
-		"website" => "bi-globe2",
-		"youtube-chat" => "bi-youtube",
-		_ => $"bi-{provider?.ToLowerInvariant().Trim() ?? "question-circle"}"
-	};
 
 }

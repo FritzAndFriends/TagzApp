@@ -2,7 +2,7 @@
 
 namespace TagzApp.Providers.Blazot.Interfaces;
 
-internal interface IAuthService
+public interface IAuthService
 {
 	string? AccessToken { get; }
 	Task<(bool? isSuccessStatusCode, HttpStatusCode? httpStatusCode)> GetAccessTokenAsync();
