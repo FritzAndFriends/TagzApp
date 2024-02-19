@@ -1,0 +1,66 @@
+﻿@page "/admin/modalcustomization"
+
+@attribute [Authorize(policy: RolesAndPolicies.Policy.AdminRoleOnly)]
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Authorization
+@using System.Drawing
+@layout AdminLayout
+@inject IJSRuntime JSRuntime
+@inject ModalConfiguration Config
+@rendermode InteractiveServer
+
+<div class="row" style="min-height: 300px">
+	<div class="col-md-6">
+<dl>
+
+	<dt><label for="Caption">Text on back of card:</label></dt>
+	<dd><textarea name="Caption" width="30" height="5" @bind="@Config.Caption" @bind:event="oninput" /></dd>
+
+	<dt><label for="FontColor">Font Color on the back of card:</label></dt>
+	<dd>
+		<input type="color" name="FontColor" @bind-value="@Config.FontColor" />
+	</dd>
+
+	<dt><label for="BackColor">Background color of the back of card:</label></dt>
+	<dd>
+		<input type="color" name="BackColor" @bind-value="@Config.BackgroundColor" />
+	</dd>
+
+</dl>
+
+<input type="submit" value="Save Changes" class="btn btn-primary" @onclick="SaveChanges" />
+	</div>
+	<div class="col-md-6">
+		<h3>Demo:</h3>
+		<div style="width: 50%; " class="modal-dialog modal-dialog-centered">
+			<div class="modal-inner" style="height: 150px!important;">
+				<div style=" position: relative;" class="modal-back modal-content"><div class="modal-back-content"></div></div>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+<style>
+
+@((MarkupString)Config.CssRules)
+			
+</style>
+
+@code {
+
+	protected override async Task OnInitializedAsync()
+	{
+
+		await base.OnInitializedAsync();
+	}
+
+	async Task SaveChanges()
+	{
+
+		Console.WriteLine($"Caption: {Config.Caption}");
+		await Config.SaveConfiguration(ConfigureTagzAppFactory.Current);
+
+	}
+
+}

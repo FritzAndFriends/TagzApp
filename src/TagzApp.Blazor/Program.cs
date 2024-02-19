@@ -56,6 +56,9 @@ internal class Program
 		var appConfig = await ApplicationConfiguration.LoadFromConfiguration(configure);
 		builder.Services.AddSingleton(appConfig);
 
+		var modalConfig = await ModalConfiguration.LoadFromConfiguration(configure);
+		builder.Services.AddSingleton(modalConfig);
+
 		// Add services to the container.
 		builder.Services.AddRazorComponents()
 				.AddInteractiveServerComponents()

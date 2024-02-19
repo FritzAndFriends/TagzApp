@@ -474,14 +474,6 @@ MOVED TO THE  HeadContent in Overlay.razor
 	z-index: -20;
 }
 
-.modal-back-content {
-	width: 100%;
-	height: 100%;
-	display: none;
-	align-items: center;
-	justify-content: center;
-}
-
 .modal-front {
 	transform: rotateY(180deg);
 }
