@@ -34,7 +34,7 @@
 		</div>
 	</div>
 
-	<i class="provider bi @MapProviderToIcon(Content.Provider)"></i>
+	<i class="provider bi @ContentModel.MapProviderToIcon(Content.Provider)"></i>
 
 	<div class="time">
 		<div>@Content.Timestamp.ToLocalTime().ToString("d") @Content.Timestamp.ToLocalTime().ToString("t")</div>
@@ -187,15 +187,5 @@
 		}
 		StateHasChanged();
 	}
-
-	public static string MapProviderToIcon(string provider) =>
-	provider?.ToLowerInvariant().Trim() switch
-	{
-		"bluesky" => "icon-bluesky",
-		"twitter" => "bi-twitter-x",
-		"website" => "bi-globe2",
-		"youtube-chat" => "bi-youtube",
-		_ => $"bi-{provider?.ToLowerInvariant().Trim() ?? "question-circle"}"
-	};
 
 }
