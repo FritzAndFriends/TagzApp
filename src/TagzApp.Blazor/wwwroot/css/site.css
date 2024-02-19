@@ -670,4 +670,5 @@ a {
 	display: inline-block;
 	background-image: url(/img/Bluesky_Logo.svg);
 	background-size: contain;
+	filter: brightness(0) invert(1);
 }
