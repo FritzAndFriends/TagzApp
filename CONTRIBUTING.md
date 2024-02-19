@@ -6,12 +6,12 @@ Thank you for your interest in contributing to TagzApp! We welcome contributions
 
 To get started, follow these steps:
 
-1. Create an issue to explain the contribution you want to make.
-1. Fork the repository.
-1. Clone the forked repository to your local machine.
+1. Create an issue to explain the contribution you want to make or choose an existing issue you would like to help with.
+1. Fork the repository to your own GitHub account
+1. Clone the forked repository to your local machine or use a GitHub codespace
 1. Create a new branch for your changes.
-1. Make your changes and commit them.
-1. Push your changes to your forked repository.
+1. Make your changes and commit them locally.
+1. Push your changes to your forked repository on GitHub (ex: csharpfritz/TagzApp).
 1. Open a pull request to the main repository.
 
 ## Code Style
@@ -32,4 +32,4 @@ If you find a bug, please open an issue on the repository and include as much de
 
 ## Contact
 
-If you have any questions or concerns, please contact us at TBD.
+If you have any questions or concerns, please contact Fritz at [jeff@jeffreyfritz.com](mailto:jeff@jeffreyfritz.com)
