@@ -220,7 +220,9 @@ public class ChatClient : IChatClient
 		try
 		{
 			Logger.LogWarning("Exiting ReceiveMessages Loop");
-		} catch {
+		}
+		catch
+		{
 			// Error while shutting down
 		}
 
@@ -238,9 +240,9 @@ public class ChatClient : IChatClient
 		//if (userName.Equals(ChatBotName, StringComparison.InvariantCultureIgnoreCase)) return; // Exit and do not process if the bot posted this message
 
 
-		if (msg.Contains($"{ChatBotName} :Welcome, GLHF!",StringComparison.InvariantCultureIgnoreCase))
+		if (msg.Contains($"{ChatBotName} :Welcome, GLHF!", StringComparison.InvariantCultureIgnoreCase))
 		{
-			IsConnected = true; 
+			IsConnected = true;
 		}
 
 		// Review messages sent to the channel
