@@ -1,4 +1,4 @@
-﻿// Ignore Spelling: Css
+// Ignore Spelling: Css
 
 using System.Drawing;
 using System.Text.Json.Serialization;
