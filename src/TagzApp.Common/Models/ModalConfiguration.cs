@@ -53,7 +53,7 @@ public class ModalConfiguration
 					background-color: transparent;
 				}
 			""" + CssRules;
-	}		
+	}
 
 	[JsonIgnore]
 	public string CssRules
