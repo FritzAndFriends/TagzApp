@@ -20,6 +20,41 @@ public class ModalConfiguration
 
 	public string BackgroundColor { get; set; }
 
+	public string BackgroundImage { get; set; }
+
+	public bool BackgroundImageRepeat { get; set; } = false;
+
+	public string BackgroundImageMimeType { get; set; } = "image/png";
+
+	public string BackgroundImagePosition { get; set; } = "center center";
+
+	public string BackgroundImageSize { get; set; } = "cover";
+
+	public string GetCssWithBackgroundImage(string newImage = "", string newImageMimeType = "")
+	{
+
+		newImage = newImage == "" ? BackgroundImage : newImage;
+		newImageMimeType = newImageMimeType == "" ? BackgroundImageMimeType : newImageMimeType;
+
+		if (string.IsNullOrEmpty(newImage))
+		{
+			return CssRules;
+		}
+
+		return $$"""
+				.modal-back {
+					background-image: url(data:{{newImageMimeType ?? ""}};base64,{{newImage ?? ""}});
+					background-repeat: {{(BackgroundImageRepeat ? "repeat" : "no-repeat")}};
+					background-size: {{BackgroundImageSize}};
+					background-position: {{BackgroundImagePosition}};
+				}
+
+				.modal-back-content {
+					background-color: transparent;
+				}
+			""" + CssRules;
+	}		
+
 	[JsonIgnore]
 	public string CssRules
 	{
@@ -43,7 +78,7 @@ public class ModalConfiguration
 					}
 
 					.modal-back-content::before {
-						content: '{{Caption.Replace("'", "\\'").Replace("\n", "\\A")}}';
+						content: '{{Caption.Replace("'", "\\'").Replace("\n", "\\A ")}}';
 						white-space: break-spaces;
 						text-align: center;
 					}

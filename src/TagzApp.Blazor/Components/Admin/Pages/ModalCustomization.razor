@@ -35,9 +35,56 @@
 		<input type="color" name="BackColor" @bind-value="@Config.BackgroundColor" />
 	</dd>
 
+	<dt><label for="BackgroundImage">Background Image:</label> 
+		@if (!string.IsNullOrWhiteSpace(Config.BackgroundImage))
+				{
+					<button @onclick="RemoveBackgroundImage">
+						@* Bootstrap icon trashcan *@
+						<i class="bi bi-trash"></i>
+
+					</button>
+				}
+			</dt>
+	<dd>
+		<InputFile OnChange="LoadBackgroundImage"></InputFile>
+	</dd>
+
+	<dt><label for="BackgroundSize">Background Image Size:</label></dt>
+	<dd>
+		<select name="BackgroundSize" @bind="@Config.BackgroundImageSize">
+			<option value="cover">Cover</option>
+			<option value="contain">Contain</option>
+			<option value="auto">Auto</option>
+		</select>
+	</dd>
+
+	@* Background image repeat *@
+	<dt><label for="BackgroundRepeat">Background Image Repeat:</label>
+		<input type="checkbox" name="BackgroundRepeat" @bind-value="@Config.BackgroundImageRepeat" />
+	</dt>
+
+	<dt><label for="BackgroundPosition">Background Image Position:</label></dt>
+	<dd>
+		<select name="BackgroundPosition" @bind="@Config.BackgroundImagePosition">
+			<option>Left Top</option>
+			<option>Left Center</option>
+			<option>Left Bottom</option>
+			<option>Right Top</option>
+			<option>Right Center</option>
+			<option>Right Bottom</option>
+			<option>Center Top</option>
+			<option>Center Center</option>
+			<option>Center Bottom</option>
+		</select>
+	</dd>
+
+
 </dl>
 
-<input type="submit" value="Save Changes" class="btn btn-primary" @onclick="SaveChanges" />
+		<input type="submit" value="Save Changes" class="btn btn-primary" @onclick="SaveChanges" />
+		@* Cancel changes button *@
+		<input type="button" value="Cancel" class="btn btn-secondary" @onclick="CancelChanges" />
+
 	</div>
 	<div class="col-md-6">
 		<h3>Demo:</h3>
@@ -52,24 +99,64 @@
 
 <style>
 
-@((MarkupString)Config.CssRules)
+@((MarkupString)Config.GetCssWithBackgroundImage(_BackgroundImage, _BackgroundImageMimeType))
 			
 </style>
 
 @code {
 
-	protected override async Task OnInitializedAsync()
-	{
-
-		await base.OnInitializedAsync();
-	}
+	private string _BackgroundImage;
+	private string _BackgroundImageMimeType;
 
 	async Task SaveChanges()
 	{
 
+		Config.BackgroundImage = _BackgroundImage;
+		Config.BackgroundImageMimeType = _BackgroundImageMimeType;
+
 		Console.WriteLine($"Caption: {Config.Caption}");
 		await Config.SaveConfiguration(ConfigureTagzAppFactory.Current);
 
+	}
+
+	async Task LoadBackgroundImage(InputFileChangeEventArgs args)
+	{
+
+		if (!args.File.ContentType.StartsWith("image/"))
+		{
+			Console.WriteLine("Invalid file type");
+			return;
+		}
+
+		_BackgroundImageMimeType = args.File.ContentType;
+
+		var stream = args.File.OpenReadStream();
+
+		byte[] bytes;
+		using (var memoryStream = new MemoryStream())
+		{
+			await stream.CopyToAsync(memoryStream);
+			bytes = memoryStream.ToArray();
+		}
+
+		_BackgroundImage = Convert.ToBase64String(bytes);
+
+	}
+
+	async Task CancelChanges()
+	{
+		Config = await ModalConfiguration.LoadFromConfiguration(ConfigureTagzAppFactory.Current);
+		_BackgroundImage = Config.BackgroundImage;
+		_BackgroundImageMimeType = Config.BackgroundImageMimeType;
+	}
+
+	async Task RemoveBackgroundImage()
+	{
+
+		Console.WriteLine("Removing background image");
+
+		_BackgroundImage = null;
+		_BackgroundImageMimeType = null;
 	}
 
 }
