@@ -528,6 +528,11 @@ article.status-rejected .content a {
 	color: var(--bs-white);
 }
 
+article.blur .content {
+	filter: blur(5px);
+	-webkit-filter: blur(5px);
+}
+
 article.status-approved .content a {
 	color: var(--bs-white);
 }
