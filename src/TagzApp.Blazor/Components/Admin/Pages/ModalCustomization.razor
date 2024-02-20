@@ -21,6 +21,15 @@
 		<input type="color" name="FontColor" @bind-value="@Config.FontColor" />
 	</dd>
 
+	<dt><label for="Font">Font on the back of card:</label></dt>
+	<dd>
+		<input name="Font" @bind-value="@Config.Font" />
+	</dd>
+
+	<dt><label for="FontIsBold">Font is Bold on the back of card:</label>
+		<input name="FontIsBold" type="checkbox" @bind-value="@Config.FontIsBold" />
+	</dt>
+
 	<dt><label for="BackColor">Background color of the back of card:</label></dt>
 	<dd>
 		<input type="color" name="BackColor" @bind-value="@Config.BackgroundColor" />

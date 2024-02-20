@@ -14,6 +14,10 @@ public class ModalConfiguration
 
 	public string FontColor { get; set; }
 
+	public string Font { get; set; }
+
+	public bool FontIsBold { get; set; } = false;
+
 	public string BackgroundColor { get; set; }
 
 	[JsonIgnore]
@@ -33,6 +37,8 @@ public class ModalConfiguration
 						display: flex;
 						align-items: center;
 						justify-content: center;
+						font-family: {{Font}};
+						font-weight: {{(FontIsBold ? "bold" : "normal")}};
 						color: {{FontColor}};
 					}
 
