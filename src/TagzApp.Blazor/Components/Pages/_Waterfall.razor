@@ -4,6 +4,7 @@
 @inject IJSRuntime JSRuntime
 @inject IMessagingService MessagingService
 @inject ApplicationConfiguration AppConfig
+@inject ModalConfiguration ModalConfig
 @layout Layout.WaterfallLayout
 
 <PageTitle>@AppConfig.SiteName - Waterfall Display</PageTitle>
@@ -51,7 +52,11 @@
 {
 	<HeadContent>
 		<style>
+
+			@((MarkupString)ModalConfig.GetCssWithBackgroundImage())
+			
 			@WaterfallHeaderCss
+
 		</style>
 </HeadContent>
 }

@@ -1,5 +1,8 @@
 ﻿@using TagzApp.ViewModels.Data
 
+@if (Content is not null)
+{
+
 <div @ref="_OuterModal" class="modal fade @modalClass"
 		 id="contentModal" tabindex="-1"
 		 role="dialog"
@@ -15,7 +18,7 @@
 					<img class="ProfilePicture" src="@Content?.AuthorProfileImageUri" alt="@Content?.AuthorDisplayName" onerror="this.src='/img/user.jpg';" />
 					<div class="author">@Content?.AuthorDisplayName</div>
 					<div class="authorUserName" title="@Content?.AuthorUserName">
-						@if (!Content.AuthorUserName.TrimStart('@').Equals(Content.AuthorDisplayName))
+						@if (!Content?.AuthorUserName.TrimStart('@').Equals(Content.AuthorDisplayName) ?? false)
 						{
 						
 									@Content?.AuthorUserName
@@ -52,7 +55,7 @@
 
 			<div class="modal-back modal-content">
 				<div class="modal-back-content">
-					The back of the modal
+					
 				</div>
 			</div>
 
@@ -60,6 +63,8 @@
 
 	</div>
 </div>
+
+}
 
 @if (showBackdrop)
 {
@@ -97,12 +102,17 @@
 		showBackdrop = true;
 		StateHasChanged();
 
-		await Task.Delay(700);
-		_InnerModalCssClass = "flip";
-		StateHasChanged();
+		await DoAnimation();
 
 		await _OuterModal.FocusAsync();
 
+	}
+
+	async Task DoAnimation()
+	{
+		await Task.Delay(700);
+		_InnerModalCssClass = "flip";
+		StateHasChanged();
 	}
 
 	public void Close()
