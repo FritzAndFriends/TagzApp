@@ -12,6 +12,15 @@
 	{
 		<div id="moderationAction">
 			<i class="bi bi-check2 approve" title="Approve this content" @onclick="async () => await Moderate(ModerationState.Approved)"></i>
+			
+			@if (Content.State == ModerationState.Rejected)
+			{
+				<i class="bi bi-eye" title="Reveal this content" @onclick="Reveal"></i>
+			}
+			else
+			{
+				<i class="bi bi-x-circle-fill reject" title="Reject this content" @onclick="async () => await Moderate(ModerationState.Rejected)"></i>
+			}
 			<i class="bi bi-x-circle-fill reject" title="Reject this content" @onclick="async () => await Moderate(ModerationState.Rejected)"></i>
 			<i class="bi bi-journal-text more"
 				 @onclick="@(() => NavigationManager.NavigateTo($"/MessageDetails/{Content.Provider}/{Content.ProviderId}"))"
@@ -76,6 +85,8 @@
 	[Parameter]
 	public ModerationContentModel Content { get; set; }
 
+	bool _Reveal = false;
+
 	private string AutomodReason
 	{
 		get
@@ -128,8 +139,8 @@
 	public string AdditionalClasses => (Content?.State, Content?.Moderator) switch
 	{
 		(ModerationState.Approved, _) => CSS_APPROVED,
-		(ModerationState.Rejected, "AZURE-CONTENTSAFETY") => CSS_AZURECONTENTSAFETY,
-		(ModerationState.Rejected, _) => CSS_REJECTED,
+		(ModerationState.Rejected, "AZURE-CONTENTSAFETY") => CSS_AZURECONTENTSAFETY + (_Reveal ? "" : " blur"),
+		(ModerationState.Rejected, _) => CSS_REJECTED + (_Reveal ? "" : " blur"),
 		(_, _) => ""
 	};
 
@@ -186,6 +197,11 @@
 			ShowModerationActions = false;
 		}
 		StateHasChanged();
+	}
+
+	public void Reveal()
+	{
+		_Reveal = true;
 	}
 
 }
