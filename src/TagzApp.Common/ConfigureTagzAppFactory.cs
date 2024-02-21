@@ -39,10 +39,12 @@ public static class ConfigureTagzAppFactory
 
 			Current = new DbConfigureTagzApp();
 
-			try {
+			try
+			{
 				Current.InitializeConfiguration(provider, connectionString);
 				IsConfigured = true;
-			} catch (Exception ex)
+			}
+			catch (Exception ex)
 			{
 				// log the exception
 				var cfg = EmptyConfigureTagzApp.Instance;

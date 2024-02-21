@@ -48,7 +48,8 @@ public class DbConfigureTagzApp : IConfigureTagzApp, IDisposable
 
 		using var conn = GetConnection(providerName, connectionString);
 
-		try {
+		try
+		{
 			conn.Open();
 		}
 		catch (Exception ex)

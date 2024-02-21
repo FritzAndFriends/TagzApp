@@ -19,7 +19,7 @@ public interface IConfigureTagzApp
 public class EmptyConfigureTagzApp : IConfigureTagzApp
 {
 
-	public static EmptyConfigureTagzApp Instance = new EmptyConfigureTagzApp();
+	public static EmptyConfigureTagzApp Instance = new();
 
 	public string Message { get; set; } = "";
 
