@@ -51,7 +51,7 @@ internal class Program
 
 		var builder = WebApplication.CreateBuilder(args);
 
-		var configure = ConfigureTagzAppFactory.Create(builder.Configuration, null);
+		var configure = ConfigureTagzAppFactory.Create(builder.Configuration, builder.Services.BuildServiceProvider());
 
 		var appConfig = await ApplicationConfiguration.LoadFromConfiguration(configure);
 		builder.Services.AddSingleton(appConfig);

@@ -6,6 +6,16 @@
 
 <h1>First Start Configuration</h1>
 
+@if (CurrentConfig != null && CurrentConfig is EmptyConfigureTagzApp)
+{
+	var config = CurrentConfig as EmptyConfigureTagzApp;
+	if (!string.IsNullOrEmpty(config.Message))
+	{
+		<div class="alert alert-danger" role="alert">
+			@config.Message
+		</div>
+	}
+}
 
 @* Add a form to allow selection of a provider and setting a connection string *@
 <form @onsubmit="@OnFormValidate">

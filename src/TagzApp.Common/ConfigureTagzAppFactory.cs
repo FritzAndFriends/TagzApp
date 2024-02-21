@@ -1,6 +1,8 @@
 ﻿// Ignore Spelling: Tagz
 
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -36,8 +38,24 @@ public static class ConfigureTagzAppFactory
 		{
 
 			Current = new DbConfigureTagzApp();
-			Current.InitializeConfiguration(provider, connectionString);
-			IsConfigured = true;
+
+			try {
+				Current.InitializeConfiguration(provider, connectionString);
+				IsConfigured = true;
+			} catch (Exception ex)
+			{
+				// log the exception
+				var cfg = EmptyConfigureTagzApp.Instance;
+				cfg.Message = "Unable to initialize configuration provider";
+				Current = cfg;
+				IsConfigured = false;
+
+				var scope = services.CreateScope();
+				var logger = scope.ServiceProvider.GetRequiredService<ILogger<DbConfigureTagzApp>>();
+				logger.LogError(ex, "Unable to initialize configuration provider");
+
+			}
+
 
 		}
 

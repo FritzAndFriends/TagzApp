@@ -47,7 +47,14 @@ public class DbConfigureTagzApp : IConfigureTagzApp, IDisposable
 		_ConnectionString = connectionString;
 
 		using var conn = GetConnection(providerName, connectionString);
-		conn.Open();
+
+		try {
+			conn.Open();
+		}
+		catch (Exception ex)
+		{
+			throw new Exception("Unable to connect to configuration database", ex);
+		}
 
 		CreateConfigTable(conn, providerName);
 

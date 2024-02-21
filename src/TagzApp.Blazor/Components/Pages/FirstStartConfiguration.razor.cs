@@ -5,6 +5,9 @@ namespace TagzApp.Blazor.Components.Pages;
 
 public partial class FirstStartConfiguration
 {
+
+	IConfigureTagzApp CurrentConfig = ConfigureTagzAppFactory.Current;
+
 	public async Task OnFormValidate()
 	{
 
