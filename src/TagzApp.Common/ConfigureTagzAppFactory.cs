@@ -50,7 +50,8 @@ public static class ConfigureTagzAppFactory
 				// log the exception
 				var cfg = EmptyConfigureTagzApp.Instance;
 
-				cfg.Message = ex.InnerException switch {
+				cfg.Message = ex.InnerException switch
+				{
 					NpgsqlException => ex.Message,
 					_ => $"Unable to initialize database configuration provider '{provider}'"
 				};
