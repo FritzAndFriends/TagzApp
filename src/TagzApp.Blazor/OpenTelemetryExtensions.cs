@@ -120,7 +120,7 @@ public static class OpenTelemetryExtensions
 	}
 
 	private static void SetupLogsExporter(this OpenTelemetryLoggerOptions options, string logExporter, IConfiguration configuration)
-	{ 
+	{
 		switch (logExporter)
 		{
 			case "otlp":
