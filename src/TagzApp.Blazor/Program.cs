@@ -53,6 +53,9 @@ internal class Program
 
 		var configure = ConfigureTagzAppFactory.Create(builder.Configuration, null);
 
+		// Add OpenTelemetry for tracing and metrics.
+		builder.Services.AddOpenTelemetryObservability(builder.Configuration);
+
 		var appConfig = await ApplicationConfiguration.LoadFromConfiguration(configure);
 		builder.Services.AddSingleton(appConfig);
 
@@ -94,6 +97,9 @@ internal class Program
 			options.KnownNetworks.Clear();
 			options.KnownProxies.Clear();
 		});
+
+		// Add OpenTelemetry for logging.
+		builder.Logging.AddOpenTelemetryLogging(builder.Configuration);
 
 		var app = builder.Build();
 
