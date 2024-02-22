@@ -3,6 +3,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -48,7 +49,12 @@ public static class ConfigureTagzAppFactory
 			{
 				// log the exception
 				var cfg = EmptyConfigureTagzApp.Instance;
-				cfg.Message = "Unable to initialize configuration provider";
+
+				cfg.Message = ex.InnerException switch {
+					NpgsqlException => ex.Message,
+					_ => $"Unable to initialize database configuration provider '{provider}'"
+				};
+
 				Current = cfg;
 				IsConfigured = false;
 

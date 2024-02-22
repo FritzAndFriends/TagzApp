@@ -44,6 +44,16 @@ public partial class FirstStartConfiguration
 
 	}
 
+	void PrecalculateBasicConnectionString()
+	{
+
+		if (Config.Provider.Equals("sqlite", StringComparison.InvariantCultureIgnoreCase))
+		{
+			Config.ConnectionString = @"Data Source=tagzapp.db;";
+		}
+
+	}
+
 
 }
 
