@@ -12,7 +12,7 @@ public partial class FirstStartConfiguration
 	public NavigationManager? NavigationManager { get; set; }
 
 	[SupplyParameterFromForm]
-	public FirstStartConfig Config { get; set; } = new();
+	public FirstStartConfig Config { get; set; }
 
 
 }

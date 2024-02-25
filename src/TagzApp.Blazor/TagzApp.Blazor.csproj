@@ -38,6 +38,7 @@
 		<ProjectReference Include="..\TagzApp.Providers.Youtube\TagzApp.Providers.Youtube.csproj" />
 		<ProjectReference Include="..\TagzApp.Security\TagzApp.Security.csproj" />
 		<ProjectReference Include="..\TagzApp.Storage.Postgres\TagzApp.Storage.Postgres.csproj" />
+		<ProjectReference Include="..\TagzApp.Storage.Sqlite.Security\TagzApp.Storage.Sqlite.Security.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -89,6 +89,14 @@ public static class ConfigureTagzAppFactory
 			AllowTrailingCommas = true,
 			CommentHandling = JsonCommentHandling.Skip
 		});
+
+		if (jsonObj["ConnectionStrings"] is null) 
+		{
+
+			jsonObj["ConnectionStrings"] = new JsonObject();
+
+		}
+
 		jsonObj["ConnectionStrings"]["AppConfigProvider"] = provider;
 		jsonObj["ConnectionStrings"]["AppConfigConnection"] = configurationString;
 

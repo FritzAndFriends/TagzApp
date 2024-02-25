@@ -1,6 +1,6 @@
 ﻿@page "/FirstStartConfiguration"
 @using Microsoft.AspNetCore.Components.Sections
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(false))
 
 <PageTitle>First Start Configuration</PageTitle>
 
@@ -18,7 +18,7 @@
 }
 
 @* Add a form to allow selection of a provider and setting a connection string *@
-<EditForm Model="Config" OnValidSubmit="OnFormValidate">
+<EditForm FormName="SiteConfig" Model="Config" OnValidSubmit="OnFormValidate">
 
 	<DataAnnotationsValidator />
 	<ValidationSummary />
@@ -47,9 +47,9 @@
 	</p>
 
 	<div class="form-group config-basic">
-		<label for="provider">Provider</label>
+		<label for="provider">Basic Provider</label>
 		<InputSelect class="form-control" id="provider" @bind-Value="Config.Provider" 
-			@onselectionchange="PrecalculateBasicConnectionString">
+			@onchange="PrecalculateBasicConnectionString">
 			<option value="">- SELECT -</option>
 			<option value="Postgres">Postgres</option>
 			<option value="Sqlite">Sqlite - Good for a personal install</option>

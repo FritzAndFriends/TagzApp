@@ -44,7 +44,13 @@ public partial class FirstStartConfiguration
 
 	}
 
-	void PrecalculateBasicConnectionString()
+	protected override void OnInitialized()
+	{
+		Config = new();
+		base.OnInitialized();
+	}
+
+	void PrecalculateBasicConnectionString(ChangeEventArgs args)
 	{
 
 		if (Config.Provider.Equals("sqlite", StringComparison.InvariantCultureIgnoreCase))
@@ -62,8 +68,21 @@ public class FirstStartConfig
 
 	public string ConfigurationType { get; set; } = "basic";
 
+	private string _Provider;
 	[Required]
-	public string Provider { get; set; }
+	public string Provider {
+		get { return _Provider; }
+		set {
+			_Provider = value;
+			if (ConfigurationType.Equals("basic", StringComparison.InvariantCultureIgnoreCase) &&
+				value.Equals("sqlite", StringComparison.InvariantCultureIgnoreCase)
+			)
+			{
+				ConnectionString = @"Data Source=tagzapp.db;";
+			}
+
+		}
+	}
 
 	[Required]
 	public string ConnectionString { get; set; }
