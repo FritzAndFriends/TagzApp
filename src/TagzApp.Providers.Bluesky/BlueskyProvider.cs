@@ -75,6 +75,13 @@ public class BlueskyProvider : ISocialMediaProvider
 
 		Enabled = _Config.Enabled;
 
+		if (!Enabled)
+		{
+			_status.status = SocialMediaStatus.Unhealthy;
+			_status.message = "Bluesky is disabled";
+			return;
+		}
+
 		var debugLog = new DebugLoggerProvider();
 
 		_AtProtocol = new ATProtocolBuilder()
