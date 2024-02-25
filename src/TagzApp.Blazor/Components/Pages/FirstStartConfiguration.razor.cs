@@ -70,9 +70,11 @@ public class FirstStartConfig
 
 	private string _Provider;
 	[Required]
-	public string Provider {
+	public string Provider
+	{
 		get { return _Provider; }
-		set {
+		set
+		{
 			_Provider = value;
 			if (ConfigurationType.Equals("basic", StringComparison.InvariantCultureIgnoreCase) &&
 				value.Equals("sqlite", StringComparison.InvariantCultureIgnoreCase)

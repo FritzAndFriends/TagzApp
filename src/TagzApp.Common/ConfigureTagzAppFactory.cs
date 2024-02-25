@@ -90,7 +90,7 @@ public static class ConfigureTagzAppFactory
 			CommentHandling = JsonCommentHandling.Skip
 		});
 
-		if (jsonObj["ConnectionStrings"] is null) 
+		if (jsonObj["ConnectionStrings"] is null)
 		{
 
 			jsonObj["ConnectionStrings"] = new JsonObject();
