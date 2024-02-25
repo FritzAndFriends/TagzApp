@@ -1,12 +1,12 @@
 ﻿@page "/admin/modalcustomization"
 
-@attribute [Authorize(policy: RolesAndPolicies.Policy.AdminRoleOnly)]
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Authorization
 @using System.Drawing
 @layout AdminLayout
 @inject IJSRuntime JSRuntime
 @inject ModalConfiguration Config
+@inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 
 <div class="row" style="min-height: 300px">
@@ -107,6 +107,19 @@
 
 	private string _BackgroundImage;
 	private string _BackgroundImageMimeType;
+
+	[CascadingParameter]
+	private HttpContext HttpContext { get; set; } = default!;
+
+	protected override Task OnInitializedAsync()
+	{
+		var user = HttpContext.User;
+		if (!user.IsInRole("Admin"))
+		{
+			NavigationManager.NavigateTo("/");
+		}
+		return base.OnInitializedAsync();
+	}
 
 	async Task SaveChanges()
 	{
