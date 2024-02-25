@@ -1,7 +1,6 @@
 global using TagzApp.Security;
 
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using TagzApp.Blazor;
 using TagzApp.Blazor.Hubs;
@@ -104,7 +103,8 @@ internal class Program
 			app.UseResponseCompression();
 		}
 
-		app.Use((context, next) => {
+		app.Use((context, next) =>
+		{
 
 			// running in single-user mode -- the current user is an admin
 			if (true)
