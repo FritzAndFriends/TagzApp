@@ -33,7 +33,7 @@
 		if (Content.PreviewCard.ImageUri.ToString().EndsWith(".mp4"))
 		{
 			<div class="contentcard">
-				<video muted="muted" controls="controls" autoplay src="@Content.PreviewCard.ImageUri" class="card-img-top" alt="@Content.PreviewCard.AltText"></video>
+				<video id="video_@Content.ProviderId" controls="controls" autoplay src="@Content.PreviewCard.ImageUri" class="card-img-top" alt="@Content.PreviewCard.AltText"></video>
 			</div>
 		}
 		else
@@ -61,12 +61,15 @@
 	private List<string> _CssClasses = new();
 	private string CssClass => string.Join(" ", _CssClasses);
 
-	protected override Task OnAfterRenderAsync(bool firstRender)
+	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 
+		if (Content.HasVideoPreview) {
+			await JSRuntime.InvokeVoidAsync("window.WaterfallUi.MuteVideo", $"video_{Content.ProviderId}");
+		}
 		JSRuntime.InvokeVoidAsync("window.Masonry.resizeGridItem", thisArticle);
 
-		return base.OnAfterRenderAsync(firstRender);
+		await base.OnAfterRenderAsync(firstRender);
 	}
 
 }
