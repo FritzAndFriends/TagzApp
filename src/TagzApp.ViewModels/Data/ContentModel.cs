@@ -29,6 +29,8 @@ public record ContentModel(
 )
 {
 
+	public bool HasVideoPreview => PreviewCard?.ImageUri.ToString().EndsWith(".mp4") ?? false;
+
 	// TODO: Refactor to not take a dependency on the Common library
 	public static explicit operator ContentModel(Content content)
 	{

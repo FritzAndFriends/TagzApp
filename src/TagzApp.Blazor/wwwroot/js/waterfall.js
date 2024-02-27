@@ -378,6 +378,12 @@
 		},
 
 		Messages: messages,
+
+		MuteVideo: function (video) {
+			var video = document.getElementById(video);
+			video.muted = true;
+		}
+
 	};
 
 	window.WaterfallUi = waterfallUi;
