@@ -9,9 +9,10 @@
 		@foreach (var provider in Model.Providers)
 		{
 			<option value="@provider.Id">@provider.DisplayName</option>
-		}"
-		<input id="username" name="username" maxlength="20" placeholder="User Name" />
-		<button type="submit" class="btn btn-primary">Block User</button>
+		}
+	</select>
+	<input id="username" name="username" maxlength="20" placeholder="User Name" />
+	<button type="submit" class="btn btn-primary">Block User</button>
 </form>
 
 
