@@ -9,20 +9,6 @@
 
 <TagSearch />
 
-@* Report on the Roles the current user belongs to*@
-@if (HttpContext.User.IsInRole("Admin"))
-{
-		<p>You are an Admin</p>
-}
-else if (HttpContext.User.IsInRole("User"))
-{
-		<p>You are a User</p>
-}
-else
-{
-		<p>You are not an Admin or a User</p>
-}
-
 @code {
 
 	[CascadingParameter]

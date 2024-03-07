@@ -67,7 +67,7 @@ internal class Program
 
 		await builder.Services.AddTagzAppSecurity(configure, builder.Configuration);
 
-		await Console.Out.WriteLineAsync($">> TagzApp configured: {ConfigureTagzAppFactory.IsConfigured}");
+//		await Console.Out.WriteLineAsync($">> TagzApp configured: {ConfigureTagzAppFactory.IsConfigured}");
 
 		builder.Services.AddSignalR();
 
@@ -107,11 +107,11 @@ internal class Program
 		{
 
 			// running in single-user mode -- the current user is an admin
-			if (true)
+			if (appConfig.SingleUserMode)
 			{
 				context.User = new ClaimsPrincipal(
 					new ClaimsIdentity(new[] {
-						new Claim(ClaimTypes.Name, "foo magoo"),
+						new Claim(ClaimTypes.Name, "Admin User"),
 						new Claim("DisplayName", "Admin User"),
 						new Claim(ClaimTypes.Role, RolesAndPolicies.Role.Admin)
 					}, "Basic"));
