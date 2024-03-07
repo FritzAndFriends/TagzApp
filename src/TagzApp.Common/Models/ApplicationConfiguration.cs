@@ -27,11 +27,11 @@ public class ApplicationConfiguration
 
 	public bool SingleUserMode
 	{
-					get => _SingleUserMode;
-					set 
-					{
-						if (_SingleUserMode) _SingleUserMode = value;
-					}
+		get => _SingleUserMode;
+		set
+		{
+			if (_SingleUserMode) _SingleUserMode = value;
+		}
 	}
 
 	[Required, MaxLength(30)]

@@ -67,7 +67,7 @@ internal class Program
 
 		await builder.Services.AddTagzAppSecurity(configure, builder.Configuration);
 
-//		await Console.Out.WriteLineAsync($">> TagzApp configured: {ConfigureTagzAppFactory.IsConfigured}");
+		//		await Console.Out.WriteLineAsync($">> TagzApp configured: {ConfigureTagzAppFactory.IsConfigured}");
 
 		builder.Services.AddSignalR();
 
