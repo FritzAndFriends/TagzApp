@@ -43,6 +43,9 @@ bld/
 # VsCode local settings folder
 .vscode/
 
+# JetBrains local settings folder
+.idea
+
 # Visual Studio 2017 auto generated files
 Generated\ Files/
 

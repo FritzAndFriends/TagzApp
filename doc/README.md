@@ -79,6 +79,12 @@ This example came directly out of [Microsoft learn documentation](https://learn.
 ### Docker
 TagzApp includes docker support and docker-compose files for easy deployment. You can either run the latest image that's built by us, or build locally.
 
+#### Running on Port 8080
+
+The ASP.NET Core images that TagzApp is based on expose port 8080 by default.  You can remap this to port 80 in the container by passing in an environment variable called `ASPNETCORE_HTTP_PORTS` with a value of `80`
+
+More details in the [ASP.NET Core Documentation](https://learn.microsoft.com/en-us/dotnet/core/compatibility/containers/8.0/aspnet-port)
+
 ### Running the Official Version
 
 ```
