@@ -11,7 +11,8 @@ public partial class FirstStartConfiguration
 	[Inject]
 	public NavigationManager? NavigationManager { get; set; }
 
-	public FirstStartConfig Config { get; set; } = new();
+	[SupplyParameterFromForm]
+	public FirstStartConfig Config { get; set; }
 
 
 }

@@ -113,7 +113,7 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	public Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since)
 	{
 
-		if (!_Client.IsRunning)
+		if (!_Client?.IsRunning ?? true)
 		{
 
 			// mark status as unhealthy and return empty list

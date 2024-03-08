@@ -2,28 +2,27 @@
 
 #nullable disable
 
-namespace TagzApp.Web.Migrations
+namespace TagzApp.Storage.Sqlite.Security;
+
+/// <inheritdoc />
+public partial class AddDisplayNameToUser : Migration
 {
 	/// <inheritdoc />
-	public partial class AddDisplayNameToUser : Migration
+	protected override void Up(MigrationBuilder migrationBuilder)
 	{
-		/// <inheritdoc />
-		protected override void Up(MigrationBuilder migrationBuilder)
-		{
-			migrationBuilder.AddColumn<string>(
-					name: "DisplayName",
-					table: "AspNetUsers",
-					type: "TEXT",
-					maxLength: 50,
-					nullable: true);
-		}
+		migrationBuilder.AddColumn<string>(
+				name: "DisplayName",
+				table: "AspNetUsers",
+				type: "TEXT",
+				maxLength: 50,
+				nullable: true);
+	}
 
-		/// <inheritdoc />
-		protected override void Down(MigrationBuilder migrationBuilder)
-		{
-			migrationBuilder.DropColumn(
-					name: "DisplayName",
-					table: "AspNetUsers");
-		}
+	/// <inheritdoc />
+	protected override void Down(MigrationBuilder migrationBuilder)
+	{
+		migrationBuilder.DropColumn(
+				name: "DisplayName",
+				table: "AspNetUsers");
 	}
 }

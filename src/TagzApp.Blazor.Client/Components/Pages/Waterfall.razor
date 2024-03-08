@@ -32,7 +32,7 @@ else
 
 @code {
 
-	private SortedList<DateTimeOffset, TagzApp.ViewModels.Data.ContentModel> _Content = new();
+	private SortedList<string, TagzApp.ViewModels.Data.ContentModel> _Content = new();
 
 	WaterfallModal Modal = new();
 	ContentModel ModalContent = null!;
@@ -57,7 +57,8 @@ else
 
 		foreach (var content in existingContent)
 		{
-			_Content.Add(content.Timestamp, content);
+			if (_Content.ContainsKey(content.Timestamp.ToString("yyyyMMddHHmmss") + content.ProviderId)) continue;
+			_Content.Add(content.Timestamp.ToString("yyyyMMddHHmmss") + content.ProviderId, content);
 		}
 
 		await base.OnInitializedAsync();
@@ -96,7 +97,7 @@ else
 				return;
 			}
 
-			_Content.Add(content.Timestamp, content);
+			_Content.Add(content.Timestamp.ToString("yyyyMMddHHmmss") + content.ProviderId, content);
 			StateHasChanged();
 		});
 
@@ -136,7 +137,7 @@ else
 			{
 				if (item is ContentModel content)
 				{
-					_Content.Add(content.Timestamp, content);
+					_Content.Add(content.Timestamp.ToString("yyyyMMddHHmmss") + content.ProviderId, content);
 				}
 			}
 			_PauseQueue.Clear();

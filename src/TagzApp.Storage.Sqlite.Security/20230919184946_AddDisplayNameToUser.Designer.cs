@@ -6,7 +6,7 @@ using TagzApp.Security;
 
 #nullable disable
 
-namespace TagzApp.Web.Migrations
+namespace TagzApp.Storage.Sqlite.Security
 {
 	[DbContext(typeof(SecurityContext))]
     [Migration("20230919184946_AddDisplayNameToUser")]

@@ -4,10 +4,23 @@
 @using Microsoft.EntityFrameworkCore
 @layout Admin.Shared.AdminLayout
 @inject UserManager<TagzAppUser> UserManager
+@inject NavigationManager NavigationManager
+@inject ApplicationConfiguration AppConfig
+@inject IJSRuntime Js
 @rendermode InteractiveServer
 
 <h3>User Roles Management</h3>
 
+@if (AppConfig.SingleUserMode) {
+ <div>You're in Single User Mode
+
+    <p class="alert alert-primary" role="alert">Converting to Multi-User Mode is a one-way operation that cannot be reversed.  You will need to register as a new user and login with that user immediately to be granted Admin access.  After that, you can add more users with various roles.
+   </p>
+
+	<button type="button" class="btn btn-danger" @onclick="ConvertUserMode">Change to Multi-User Mode</button>
+
+ </div>
+} else {
 <table>
 	<tr>
 		@*<th>User ID</th>*@
@@ -29,8 +42,12 @@
 </table>
 
 <ManageRoles @ref="ManageRolesDialog" CurrentUser="SelectedUser" OnComplete="CloseManageRoles" />
+}
 
 @code {
+
+	[CascadingParameter]
+	private HttpContext HttpContext { get; set; } = default!;
 
 	private List<TagzAppUser> UserList { get; set; } = [];
 
@@ -38,8 +55,16 @@
 
 	private ManageRoles ManageRolesDialog = new();
 
-	override protected async Task OnInitializedAsync()
+	override protected async Task OnParametersSetAsync()
 	{
+
+		if (AppConfig.SingleUserMode) return;
+		var user = HttpContext.User;
+		if (!user.IsInRole("Admin"))
+		{
+			NavigationManager.NavigateTo("/");
+		}
+
 		UserList = await UserManager.Users.ToListAsync();
 	}
 
@@ -53,5 +78,16 @@
 	{
 		SelectedUser = null;
 	}
+
+  private async Task ConvertUserMode()
+  {
+		var accepted = await Js.InvokeAsync<bool>("confirm", "Are you sure you would like to convert to multi-user mode?  This is a one-way operation and cannot be reversed");
+		if (accepted) {
+			AppConfig.SingleUserMode = false;
+   		await AppConfig.SaveConfiguration(ConfigureTagzAppFactory.Current);
+			Program.Restart();
+			NavigationManager.NavigateTo("/");
+		}
+  }
 
 }
