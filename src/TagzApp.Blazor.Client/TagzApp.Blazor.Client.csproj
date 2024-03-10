@@ -14,6 +14,11 @@
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.0" />
   </ItemGroup>
 
+	<ItemGroup>
+		<Using Include="TagzApp.Common" />
+		<Using Include="TagzApp.Common.Models" />
+	</ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
     <ProjectReference Include="..\TagzApp.Components\TagzApp.Components.csproj" />
