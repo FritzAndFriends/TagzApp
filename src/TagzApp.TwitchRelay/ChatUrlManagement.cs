@@ -1,9 +1,7 @@
 using System.Net;
 using System.Text.Json;
-using Azure;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using TagzApp.TwitchRelay.Data;
@@ -23,7 +21,7 @@ public class ChatUrlManagement
 		_Client = clientFactory.CreateClient();
 		_logger = loggerFactory.CreateLogger<ChatUrlManagement>();
 
-		foreach(var key in _Redirects.Keys)
+		foreach (var key in _Redirects.Keys)
 		{
 
 			// Remove old redirects
@@ -79,10 +77,13 @@ public class ChatUrlManagement
 		var response = req.CreateResponse(HttpStatusCode.OK);
 		response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
 
-		if (_Redirects.ContainsKey(Guid.Parse(id))) {
+		if (_Redirects.ContainsKey(Guid.Parse(id)))
+		{
 			response.WriteString(_Redirects[Guid.Parse(id)].Item1);
 			_Redirects.Remove(_Redirects.First(x => x.Key == Guid.Parse(id)).Key);
-		} else {
+		}
+		else
+		{
 			response.WriteString("Invalid ID");
 		}
 
@@ -119,10 +120,11 @@ public class ChatUrlManagement
 		var response = req.CreateResponse(HttpStatusCode.OK);
 		response.Headers.Add("Content-Type", "text/html; charset=utf-8");
 
-		if (!string.IsNullOrEmpty(req.Query["error"])) {
+		if (!string.IsNullOrEmpty(req.Query["error"]))
+		{
 			response.WriteString($"<html><body><span class='alert-danger'>Error while connecting to Twitch: {req.Query["error"]}");
 			return response;
-		} 
+		}
 
 		// Capture the access code from the fragment after the # in the URL and in the access_code key value pair
 		response.WriteString(
