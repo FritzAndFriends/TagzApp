@@ -25,7 +25,17 @@ public class ChatUrlManagement
 		{
 
 			// Remove old redirects
-			if (_Redirects[key].Item2 < DateTime.Now) _Redirects.Remove(key);
+			if (_Redirects[key].Item2 < DateTime.Now)
+			{
+				try
+				{
+					_Redirects.Remove(key);
+				}
+				catch (Exception ex)
+				{
+					_logger.LogError(ex, "Error removing old redirect");
+				}
+			}
 
 		}
 
@@ -40,7 +50,7 @@ public class ChatUrlManagement
 		var redirect = req.Query["returnto"];
 		if (string.IsNullOrEmpty(redirect)) return req.CreateResponse(HttpStatusCode.BadRequest);
 		var thisId = Guid.NewGuid();
-		_Redirects.Add(thisId, (redirect!, DateTime.Now.AddMinutes(5)));
+		_Redirects.TryAdd(thisId, (redirect!, DateTime.Now.AddMinutes(5)));
 
 		var response = req.CreateResponse(HttpStatusCode.OK);
 		response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
