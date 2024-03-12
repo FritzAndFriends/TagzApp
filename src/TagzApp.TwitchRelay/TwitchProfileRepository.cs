@@ -1,44 +1,90 @@
-﻿using System.Collections.Concurrent;
+﻿using Microsoft.Extensions.Configuration;
+using StackExchange.Redis;
+using System.Collections.Concurrent;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using TagzApp.TwitchRelay.Data;
 
 namespace TagzApp.TwitchRelay;
 
-internal class TwitchProfileRepository
+public class TwitchProfileRepository
 {
 
-	private static readonly ConcurrentDictionary<string, (string, DateTime)> _ProfilePics = new();
 	private readonly string _ClientId;
 	private readonly string _ClientSecret;
 	private readonly HttpClient _HttpClient;
-	private string _AccessToken = string.Empty;
+	private readonly IDatabase _Cache;
+	private static string _AccessToken = string.Empty;
 
-	public TwitchProfileRepository(string clientId, string clientSecret, HttpClient client)
+	public TwitchProfileRepository(IConfiguration configuration, IHttpClientFactory clientFactory, IConnectionMultiplexer connectionMultiplexer)
 	{
-		_ClientId = clientId;
-		_ClientSecret = clientSecret;
-		_HttpClient = client;
+		_ClientId = configuration["TwitchClientId"];
+		_ClientSecret = configuration["TwitchSecret"];
+		_HttpClient = clientFactory.CreateClient();
+
+		_Cache = connectionMultiplexer.GetDatabase();
+
 	}
 
 	public async Task<string> GetProfilePic(string userName)
 	{
 
-		if (_ProfilePics.ContainsKey(userName))
+		var profile = await _Cache.StringGetAsync(userName);
+		if (profile.IsNull)
 		{
-			var (profilePic, expiry) = _ProfilePics[userName];
-
-			if (expiry > DateTime.UtcNow)
-			{
-				return profilePic;
-			}
+			await SeedProfilePics(new[] { userName });
+			profile = await _Cache.StringGetAsync(userName);
 		}
 
-		var profilePicUrl = await GetProfilePicFromTwitch(userName);
+		if (string.IsNullOrEmpty(profile)) return string.Empty;
 
-		_ProfilePics.AddOrUpdate(userName, (profilePicUrl, DateTime.UtcNow.AddHours(1)), (key, oldValue) => (profilePicUrl, DateTime.UtcNow.AddHours(1)));
+		var user = JsonSerializer.Deserialize<TwitchUser>(profile.ToString());
+		return user.profile_image_url;
 
-		return profilePicUrl;
+	}
+
+
+	public async Task<Dictionary<string, string>> GetProfilePics(IEnumerable<string> userNames)
+	{
+
+		var outList = new ConcurrentDictionary<string, string>();
+
+		var names = userNames.Select(u => u.ToLowerInvariant()).Distinct().Select(u => new RedisKey(u)).ToArray();
+
+		var profiles = await _Cache.StringGetAsync(names);
+		await Parallel.ForEachAsync(profiles, async (profile, token) =>
+		{
+
+			if (!profile.IsNull)
+			{
+				var user = JsonSerializer.Deserialize<TwitchUser>(profile.ToString());
+				outList.AddOrUpdate(user.login, user.profile_image_url, (k, v) => user.profile_image_url);
+			}
+
+		});
+
+		var usersToFetch = userNames.Except(outList.Keys).ToList();
+		if (usersToFetch.Any())
+		{
+
+			await SeedProfilePics(usersToFetch);
+
+			names = usersToFetch.Select(u => u.ToLowerInvariant()).Distinct().Select(u => new RedisKey(u)).ToArray();
+			profiles = await _Cache.StringGetAsync(names);
+			await Parallel.ForEachAsync(profiles, async (profile, token) =>
+			{
+
+				if (!profile.IsNull)
+				{
+					var user = JsonSerializer.Deserialize<TwitchUser>(profile.ToString());
+					outList.AddOrUpdate(user.login, user.profile_image_url, (k, v) => user.profile_image_url);
+				}
+
+			});
+
+		}
+
+		return outList.ToDictionary();
 
 	}
 
@@ -66,7 +112,7 @@ internal class TwitchProfileRepository
 
 				foreach (var user in users.data)
 				{
-					_ProfilePics.AddOrUpdate(user.login, (user.profile_image_url, now.AddHours(1)), (key, oldValue) => (user.profile_image_url, now.AddHours(1)));
+					await _Cache.StringSetAsync(user.login, JsonSerializer.Serialize(user), TimeSpan.FromMinutes(30));
 				}
 			}
 			else
@@ -82,7 +128,13 @@ internal class TwitchProfileRepository
 	private async Task GetAccessToken()
 	{
 
-		if (!string.IsNullOrEmpty(_AccessToken)) return;
+		if (!string.IsNullOrEmpty(_AccessToken))
+		{
+			_HttpClient.DefaultRequestHeaders.Clear();
+			_HttpClient.DefaultRequestHeaders.Add("Client-Id", _ClientId);
+			_HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _AccessToken);
+			return;
+		}
 
 		var request = new HttpRequestMessage(
 			HttpMethod.Post,
@@ -109,15 +161,6 @@ internal class TwitchProfileRepository
 		{
 			throw new Exception("Failed to get access token");
 		}
-
-	}
-
-	private async Task<string> GetProfilePicFromTwitch(string userName)
-	{
-
-		await SeedProfilePics(new[] { userName });
-
-		return _ProfilePics[userName].Item1;
 
 	}
 
