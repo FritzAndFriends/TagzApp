@@ -2,8 +2,8 @@
 
 #nullable disable
 
-namespace TagzApp.Web.Migrations
-{
+namespace TagzApp.Storage.Sqlite.Security;
+
     /// <inheritdoc />
     public partial class AddDataProtectionKeys : Migration
     {
@@ -32,4 +32,3 @@ namespace TagzApp.Web.Migrations
                 name: "DataProtectionKeys");
         }
     }
-}

@@ -1,4 +1,5 @@
 ﻿@page "/"
+@inject ApplicationConfiguration AppConfig
 
 <PageTitle>Home</PageTitle>
 
@@ -6,3 +7,11 @@
 
 Welcome to your new app.
 
+
+@code {
+
+	[CascadingParameter]
+	private HttpContext HttpContext { get; set; } = default!;
+
+
+}

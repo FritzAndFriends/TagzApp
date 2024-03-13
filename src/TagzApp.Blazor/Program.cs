@@ -1,6 +1,7 @@
 global using TagzApp.Security;
 
 using Microsoft.AspNetCore.HttpOverrides;
+using System.Security.Claims;
 using TagzApp.Blazor;
 using TagzApp.Blazor.Hubs;
 using TagzApp.Communication.Extensions;
@@ -51,7 +52,7 @@ internal class Program
 
 		var builder = WebApplication.CreateBuilder(args);
 
-		var configure = ConfigureTagzAppFactory.Create(builder.Configuration, null);
+		var configure = ConfigureTagzAppFactory.Create(builder.Configuration, builder.Services.BuildServiceProvider());
 
 		// Add OpenTelemetry for tracing and metrics.
 		builder.Services.AddOpenTelemetryObservability(builder.Configuration);
@@ -69,7 +70,7 @@ internal class Program
 
 		await builder.Services.AddTagzAppSecurity(configure, builder.Configuration);
 
-		await Console.Out.WriteLineAsync($">> TagzApp configured: {ConfigureTagzAppFactory.IsConfigured}");
+		//		await Console.Out.WriteLineAsync($">> TagzApp configured: {ConfigureTagzAppFactory.IsConfigured}");
 
 		builder.Services.AddSignalR();
 
@@ -77,15 +78,6 @@ internal class Program
 		await builder.Services.AddTagzAppProviders();
 
 		await builder.Services.AddTagzAppHostedServices(configure);
-
-		// TODO: Convert from RazorPages policies to Blazor
-		//builder.Services.AddRazorPages(options =>
-		//{
-		//	options.Conventions.AuthorizeAreaFolder("Admin", "/", Security.Policy.AdminRoleOnly);
-		//	options.Conventions.AuthorizePage("/Moderation", Security.Policy.Moderator);
-		//	options.Conventions.AuthorizePage("/BlockedUsers", Security.Policy.Moderator);
-		//});
-
 
 		// Configure the forwarded headers to allow Container hosting support
 		builder.Services.Configure<ForwardedHeadersOptions>(options =>
@@ -116,6 +108,25 @@ internal class Program
 			app.UseHsts();
 			app.UseResponseCompression();
 		}
+
+		app.Use((context, next) =>
+		{
+
+			// running in single-user mode -- the current user is an admin
+			if (appConfig.SingleUserMode)
+			{
+				context.User = new ClaimsPrincipal(
+					new ClaimsIdentity(new[] {
+						new Claim(ClaimTypes.Name, "Admin User"),
+						new Claim("DisplayName", "Admin User"),
+						new Claim(ClaimTypes.Role, RolesAndPolicies.Role.Admin)
+					}, "Basic"));
+			}
+
+			return next();
+
+		});
+
 
 		app.UseHttpsRedirection();
 

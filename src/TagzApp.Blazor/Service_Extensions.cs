@@ -77,14 +77,14 @@ public static class Service_Extensions
 			services.AddSingleton<IEmailSender<TagzAppUser>, IdentityNoOpEmailSender>();
 
 
-			services.AddAuthorization(config =>
-			{
-				config.AddPolicy(RolesAndPolicies.Policy.AdminRoleOnly, policy => { policy.RequireRole(RolesAndPolicies.Role.Admin); });
-				config.AddPolicy(RolesAndPolicies.Policy.Moderator,
-								policy => { policy.RequireAuthenticatedUser(); });
-			});
-
 		}
+
+		services.AddAuthorization(config =>
+		{
+			config.AddPolicy(RolesAndPolicies.Policy.AdminRoleOnly, policy => { policy.RequireRole(RolesAndPolicies.Role.Admin); });
+			config.AddPolicy(RolesAndPolicies.Policy.Moderator,
+							policy => { policy.RequireAuthenticatedUser(); });
+		});
 
 		return services;
 
@@ -105,8 +105,22 @@ public static class Service_Extensions
 
 			services.AddDbContext<SecurityContext>(options =>
 			{
-				options.UseSqlite(connectionSettings.SecurityConnectionString);
+				options.UseSqlite(connectionSettings.SecurityConnectionString, opt =>
+				{
+					opt.MigrationsAssembly(typeof(TagzApp.Storage.Sqlite.Security.SecurityContextModelSnapshot).Assembly.FullName);
+				});
 			});
+
+			var serviceLocator = services.BuildServiceProvider();
+			var securityContext = serviceLocator.GetRequiredService<TagzApp.Security.SecurityContext>();
+			try
+			{
+				securityContext.Database.Migrate();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error while migrating security context to Postgres: {ex}");
+			}
 
 		}
 		else

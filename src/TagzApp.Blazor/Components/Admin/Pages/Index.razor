@@ -1,6 +1,7 @@
 ﻿@page "/Admin/Index"
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize(Roles = RolesAndPolicies.Role.Admin)]
+@* @attribute [Authorize(Roles = "Admin")] *@
+@inject NavigationManager NavigationManager
 @layout Admin.Shared.AdminLayout
 
 
@@ -10,9 +11,16 @@
 
 @code {
 
+	[CascadingParameter]
+	private HttpContext HttpContext { get; set; } = default!;
+
 	protected override Task OnInitializedAsync()
 	{
-
+		var user = HttpContext.User;
+		if (!user.IsInRole("Admin"))
+		{
+			NavigationManager.NavigateTo("/");
+		}
 		return base.OnInitializedAsync();
 	}
 

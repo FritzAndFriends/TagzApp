@@ -5,10 +5,10 @@ using TagzApp.Security;
 
 #nullable disable
 
-namespace TagzApp.Web.Migrations
-{
-	[DbContext(typeof(SecurityContext))]
-    partial class SecurityContextModelSnapshot : ModelSnapshot
+namespace TagzApp.Storage.Sqlite.Security;
+
+[DbContext(typeof(SecurityContext))]
+    public partial class SecurityContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -300,4 +300,3 @@ namespace TagzApp.Web.Migrations
 #pragma warning restore 612, 618
         }
     }
-}

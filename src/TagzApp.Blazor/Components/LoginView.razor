@@ -3,19 +3,20 @@
 @using TagzApp.Blazor.Components.Account
 @inject IdentityUserAccessor UserMgr
 @inject NavigationManager NavigationManager
+@inject ApplicationConfiguration AppConfig
 @implements IDisposable
 
 <AuthorizeView Roles="@RolesAndPolicies.Role.Admin">
 <Authorized>
 		<div class="nav-item px-3">
-			<NavLink class="nav-link" href="Admin/Index">
-				<span class="bi bi-gear-fill-nav-menu" aria-hidden="true"></span> Admin
+			<NavLink class="nav-link" href="Admin/Index" title="System Configuration and Administration features">
+				<span class="bi bi-gear-fill-nav-menu" aria-hidden="true"></span> System Admin
 			</NavLink>
 		</div>
 	</Authorized>
 </AuthorizeView>
 
-
+@if (!AppConfig.SingleUserMode) {
 <AuthorizeView>
 	<Authorized>
 		<div class="nav-item px-3">
@@ -46,6 +47,7 @@
 		</div>
 	</NotAuthorized>
 </AuthorizeView>
+}
 
 @code {
 

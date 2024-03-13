@@ -5,6 +5,9 @@ namespace TagzApp.Blazor.Components.Pages;
 
 public partial class FirstStartConfiguration
 {
+
+	IConfigureTagzApp CurrentConfig = ConfigureTagzAppFactory.Current;
+
 	public async Task OnFormValidate()
 	{
 
@@ -41,6 +44,22 @@ public partial class FirstStartConfiguration
 
 	}
 
+	protected override void OnInitialized()
+	{
+		Config = new();
+		base.OnInitialized();
+	}
+
+	void PrecalculateBasicConnectionString(ChangeEventArgs args)
+	{
+
+		if (Config.Provider.Equals("sqlite", StringComparison.InvariantCultureIgnoreCase))
+		{
+			Config.ConnectionString = @"Data Source=tagzapp.db;";
+		}
+
+	}
+
 
 }
 
@@ -49,8 +68,23 @@ public class FirstStartConfig
 
 	public string ConfigurationType { get; set; } = "basic";
 
+	private string _Provider;
 	[Required]
-	public string Provider { get; set; }
+	public string Provider
+	{
+		get { return _Provider; }
+		set
+		{
+			_Provider = value;
+			if (ConfigurationType.Equals("basic", StringComparison.InvariantCultureIgnoreCase) &&
+				value.Equals("sqlite", StringComparison.InvariantCultureIgnoreCase)
+			)
+			{
+				ConnectionString = @"Data Source=tagzapp.db;";
+			}
+
+		}
+	}
 
 	[Required]
 	public string ConnectionString { get; set; }
