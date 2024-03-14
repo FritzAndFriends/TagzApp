@@ -2,7 +2,7 @@
 @using TagzApp.Blazor.Services
 @inject ToastService ToastService
 @implements IDisposable
-<div class="toast @_DisplayCssClass" role="alert" aria-live="assertive" aria-atomic="true">
+<div class="toast fade @_DisplayCssClass" role="alert" aria-live="assertive" aria-atomic="true">
   <div class="toast-header">
     <i class="bi @Message.Severity.ToHeaderIconCss() @Message.Severity.ToTextColorCss() px-2"/>
     <strong class="me-auto">@Message.Severity.ToHeaderText()</strong>
@@ -25,21 +25,12 @@
     protected override void OnInitialized()
     {
       base.OnInitialized();
-      _Timer = new(Message.Duration); // 5 seconds
-      _Timer.Elapsed += (_, _) => Transition();
+      _Timer = new(Message.Duration);
+      _Timer.Elapsed += (_, _) => Destroy();
       _Timer.AutoReset = false;
       _Timer.Enabled = true;
     }
 
-    private void Transition()
-    {
-      _DisplayCssClass = "hide";
-      _DestroyTimer = new(1000);
-      _DestroyTimer.AutoReset = false;
-      _DestroyTimer.Elapsed += (_,_) => Destroy();
-      _DestroyTimer.Enabled = true;
-    }
-    
     private void Destroy()
     {
       ToastService.Remove(Message);

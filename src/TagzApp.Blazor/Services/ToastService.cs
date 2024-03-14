@@ -1,4 +1,5 @@
-﻿using TagzApp.Blazor.Bootstrap;
+﻿using Microsoft.AspNetCore.Components;
+using TagzApp.Blazor.Bootstrap;
 
 namespace TagzApp.Blazor.Services;
 
@@ -11,6 +12,14 @@ public class ToastService
 	private List<ToastMessage> _Messages = new();
 	public IReadOnlyList<ToastMessage> Messages => _Messages.AsReadOnly();
 
+	private readonly NavigationManager _navManager;
+
+	public ToastService(NavigationManager navManager)
+	{
+		_navManager = navManager;
+		_navManager.LocationChanged += (_, _) => Clear();
+	}
+
 	public void Add(string message, MessageSeverity severity = MessageSeverity.Normal)
 	{
 		_Messages.Add(new(message, severity));
@@ -20,6 +29,12 @@ public class ToastService
 	public void Remove(ToastMessage message)
 	{
 		_Messages.Remove(message);
+		OnUpdate?.Invoke();
+	}
+
+	private void Clear()
+	{
+		_Messages.Clear();
 		OnUpdate?.Invoke();
 	}
 }

@@ -63,7 +63,7 @@
 	async Task SaveChanges()
 	{
 		await ApplicationConfiguration.SaveConfiguration(ConfigureTagzAppFactory.Current);
-		ToastService.Add("Something", MessageSeverity.Info);
+		ToastService.Add("Configuration Saved", MessageSeverity.Success);
 	}
 
 }
