@@ -25,7 +25,7 @@ public class ChatUrlManagement
 		{
 
 			// Remove old redirects
-			if (_Redirects[key].Item2 < DateTime.Now)
+			if (_Redirects.ContainsKey(key) && _Redirects[key].Item2 < DateTime.Now)
 			{
 				try
 				{

@@ -36,7 +36,7 @@
 						<span class="alert-danger" style="margin-left: 2em;">Unable to connect to Twitch</span>
 					}
 					else {
-						<a href="@LoginUrl" target="_blank">Click to change Twitch accounts</a>
+						<a href="@LoginUrl" target="_blank" style="margin-left: 2em;">Click to change Twitch accounts</a>
 					}
 				}
 			</dd>
@@ -90,7 +90,7 @@
 		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
 
 		Model = new ViewModel
-			{
+		{
 				ChatBotName = providerConfiguration.GetConfigurationByKey("ChatBotName"),
 				OAuthToken = providerConfiguration.GetConfigurationByKey("OAuthToken"),
 				ChannelName = providerConfiguration.GetConfigurationByKey("ChannelName"),
