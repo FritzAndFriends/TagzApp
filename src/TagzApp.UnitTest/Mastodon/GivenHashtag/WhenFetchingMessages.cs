@@ -1,6 +1,7 @@
 ﻿// Ignore Spelling: Sut
 
 using Microsoft.Extensions.Logging.Abstractions;
+using System.Diagnostics.Metrics;
 using TagzApp.Providers.Mastodon;
 using TagzApp.Providers.Mastodon.Configuration;
 using IHttpClientFactory = System.Net.Http.IHttpClientFactory;
@@ -16,6 +17,7 @@ public class WhenFetchingMessages
 
 	private MastodonProvider _Sut;
 	private IHttpClientFactory _HttpClientFactory;
+	private MastodonInstrumentation _Instrumentation;
 
 	public WhenFetchingMessages()
 	{
@@ -25,8 +27,9 @@ public class WhenFetchingMessages
 		};
 
 		_HttpClientFactory = new StubHttpClientFactory(client);
+		_Instrumentation = new MastodonInstrumentation(new StubMeterFactory());
 
-		_Sut = new MastodonProvider(_HttpClientFactory, NullLogger<MastodonProvider>.Instance, new MastodonConfiguration());
+		_Sut = new MastodonProvider(_HttpClientFactory, NullLogger<MastodonProvider>.Instance, new MastodonConfiguration(), _Instrumentation);
 	}
 
 	[Fact]
@@ -62,6 +65,18 @@ public class WhenFetchingMessages
 		public HttpClient CreateClient(string name)
 		{
 			return _Client;
+		}
+	}
+
+	internal class StubMeterFactory : IMeterFactory
+	{
+		public Meter Create(MeterOptions options)
+		{
+			return new Meter(options);
+		}
+
+		public void Dispose()
+		{
 		}
 	}
 }
