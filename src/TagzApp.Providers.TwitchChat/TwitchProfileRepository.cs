@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Concurrent;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 
 namespace TagzApp.Providers.TwitchChat;
@@ -64,7 +59,7 @@ internal class TwitchProfileRepository
 			if (response.IsSuccessStatusCode)
 			{
 				var content = await response.Content.ReadAsStringAsync();
-				var users = JsonSerializer.Deserialize<Dictionary<string,string>>(content);
+				var users = JsonSerializer.Deserialize<Dictionary<string, string>>(content);
 
 				foreach (var user in users)
 				{
