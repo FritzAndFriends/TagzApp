@@ -6,7 +6,7 @@ using TagzApp.Security;
 
 #nullable disable
 
-namespace TagzApp.Web.Migrations
+namespace TagzApp.Storage.Sqlite.Security
 {
 	[DbContext(typeof(SecurityContext))]
     [Migration("20231207173854_Add Data Protection Keys")]

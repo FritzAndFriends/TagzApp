@@ -1,14 +1,27 @@
 ﻿@page "/FirstStartConfiguration"
 @using Microsoft.AspNetCore.Components.Sections
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(false))
 
 <PageTitle>First Start Configuration</PageTitle>
 
 <h1>First Start Configuration</h1>
 
+@if (CurrentConfig != null && CurrentConfig is EmptyConfigureTagzApp)
+{
+	var config = CurrentConfig as EmptyConfigureTagzApp;
+	if (!string.IsNullOrEmpty(config.Message))
+	{
+		<div class="alert alert-danger" role="alert">
+			@config.Message
+		</div>
+	}
+}
 
 @* Add a form to allow selection of a provider and setting a connection string *@
-<form @onsubmit="@OnFormValidate">
+<EditForm FormName="SiteConfig" Model="Config" OnValidSubmit="OnFormValidate">
+
+	<DataAnnotationsValidator />
+	<ValidationSummary />
 
 	<p>
 		Let's get some initial configuration for TagzApp to work properly. Would you like a basic configuration with all
@@ -19,21 +32,13 @@
 	<div class="form-group">
 
 		<InputRadioGroup @bind-Value="Config.ConfigurationType">
-				<div>
-					<InputRadio class="form-check-input" Value="@("basic")"   /> Basic
+			<div>
+				<InputRadio class="form-check-input" Value="@("basic")" /> Basic
 				<InputRadio class="form-check-input" Value="@("advanced")" @onclick="@(() => Console.WriteLine("Hello from advanced mode!"))" /> Advanced
 			</div>
 		</InputRadioGroup>
-@* 		<label for="provider" class="me-3">Configuration Type:</label>
-		<input class="form-check-input" type="radio" id="configurationType_basic" name="configurationType" value="Basic" checked="checked">
-		<label class="form-check-label" for="configurationType_basic">
-			Basic
-		</label>
-		<input class="form-check-input" type="radio" id="configurationType_advanced" name="configurationType" value="Advanced">
-		<label class="form-check-label" for="configurationType_advanced">
-			Advanced
-		</label>
- *@	</div>
+
+	</div>
 
 	<p>
 		We'll start with
@@ -42,17 +47,18 @@
 	</p>
 
 	<div class="form-group config-basic">
-		<label for="provider">Provider</label>
-		<select class="form-control" id="provider" @bind="Config.Provider">
+		<label for="provider">Basic Provider</label>
+		<InputSelect class="form-control" id="provider" @bind-Value="Config.Provider" 
+			@onchange="PrecalculateBasicConnectionString">
 			<option value="">- SELECT -</option>
 			<option value="Postgres">Postgres</option>
-			<option value="Sqlite">Sqlite</option>
-			<option value="InMemory">InMemory</option>
-		</select>
+			<option value="Sqlite">Sqlite - Good for a personal install</option>
+			<option value="InMemory">InMemory - Good for Testing</option>
+		</InputSelect>
 	</div>
 	<div class="form-group config-basic">
 		<label for="connectionString">Connection String</label>
-		<input type="text" class="form-control" id="connectionString" @bind="Config.ConnectionString" />
+		<InputText class="form-control" id="connectionString" @bind-Value="Config.ConnectionString" />
 		@* Add a validation message *@
 		<span asp-validation-for="ConnectionString" class="text-danger"></span>
 	</div>
@@ -67,16 +73,16 @@
 		@* Add fields to select a provider and connectionstring *@
 		<div class="form-group config-advanced">
 			<label for="contentProvider">Content Database Provider</label>
-			<select class="form-control" id="contentProvider" @bind="Config.ContentProvider" >
+			<InputSelect class="form-control" id="contentProvider" @bind-Value="Config.ContentProvider">
 				<option value="">- SELECT -</option>
 				<option value="Postgres">Postgres</option>
 				<option value="Sqlite">Sqlite</option>
-				<option value="InMemory">InMemory</option>
-			</select>
+				<option value="InMemory">InMemory - Good for testing</option>
+			</InputSelect>
 		</div>
 		<div class="form-group config-advanced">
 			<label for="connectionString">Content Connection String</label>
-			<InputText class="form-control" id="connectionString" Value="Config.ContentConnectionString" />
+			<InputText class="form-control" id="connectionString" @bind-Value="Config.ContentConnectionString" />
 
 			<ValidationMessage For="@(() => Config.ContentConnectionString)" class="text-danger"></ValidationMessage>
 
@@ -88,19 +94,16 @@
 		</p>
 		<div class="form-group config-advanced">
 			<label for="contentProvider">Security Database Provider</label>
-			<select class="form-control" id="securityProvider" @bind="Config.SecurityProvider">
+			<InputSelect class="form-control" id="securityProvider" @bind-Value="Config.SecurityProvider">
 				<option value="">- SELECT -</option>
 				<option value="Postgres">Postgres</option>
 				<option value="Sqlite">Sqlite</option>
-			</select>
+			</InputSelect>
 
 		</div>
 		<div class="form-group config-advanced">
 			<label for="connectionString">Security Connection String</label>
-			<input type="text" class="form-control" id="securityConnectionString" @bind="Config.SecurityConnectionString" />
-
-			@* Add a validation message *@
-			<span asp-validation-for="SecurityConnectionString" class="text-danger"></span>
+			<InputText class="form-control" id="securityConnectionString" @bind-Value="Config.SecurityConnectionString" />
 
 		</div>
 
@@ -110,4 +113,4 @@
 		<button type="submit" class="btn btn-primary form-control">Submit</button>
 	</div>
 
-</form>
+</EditForm>

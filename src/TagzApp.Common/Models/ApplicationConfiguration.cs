@@ -11,6 +11,7 @@ public class ApplicationConfiguration
 	private string _WaterfallHeaderMarkdown = "# Welcome to TagzApp";
 	private string _WaterfallHeaderCss = string.Empty;
 	private bool _ModerationEnabled = false;
+	private bool _SingleUserMode = true;
 
 	private string _YouTubeChatConfig = "{}";
 
@@ -21,6 +22,15 @@ public class ApplicationConfiguration
 		{
 			if (_ModerationEnabled == value) return;
 			_ModerationEnabled = value;
+		}
+	}
+
+	public bool SingleUserMode
+	{
+		get => _SingleUserMode;
+		set
+		{
+			if (_SingleUserMode) _SingleUserMode = value;
 		}
 	}
 

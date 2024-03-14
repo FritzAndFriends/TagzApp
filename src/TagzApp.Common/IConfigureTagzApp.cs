@@ -19,7 +19,9 @@ public interface IConfigureTagzApp
 public class EmptyConfigureTagzApp : IConfigureTagzApp
 {
 
-	public static IConfigureTagzApp Instance = new EmptyConfigureTagzApp();
+	public static EmptyConfigureTagzApp Instance = new();
+
+	public string Message { get; set; } = "";
 
 	public Task<T> GetConfigurationById<T>(string id) where T : new()
 	{

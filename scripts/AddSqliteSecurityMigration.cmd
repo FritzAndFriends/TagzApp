@@ -1,0 +1,1 @@
+dotnet ef migrations add --context TagzApp.Security.SecurityContext -p ..\src\TagzApp.Storage.Sqlite.Security\ -s ..\src\TagzApp.Web %1

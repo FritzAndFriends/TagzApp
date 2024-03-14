@@ -64,7 +64,7 @@
 		if (Content.Content.PreviewCard.ImageUri.ToString().EndsWith(".mp4"))
 		{
 			<div class="contentcard">
-				<video muted="muted" controls="controls" autoplay src="@Content.Content.PreviewCard.ImageUri" class="card-img-top" alt="@Content.Content.PreviewCard.AltText"></video>
+				<video id="video_@Content.ProviderId" muted controls="controls" autoplay src="@Content.Content.PreviewCard.ImageUri" class="card-img-top" alt="@Content.Content.PreviewCard.AltText"></video>
 			</div>
 		}
 		else
@@ -116,8 +116,14 @@
 
 	private bool ShowModerationActions = false;
 
-	protected override Task OnAfterRenderAsync(bool firstRender)
+	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
+
+
+		if (Content.Content.HasVideoPreview)
+		{
+			await JSRuntime.InvokeVoidAsync("window.WaterfallUi.MuteVideo", $"video_{Content.ProviderId}");
+		}
 
 		if (firstRender)
 		{
@@ -129,7 +135,7 @@
 
 		}
 
-		return base.OnAfterRenderAsync(firstRender);
+		await base.OnAfterRenderAsync(firstRender);
 	}
 
 	private const string CSS_APPROVED = "status-approved";
