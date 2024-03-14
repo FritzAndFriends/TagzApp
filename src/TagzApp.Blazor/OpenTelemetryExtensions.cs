@@ -10,7 +10,7 @@ namespace TagzApp.Blazor;
 public static class OpenTelemetryExtensions
 {
 	private static readonly Action<ResourceBuilder> _ConfigureResource = r => r.AddService(
-		serviceName: "tags-app-blazor",
+		serviceName: "tagz-app-blazor",
 		serviceVersion: typeof(Program).Assembly.GetName().Version?.ToString() ?? "unknown",
 		serviceInstanceId: Environment.MachineName);
 
