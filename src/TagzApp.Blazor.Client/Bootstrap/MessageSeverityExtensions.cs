@@ -8,7 +8,7 @@ public static class MessageSeverityExtensions
 		{
 			MessageSeverity.Info => "bg-info",
 			MessageSeverity.Success => "bg-success",
-			MessageSeverity.Warning => "bg-error",
+			MessageSeverity.Warning => "bg-warning",
 			MessageSeverity.Danger => "bg-danger",
 			_ => string.Empty
 		};
