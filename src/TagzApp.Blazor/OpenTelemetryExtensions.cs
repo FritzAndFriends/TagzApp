@@ -41,7 +41,7 @@ public static class OpenTelemetryExtensions
 
 				builder
 					.SetResourceBuilder(resourceBuilder)
-				  .AddMeter("mastodon-metrics")
+					.AddMeter("mastodon-metrics")
 					.AddProcessInstrumentation()
 					.AddRuntimeInstrumentation()
 					.AddHttpClientInstrumentation()
