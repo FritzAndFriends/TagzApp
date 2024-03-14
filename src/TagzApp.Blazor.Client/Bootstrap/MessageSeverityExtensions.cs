@@ -13,16 +13,6 @@ public static class MessageSeverityExtensions
 			_ => string.Empty
 		};
 
-	public static string ToIconColor(this MessageSeverity severity)
-		=> severity switch
-		{
-			MessageSeverity.Info => "text-info",
-			MessageSeverity.Success => "text-success",
-			MessageSeverity.Warning => "text-warning",
-			MessageSeverity.Danger => "text-danger",
-			_ => string.Empty
-		};
-
 	public static string ToTextColorCss(this MessageSeverity severity)
 		=> severity switch
 		{
