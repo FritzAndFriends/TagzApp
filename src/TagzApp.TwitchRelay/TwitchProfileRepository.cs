@@ -26,14 +26,18 @@ public class TwitchProfileRepository
 
 	}
 
+	private string FormatCacheKey(string userName) => $"TwitchProfile:{userName.ToLowerInvariant()}";
+
+	private string GetUserNameFromCacheKey(string cacheKey) => cacheKey.Split(':')[1];
+
 	public async Task<string> GetProfilePic(string userName)
 	{
 
-		var profile = await _Cache.StringGetAsync(userName);
+		var profile = await _Cache.StringGetAsync(FormatCacheKey(userName));
 		if (profile.IsNull)
 		{
 			await SeedProfilePics(new[] { userName });
-			profile = await _Cache.StringGetAsync(userName);
+			profile = await _Cache.StringGetAsync(FormatCacheKey(userName));
 		}
 
 		if (string.IsNullOrEmpty(profile)) return string.Empty;
@@ -49,7 +53,7 @@ public class TwitchProfileRepository
 
 		var outList = new ConcurrentDictionary<string, string>();
 
-		var names = userNames.Select(u => u.ToLowerInvariant()).Distinct().Select(u => new RedisKey(u)).ToArray();
+		var names = userNames.Select(u => FormatCacheKey(u)).Distinct().Select(u => new RedisKey(u)).ToArray();
 
 		var profiles = await _Cache.StringGetAsync(names);
 		await Parallel.ForEachAsync(profiles, async (profile, token) =>
@@ -63,13 +67,13 @@ public class TwitchProfileRepository
 
 		});
 
-		var usersToFetch = userNames.Except(outList.Keys).ToList();
+		var usersToFetch = userNames.Except(outList.Keys.Select(k => GetUserNameFromCacheKey(k))).ToList();
 		if (usersToFetch.Any())
 		{
 
 			await SeedProfilePics(usersToFetch);
 
-			names = usersToFetch.Select(u => u.ToLowerInvariant()).Distinct().Select(u => new RedisKey(u)).ToArray();
+			names = usersToFetch.Select(u => FormatCacheKey(u)).Distinct().Select(u => new RedisKey(u)).ToArray();
 			profiles = await _Cache.StringGetAsync(names);
 			await Parallel.ForEachAsync(profiles, async (profile, token) =>
 			{
@@ -112,7 +116,7 @@ public class TwitchProfileRepository
 
 				foreach (var user in users.data)
 				{
-					await _Cache.StringSetAsync(user.login, JsonSerializer.Serialize(user), TimeSpan.FromMinutes(30));
+					await _Cache.StringSetAsync(FormatCacheKey(user.login), JsonSerializer.Serialize(user), TimeSpan.FromMinutes(30));
 				}
 			}
 			else
