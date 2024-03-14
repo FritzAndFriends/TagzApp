@@ -1,5 +1,7 @@
 ﻿@using System.ComponentModel.DataAnnotations
 @using System.Text.Json
+@inject ToastService ToastService
+
 <UiProviderConfig ProviderName="Twitter" Health="@Health" ProviderIconCssClass="bi-twitter-x">
 
 	<EditForm Model="Model" OnValidSubmit="SaveConfig">
@@ -85,12 +87,11 @@
 		providerConfiguration.SetConfigurationByKey("Enabled", Model.Enabled.ToString());
 
 		await Provider.SaveConfiguration(ConfigureTagzAppFactory.Current, providerConfiguration);
-
+		ToastService.Add($"Saved {providerConfiguration.Name} Configuration", MessageSeverity.Success);
 	}
 
 	public class ViewModel
 	{
-
 		// add properties for each of the fields you want to edit
 
 		[Required]
@@ -104,9 +105,5 @@
 		public bool	UseHttp2 { get; set; }
 
 		public bool Enabled { get; set; }
-
-
 	}
-
-
 }

@@ -1,5 +1,5 @@
-﻿@using TagzApp.Blazor.Services
-@inject ToastService ToastService
+﻿@inject ToastService ToastService
+@using TagzApp.Blazor.Client.Services
 @implements IDisposable
 @rendermode InteractiveAuto
 
@@ -21,7 +21,6 @@
 
     private void Update()
     {
-        Console.WriteLine($"Updated Toast Count: {ToastService.Messages.Count}");
         InvokeAsync(StateHasChanged);
     }
     

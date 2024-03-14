@@ -1,4 +1,4 @@
-﻿namespace TagzApp.Blazor.Bootstrap;
+﻿namespace TagzApp.Blazor.Client.Bootstrap;
 
 public enum MessageSeverity
 {

@@ -1,4 +1,4 @@
-﻿namespace TagzApp.Blazor.Bootstrap;
+﻿namespace TagzApp.Blazor.Client.Bootstrap;
 
 public static class MessageSeverityExtensions
 {
@@ -10,6 +10,16 @@ public static class MessageSeverityExtensions
 			MessageSeverity.Success => "bg-success",
 			MessageSeverity.Warning => "bg-error",
 			MessageSeverity.Danger => "bg-danger",
+			_ => string.Empty
+		};
+
+	public static string ToIconColor(this MessageSeverity severity)
+		=> severity switch
+		{
+			MessageSeverity.Info => "text-info",
+			MessageSeverity.Success => "text-success",
+			MessageSeverity.Warning => "text-warning",
+			MessageSeverity.Danger => "text-danger",
 			_ => string.Empty
 		};
 

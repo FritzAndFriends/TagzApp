@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
-using TagzApp.Blazor.Bootstrap;
+using TagzApp.Blazor.Client.Bootstrap;
 
-namespace TagzApp.Blazor.Services;
+namespace TagzApp.Blazor.Client.Services;
 
 public record ToastMessage(string Message, MessageSeverity Severity = MessageSeverity.Normal, int Duration=5000);
 

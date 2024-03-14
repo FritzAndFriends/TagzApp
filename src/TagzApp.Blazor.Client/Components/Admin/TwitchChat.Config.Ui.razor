@@ -1,4 +1,6 @@
 ﻿@using System.ComponentModel.DataAnnotations
+@inject ToastService ToastService
+
 <UiProviderConfig ProviderName="TwitchChat" Health="@Health" ProviderIconCssClass="bi-twitch">
 
 	<EditForm Model="Model" OnValidSubmit="SaveConfig">
@@ -86,12 +88,11 @@
 		providerConfiguration.SetConfigurationByKey("Enabled", Model.Enabled.ToString());
 
 		await Provider.SaveConfiguration(ConfigureTagzAppFactory.Current, providerConfiguration);
-
+		ToastService.Add($"Saved {providerConfiguration.Name} Configuration", MessageSeverity.Success);
 	}
 
 	public class ViewModel
 	{
-
 		// add properties for each of the fields you want to edit
 
 		[Required]
@@ -110,8 +111,6 @@
 		public string ChannelName { get; set; } = "csharpfritz";
 
 		public bool Enabled { get; set; }
-
-
 	}
 
 }
