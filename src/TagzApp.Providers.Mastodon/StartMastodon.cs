@@ -14,6 +14,7 @@ public class StartMastodon : IConfigureProvider
 
 		_MastodonConfiguration = await ConfigureTagzAppFactory.Current.GetConfigurationById<MastodonConfiguration>(MastodonConfiguration.AppSettingsSection);
 
+		services.AddSingleton<MastodonInstrumentation>();
 		services.AddSingleton(_MastodonConfiguration ?? new());
 		services.AddHttpClient<ISocialMediaProvider, MastodonProvider, MastodonConfiguration>(_MastodonConfiguration ?? new MastodonConfiguration());
 		services.AddTransient<ISocialMediaProvider, MastodonProvider>();

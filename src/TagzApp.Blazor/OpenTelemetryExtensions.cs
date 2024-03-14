@@ -20,7 +20,12 @@ public static class OpenTelemetryExtensions
 			.ConfigureResource(_ConfigureResource)
 			.WithTracing(builder =>
 			{
-				builder.AddSource()
+				var resourceBuilder = ResourceBuilder.CreateDefault();
+				_ConfigureResource(resourceBuilder);
+
+				builder
+					.SetResourceBuilder(resourceBuilder)
+					.AddSource()
 					.SetSampler(new AlwaysOnSampler())
 					.AddHttpClientInstrumentation()
 					.AddAspNetCoreInstrumentation();
@@ -31,8 +36,13 @@ public static class OpenTelemetryExtensions
 			})
 			.WithMetrics(builder =>
 			{
+				var resourceBuilder = ResourceBuilder.CreateDefault();
+				_ConfigureResource(resourceBuilder);
+
 				builder
-					//.AddMeter() //TODO: Maybe set one up to demonstrate functionality
+					.SetResourceBuilder(resourceBuilder)
+				  .AddMeter("mastodon-metrics")
+					.AddProcessInstrumentation()
 					.AddRuntimeInstrumentation()
 					.AddHttpClientInstrumentation()
 					.AddAspNetCoreInstrumentation();
