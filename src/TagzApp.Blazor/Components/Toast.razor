@@ -1,0 +1,54 @@
+﻿@namespace TagzApp.Blazor.Components
+@using TagzApp.Blazor.Services
+@inject ToastService ToastService
+@implements IDisposable
+<div class="toast @_DisplayCssClass" role="alert" aria-live="assertive" aria-atomic="true">
+  <div class="toast-header">
+    <i class="bi @Message.Severity.ToHeaderIconCss() @Message.Severity.ToTextColorCss() px-2"/>
+    <strong class="me-auto">@Message.Severity.ToHeaderText()</strong>
+    @* <small class="text-muted">just now</small> *@
+    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"
+            @onclick="@(() => ToastService.Remove(Message))"></button>
+  </div>
+  <div class="toast-body @Message.Severity.ToBackgroundColorCss()">
+    @Message.Message
+  </div>
+</div>
+
+@code {
+    [Parameter] public ToastMessage Message { get; set; }
+
+    private System.Timers.Timer _Timer;
+    private System.Timers.Timer _DestroyTimer;
+    private string _DisplayCssClass = "show";
+
+    protected override void OnInitialized()
+    {
+      base.OnInitialized();
+      _Timer = new(Message.Duration); // 5 seconds
+      _Timer.Elapsed += (_, _) => Transition();
+      _Timer.AutoReset = false;
+      _Timer.Enabled = true;
+    }
+
+    private void Transition()
+    {
+      _DisplayCssClass = "hide";
+      _DestroyTimer = new(1000);
+      _DestroyTimer.AutoReset = false;
+      _DestroyTimer.Elapsed += (_,_) => Destroy();
+      _DestroyTimer.Enabled = true;
+    }
+    
+    private void Destroy()
+    {
+      ToastService.Remove(Message);
+    }
+    
+    public void Dispose()
+    {
+      _Timer?.Dispose();
+      _DestroyTimer?.Dispose();
+    }
+
+}

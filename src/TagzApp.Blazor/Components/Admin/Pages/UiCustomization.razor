@@ -1,9 +1,11 @@
 ﻿@page "/admin/uicustomization"
 @using PSC.Blazor.Components.MarkdownEditor
 @using PSC.Blazor.Components.MarkdownEditor.Enums
+@using TagzApp.Blazor.Services
 @layout AdminLayout
 @inject ApplicationConfiguration ApplicationConfiguration
 @inject IJSRuntime JSRuntime
+@inject ToastService ToastService
 @rendermode InteractiveServer
 
 
@@ -60,9 +62,8 @@
 
 	async Task SaveChanges()
 	{
-
 		await ApplicationConfiguration.SaveConfiguration(ConfigureTagzAppFactory.Current);
-
+		ToastService.Add("Something", MessageSeverity.Info);
 	}
 
 }
