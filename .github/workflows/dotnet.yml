@@ -41,9 +41,9 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
-        run: dotnet build --no-restore
+        run: dotnet build TagzApp.Blazor --no-restore
       - name: Unit Test
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test --verbosity normal
         working-directory: ./src/TagzApp.UnitTest
 
   #playwright:
