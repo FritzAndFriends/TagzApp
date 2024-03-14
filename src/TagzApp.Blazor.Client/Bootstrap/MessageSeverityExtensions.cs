@@ -30,7 +30,7 @@ public static class MessageSeverityExtensions
 			MessageSeverity.Success => "Success",
 			MessageSeverity.Danger => "Error",
 			MessageSeverity.Warning => "Warning",
-			_ => string.Empty
+			_ => "Message"
 		};
 
 	public static string ToHeaderIconCss(this MessageSeverity severity)
@@ -39,6 +39,7 @@ public static class MessageSeverityExtensions
 			MessageSeverity.Warning => "bi-exclamation-circle-fill",
 			MessageSeverity.Danger => "bi-x-circle-fill",
 			MessageSeverity.Success => "bi-check-circle-fill",
+			MessageSeverity.Normal => "bi-envelope",
 			_ => "bi-info-circle-fill",
 		};
 }

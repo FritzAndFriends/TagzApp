@@ -10,7 +10,7 @@
     <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"
             @onclick="@(() => ToastService.Remove(Message))"></button>
   </div>
-  <div class="toast-body @Message.Severity.ToBackgroundColorCss() text-black-50 fw-bold">
+  <div class="toast-body @Message.Severity.ToBackgroundColorCss() @BodyTextCss fw-bold">
     @Message.Message
   </div>
 </div>
@@ -21,7 +21,11 @@
     private System.Timers.Timer _Timer;
     private System.Timers.Timer _DestroyTimer;
     private string _DisplayCssClass = "show";
-
+    
+    private string BodyTextCss => Message.Severity == MessageSeverity.Normal
+      ? "text-white-50"
+      : "text-black-50";
+    
     protected override void OnInitialized()
     {
       base.OnInitialized();
