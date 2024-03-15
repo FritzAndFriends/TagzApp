@@ -1,6 +1,7 @@
 ﻿@using System.ComponentModel.DataAnnotations
 @inject HttpClient Http
 @inject NavigationManager NavMgr
+@inject IConfiguration Config
 
 <UiProviderConfig ProviderName="TwitchChat" Health="@Health" ProviderIconCssClass="bi-twitch">
 
@@ -71,9 +72,13 @@
 	protected override async Task OnInitializedAsync()
 	{
 
+		// Twitch Relay URI
+		var twitchRelayUri = new Uri(new Uri(Config["TwitchRelayUri"]), "/api/GetLoginUrl");
+
 		try
 		{
-			var result = await Http.GetAsync($"http://localhost:7082/api/GetLoginUrl?returnto={NavMgr.Uri}");
+			var returnToUri = new Uri(new Uri(NavMgr.BaseUri), "/Admin/TwitchRelay");
+			var result = await Http.GetAsync($"{twitchRelayUri}?returnto={returnToUri}");
 			LoginUrl = await result.Content.ReadAsStringAsync();
 		} catch
 		{

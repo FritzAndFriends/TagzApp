@@ -1,0 +1,52 @@
+@page "/Admin/TwitchRelay"
+@inject IMessagingService messagingService
+
+@if (TwitchProvider is null) {
+	<div class="alert alert-danger" role="alert">Unable to connect to the Twitch Chat provider</div>
+}
+else 
+{
+	<div class="alert alert-primary" role="alert">
+ 		Connecting TwitchChat with bot name @User
+	</div>
+}
+
+@code {
+
+[Parameter, SupplyParameterFromQuery(Name="access_token")]
+public string Access_Token { get; set; }
+
+[Parameter, SupplyParameterFromQuery(Name="user")]
+public string User { get; set; }
+
+private ISocialMediaProvider TwitchProvider { get; set; }
+
+private IProviderConfiguration Configuration { get; set; }
+
+protected override async Task OnInitializedAsync()
+{
+	
+	// Get the Twitch provider and then its configuration
+	TwitchProvider = messagingService.Providers.FirstOrDefault(p => p.Id == "TWITCH");
+  if (TwitchProvider is null) return;	
+
+	Configuration = await TwitchProvider.GetConfiguration(ConfigureTagzAppFactory.Current);
+
+	await base.OnInitializedAsync();
+}
+
+protected override async Task OnParametersSetAsync()
+{
+
+	if (TwitchProvider is null) return;
+
+	// Update the Twitch configuration with the AccessToken and chat bot name returned
+	Configuration.SetConfigurationByKey("ChatBotName", User);
+	Configuration.SetConfigurationByKey("OAuthToken", Access_Token);
+	
+	await TwitchProvider.SaveConfiguration(ConfigureTagzAppFactory.Current, Configuration);
+
+}
+
+
+}
