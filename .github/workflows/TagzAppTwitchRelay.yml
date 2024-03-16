@@ -3,6 +3,8 @@ on:
   push:
     branches: [main]
     paths: ["src/TagzApp.TwitchRelay/**"]
+  workflow_dispatch:
+
 env:
   AZURE_FUNCTIONAPP_NAME: TagzAppTwitchRelay
   AZURE_FUNCTIONAPP_PACKAGE_PATH: TagzApp.TwitchRelay/published
