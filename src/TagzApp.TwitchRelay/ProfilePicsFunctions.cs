@@ -24,7 +24,7 @@ public class ProfilePicsFunctions
 
 		var response = req.CreateResponse(HttpStatusCode.OK);
 
-		var names = userNames.Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+		var names = userNames.ToLowerInvariant().Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
 		var users = await _Repository.GetProfilePics(names);
 		await response.WriteAsJsonAsync(users);

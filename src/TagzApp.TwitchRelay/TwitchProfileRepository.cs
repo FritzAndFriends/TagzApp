@@ -67,7 +67,7 @@ public class TwitchProfileRepository
 
 		});
 
-		var usersToFetch = userNames.Except(outList.Keys.Select(k => GetUserNameFromCacheKey(k))).ToList();
+		var usersToFetch = userNames.Except(outList.Keys).ToList();
 		if (usersToFetch.Any())
 		{
 
