@@ -1,5 +1,5 @@
 ﻿@page "/admin/modalcustomization"
-
+@attribute [Authorize(Policy=RolesAndPolicies.Policy.AdminRoleOnly)]
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Authorization
 @using System.Drawing
@@ -111,14 +111,16 @@
 	[CascadingParameter]
 	private HttpContext HttpContext { get; set; } = default!;
 
-	protected override Task OnInitializedAsync()
+	protected override Task OnParametersSetAsync()
 	{
+/*
 		var user = HttpContext.User;
 		if (!user.IsInRole("Admin"))
 		{
 			NavigationManager.NavigateTo("/");
 		}
-		return base.OnInitializedAsync();
+*/
+		return base.OnParametersSetAsync();
 	}
 
 	async Task SaveChanges()

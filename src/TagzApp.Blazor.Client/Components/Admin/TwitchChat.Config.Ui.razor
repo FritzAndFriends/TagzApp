@@ -1,31 +1,47 @@
 ﻿@using System.ComponentModel.DataAnnotations
+@inject HttpClient Http
+@inject NavigationManager NavMgr
+@inject IConfiguration Config
+
 <UiProviderConfig ProviderName="TwitchChat" Health="@Health" ProviderIconCssClass="bi-twitch">
 
 	<EditForm Model="Model" OnValidSubmit="SaveConfig">
 		<AntiforgeryToken />
 		<ValidationSummary />
+
+		<div class="alert-primary" style="padding: 4px;">
+			<p>To configure the Twitch chat provider you will connect to a custom relay server managed by the TagzApp team. 
+			You will log into Twitch and your TagzApp installation will be updated with the appropriate configuration for
+				your login to access Twitch.
+			</p>
+			<p>None of your personal data or credentials are stored on the relay server.</p>
+		</div>
+
 		<dl>
-			<dt><label for="ClientId">Client Id:</label></dt>
-			<dd>
-				<InputText name="ClientId" @bind-Value="Model.ClientId" placeholder="Twitch Client Id" />
-				<ValidationMessage For="() => Model.ClientId" class="text-danger" />
-			</dd>
-			<dt><label for="ClientSecret">Client Secret:</label></dt>
-			<dd>
-				<InputText type="password" name="ClientSecret" @bind-Value="Model.ClientSecret" placeholder="Twitch Client Secret" />
-				<ValidationMessage For="() => Model.ClientSecret" class="text-danger" />
-			</dd>
 			<dt><label for="ChatBotName">Chat Bot Name:</label></dt>
 			<dd>
-				<InputText name="ChatBotName" @bind-Value="Model.ChatBotName" placeholder="Twitch Chat Bot Name" />
-				<ValidationMessage For="() => Model.ChatBotName" class="text-danger" />
+				@if (string.IsNullOrEmpty(Model.ChatBotName) && !string.IsNullOrEmpty(LoginUrl))
+				{
+					<span>Not connected to Twitch</span> <a href="@LoginUrl" target="_blank">Click to login to Twitch</a>
+				}
+				else if (string.IsNullOrEmpty(Model.ChatBotName) && string.IsNullOrEmpty(LoginUrl))
+				{
+					<span class="alert-danger">Unable to connect to Twitch</span>
+				}
+				else
+				{
+					<span>@Model.ChatBotName (Connected)</span> 
+					
+					@if (string.IsNullOrEmpty(LoginUrl))
+					{
+						<span class="alert-danger" style="margin-left: 2em;">Unable to connect to Twitch</span>
+					}
+					else {
+						<a href="@LoginUrl" target="_blank" style="margin-left: 2em;">Click to change Twitch accounts</a>
+					}
+				}
 			</dd>
-			<dt><label for="OAuthToken">OAuth Token:</label></dt>
-			<dd>
-				<InputText type="password" name="OAuthToken" @bind-Value="Model.OAuthToken" placeholder="Twitch OAuth Token" />
-				<ValidationMessage For="() => Model.OAuthToken" class="text-danger" />
-			</dd>
-			<dt><label for="ChannelName">Channel Name:</label></dt>
+ 			<dt><label for="ChannelName">Channel Name:</label></dt>
 			<dd>
 				<InputText name="ChannelName" @bind-Value="Model.ChannelName" placeholder="Twitch Channel Name" />
 				<ValidationMessage For="() => Model.ChannelName" class="text-danger" />
@@ -49,8 +65,29 @@
 
 	public (SocialMediaStatus Status, string Message) Health { get; set; } = (SocialMediaStatus.Unknown, string.Empty);
 
+	public string LoginUrl { get; set; } = "";
 
 	public ViewModel Model { get; set; } = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+
+		// Twitch Relay URI
+		var twitchRelayUri = new Uri(new Uri(Config["TwitchRelayUri"]), "/api/GetLoginUrl");
+
+		try
+		{
+			var returnToUri = new Uri(new Uri(NavMgr.BaseUri), "/Admin/TwitchRelay");
+			var result = await Http.GetAsync($"{twitchRelayUri}?returnto={returnToUri}");
+			LoginUrl = await result.Content.ReadAsStringAsync();
+		} catch
+		{
+			LoginUrl = string.Empty;
+		}
+
+		await base.OnInitializedAsync();
+	}
+
 
 	protected override async Task OnParametersSetAsync()
 	{
@@ -58,9 +95,7 @@
 		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
 
 		Model = new ViewModel
-			{
-				ClientId = providerConfiguration.GetConfigurationByKey("ClientId"),
-				ClientSecret = providerConfiguration.GetConfigurationByKey("ClientSecret"),
+		{
 				ChatBotName = providerConfiguration.GetConfigurationByKey("ChatBotName"),
 				OAuthToken = providerConfiguration.GetConfigurationByKey("OAuthToken"),
 				ChannelName = providerConfiguration.GetConfigurationByKey("ChannelName"),
@@ -78,8 +113,6 @@
 
 		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
 
-		providerConfiguration.SetConfigurationByKey("ClientId", Model.ClientId);
-		providerConfiguration.SetConfigurationByKey("ClientSecret", Model.ClientSecret);
 		providerConfiguration.SetConfigurationByKey("ChatBotName", Model.ChatBotName);
 		providerConfiguration.SetConfigurationByKey("OAuthToken", Model.OAuthToken);
 		providerConfiguration.SetConfigurationByKey("ChannelName", Model.ChannelName);
@@ -93,12 +126,6 @@
 	{
 
 		// add properties for each of the fields you want to edit
-
-		[Required]
-		public string ClientId { get; set; }
-
-		[Required]
-		public string ClientSecret { get; set; }
 
 		[Required]
 		public string ChatBotName { get; set; } = string.Empty;

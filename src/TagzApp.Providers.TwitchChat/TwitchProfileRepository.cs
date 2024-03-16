@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Concurrent;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace TagzApp.Providers.TwitchChat;
 internal class TwitchProfileRepository
@@ -16,12 +12,12 @@ internal class TwitchProfileRepository
 	private readonly string _ClientSecret;
 	private readonly HttpClient _HttpClient;
 	private string _AccessToken = string.Empty;
+	private string _RelayUri = string.Empty;
 
-	public TwitchProfileRepository(string clientId, string clientSecret, HttpClient client)
+	public TwitchProfileRepository(IConfiguration configuration, HttpClient client)
 	{
-		_ClientId = clientId;
-		_ClientSecret = clientSecret;
 		_HttpClient = client;
+		_RelayUri = configuration["TwitchRelayUri"];
 	}
 
 	public async Task<string> GetProfilePic(string userName)
@@ -48,8 +44,6 @@ internal class TwitchProfileRepository
 	public async Task SeedProfilePics(IEnumerable<string> userNames)
 	{
 
-		await GetAccessToken();
-
 		var now = DateTime.UtcNow;
 		for (var i = 0; i < userNames.Count(); i += 100)
 		{
@@ -58,18 +52,18 @@ internal class TwitchProfileRepository
 			var batch = userNames.Skip(i).Take(100);
 			var request = new HttpRequestMessage(
 							HttpMethod.Get,
-							$"https://api.twitch.tv/helix/users?login={string.Join("&login=", batch)}");
+							$"{_RelayUri}/api/ProfilePics/{string.Join("&login=", batch)}");
 
 			var response = await _HttpClient.SendAsync(request);
 
 			if (response.IsSuccessStatusCode)
 			{
 				var content = await response.Content.ReadAsStringAsync();
-				var users = JsonSerializer.Deserialize<TwitchUsers>(content);
+				var users = JsonSerializer.Deserialize<Dictionary<string, string>>(content);
 
-				foreach (var user in users.data)
+				foreach (var user in users)
 				{
-					_ProfilePics.AddOrUpdate(user.login, (user.profile_image_url, now.AddHours(1)), (key, oldValue) => (user.profile_image_url, now.AddHours(1)));
+					_ProfilePics.AddOrUpdate(user.Key, (user.Value, now.AddHours(1)), (key, oldValue) => (user.Value, now.AddHours(1)));
 				}
 			}
 			else
