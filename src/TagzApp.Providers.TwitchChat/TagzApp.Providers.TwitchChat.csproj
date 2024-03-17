@@ -6,6 +6,11 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+	<ItemGroup>
+		<Using Include="TagzApp.Common" />
+		<Using Include="TagzApp.Common.Models" />
+	</ItemGroup>
+
   <ItemGroup>
 		<InternalsVisibleTo Include="TagzApp.UnitTest" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
