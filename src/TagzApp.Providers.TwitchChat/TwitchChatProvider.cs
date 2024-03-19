@@ -25,13 +25,15 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	private readonly TwitchChatConfiguration _Settings;
 	private readonly ILogger<TwitchChatProvider> _Logger;
 	private readonly TwitchProfileRepository _ProfileRepository;
+	private readonly TwitchChatInstrumentation _Instrumentation;
 
-	public TwitchChatProvider(ILogger<TwitchChatProvider> logger, IConfiguration configuration, HttpClient client)
+	public TwitchChatProvider(ILogger<TwitchChatProvider> logger, IConfiguration configuration, HttpClient client, TwitchChatInstrumentation instrumentation)
 	{
 		_Settings = ConfigureTagzAppFactory.Current.GetConfigurationById<TwitchChatConfiguration>(Id).GetAwaiter().GetResult();
 		_Logger = logger;
 		_ProfileRepository = new TwitchProfileRepository(configuration, client);
 		Enabled = _Settings.Enabled;
+		_Instrumentation = instrumentation;
 
 		if (!string.IsNullOrWhiteSpace(_Settings.Description))
 		{
@@ -151,6 +153,16 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 
 		_Status = SocialMediaStatus.Healthy;
 		_StatusMessage = "OK";
+
+		_Instrumentation.AddMessages(messages?.Count() ?? 0);
+
+		foreach (var username in messages?.Select(x => x.Author?.UserName)!)
+		{
+			if (!string.IsNullOrEmpty(username))
+			{
+				_Instrumentation.AddMessages(username);
+			}
+		}
 
 		messages.ForEach(m => m.HashtagSought = tag.Text);
 

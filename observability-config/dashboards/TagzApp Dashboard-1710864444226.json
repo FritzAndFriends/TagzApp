@@ -36,8 +36,8 @@
       "description": "",
       "gridPos": {
         "h": 11,
-        "w": 2,
-        "x": 7,
+        "w": 3,
+        "x": 0,
         "y": 0
       },
       "id": 3,
@@ -52,6 +52,81 @@
       },
       "pluginVersion": "10.3.1",
       "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "Top 5 Twitch Chatters",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-GrYlRd"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 8,
+        "x": 3,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "displayMode": "gradient",
+        "maxVizHeight": 80,
+        "minVizHeight": 50,
+        "minVizWidth": 8,
+        "namePlacement": "top",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": false,
+        "sizing": "manual",
+        "valueMode": "color"
+      },
+      "pluginVersion": "10.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "topk(5, sum by (author) (sort_desc(max_over_time(twitchchat_messages_by_author_message_total[$__range]))))",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "B"
+        }
+      ],
+      "title": "Top 5 Twitch Chatters",
+      "transformations": [],
+      "type": "bargauge"
     },
     {
       "datasource": {
@@ -85,7 +160,7 @@
       "gridPos": {
         "h": 11,
         "w": 8,
-        "x": 9,
+        "x": 11,
         "y": 0
       },
       "id": 1,
@@ -218,7 +293,7 @@
       "gridPos": {
         "h": 15,
         "w": 10,
-        "x": 7,
+        "x": 0,
         "y": 11
       },
       "id": 2,
@@ -247,30 +322,30 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "round(increase(mastodon_messages_received_message_total[$__rate_interval]))",
-          "instant": false,
+          "expr": "round(increase(twitchchat_messages_received_message_total[$__rate_interval]))",
+          "instant": true,
           "legendFormat": "__auto",
-          "range": true,
+          "range": false,
           "refId": "A"
         }
       ],
-      "title": "Posts Received",
+      "title": "TwitchChat Messages Received",
       "transformations": [],
       "type": "timeseries"
     }
   ],
-  "refresh": "auto",
+  "refresh": "5s",
   "schemaVersion": 39,
   "tags": [],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-6h",
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "utc",
+  "timezone": "",
   "title": "TagzApp Dashboard",
   "uid": "fb737849-bd1f-45e3-9b20-3d87d4cc3e20",
   "version": 1,
