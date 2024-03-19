@@ -85,12 +85,12 @@ public class MastodonProvider : ISocialMediaProvider, IHasNewestId
 		NewestId = messages!.OrderByDescending(m => m.id).First().id;
 
 		_Instrumentation.AddMessages(messages?.Length ?? 0);
-		foreach(var username in messages?.Select(x => x.account?.username)!)
+		foreach (var username in messages?.Select(x => x.account?.username)!)
 		{
-				if (!string.IsNullOrEmpty(username))
-				{
-					_Instrumentation.AddMessages(username);
-				}
+			if (!string.IsNullOrEmpty(username))
+			{
+				_Instrumentation.AddMessages(username);
+			}
 		}
 
 		var baseServerAddress = _HttpClient.BaseAddress?.Host.ToString();
