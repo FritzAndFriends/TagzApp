@@ -3,7 +3,7 @@ using TagzApp.Blazor.Client.Bootstrap;
 
 namespace TagzApp.Blazor.Client.Services;
 
-public record ToastMessage(string Message, MessageSeverity Severity = MessageSeverity.Normal, int Duration=5000);
+public record ToastMessage(string Message, MessageSeverity Severity = MessageSeverity.Normal, int Duration = 5000);
 
 public class ToastService
 {
