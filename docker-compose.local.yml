@@ -52,6 +52,8 @@ services:
     ports:
       - "3100"
     command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./observability-config/loki-data:/loki
     depends_on:
       - otelcol
 
@@ -77,7 +79,9 @@ services:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
       - --enable-feature=exemplar-storage
+      - --enable-feature=promql-experimental-functions
     volumes:
       - ./observability-config/prometheus.yaml:/etc/prometheus.yaml
+      - ./observability-config/prometheus-data:/prometheus
     ports:
       - "9090:9090"
