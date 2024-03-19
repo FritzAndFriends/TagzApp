@@ -1,0 +1,49 @@
+receivers:
+  otlp:
+    protocols:
+     http:
+       endpoint: 0.0.0.0:4318
+     grpc:
+       endpoint: 0.0.0.0:4317
+
+processors:
+  batch:
+  resource:
+    attributes:
+      - action: insert
+        key: loki.resource.labels
+        value: service.name
+
+exporters:
+  logging:
+    loglevel: debug
+
+  otlp:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+
+  loki:
+    endpoint: "http://loki:3100/loki/api/v1/push"
+    tls:
+      insecure: true
+    default_labels_enabled:
+      exporter: true
+      job: true
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [otlp]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [logging, prometheus]
+    logs:
+      receivers: [otlp]
+      processors: [batch, resource]
+      exporters: [logging, loki]

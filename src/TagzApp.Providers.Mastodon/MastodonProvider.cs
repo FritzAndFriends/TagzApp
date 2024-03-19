@@ -10,14 +10,16 @@ public class MastodonProvider : ISocialMediaProvider, IHasNewestId
 
 	private readonly HttpClient _HttpClient;
 	private readonly ILogger _Logger;
+	private readonly MastodonInstrumentation _Instrumentation;
 	private SocialMediaStatus _Status = SocialMediaStatus.Unhealthy;
 	private string _StatusMessage = "Not started";
 
 	public MastodonProvider(IHttpClientFactory httpClientFactory, ILogger<MastodonProvider> logger,
-		MastodonConfiguration configuration)
+		MastodonConfiguration configuration, MastodonInstrumentation instrumentation)
 	{
 		_HttpClient = httpClientFactory.CreateClient(nameof(MastodonProvider));
 		_Logger = logger;
+		_Instrumentation = instrumentation;
 		Enabled = configuration.Enabled;
 
 		if (!string.IsNullOrWhiteSpace(configuration.Description))
@@ -81,6 +83,15 @@ public class MastodonProvider : ISocialMediaProvider, IHasNewestId
 		}
 
 		NewestId = messages!.OrderByDescending(m => m.id).First().id;
+
+		_Instrumentation.AddMessages(messages?.Length ?? 0);
+		foreach (var username in messages?.Select(x => x.account?.username)!)
+		{
+			if (!string.IsNullOrEmpty(username))
+			{
+				_Instrumentation.AddMessages(username);
+			}
+		}
 
 		var baseServerAddress = _HttpClient.BaseAddress?.Host.ToString();
 

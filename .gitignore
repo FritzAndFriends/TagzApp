@@ -422,3 +422,6 @@ FodyWeavers.xsd
 *.db-wal
 
 /src/TagzApp.Providers.Twitter/Models/SampleTweets.json.gz
+/observability-config/tempo-data
+/observability-config/loki-data
+/observability-config/prometheus-data
