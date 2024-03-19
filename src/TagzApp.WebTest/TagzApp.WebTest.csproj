@@ -7,7 +7,12 @@
     <UserSecretsId>0f9dd444-11d7-4e93-9078-7afa06b29285</UserSecretsId>
   </PropertyGroup>
 
-  <ItemGroup>
+	<ItemGroup>
+		<Using Include="TagzApp.Common" />
+		<Using Include="TagzApp.Common.Models" />
+	</ItemGroup>
+
+	<ItemGroup>
     <PackageReference Include="Bogus" Version="35.0.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0-preview-23503-02" />
     <PackageReference Include="Microsoft.Playwright" Version="1.38.0" />

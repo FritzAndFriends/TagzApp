@@ -85,7 +85,7 @@ public static class Service_Extensions
 		{
 			config.AddPolicy(RolesAndPolicies.Policy.AdminRoleOnly, policy => { policy.RequireRole(RolesAndPolicies.Role.Admin); });
 			config.AddPolicy(RolesAndPolicies.Policy.Moderator,
-							policy => { policy.RequireAuthenticatedUser(); });
+							policy => { policy.RequireRole(RolesAndPolicies.Role.Moderator, RolesAndPolicies.Role.Admin); });
 		});
 
 		return services;

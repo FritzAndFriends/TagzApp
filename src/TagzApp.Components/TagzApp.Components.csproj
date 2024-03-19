@@ -19,8 +19,4 @@
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
-  </ItemGroup>
-
 </Project>

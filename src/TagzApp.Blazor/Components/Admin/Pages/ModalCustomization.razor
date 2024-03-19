@@ -109,7 +109,7 @@
 	[CascadingParameter]
 	private HttpContext HttpContext { get; set; } = default!;
 
-	protected override Task OnInitializedAsync()
+	protected override Task OnParametersSetAsync()
 	{
 		// TODO: This does not appear to be set at all times?
 		if (HttpContext is null) 
