@@ -4,6 +4,7 @@
 @layout AdminLayout
 @inject ApplicationConfiguration ApplicationConfiguration
 @inject IJSRuntime JSRuntime
+@inject ToastService ToastService
 @rendermode InteractiveServer
 
 
@@ -60,9 +61,8 @@
 
 	async Task SaveChanges()
 	{
-
 		await ApplicationConfiguration.SaveConfiguration(ConfigureTagzAppFactory.Current);
-
+		ToastService.Add("Configuration Saved", MessageSeverity.Success);
 	}
 
 }

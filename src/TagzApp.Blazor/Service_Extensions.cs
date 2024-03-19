@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using TagzApp.Blazor.Client.Services;
 using TagzApp.Blazor.Components.Account;
 using TagzApp.Blazor.Services;
 
@@ -15,6 +16,7 @@ public static class Service_Extensions
 
 		// TODO: Convert to a notification pipeline
 		services.AddSingleton<INotifyNewMessages, SignalRNotifier>();
+		services.AddScoped<ToastService>();
 
 		services.AddMemoryCache();
 

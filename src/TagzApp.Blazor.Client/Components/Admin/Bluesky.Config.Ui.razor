@@ -1,5 +1,7 @@
 ﻿@using System.ComponentModel.DataAnnotations
 @using System.Text.Json
+@inject ToastService ToastService
+
 <UiProviderConfig ProviderName="Bluesky" Health="@Health" ProviderIconCssClass="icon-bluesky">
 
 	<EditForm Model="Model" OnValidSubmit="SaveConfig">
@@ -44,26 +46,21 @@
 		Health = await Provider.GetHealth();
 
 		await base.OnParametersSetAsync();
-
 	}
 
 	private async Task SaveConfig()
 	{
-
 		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
 
 		providerConfiguration.SetConfigurationByKey("Enabled", Model.Enabled.ToString());
 
 		await Provider.SaveConfiguration(ConfigureTagzAppFactory.Current, providerConfiguration);
-
+		ToastService.Add($"Saved {providerConfiguration.Name} Configuration", MessageSeverity.Success);
 	}
 
 	public class ViewModel
 	{
-
 		public bool Enabled { get; set; }
-
-
 	}
 
 

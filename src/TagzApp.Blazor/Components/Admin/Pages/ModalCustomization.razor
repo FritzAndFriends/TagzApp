@@ -1,12 +1,10 @@
 ﻿@page "/admin/modalcustomization"
-@attribute [Authorize(Policy=RolesAndPolicies.Policy.AdminRoleOnly)]
-@using System.ComponentModel.DataAnnotations
-@using Microsoft.AspNetCore.Authorization
-@using System.Drawing
+
 @layout AdminLayout
 @inject IJSRuntime JSRuntime
 @inject ModalConfiguration Config
 @inject NavigationManager NavigationManager
+@inject ToastService ToastService
 @rendermode InteractiveServer
 
 <div class="row" style="min-height: 300px">
@@ -113,30 +111,31 @@
 
 	protected override Task OnParametersSetAsync()
 	{
-/*
+		// TODO: This does not appear to be set at all times?
+		if (HttpContext is null) 
+			return base.OnInitializedAsync();
+		
 		var user = HttpContext.User;
 		if (!user.IsInRole("Admin"))
 		{
 			NavigationManager.NavigateTo("/");
 		}
-*/
-		return base.OnParametersSetAsync();
+
+		return base.OnInitializedAsync();
 	}
 
 	async Task SaveChanges()
 	{
-
 		Config.BackgroundImage = _BackgroundImage;
 		Config.BackgroundImageMimeType = _BackgroundImageMimeType;
 
 		Console.WriteLine($"Caption: {Config.Caption}");
 		await Config.SaveConfiguration(ConfigureTagzAppFactory.Current);
-
+		ToastService.Add("Changes Saved", MessageSeverity.Success);
 	}
 
 	async Task LoadBackgroundImage(InputFileChangeEventArgs args)
 	{
-
 		if (!args.File.ContentType.StartsWith("image/"))
 		{
 			Console.WriteLine("Invalid file type");
@@ -155,7 +154,6 @@
 		}
 
 		_BackgroundImage = Convert.ToBase64String(bytes);
-
 	}
 
 	async Task CancelChanges()
@@ -163,11 +161,11 @@
 		Config = await ModalConfiguration.LoadFromConfiguration(ConfigureTagzAppFactory.Current);
 		_BackgroundImage = Config.BackgroundImage;
 		_BackgroundImageMimeType = Config.BackgroundImageMimeType;
+		ToastService.Add("Cancelled Changes", MessageSeverity.Info);
 	}
 
 	async Task RemoveBackgroundImage()
 	{
-
 		Console.WriteLine("Removing background image");
 
 		_BackgroundImage = null;

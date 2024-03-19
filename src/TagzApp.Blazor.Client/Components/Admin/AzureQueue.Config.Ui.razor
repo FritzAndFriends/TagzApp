@@ -1,4 +1,6 @@
 ﻿@using System.ComponentModel.DataAnnotations
+@inject ToastService ToastService
+
 <UiProviderConfig ProviderName="AzureQueue" Health="@Health" ProviderIconCssClass="bi-globe2">
 
 	<EditForm Model="Model" OnValidSubmit="SaveConfig">
@@ -34,7 +36,6 @@
 
 	protected override async Task OnParametersSetAsync()
 	{
-
 		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
 
 		Model = new ViewModel
@@ -46,7 +47,6 @@
 		Health = await Provider.GetHealth();
 
 		await base.OnParametersSetAsync();
-
 	}
 
 	private async Task SaveConfig()
@@ -58,20 +58,17 @@
 		providerConfiguration.SetConfigurationByKey("Enabled", Model.Enabled.ToString());
 
 		await Provider.SaveConfiguration(ConfigureTagzAppFactory.Current, providerConfiguration);
-
+		ToastService.Add($"Saved {providerConfiguration.Name} Configuration", MessageSeverity.Success);
 	}
 
 	public class ViewModel
 	{
-
 		// add properties for each of the fields you want to edit
 
 		[Required]
 		public string QueueConnectionString { get; set; }
 
 		public bool Enabled { get; set; }
-
-
 	}
 
 }
