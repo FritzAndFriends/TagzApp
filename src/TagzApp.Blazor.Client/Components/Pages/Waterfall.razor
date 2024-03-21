@@ -122,6 +122,7 @@ else
 	async Task ShowModal(ContentModel content)
 	{
 
+		thePauseButton.SetPauseState(true);
 		ModalContent = content;
 		await _Connection.InvokeAsync("SendMessageToOverlay", TagTracked, content.Provider, content.ProviderId);
 		await Modal.Open();
