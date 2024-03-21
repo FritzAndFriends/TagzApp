@@ -16,6 +16,9 @@ public static class OpenTelemetryExtensions
 
 	public static IServiceCollection AddOpenTelemetryObservability(this IServiceCollection services, IConfiguration configuration)
 	{
+
+		if (!bool.Parse(configuration["EnableTelemetry"] ?? "true")) return services;
+
 		services.AddOpenTelemetry()
 			.ConfigureResource(_ConfigureResource)
 			.WithTracing(builder =>
@@ -57,6 +60,9 @@ public static class OpenTelemetryExtensions
 
 	public static void AddOpenTelemetryLogging(this ILoggingBuilder builder, IConfiguration configuration)
 	{
+
+		if (!bool.Parse(configuration["EnableTelemetry"] ?? "true")) return;
+
 		var logExporter = configuration.GetValue("UseLogExporter", defaultValue: "console")!.ToLowerInvariant();
 
 		builder.ClearProviders();
