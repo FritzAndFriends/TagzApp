@@ -103,8 +103,8 @@
 
 @code {
 
-	private string _BackgroundImage;
-	private string _BackgroundImageMimeType;
+	private string _BackgroundImage = string.Empty;
+	private string _BackgroundImageMimeType = string.Empty;
 
 	[CascadingParameter]
 	private HttpContext HttpContext { get; set; } = default!;
