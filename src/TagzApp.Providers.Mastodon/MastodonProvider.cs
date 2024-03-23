@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;
 using System.Web;
+using TagzApp.Common.Telemetry;
 using TagzApp.Providers.Mastodon.Configuration;
 
 namespace TagzApp.Providers.Mastodon;
@@ -10,12 +11,12 @@ public class MastodonProvider : ISocialMediaProvider, IHasNewestId
 
 	private readonly HttpClient _HttpClient;
 	private readonly ILogger _Logger;
-	private readonly MastodonInstrumentation _Instrumentation;
+	private readonly ProviderInstrumentation? _Instrumentation;
 	private SocialMediaStatus _Status = SocialMediaStatus.Unhealthy;
 	private string _StatusMessage = "Not started";
 
 	public MastodonProvider(IHttpClientFactory httpClientFactory, ILogger<MastodonProvider> logger,
-		MastodonConfiguration configuration, MastodonInstrumentation instrumentation)
+		MastodonConfiguration configuration, ProviderInstrumentation? instrumentation = null)
 	{
 		_HttpClient = httpClientFactory.CreateClient(nameof(MastodonProvider));
 		_Logger = logger;
@@ -84,12 +85,14 @@ public class MastodonProvider : ISocialMediaProvider, IHasNewestId
 
 		NewestId = messages!.OrderByDescending(m => m.id).First().id;
 
-		_Instrumentation.AddMessages(messages?.Length ?? 0);
-		foreach (var username in messages?.Select(x => x.account?.username)!)
+		if (_Instrumentation is not null)
 		{
-			if (!string.IsNullOrEmpty(username))
+			foreach (var username in messages?.Select(x => x.account?.username)!)
 			{
-				_Instrumentation.AddMessages(username);
+				if (!string.IsNullOrEmpty(username))
+				{
+					_Instrumentation.AddMessage("mastodon", username);
+				}
 			}
 		}
 
