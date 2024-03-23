@@ -155,7 +155,8 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 		_Status = SocialMediaStatus.Healthy;
 		_StatusMessage = "OK";
 
-		if(_Instrumentation is not null) {
+		if (_Instrumentation is not null)
+		{
 			foreach (var username in messages?.Select(x => x.Author?.UserName)!)
 			{
 				if (!string.IsNullOrEmpty(username))
