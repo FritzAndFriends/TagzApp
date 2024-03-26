@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Web;
+using TagzApp.Common.Telemetry;
 
 namespace TagzApp.Providers.TwitchChat;
 
@@ -25,9 +26,9 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	private readonly TwitchChatConfiguration _Settings;
 	private readonly ILogger<TwitchChatProvider> _Logger;
 	private readonly TwitchProfileRepository _ProfileRepository;
-	private readonly TwitchChatInstrumentation _Instrumentation;
+	private readonly ProviderInstrumentation? _Instrumentation;
 
-	public TwitchChatProvider(ILogger<TwitchChatProvider> logger, IConfiguration configuration, HttpClient client, TwitchChatInstrumentation instrumentation)
+	public TwitchChatProvider(ILogger<TwitchChatProvider> logger, IConfiguration configuration, HttpClient client, ProviderInstrumentation? instrumentation = null)
 	{
 		_Settings = ConfigureTagzAppFactory.Current.GetConfigurationById<TwitchChatConfiguration>(Id).GetAwaiter().GetResult();
 		_Logger = logger;
@@ -154,13 +155,15 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 		_Status = SocialMediaStatus.Healthy;
 		_StatusMessage = "OK";
 
-		_Instrumentation.AddMessages(messages?.Count() ?? 0);
-
-		foreach (var username in messages?.Select(x => x.Author?.UserName)!)
+		if (_Instrumentation is not null)
 		{
-			if (!string.IsNullOrEmpty(username))
+			foreach (var username in messages?.Select(x => x.Author?.UserName)!)
 			{
-				_Instrumentation.AddMessages(username);
+				if (!string.IsNullOrEmpty(username))
+				{
+					_Instrumentation.AddMessage("twitchchat", username);
+				}
+
 			}
 		}
 

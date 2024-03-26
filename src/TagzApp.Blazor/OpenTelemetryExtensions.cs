@@ -4,6 +4,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using System.Diagnostics.Metrics;
+using TagzApp.Common.Telemetry;
 
 namespace TagzApp.Blazor;
 
@@ -44,8 +45,7 @@ public static class OpenTelemetryExtensions
 
 				builder
 					.SetResourceBuilder(resourceBuilder)
-					.AddMeter("mastodon-metrics")
-					.AddMeter("twitchchat-metrics")
+					.AddMeter("tagzapp-provider-metrics")
 					.AddProcessInstrumentation()
 					.AddRuntimeInstrumentation()
 					.AddHttpClientInstrumentation()
@@ -54,6 +54,8 @@ public static class OpenTelemetryExtensions
 				builder.SetupMetricsView(configuration);
 				builder.SetupMetricsExporter(configuration);
 			});
+
+		services.AddSingleton<ProviderInstrumentation>();
 
 		return services;
 	}

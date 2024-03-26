@@ -15,7 +15,6 @@ public class StartTwitchChat : IConfigureProvider
 
 		_TwitchChatConfiguration = await ConfigureTagzAppFactory.Current.GetConfigurationById<TwitchChatConfiguration>(ConfigurationKey);
 
-		services.AddSingleton<TwitchChatInstrumentation>();
 		services.AddSingleton(_TwitchChatConfiguration ?? TwitchChatConfiguration.Empty);
 		services.AddHttpClient<ISocialMediaProvider, TwitchChatProvider, HttpClientOptions>(new());
 		services.AddSingleton<ISocialMediaProvider, TwitchChatProvider>();

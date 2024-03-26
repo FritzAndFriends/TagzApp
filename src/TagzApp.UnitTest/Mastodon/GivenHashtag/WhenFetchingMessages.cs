@@ -2,6 +2,7 @@
 
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Diagnostics.Metrics;
+using TagzApp.Common.Telemetry;
 using TagzApp.Providers.Mastodon;
 using TagzApp.Providers.Mastodon.Configuration;
 using IHttpClientFactory = System.Net.Http.IHttpClientFactory;
@@ -17,7 +18,7 @@ public class WhenFetchingMessages
 
 	private MastodonProvider _Sut;
 	private IHttpClientFactory _HttpClientFactory;
-	private MastodonInstrumentation _Instrumentation;
+	private ProviderInstrumentation _Instrumentation;
 
 	public WhenFetchingMessages()
 	{
@@ -27,7 +28,7 @@ public class WhenFetchingMessages
 		};
 
 		_HttpClientFactory = new StubHttpClientFactory(client);
-		_Instrumentation = new MastodonInstrumentation(new StubMeterFactory());
+		_Instrumentation = new ProviderInstrumentation(new StubMeterFactory());
 
 		_Sut = new MastodonProvider(_HttpClientFactory, NullLogger<MastodonProvider>.Instance, new MastodonConfiguration(), _Instrumentation);
 	}

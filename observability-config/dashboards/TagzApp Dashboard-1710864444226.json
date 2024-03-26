@@ -116,12 +116,12 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "topk(5, sum by (author) (sort_desc(max_over_time(twitchchat_messages_by_author_message_total[$__range]))))",
+          "expr": "topk(5, sum by (author) (sort_desc(max_over_time(messages_received_message_total{provider=\"twitchchat\"}[$__range]))))",
           "hide": false,
           "instant": true,
           "legendFormat": "__auto",
           "range": false,
-          "refId": "B"
+          "refId": "A"
         }
       ],
       "title": "Top 5 Twitch Chatters",
@@ -191,7 +191,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "topk(5, sum by (author) (sort_desc(max_over_time(mastodon_messages_by_author_message_total[$__range]))))",
+          "expr": "topk(5, sum by (author) (sort_desc(max_over_time(messages_received_message_total[$__range]))))",
           "hide": false,
           "instant": true,
           "legendFormat": "__auto",
@@ -322,7 +322,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "round(increase(twitchchat_messages_received_message_total[$__rate_interval]))",
+          "expr": "round(increase(messages_received_message_total{provider=\"twitchchat\"}[$__rate_interval]))",
           "instant": true,
           "legendFormat": "__auto",
           "range": false,
@@ -341,7 +341,7 @@
     "list": []
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {},
