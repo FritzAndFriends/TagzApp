@@ -114,6 +114,7 @@ body {
 #taggedContent .content,
 #overlayDisplay .content,
 #overlayDisplay.showPreview .content {
+	word-wrap: break-word;
 	grid-area: 3 / 1 / 4 / 4;
 	display: block;
 	width: 100%;
