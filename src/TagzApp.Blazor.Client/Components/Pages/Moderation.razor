@@ -82,10 +82,14 @@
 		</div>
 
 	}
-	else
+	else if (_Loading)
 	{
 		<div class=" d-flex justify-content-center align-items-center" style="height: calc(100vh - 210px); text-align: center;">
 			<div class="spinner-border" role="status"> <span class="visually-hidden">Loading...</span> </div>
+		</div>
+	} else {
+		<div class=" d-flex justify-content-center align-items-center" style="height: calc(100vh - 210px); text-align: center;">
+			<div class="alert alert-danger" role="status"> No messages found that meet the filter criteria</div>
 		</div>
 	}
 
@@ -119,6 +123,7 @@
 	private IEnumerable<AvailableProvider> _Providers = Enumerable.Empty<AvailableProvider>();
 
 	private List<string> _FilteredProviders = [];
+	private bool _Loading = true;
 
 	private FilterModerationState _FilterApprovalStatus = FilterModerationState.All;
 	private FilterModerationState FilterApprovalStatus
@@ -127,9 +132,11 @@
 		set
 		{
 			_FilterApprovalStatus = value;
+			_Loading = true;
 			_Content.Clear();
 			StateHasChanged();
 			FilterContent = InitializeContent().ContinueWith(async t => {
+				_Loading = false;
 				await InvokeAsync(StateHasChanged);
 				FilterContent = null;
 			});
@@ -335,6 +342,8 @@
 			_Content.Add(content.Timestamp, content);
 		}
 
+		_Loading = false;
+
 	}
 
 	public async Task Moderate(ModerationAction action)
@@ -380,8 +389,10 @@
 		}
 
 		_Content.Clear();
+		_Loading = true;
 		StateHasChanged();
 		FilterContent = InitializeContent().ContinueWith(async t => {
+			_Loading = false;
 			await InvokeAsync(StateHasChanged);
 			FilterContent = null;
 		});
