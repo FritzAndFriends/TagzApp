@@ -138,6 +138,8 @@
 
 	private HubConnection _Connection;
 
+	private bool _IsDisposing = false;
+
 	string _Tag = string.Empty;
 
 	protected override async Task OnInitializedAsync()
@@ -173,10 +175,34 @@
 	{
 
 		_Connection = new HubConnectionBuilder()
-						.WithUrl(NavigationManager.ToAbsoluteUri("/mod"))
+					.WithUrl(NavigationManager.ToAbsoluteUri("/mod"))
+					.WithAutomaticReconnect()
 					.Build();
 
 		await ListenForModerationContent();
+
+		_Connection.Closed += async _ => {
+
+			if (_IsDisposing) return;
+
+			while (!_IsDisposing)
+			{
+
+				await Task.Delay(2000);
+				try {
+	
+					await ConfigureSignalRConnection();
+
+				} catch (Exception ex)
+				{
+
+					Console.WriteLine($"Error while attempting to reconnect ({_Connection.State.ToString()}) to server: {ex.Message}");
+
+				}
+
+			}
+
+		};
 
 		await _Connection.StartAsync();
 
@@ -375,6 +401,7 @@
 	public async ValueTask DisposeAsync()
 	{
 
+		_IsDisposing = true;
 		if (_Connection is not null)
 		{
 			await _Connection.DisposeAsync();

@@ -35,13 +35,15 @@ else
 	private SortedList<string, TagzApp.ViewModels.Data.ContentModel> _Content = new();
 
 	WaterfallModal Modal = new();
-	ContentModel ModalContent = null!;
+	ContentModel ModalContent {get; set; } = null!;
 
 	PauseButton thePauseButton = new();
 
 	private HashSet<dynamic> _PauseQueue = new();
 
 	HubConnection _Connection = null!;
+
+	private bool _IsDisposing = false;	
 
 	[Parameter, EditorRequired]
 	public string TagTracked { get; set; }
@@ -85,6 +87,7 @@ else
 	{
 		_Connection = new HubConnectionBuilder()
 			.WithUrl(NavigationManager.ToAbsoluteUri($"/messages?t={TagTracked}"))
+			.WithAutomaticReconnect()
 			.Build();
 
 		_Connection.On<ContentModel>("NewWaterfallMessage", (content) =>
@@ -116,15 +119,60 @@ else
 
 		});
 
+		_Connection.Closed += async _ => {
+
+			if (_IsDisposing) return;
+
+			while (!_IsDisposing)
+			{
+
+				await Task.Delay(2000);
+				try {
+	
+					await StartSignalRHub();
+
+				} catch (Exception ex)
+				{
+
+					Console.WriteLine($"Error while attempting to reconnect ({_Connection.State.ToString()}) to server: {ex.Message}");
+
+				}
+
+			}
+
+			return;
+
+		};
+
 		await _Connection.StartAsync();
 	}
 
+	Task SendMessageTask;
 	async Task ShowModal(ContentModel content)
 	{
 
 		thePauseButton.SetPauseState(true);
 		ModalContent = content;
-		await _Connection.InvokeAsync("SendMessageToOverlay", TagTracked, content.Provider, content.ProviderId);
+		SendMessageTask = Task.Run(async () => {
+			
+			Console.WriteLine("Sending message to overlay");
+
+			for (var i = 0; i<10; i++)
+			{
+
+				if (i>0) Console.WriteLine($"Retry #{i} to activate overlay");
+				try {
+					await _Connection.InvokeAsync("SendMessageToOverlay", TagTracked, content.Provider, content.ProviderId);
+					break;
+				} catch (Exception ex) {
+					Console.WriteLine($"Exception while sending message to overlay: {ex.Message}");
+					await Task.Delay(1000 + i*1000);
+				}
+
+			}
+
+		});
+		await Task.Delay(200);  // LAME delay to allow the content to propogate into the Modal component
 		await Modal.Open();
 
 	}
@@ -150,6 +198,7 @@ else
 
 	public ValueTask DisposeAsync()
 	{
+		_IsDisposing = true;
 		if (_Connection is null) return ValueTask.CompletedTask;
 		return _Connection.DisposeAsync();
 		// return ValueTask.CompletedTask;
