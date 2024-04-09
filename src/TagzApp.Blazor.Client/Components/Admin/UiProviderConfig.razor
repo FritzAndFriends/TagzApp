@@ -8,7 +8,7 @@
 							data-bs-target="#@ProviderName"
 							aria-expanded="false"
 							aria-controls="@ProviderName">
-				<i class="@GetClassForHealth(Health.Status)" title="@Health.Message"></i>
+				<i class="@GetClassForHealth(Health.Status)" style="@(Health.Status == SocialMediaStatus.Disabled ? "grayscale(100%)" : "none")" title="@Health.Message"></i>
 				<i class="bi @ProviderIconCssClass"></i>
 				@ProviderName
 			</button>
@@ -56,6 +56,8 @@
 			SocialMediaStatus.Healthy => "bi bi-check-circle-fill text-success",
 			SocialMediaStatus.Degraded => "bi bi-exclamation-circle-fill text-warning",
 			SocialMediaStatus.Unhealthy => "bi bi-x-circle-fill text-danger",
+			SocialMediaStatus.Disabled => "bi bi-stop-circle-fill text-muted",
+			SocialMediaStatus.Unknown => "bi bi-question-circle text-info",
 			_ => "bi text-primary"
 		};
 
