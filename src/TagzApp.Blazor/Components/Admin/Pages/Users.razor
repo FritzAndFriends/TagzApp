@@ -2,12 +2,13 @@
 @using Gravatar
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
+@attribute [Authorize(Roles = RolesAndPolicies.Role.Admin)]
 @layout Admin.Shared.AdminLayout
 @inject UserManager<TagzAppUser> UserManager
 @inject NavigationManager NavigationManager
 @inject ApplicationConfiguration AppConfig
 @inject IJSRuntime Js
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(false))
 
 <PageTitle>System Administration: User Management</PageTitle>
 
@@ -61,11 +62,6 @@
 	{
 
 		if (AppConfig.SingleUserMode) return;
-		var user = HttpContext.User;
-		if (!user.IsInRole("Admin"))
-		{
-			NavigationManager.NavigateTo("/");
-		}
 
 		UserList = await UserManager.Users.ToListAsync();
 	}

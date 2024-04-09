@@ -1,6 +1,6 @@
 ﻿@page "/Admin/Index"
 @using Microsoft.AspNetCore.Authorization
-@* @attribute [Authorize(Roles = "Admin")] *@
+@attribute [Authorize(Roles = "Admin")]
 @inject NavigationManager NavigationManager
 @layout Admin.Shared.AdminLayout
 
@@ -9,20 +9,3 @@
 <h2>Hashtag to watch</h2>
 
 <TagSearch />
-
-@code {
-
-	[CascadingParameter]
-	private HttpContext HttpContext { get; set; } = default!;
-
-	protected override Task OnInitializedAsync()
-	{
-		var user = HttpContext.User;
-		if (!user.IsInRole("Admin"))
-		{
-			NavigationManager.NavigateTo("/");
-		}
-		return base.OnInitializedAsync();
-	}
-
-}

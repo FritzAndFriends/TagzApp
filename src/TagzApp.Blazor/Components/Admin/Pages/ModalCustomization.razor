@@ -1,5 +1,5 @@
 ﻿@page "/admin/modalcustomization"
-
+@attribute [Authorize(Roles = RolesAndPolicies.Role.Admin)]
 @layout AdminLayout
 @inject IJSRuntime JSRuntime
 @inject ModalConfiguration Config
