@@ -73,7 +73,8 @@ public class BlueskyProvider : ISocialMediaProvider
 			Enabled = providerConfiguration.Enabled;
 			_Config = (BlueskyConfiguration)providerConfiguration;
 			await StopAsync();
-		} else if (_Config.Enabled != providerConfiguration.Enabled && !_Config.Enabled)
+		}
+		else if (_Config.Enabled != providerConfiguration.Enabled && !_Config.Enabled)
 		{
 			Enabled = providerConfiguration.Enabled;
 			_Config = (BlueskyConfiguration)providerConfiguration;
