@@ -121,6 +121,9 @@
 
 		await Provider.SaveConfiguration(ConfigureTagzAppFactory.Current, providerConfiguration);
 		ToastService.Add($"Saved {providerConfiguration.Name} Configuration", MessageSeverity.Success);
+
+		// get the new health status
+		Health = await Provider.GetHealth();
 	}
 
 	public class ViewModel
