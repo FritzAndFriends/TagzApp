@@ -92,7 +92,7 @@ public class BlueskyProvider : ISocialMediaProvider
 
 		if (!Enabled)
 		{
-			_status.status = SocialMediaStatus.Unhealthy;
+			_status.status = SocialMediaStatus.Disabled;
 			_status.message = "Bluesky is disabled";
 			return;
 		}
