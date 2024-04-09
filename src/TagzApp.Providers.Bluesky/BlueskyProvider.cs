@@ -65,7 +65,22 @@ public class BlueskyProvider : ISocialMediaProvider
 
 	public async Task SaveConfiguration(IConfigureTagzApp configure, IProviderConfiguration providerConfiguration)
 	{
+
 		await configure.SetConfigurationById($"provider-{Id}", providerConfiguration);
+
+		if (_Config.Enabled != providerConfiguration.Enabled && _Config.Enabled)
+		{
+			Enabled = providerConfiguration.Enabled;
+			_Config = (BlueskyConfiguration)providerConfiguration;
+			await StopAsync();
+		}
+		else if (_Config.Enabled != providerConfiguration.Enabled && !_Config.Enabled)
+		{
+			Enabled = providerConfiguration.Enabled;
+			_Config = (BlueskyConfiguration)providerConfiguration;
+			await StartAsync();
+		}
+
 	}
 
 	public async Task StartAsync()
@@ -77,7 +92,7 @@ public class BlueskyProvider : ISocialMediaProvider
 
 		if (!Enabled)
 		{
-			_status.status = SocialMediaStatus.Unhealthy;
+			_status.status = SocialMediaStatus.Disabled;
 			_status.message = "Bluesky is disabled";
 			return;
 		}
@@ -173,7 +188,7 @@ public class BlueskyProvider : ISocialMediaProvider
 
 		await _AtWebSocketProtocol.StopSubscriptionAsync();
 
-		_status.status = SocialMediaStatus.Unhealthy;
+		_status.status = SocialMediaStatus.Disabled;
 		_status.message = "Disconnected from Bluesky";
 
 	}

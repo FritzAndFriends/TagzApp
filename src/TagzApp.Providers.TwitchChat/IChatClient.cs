@@ -6,8 +6,12 @@ public interface IChatClient : IDisposable
 
 	void Init();
 
+	void Stop();
+
 	bool IsRunning { get; }
 
 	bool IsConnected { get; }
+
+	void ListenToNewChannel(string channelName);
 
 }
