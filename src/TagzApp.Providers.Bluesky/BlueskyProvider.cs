@@ -188,7 +188,7 @@ public class BlueskyProvider : ISocialMediaProvider
 
 		await _AtWebSocketProtocol.StopSubscriptionAsync();
 
-		_status.status = SocialMediaStatus.Unhealthy;
+		_status.status = SocialMediaStatus.Disabled;
 		_status.message = "Disconnected from Bluesky";
 
 	}

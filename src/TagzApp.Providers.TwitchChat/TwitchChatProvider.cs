@@ -224,7 +224,7 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	{
 
 		_Client?.Stop();
-		_Status = SocialMediaStatus.Unhealthy;
+		_Status = SocialMediaStatus.Disabled;
 		_StatusMessage = "TwitchChat client is stopped";
 
 		return Task.CompletedTask;
