@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -24,6 +25,12 @@ public class SecurityContext : IdentityDbContext<TagzAppUser>, IDataProtectionKe
 		// Customize the ASP.NET Identity model and override the defaults if needed.
 		// For example, you can rename the ASP.NET Identity table names and more.
 		// Add your customizations after calling base.OnModelCreating(builder);
+
+		builder.Entity<IdentityRole>()
+			.HasData([
+				new IdentityRole { Id = "1", Name = RolesAndPolicies.Role.Admin, NormalizedName = "ADMIN" },
+				new IdentityRole { Id = "2", Name = RolesAndPolicies.Role.Moderator, NormalizedName = "MODERATOR" }
+			]);
 
 		builder.Entity<DataProtectionKey>().Property(d => d.Id);
 

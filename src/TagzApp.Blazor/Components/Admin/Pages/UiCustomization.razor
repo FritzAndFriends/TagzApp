@@ -1,6 +1,7 @@
 ﻿@page "/admin/uicustomization"
 @using PSC.Blazor.Components.MarkdownEditor
 @using PSC.Blazor.Components.MarkdownEditor.Enums
+@attribute [Authorize(Roles = RolesAndPolicies.Role.Admin)]
 @layout AdminLayout
 @inject ApplicationConfiguration ApplicationConfiguration
 @inject IJSRuntime JSRuntime
