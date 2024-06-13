@@ -52,10 +52,14 @@ internal class Program
 
 		var builder = WebApplication.CreateBuilder(args);
 
+		// Configure the Aspire provided service defaults
+		builder.AddServiceDefaults();
+
 		var configure = ConfigureTagzAppFactory.Create(builder.Configuration, builder.Services.BuildServiceProvider());
 
 		// Add OpenTelemetry for tracing and metrics.
-		builder.Services.AddOpenTelemetryObservability(builder.Configuration);
+		// NOTE: Shifting to using the Aspire service defaults
+		//builder.Services.AddOpenTelemetryObservability(builder.Configuration);
 
 		var appConfig = await ApplicationConfiguration.LoadFromConfiguration(configure);
 		builder.Services.AddSingleton(appConfig);
@@ -68,7 +72,7 @@ internal class Program
 				.AddInteractiveServerComponents()
 				.AddInteractiveWebAssemblyComponents();
 
-		await builder.Services.AddTagzAppSecurity(configure, builder.Configuration);
+		await builder.AddTagzAppSecurity(configure, builder.Configuration);
 
 		//		await Console.Out.WriteLineAsync($">> TagzApp configured: {ConfigureTagzAppFactory.IsConfigured}");
 
@@ -77,7 +81,7 @@ internal class Program
 		builder.Services.AddHttpClientPolicies();
 		await builder.Services.AddTagzAppProviders();
 
-		await builder.Services.AddTagzAppHostedServices(configure);
+		await builder.AddTagzAppHostedServices(configure);
 
 		// Configure the forwarded headers to allow Container hosting support
 		builder.Services.Configure<ForwardedHeadersOptions>(options =>

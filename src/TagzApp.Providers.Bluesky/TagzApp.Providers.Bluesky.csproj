@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Drastic.Utilities" Version="1.0.10" />
-    <PackageReference Include="FishyFlip" Version="1.2.1" />
+    <PackageReference Include="FishyFlip" Version="1.7.56" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
   </ItemGroup>
 
