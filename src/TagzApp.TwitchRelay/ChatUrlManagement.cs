@@ -55,11 +55,18 @@ public class ChatUrlManagement
 		var response = req.CreateResponse(HttpStatusCode.OK);
 		response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
 
-		response.WriteString($"https://id.twitch.tv/oauth2/authorize?" +
-			$"client_id={_Configuration["TwitchClientId"]}&" +
-			$"redirect_uri={_Configuration["TwitchRedirectUri"]}&" +
-			$"state={thisId}&" +
-			"response_type=token&scope=channel:bot+user:bot+chat:read+user:read:chat");
+		_logger.LogInformation($"Generating login url to returnto: {redirect}");
+
+		string redirectUrl = $"https://id.twitch.tv/oauth2/authorize?" +
+					$"client_id={_Configuration["TwitchClientId"]}&" +
+					$"redirect_uri={_Configuration["TwitchRedirectUri"]}&" +
+					$"state={thisId}&" +
+					"response_type=token&scope=channel:bot+user:bot+chat:read+user:read:chat";
+
+		_logger.LogInformation($"Completed URL: {redirectUrl}");
+		Console.WriteLine($"Completed URL: {redirectUrl}");
+
+		response.WriteString(redirectUrl);
 
 		return response;
 
