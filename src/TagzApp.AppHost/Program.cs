@@ -6,7 +6,7 @@ builder.AddDatabase(out var db, out var securityDb);
 
 #region Website
 
-var tagzAppWeb = builder.AddProject<Projects.TagzApp_Blazor>("web")
+var tagzAppWeb = builder.AddProject<Projects.TagzApp_Blazor>("web", "https")
 	.WithReference(db)
 	.WithReference(securityDb);
 

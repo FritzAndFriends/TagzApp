@@ -84,12 +84,7 @@ public class DbConfigureTagzApp : IConfigureTagzApp, IDisposable
 	private static IDbConnection GetConnection(string providerName, string connectionString)
 	{
 
-		return providerName.ToLowerInvariant() switch
-		{
-			"sqlite" => new SqliteConnection(connectionString),
-			"postgres" => new Npgsql.NpgsqlConnection(connectionString),
-			_ => throw new NotImplementedException()
-		};
+		return new Npgsql.NpgsqlConnection(connectionString);
 
 	}
 
