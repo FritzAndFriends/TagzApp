@@ -38,6 +38,9 @@ jobs:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-${{ env.cache-name }}
 
+      - name: Workload install
+        run: dotnet workload restore
+    
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
@@ -91,9 +94,6 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
 
-      - name: Workload install
-        run: dotnet workload restore
-
       - name: Version stamping
         id: nbgv_version
         uses: dotnet/nbgv@v0.4
@@ -109,9 +109,12 @@ jobs:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-${{ env.cache-name }}
   
+      - name: Workload install
+        run: dotnet workload restore
+
       - name: Restore
         run: dotnet restore
-  
+    
       - name: Build
         run: dotnet build --configuration Release --no-restore
         working-directory: ./src/TagzApp.Blazor
