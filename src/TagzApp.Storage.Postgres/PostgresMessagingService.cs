@@ -247,12 +247,13 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 				.Where(c => c.HashtagSought == tag &&
 					providers.Contains(c.Provider) &&
 					c.Timestamp >= localStreamStartTime &&
-					c.ModerationAction != null &&
-					states.Contains(c.ModerationAction.State))
+					(c.ModerationAction != null && states.Contains(c.ModerationAction.State) ||
+						states.Contains(ModerationState.Pending) && c.ModerationAction == null
+					))
 				.OrderByDescending(c => c.Timestamp)
 				.Take(100)
 				.ToArrayAsync())
-				.Select(c => ((Content)c, (ModerationAction?)(c.ModerationAction)))
+				.Select(c => ((Content)c, c.ModerationAction == null ? null : (ModerationAction?)c.ModerationAction))
 				.ToArray();
 
 		}

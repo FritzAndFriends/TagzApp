@@ -1,0 +1,63 @@
+﻿@page "/admin/export-messages"
+@using System.Text
+@using BlazorDownloadFile
+@inject TagzApp.Common.IMessagingService MessagingService
+@inject IBlazorDownloadFileService BlazorDownloadFileService
+@rendermode InteractiveServer
+
+<h3>Export Messages</h3>
+
+<EditForm Model="@this" OnValidSubmit="@ExportMessagesAsync">
+	<div class="mb-3">
+		<label for="filterSelection" class="form-label">Select Filter:</label>
+		<InputSelect id="filterSelection" @bind-Value="SelectedFilter" class="form-select">
+			<option value="All">All Messages</option>
+			<option value="NotRejected">Not Rejected Messages</option>
+		</InputSelect>
+	</div>
+	<button type="submit" class="btn btn-primary">Export</button>
+</EditForm>
+
+@code {
+	private string SelectedFilter { get; set; } = "All";
+
+	private async Task ExportMessagesAsync()
+	{
+
+		var providers = MessagingService.Providers
+			.Where(p => p.Enabled)
+			.Select(p => p.Id)
+			.ToArray();
+
+		var states = new[] { ModerationState.Pending, ModerationState.Approved, ModerationState.Rejected };
+
+		var messages = SelectedFilter switch
+		{
+			"All" => await MessagingService.GetFilteredContentByTag(MessagingService.TagsTracked.First(), providers, states),
+			"NotRejected" => await MessagingService.GetFilteredContentByTag(MessagingService.TagsTracked.First(), providers, [ModerationState.Approved, ModerationState.Pending]),
+			_ => []
+		};
+
+		var csvContent = GenerateCsvContent(messages.Select(m => m.Item1));
+		var fileName = $"messages_export_{DateTime.Now:yyyyMMddHHmmss}.csv";
+		await BlazorDownloadFileService.DownloadFile(fileName, Encoding.UTF8.GetBytes(csvContent), "text/csv");
+	}
+
+	private string GenerateCsvContent(IEnumerable<Content> messages)
+	{
+		var stringBuilder = new StringBuilder();
+		stringBuilder.AppendLine("Id,Provider,UserName,Author,Content,TimestampUtc");
+
+		foreach (var message in messages)
+		{
+			stringBuilder.Append($"\"{message.Id}\",");
+			stringBuilder.Append($"\"{message.Provider}\",");
+			stringBuilder.Append($"\"{message.Author.UserName}\",");
+			stringBuilder.Append($"\"{message.Author.DisplayName.Replace('\"', '\'')}\",");
+			stringBuilder.Append($"\"{  message.Text.Replace('\"', '\'')   }\",");
+			stringBuilder.Append($"{message.Timestamp}\n");
+		}
+
+		return stringBuilder.ToString();
+	}
+}

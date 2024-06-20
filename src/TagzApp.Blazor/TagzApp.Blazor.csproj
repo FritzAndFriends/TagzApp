@@ -48,6 +48,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="BlazorDownloadFile" Version="2.4.0.2" />
 		<PackageReference Include="gravatar" Version="1.1.0" />
 		<PackageReference Include="AspNet.Security.OAuth.GitHub" Version="8.0.0" />
 		<PackageReference Include="AspNet.Security.OAuth.LinkedIn" Version="8.0.0" />
