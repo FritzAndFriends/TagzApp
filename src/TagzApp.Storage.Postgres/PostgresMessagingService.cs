@@ -71,9 +71,13 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 	public async Task<IEnumerable<Content>> GetExistingContentForTag(string tag)
 	{
 
+		var appConfig = _Services.GetRequiredService<ApplicationConfiguration>();
+		var streamStart = appConfig.StreamStart;
+		// TODO: Add StreamStart filter
+
 		using var scope = _Services.CreateScope();
 		var ctx = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
-		return (await ctx.Content.OrderByDescending(c => c.Timestamp)
+		return (await ctx.Content.Where(c => c.Timestamp >= streamStart).OrderByDescending(c => c.Timestamp)
 																				.Take(50)
 																				.ToListAsync())
 																				.Select(c => (Content)c).ToArray();
@@ -121,11 +125,15 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 
 		tag = $"#{tag}";
 
+		var appConfig = _Services.GetRequiredService<ApplicationConfiguration>();
+		var streamStart = appConfig.StreamStart;
+
 		using var scope = _Services.CreateScope();
 		var ctx = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
 		var outRecords = await ctx.Content.AsNoTracking()
 			.Include(c => c.ModerationAction)
 			.Where(c => c.HashtagSought == tag &&
+					c.Timestamp >= streamStart &&
 					c.ModerationAction != null &&
 					c.ModerationAction.State == ModerationState.Approved)
 			.OrderByDescending(c => c.Timestamp)
@@ -141,12 +149,18 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 	{
 
 		tag = $"#{tag}";
+		var appConfig = _Services.GetRequiredService<ApplicationConfiguration>();
+		var streamStart = appConfig.StreamStart;
+
 
 		using var scope = _Services.CreateScope();
 		var ctx = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
 		var contentResults = await ctx.Content.AsNoTracking()
 			.Include(c => c.ModerationAction)
-			.Where(c => c.HashtagSought == tag)
+			.Where(c =>
+				c.HashtagSought == tag &&
+				c.Timestamp >= streamStart
+			)
 			.OrderByDescending(c => c.Timestamp)
 			.Take(100)
 			.ToListAsync();
@@ -167,12 +181,17 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 	{
 
 		tag = $"#{tag}";
+		var appConfig = _Services.GetRequiredService<ApplicationConfiguration>();
+		var streamStart = appConfig.StreamStart;
 
 		using var scope = _Services.CreateScope();
 		var ctx = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
 
 		return ctx.Content.AsNoTracking()
-			.Where(c => c.HashtagSought == tag && c.Provider == provider)
+			.Where(c =>
+				c.HashtagSought == tag &&
+				c.Provider == provider &&
+				c.Timestamp >= streamStart)
 			.OrderByDescending(c => c.Timestamp)
 			.Select(c => c.ProviderId)
 			.FirstOrDefault() ?? string.Empty;
@@ -183,6 +202,8 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 	{
 
 		tag = $"#{tag.TrimStart('#')}";
+		var appConfig = _Services.GetRequiredService<ApplicationConfiguration>();
+		var localStreamStartTime = appConfig.StreamStart;
 
 		using var scope = _Services.CreateScope();
 		var ctx = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
@@ -194,6 +215,7 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 				.Include(c => c.ModerationAction)
 				.Where(c => c.HashtagSought == tag &&
 					providers.Contains(c.Provider) &&
+					c.Timestamp >= localStreamStartTime &&
 					c.ModerationAction == null)
 				.OrderByDescending(c => c.Timestamp)
 				.Take(100)
@@ -208,6 +230,7 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 			return (await ctx.Content.AsNoTracking()
 				.Include(c => c.ModerationAction)
 				.Where(c => c.HashtagSought == tag &&
+					c.Timestamp >= localStreamStartTime &&
 					providers.Contains(c.Provider))
 				.OrderByDescending(c => c.Timestamp)
 				.Take(100)
@@ -223,6 +246,7 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 				.Include(c => c.ModerationAction)
 				.Where(c => c.HashtagSought == tag &&
 					providers.Contains(c.Provider) &&
+					c.Timestamp >= localStreamStartTime &&
 					c.ModerationAction != null &&
 					states.Contains(c.ModerationAction.State))
 				.OrderByDescending(c => c.Timestamp)
