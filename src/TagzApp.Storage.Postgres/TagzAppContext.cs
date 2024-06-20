@@ -23,6 +23,12 @@ public class TagzAppContext : DbContext
 
 		modelBuilder.Entity<PgContent>().HasAlternateKey(c => new { c.Provider, c.ProviderId });
 		modelBuilder.Entity<PgContent>().HasOne(c => c.ModerationAction).WithOne(m => m.Content).HasForeignKey<PgModerationAction>(m => m.ContentId);
+		modelBuilder.Entity<PgContent>().Property(c => c.Timestamp)
+			.HasConversion(
+				t => t.UtcDateTime,
+				t => new DateTimeOffset(t, TimeSpan.Zero)
+			);
+
 
 		modelBuilder.Entity<PgModerationAction>().HasAlternateKey(c => new { c.Provider, c.ProviderId });
 
