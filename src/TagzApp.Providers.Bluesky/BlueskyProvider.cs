@@ -68,6 +68,8 @@ public class BlueskyProvider : ISocialMediaProvider
 
 		await configure.SetConfigurationById($"provider-{Id}", providerConfiguration);
 
+		if (_Config is null) _Config = new();
+
 		if (_Config.Enabled != providerConfiguration.Enabled && _Config.Enabled)
 		{
 			Enabled = providerConfiguration.Enabled;
