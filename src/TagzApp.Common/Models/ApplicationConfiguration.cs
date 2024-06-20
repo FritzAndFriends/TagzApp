@@ -45,6 +45,8 @@ public class ApplicationConfiguration
 		}
 	}
 
+	public DateTimeOffset StreamStart { get; set; } = DateTimeOffset.MinValue;
+
 	[Required]
 	public string WaterfallHeaderMarkdown
 	{

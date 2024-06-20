@@ -23,6 +23,16 @@
 		</InputRadioGroup>
 	</dd>
 
+
+	<dt><label for="StreamStart">Stream Start Timestamp:</label></dt>
+	<dd>
+		<input type="datetime-local" @bind="@ApplicationConfiguration.StreamStart" />
+
+		<button class="btn btn-primary"	
+			@onclick="() => ApplicationConfiguration.StreamStart = DateTime.Now">Now</button>
+
+	</dd>
+
 	<dt><label for="WaterfallHeaderCss">Waterfall header CSS:</label></dt>
 	<dd>
 		<InputTextArea name="WaterfallHeaderCss"
