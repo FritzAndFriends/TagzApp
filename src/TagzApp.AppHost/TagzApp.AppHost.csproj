@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsAspireHost>true</IsAspireHost>
+    <UserSecretsId>9620e5ce-6c82-4271-9ba8-e10189d974b1</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="8.0.1" />
+    <PackageReference Include="Aspire.Hosting.Azure.PostgreSQL" Version="8.0.1" />
+    <PackageReference Include="Aspire.Hosting.NodeJs" Version="8.0.1" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="8.0.1" />
+    <PackageReference Include="Aspire.Hosting.Redis" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TagzApp.Blazor\TagzApp.Blazor.csproj" />
+  </ItemGroup>
+
+</Project>

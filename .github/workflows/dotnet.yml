@@ -90,7 +90,10 @@ jobs:
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
-    
+
+      - name: Workload install
+        run: dotnet workload restore
+
       - name: Version stamping
         id: nbgv_version
         uses: dotnet/nbgv@v0.4

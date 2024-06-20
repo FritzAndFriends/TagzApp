@@ -22,49 +22,38 @@ public static class ConfigureTagzAppFactory
 
 		if (Current != EmptyConfigureTagzApp.Instance) { return Current; }
 
-		// Get AppConfigConnection and AppConfigProvider from standard IConfiguration in the ConnectionStrings section
-		var connectionString = configuration.GetConnectionString("AppConfigConnection");
-		var provider = configuration.GetConnectionString("AppConfigProvider");
 		Current = EmptyConfigureTagzApp.Instance;
 
-		if (provider?.Equals("inmemory", StringComparison.InvariantCultureIgnoreCase) ?? false)
+		Current = new DbConfigureTagzApp();
+		var connectionString = configuration.GetConnectionString("tagzappdb");
+
+		try
 		{
-
-			CreateInMemoryProvider();
-
+			Current.InitializeConfiguration("", connectionString);
+			Current.SetConfigurationById<ConnectionSettings>(ConnectionSettings.ConfigurationKey, new ConnectionSettings
+			{
+				ContentProvider = "postgres",
+				SecurityProvider = "postgres",
+			}).GetAwaiter().GetResult();
+			IsConfigured = true;
 		}
-		else if (!string.IsNullOrEmpty(connectionString) &&
-			!string.IsNullOrEmpty(provider) &&
-			DbConfigureTagzApp.SupportedDbs.Any(db => db.Equals(provider, StringComparison.InvariantCultureIgnoreCase)))
+		catch (Exception ex)
 		{
+			// log the exception
+			var cfg = EmptyConfigureTagzApp.Instance;
 
-			Current = new DbConfigureTagzApp();
-
-			try
+			cfg.Message = ex.InnerException switch
 			{
-				Current.InitializeConfiguration(provider, connectionString);
-				IsConfigured = true;
-			}
-			catch (Exception ex)
-			{
-				// log the exception
-				var cfg = EmptyConfigureTagzApp.Instance;
+				NpgsqlException => ex.Message,
+				_ => $"Unable to initialize database configuration provider"
+			};
 
-				cfg.Message = ex.InnerException switch
-				{
-					NpgsqlException => ex.Message,
-					_ => $"Unable to initialize database configuration provider '{provider}'"
-				};
+			Current = cfg;
+			IsConfigured = false;
 
-				Current = cfg;
-				IsConfigured = false;
-
-				var scope = services.CreateScope();
-				var logger = scope.ServiceProvider.GetRequiredService<ILogger<DbConfigureTagzApp>>();
-				logger.LogError(ex, "Unable to initialize configuration provider");
-
-			}
-
+			var scope = services.CreateScope();
+			var logger = scope.ServiceProvider.GetRequiredService<ILogger<DbConfigureTagzApp>>();
+			logger.LogError(ex, "Unable to initialize configuration provider");
 
 		}
 

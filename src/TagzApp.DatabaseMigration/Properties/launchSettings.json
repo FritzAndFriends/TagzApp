@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "Aspireify.Data.MigrationService": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      },
+      "dotnetRunMessages": true
+    },
+    "Container (.NET SDK)": {
+      "commandName": "SdkContainer"
+    }
+  },
+  "$schema": "http://json.schemastore.org/launchsettings.json"
+}
