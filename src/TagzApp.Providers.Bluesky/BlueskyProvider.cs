@@ -68,6 +68,8 @@ public class BlueskyProvider : ISocialMediaProvider
 
 		await configure.SetConfigurationById($"provider-{Id}", providerConfiguration);
 
+		if (_Config is null) _Config = new();
+
 		if (_Config.Enabled != providerConfiguration.Enabled && _Config.Enabled)
 		{
 			Enabled = providerConfiguration.Enabled;
@@ -167,7 +169,7 @@ public class BlueskyProvider : ISocialMediaProvider
 							ProfileUri = new Uri($"https://bsky.app/profile/{did}") // Syntax is like: https://bsky.app/profile/csharpfritz.com
 						},
 						Provider = Id,
-						ProviderId = message.Commit.Commit.Hash.ToString(),
+						ProviderId = message.Commit?.Commit ?? "",
 						SourceUri = new Uri(postUrl),
 						Timestamp = new DateTimeOffset(post.CreatedAt!.Value).ToUniversalTime(),
 						HashtagSought = _TheTag,
