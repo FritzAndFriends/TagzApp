@@ -92,7 +92,7 @@ jobs:
         uses: actions/setup-dotnet@v4
 
       - name: Workload install
-        run: dotnet workload resotre
+        run: dotnet workload restore
 
       - name: Version stamping
         id: nbgv_version
