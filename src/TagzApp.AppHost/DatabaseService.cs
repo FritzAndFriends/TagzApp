@@ -12,7 +12,8 @@ public static class DatabaseConfig
 	public static IDistributedApplicationBuilder AddDatabase(
 		this IDistributedApplicationBuilder builder
 		, out IResourceBuilder<PostgresDatabaseResource> db
-		, out IResourceBuilder<PostgresDatabaseResource> securityDb)
+		, out IResourceBuilder<PostgresDatabaseResource> securityDb
+		, out IResourceBuilder<ProjectResource> migration)
 	{
 
 		var dbPassword = builder.AddParameter("dbPassword", false);
@@ -24,6 +25,13 @@ public static class DatabaseConfig
 		db = dbServer.AddDatabase("tagzappdb");
 
 		securityDb = dbServer.AddDatabase("securitydb");
+
+
+		migration = builder.AddProject<Projects.TagzApp_MigrationService>("db-migrations")
+			.WaitFor(db)
+			.WaitFor(securityDb)
+			.WithReference(db)
+			.WithReference(securityDb);
 
 		return builder;
 

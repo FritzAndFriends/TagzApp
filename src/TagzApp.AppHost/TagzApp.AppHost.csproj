@@ -18,7 +18,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TagzApp.AppHostExtensions\TagzApp.AppHostExtensions.csproj" IsAspireProjectResource="false" />
     <ProjectReference Include="..\TagzApp.Blazor\TagzApp.Blazor.csproj" />
+    <ProjectReference Include="..\TagzApp.DatabaseMigration\TagzApp.MigrationService.csproj" />
   </ItemGroup>
 
 </Project>
