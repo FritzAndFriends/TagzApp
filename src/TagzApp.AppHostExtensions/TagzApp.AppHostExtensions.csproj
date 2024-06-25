@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Aspire.Hosting" Version="8.0.*" />
+		<PackageReference Include="Aspire.Hosting.Redis" Version="8.0.*" />
+		<PackageReference Include="Aspire.Hosting.PostgreSQL" Version="8.0.*" />
+		<PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="8.0.1" />
+		<PackageReference Include="AspNetCore.HealthChecks.Redis" Version="8.0.1" />
+		<PackageReference Include="AspNetCore.HealthChecks.Uris" Version="8.0.1" />
+	</ItemGroup>
+
+</Project>

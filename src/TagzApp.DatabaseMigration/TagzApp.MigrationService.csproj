@@ -18,7 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Aspireify.Data.Security\Aspireify.Data.Security.csproj" />
-    <ProjectReference Include="..\Aspireify.Web.ServiceDefaults\Aspireify.Web.ServiceDefaults.csproj" />
-	</ItemGroup>
+    <ProjectReference Include="..\TagzApp.Security\TagzApp.Security.csproj" />
+    <ProjectReference Include="..\TagzApp.ServiceDefaults\TagzApp.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\TagzApp.Storage.Postgres\TagzApp.Storage.Postgres.csproj" />
+  </ItemGroup>
 </Project>

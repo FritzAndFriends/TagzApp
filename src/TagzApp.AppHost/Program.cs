@@ -3,7 +3,10 @@ using TagzApp.AppHost;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-builder.AddDatabase(out var db, out var securityDb);
+builder.AddDatabase(
+	out var db,
+	out var securityDb,
+	out var migration);
 
 var twitchCache = builder.AddRedis("twitchCache");
 var twitchRelay = builder.AddExecutable("twitchrelay",
@@ -15,6 +18,7 @@ var twitchRelay = builder.AddExecutable("twitchrelay",
 #region Website
 
 var tagzAppWeb = builder.AddProject<Projects.TagzApp_Blazor>("web", "https")
+	.WaitForCompletion(migration)
 	.WithReference(db)
 	.WithReference(securityDb)
 	.WithEnvironment("TwitchRelayUri", "http://localhost:7082");

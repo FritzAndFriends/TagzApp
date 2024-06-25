@@ -1,8 +1,8 @@
-using Aspireify.Data.Security;
 using Microsoft.EntityFrameworkCore;
 using OpenTelemetry.Trace;
 using System.Diagnostics;
-using System.Threading;
+using TagzApp.Security;
+using TagzApp.Storage.Postgres;
 
 namespace Aspireify.Data.MigrationService;
 
@@ -32,7 +32,23 @@ public class Worker : BackgroundService
 		try
 		{
 			using var scope = serviceProvider.CreateScope();
-			var dbContext = scope.ServiceProvider.GetRequiredService<AspireifySecurityContext>();
+			var dbContext = scope.ServiceProvider.GetRequiredService<SecurityContext>();
+
+			await dbContext.Database.MigrateAsync(stoppingToken);
+
+		}
+		catch (Exception ex)
+		{
+			activity?.RecordException(ex);
+			throw;
+		}
+
+		using var tagzActivity = s_activitySource.StartActivity("Migrating database", ActivityKind.Client);
+
+		try
+		{
+			using var scope = serviceProvider.CreateScope();
+			var dbContext = scope.ServiceProvider.GetRequiredService<TagzAppContext>();
 
 			await dbContext.Database.MigrateAsync(stoppingToken);
 
