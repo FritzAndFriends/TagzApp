@@ -33,8 +33,8 @@
 
 		var messages = SelectedFilter switch
 		{
-			"All" => await MessagingService.GetFilteredContentByTag(MessagingService.TagsTracked.First(), providers, states),
-			"NotRejected" => await MessagingService.GetFilteredContentByTag(MessagingService.TagsTracked.First(), providers, [ModerationState.Approved, ModerationState.Pending]),
+			"All" => await MessagingService.GetFilteredContentByTag(MessagingService.TagsTracked.First(), providers, states, 100_000),
+			"NotRejected" => await MessagingService.GetFilteredContentByTag(MessagingService.TagsTracked.First(), providers, [ModerationState.Approved, ModerationState.Pending], 100_000),
 			_ => []
 		};
 
