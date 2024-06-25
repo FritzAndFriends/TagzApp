@@ -160,7 +160,7 @@ internal class PostgresModerationRepository : IModerationRepository
 	}
 
 
-	public async Task BlockUser(string userId, string provider, string userName, DateTimeOffset expirationDate)
+	public async Task BlockUser(string userId, string provider, string userName, DateTimeOffset expirationDate, BlockedUserCapabilities capabilities)
 	{
 
 		// add a new blocked user to the context
@@ -169,7 +169,8 @@ internal class PostgresModerationRepository : IModerationRepository
 			BlockingUser = userName,
 			Provider = provider,
 			UserName = userId,
-			ExpirationDateTime = expirationDate
+			ExpirationDateTime = expirationDate,
+			Capabilities = capabilities
 		};
 		_Context.BlockedUsers.Add(blockedUser);
 

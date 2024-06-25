@@ -52,7 +52,7 @@ public interface IModerationRepository
 	/// <param name="userName">The moderator who is blocking the user</param>
 	/// <param name="expirationDate">The date the block expires</param>
 	/// <returns></returns>
-	Task BlockUser(string userId, string provider, string userName, DateTimeOffset expirationDate);
+	Task BlockUser(string userId, string provider, string userName, DateTimeOffset expirationDate, BlockedUserCapabilities capabilities);
 
 	/// <summary>
 	/// Unblock a user

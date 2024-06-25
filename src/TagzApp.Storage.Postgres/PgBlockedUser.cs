@@ -22,6 +22,8 @@ public class PgBlockedUser
 
 	public DateTimeOffset ExpirationDateTime { get; set; } = new DateTimeOffset(new DateTime(2050, 1, 1));
 
+	public BlockedUserCapabilities Capabilities { get; set; } = BlockedUserCapabilities.Moderated;
+
 	// Add an explicit operator for converting between a blocked user and a PGblockeduser
 	public static implicit operator BlockedUser(PgBlockedUser thisBlockedUser)
 	{
@@ -33,7 +35,8 @@ public class PgBlockedUser
 			UserName = thisBlockedUser.UserName,
 			BlockingUser = thisBlockedUser.BlockingUser,
 			BlockedDate = thisBlockedUser.BlockDateTime,
-			ExpirationDate = thisBlockedUser.ExpirationDateTime
+			ExpirationDate = thisBlockedUser.ExpirationDateTime,
+			Capabilities = thisBlockedUser.Capabilities
 
 		};
 

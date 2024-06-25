@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TagzApp.Storage.Postgres;
@@ -11,9 +12,11 @@ using TagzApp.Storage.Postgres;
 namespace TagzApp.Storage.Postgres.Migrations
 {
     [DbContext(typeof(TagzAppContext))]
-    partial class TagzAppContextModelSnapshot : ModelSnapshot
+    [Migration("20240625164553_AddBlockedUserCapabilities")]
+    partial class AddBlockedUserCapabilities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,9 +42,7 @@ namespace TagzApp.Storage.Postgres.Migrations
                         .HasColumnType("character varying(200)");
 
                     b.Property<int>("Capabilities")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(1);
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("ExpirationDateTime")
                         .HasColumnType("timestamp with time zone");
