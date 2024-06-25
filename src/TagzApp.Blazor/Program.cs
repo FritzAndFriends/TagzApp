@@ -1,5 +1,5 @@
 global using TagzApp.Security;
-
+using BlazorDownloadFile;
 using Microsoft.AspNetCore.HttpOverrides;
 using System.Security.Claims;
 using TagzApp.Blazor;
@@ -77,6 +77,7 @@ internal class Program
 		//		await Console.Out.WriteLineAsync($">> TagzApp configured: {ConfigureTagzAppFactory.IsConfigured}");
 
 		builder.Services.AddSignalR();
+		builder.Services.AddBlazorDownloadFile(ServiceLifetime.Scoped);
 
 		builder.Services.AddHttpClientPolicies();
 		await builder.Services.AddTagzAppProviders();

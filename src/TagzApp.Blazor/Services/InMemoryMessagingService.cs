@@ -104,7 +104,7 @@ public class InMemoryMessagingService : BaseProviderManager, IMessagingService
 
 	}
 
-	public Task<IEnumerable<(Content, ModerationAction)>> GetFilteredContentByTag(string tag, string[] providers, ModerationState[] states)
+	public Task<IEnumerable<(Content, ModerationAction)>> GetFilteredContentByTag(string tag, string[] providers, ModerationState[] states, int maxCount = 100)
 	{
 
 		throw new NotImplementedException();

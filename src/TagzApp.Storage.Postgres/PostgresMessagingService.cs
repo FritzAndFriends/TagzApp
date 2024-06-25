@@ -198,7 +198,7 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 
 	}
 
-	public async Task<IEnumerable<(Content, ModerationAction?)>> GetFilteredContentByTag(string tag, string[] providers, ModerationState[] states)
+	public async Task<IEnumerable<(Content, ModerationAction?)>> GetFilteredContentByTag(string tag, string[] providers, ModerationState[] states, int maxCount = 100)
 	{
 
 		tag = $"#{tag.TrimStart('#')}";
@@ -218,7 +218,7 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 					c.Timestamp >= localStreamStartTime &&
 					c.ModerationAction == null)
 				.OrderByDescending(c => c.Timestamp)
-				.Take(100)
+				.Take(maxCount)
 				.ToArrayAsync())
 				.Select(c => ((Content)c, (ModerationAction?)null))
 				.ToArray();
@@ -233,7 +233,7 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 					c.Timestamp >= localStreamStartTime &&
 					providers.Contains(c.Provider))
 				.OrderByDescending(c => c.Timestamp)
-				.Take(100)
+				.Take(maxCount)
 				.ToArrayAsync())
 				.Select(c => ((Content)c, c.ModerationAction == null ? null : (ModerationAction?)c.ModerationAction))
 				.ToArray();
@@ -247,12 +247,13 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 				.Where(c => c.HashtagSought == tag &&
 					providers.Contains(c.Provider) &&
 					c.Timestamp >= localStreamStartTime &&
-					c.ModerationAction != null &&
-					states.Contains(c.ModerationAction.State))
+					(c.ModerationAction != null && states.Contains(c.ModerationAction.State) ||
+						states.Contains(ModerationState.Pending) && c.ModerationAction == null
+					))
 				.OrderByDescending(c => c.Timestamp)
-				.Take(100)
+				.Take(maxCount)
 				.ToArrayAsync())
-				.Select(c => ((Content)c, (ModerationAction?)(c.ModerationAction)))
+				.Select(c => ((Content)c, c.ModerationAction == null ? null : (ModerationAction?)c.ModerationAction))
 				.ToArray();
 
 		}
