@@ -180,7 +180,7 @@ internal class PostgresModerationRepository : IModerationRepository
 		await _Context.SaveChangesAsync();
 
 		var blockedUsers = await GetBlockedUsers();
-		_Cache.Set(KEY_BLOCKEDUSERS_CACHE, blockedUsers.Select(u => (u.Provider, u.UserName)).ToList());
+		UpdateBlockedUsersCache(blockedUsers);
 
 	}
 
@@ -203,8 +203,13 @@ internal class PostgresModerationRepository : IModerationRepository
 		await _Context.SaveChangesAsync();
 
 		var blockedUsers = await GetBlockedUsers();
-		_Cache.Set(KEY_BLOCKEDUSERS_CACHE, blockedUsers.Select(u => (u.Provider, u.UserName)).ToList());
+		UpdateBlockedUsersCache(blockedUsers);
 
+	}
+
+	internal void UpdateBlockedUsersCache(IEnumerable<BlockedUser> blockedUsers)
+	{
+		_Cache.Set(KEY_BLOCKEDUSERS_CACHE, blockedUsers.Select(u => (u.Provider, u.UserName, u.Capabilities)).ToList());
 	}
 
 	public async Task<(Content Content, ModerationAction Action)> GetContentWithModeration(string provider, string providerId)

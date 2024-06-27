@@ -95,10 +95,15 @@
 						@* Add a block user button *@
 						<li>
 							Block @Model.AuthorDisplayName on @Model.Provider.ToLowerInvariant().Humanize(LetterCasing.Title)
-							
-							@* TODO: Wire up the GO button
 
-							*@
+							with @* Add an select for the enum BlockedUserCapabilities *@
+							<select name="blockedUserCapabilities" @bind="@BlockedUserCapabilities">
+								@foreach (var capability in Enum.GetValues(typeof(BlockedUserCapabilities)))
+								{
+									<option value="@capability">@capability</option>
+								}
+							</select>
+							
 							<input type="submit" name="blockUser" value="Go" />
 						</li>
 					</ul>
@@ -124,6 +129,8 @@
 
 	private string ValidationMessage { get; set; }
 
+	private BlockedUserCapabilities BlockedUserCapabilities { get; set; } = BlockedUserCapabilities.Moderated;
+
 	protected override async Task OnInitializedAsync()
 	{
 
@@ -139,7 +146,12 @@
 
 		var user = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
 
-		await ModerationRepository.BlockUser(Model.AuthorUserName, Model.Provider, user.DisplayName, new DateTimeOffset(new DateTime(2050, 1, 1), TimeSpan.Zero));
+		await ModerationRepository.BlockUser(
+			Model.AuthorUserName, 
+			Model.Provider, 
+			user.DisplayName, 
+			new DateTimeOffset(new DateTime(2050, 1, 1), TimeSpan.Zero), 
+			BlockedUserCapabilities);
 		ValidationMessage = $"User {Model.AuthorUserName} has been blocked on {Model.Provider.ToLowerInvariant().Humanize(LetterCasing.Title)}";
 		
 	}

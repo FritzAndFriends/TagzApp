@@ -5,6 +5,7 @@
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
 @using System.ComponentModel.DataAnnotations
+@using TagzApp.ViewModels.Data
 @inject IMessagingService _Service
 @inject UserManager<TagzAppUser> _UserManager
 @inject IModerationRepository _Repository
@@ -17,10 +18,19 @@
 		<option value="">Select a provider</option>
 		@foreach (var provider in Providers)
 		{
-			<option value="@provider.Id">@provider.DisplayName</option>
+			<option value="@provider.Id">@provider.Name</option>
 		}
 	</select>
 	<input id="username" name="username" maxlength="20" placeholder="User Name" @bind="@UserToBlock" />
+	
+	@* add a select to choose the BlockedUserCapabilities *@
+	<select name="blockedUserCapabilities" @bind="@BlockedUserCapabilities">
+		@foreach (var capability in Enum.GetValues(typeof(BlockedUserCapabilities)))
+		{
+			<option value="@capability">@capability</option>
+		}
+	</select>
+
 	<AntiforgeryToken />
 	<button type="submit" class="btn btn-primary">Block User</button>
 </form>
@@ -35,6 +45,7 @@
 				<th>Provider</th>
 				<th>Username</th>
 				<th>Blocked By</th>
+				<th>Capabilities</th>
 				<th>Blocked On</th>
 				<th>Blocked Until</th>
 			</tr>
@@ -54,6 +65,7 @@
 					<td>@user.Provider</td>
 					<td>@@@(user.UserName.TrimStart('@'))</td>
 					<td>@user.BlockingUser</td>
+					<td>@user.Capabilities.ToString()</td>
 					<td data-utc="@user.BlockedDate">@user.BlockedDate.ToLocalTime().ToString("d")</td>
 					<td>@(user.ExpirationDate > DateTime.Now.AddYears(1) ? "No end date" : user.ExpirationDate.Value.Date.ToLocalTime().ToString("d"))</td>
 				</tr>
@@ -68,7 +80,7 @@ else
 
 @code {
 
-	private IEnumerable<ISocialMediaProvider> Providers { get; set; }
+	private AvailableProvider[] Providers { get; set; } = [];
 	private IEnumerable<BlockedUser> Users { get; set; }
 
 	[CascadingParameter]
@@ -80,15 +92,21 @@ else
 	[SupplyParameterFromForm(FormName = "BlockNewUser", Name = "username")]
 	private string UserToBlock { get; set; } = string.Empty;
 
+	[SupplyParameterFromForm(FormName = "BlockNewUser", Name = "blockedUserCapabilities")]
+	private BlockedUserCapabilities? BlockedUserCapabilities { get; set; }
+
 	private object EditModel = new();
 
 	protected override async Task OnInitializedAsync()
 	{
 
-		Providers = _Service.Providers
-			.OrderBy(x => x.DisplayName).ToArray();
 		Users = await _Repository.GetBlockedUsers();
 
+		BlockedUserCapabilities ??= Common.Models.BlockedUserCapabilities.Moderated;
+
+		Providers = _Service.Providers.Where(p => p.Enabled)
+			.Select(p => new AvailableProvider(p.Id, p.DisplayName))
+			.ToArray();
 
 	}
 
@@ -100,13 +118,14 @@ else
 		var user = await _UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
 		if (user != null) 
 		{
-			await _Repository.BlockUser($"@{UserToBlock.TrimStart('@')}", SelectedProvider, user.DisplayName, new DateTimeOffset(new DateTime(2050, 1, 1), TimeSpan.Zero));
+			await _Repository.BlockUser($"@{UserToBlock.TrimStart('@')}", SelectedProvider, user.DisplayName, new DateTimeOffset(new DateTime(2050, 1, 1), TimeSpan.Zero), this.BlockedUserCapabilities ?? Common.Models.BlockedUserCapabilities.Moderated	);
 		}
 
 		// reload  the users list
 		Users = await _Repository.GetBlockedUsers();
 		SelectedProvider = string.Empty;
 		UserToBlock = string.Empty;
+		BlockedUserCapabilities = Common.Models.BlockedUserCapabilities.Moderated;
 
 	}
 

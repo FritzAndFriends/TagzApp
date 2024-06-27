@@ -5,15 +5,15 @@ namespace TagzApp.Storage.Postgres;
 public class TagzAppContext : DbContext
 {
 
-	//public TagzAppContext(DbContextOptions options) : base(options)
-	//{
-	//}
-
-	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+	public TagzAppContext(DbContextOptions options) : base(options)
 	{
-		optionsBuilder.UseNpgsql();
-		base.OnConfiguring(optionsBuilder);
 	}
+
+	//protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+	//{
+	//	optionsBuilder.UseNpgsql();
+	//	base.OnConfiguring(optionsBuilder);
+	//}
 
 	public DbSet<PgContent> Content { get; set; }
 
