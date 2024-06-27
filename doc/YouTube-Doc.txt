@@ -1,0 +1,5 @@
+TagzApp is an open source application with all source code available for contributors and providers to review.  We have created multiple 'providers' for various social media services including Mastodon, X, Twitch, Bluesky, and YouTube.  
+
+TagzApp polls these services repeatedly in order to present message content on a unified dashboard for moderators and pop-up messages for live stream hosts and viewers to interact with
+
+You can review all of our C# source code for the YouTube provider at:  https://github.com/FritzAndFriends/TagzApp/tree/main/src/TagzApp.Providers.YouTubeChat

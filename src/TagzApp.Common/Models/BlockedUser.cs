@@ -31,4 +31,14 @@ public class BlockedUser
 	/// </summary>
 	public DateTimeOffset? ExpirationDate { get; set; }
 
+	public BlockedUserCapabilities Capabilities { get; set; } = BlockedUserCapabilities.Moderated;
+
+}
+
+public enum BlockedUserCapabilities
+{
+
+	Moderated = 1,
+	Hidden = 2
+
 }

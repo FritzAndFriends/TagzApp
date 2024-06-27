@@ -65,27 +65,30 @@ public class AzureSafetyModeration : INotifyNewMessages
 		// TODO: Establish a notification pipeline that allows for multiple moderation providers
 
 		// Check if this content is created by one of the blocked users listed in the cache
-		var usersBlocked = _Cache.GetOrCreate(KEY_BLOCKEDUSERS_CACHE, _ => new List<(string Provider, string UserName)>());
+		var usersBlocked = _Cache.GetOrCreate(KEY_BLOCKEDUSERS_CACHE, _ => new List<(string Provider, string UserName, BlockedUserCapabilities Capabilities)>());
 		var isBlocked = usersBlocked
-			.Any(a => a.Provider.Equals(content.Provider, StringComparison.InvariantCultureIgnoreCase)
+			.FirstOrDefault(a => a.Provider.Equals(content.Provider, StringComparison.InvariantCultureIgnoreCase)
 				&& a.UserName.Equals('@' + content.Author.UserName.TrimStart('@'), StringComparison.InvariantCultureIgnoreCase));
 
-		if (isBlocked)
+		if (!string.IsNullOrEmpty(isBlocked.Provider))
 		{
 			using var scope = _ServiceProvider.CreateScope();
 			var moderationRepository = scope.ServiceProvider.GetRequiredService<IModerationRepository>();
 			moderationRepository.ModerateWithReason("BLOCKED-USER", content.Provider, content.ProviderId, ModerationState.Rejected, "Blocked User").GetAwaiter().GetResult();
 
-			_NotifyNewMessages.NotifyNewContent(hashtag, content);
-			_NotifyNewMessages.NotifyRejectedContent(hashtag, content, new ModerationAction
+			if (isBlocked.Capabilities != BlockedUserCapabilities.Hidden)
 			{
-				Provider = content.Provider,
-				ProviderId = content.ProviderId,
-				State = ModerationState.Rejected,
-				Timestamp = DateTimeOffset.UtcNow,
-				Moderator = "BLOCKED-USER",
-				Reason = "Blocked User"
-			});
+				_NotifyNewMessages.NotifyNewContent(hashtag, content);
+				_NotifyNewMessages.NotifyRejectedContent(hashtag, content, new ModerationAction
+				{
+					Provider = content.Provider,
+					ProviderId = content.ProviderId,
+					State = ModerationState.Rejected,
+					Timestamp = DateTimeOffset.UtcNow,
+					Moderator = "BLOCKED-USER",
+					Reason = "Blocked User"
+				});
+			}
 			return;
 		}
 
@@ -174,7 +177,7 @@ public class AzureSafetyModeration : INotifyNewMessages
 		var moderationRepository = scope.ServiceProvider.GetRequiredService<IModerationRepository>();
 		var blockedUsers = moderationRepository.GetBlockedUsers().GetAwaiter().GetResult();
 		_AzureSafetyLogger.LogInformation($"Blocked user count: {blockedUsers.Count()}");
-		_Cache.Set(KEY_BLOCKEDUSERS_CACHE, blockedUsers.Select(u => (u.Provider, u.UserName)).ToList());
+		(moderationRepository as PostgresModerationRepository)?.UpdateBlockedUsersCache(blockedUsers);
 		return scope;
 	}
 

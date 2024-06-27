@@ -118,7 +118,13 @@ public class ModerationHub : Hub<IModerationClient>
 			[ModerationState.Pending, ModerationState.Approved, ModerationState.Rejected] :
 			new[] { Enum.Parse<ModerationState>(state) };
 
-		var results = (await _Service.GetFilteredContentByTag(tag, providers, states))
+		var hiddenUsers = (await _Repository.GetBlockedUsers())
+			.Where(b => b.Capabilities == BlockedUserCapabilities.Hidden)
+			.ToArray();
+
+		var results = (await _Service.GetFilteredContentByTag(tag, providers, states, 200))
+			.Where(c => !hiddenUsers.Any(h => h.Provider.Equals(c.Item1.Provider, StringComparison.InvariantCultureIgnoreCase) && h.UserName.Equals(c.Item1.Author.UserName, StringComparison.InvariantCultureIgnoreCase)))
+			.Take(100)
 			.Select(c => ModerationContentModel.ToModerationContentModel(c.Item1, c.Item2))
 			.ToArray();
 		Console.WriteLine($"Found {results.Length} results for {tag} with {providers.Length} providers and {states.Length} states");
