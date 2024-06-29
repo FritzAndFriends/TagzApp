@@ -111,12 +111,12 @@ public class ModerationHub : Hub<IModerationClient>
 
 	}
 
-	public async Task<IEnumerable<ModerationContentModel>> GetFilteredContentByTag(string tag, string[] providers, string state)
+	public async Task<IEnumerable<ModerationContentModel>> GetFilteredContentByTag(string tag, string[] providers, int state)
 	{
 
-		var states = string.IsNullOrEmpty(state) || state == "-1" ?
+		var states = state == -1 ?
 			[ModerationState.Pending, ModerationState.Approved, ModerationState.Rejected] :
-			new[] { Enum.Parse<ModerationState>(state) };
+			new[] { (ModerationState)state };
 
 		var results = (await _Service.GetFilteredContentByTag(tag, providers, states))
 			.Select(c => ModerationContentModel.ToModerationContentModel(c.Item1, c.Item2))
