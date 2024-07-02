@@ -73,6 +73,7 @@ internal class Program
 				.AddInteractiveWebAssemblyComponents();
 
 		await builder.AddTagzAppSecurity(configure, builder.Configuration);
+		builder.Services.AddQuickGridEntityFrameworkAdapter();
 
 		//		await Console.Out.WriteLineAsync($">> TagzApp configured: {ConfigureTagzAppFactory.IsConfigured}");
 

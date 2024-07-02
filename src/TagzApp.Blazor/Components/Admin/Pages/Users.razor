@@ -1,5 +1,6 @@
 ﻿@page "/admin/users"
 @using Gravatar
+@using Microsoft.AspNetCore.Components.QuickGrid
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
 @attribute [Authorize(Roles = RolesAndPolicies.Role.Admin)]
@@ -14,37 +15,56 @@
 
 <h3>User Roles Management</h3>
 
-@if (AppConfig.SingleUserMode) {
- <div>You're in Single User Mode
+@if (AppConfig.SingleUserMode)
+{
+	<div>
+		You're in Single User Mode
 
-    <p class="alert alert-primary" role="alert">Converting to Multi-User Mode is a one-way operation that cannot be reversed.  You will need to register as a new user and login with that user immediately to be granted Admin access.  After that, you can add more users with various roles.
-   </p>
+		<p class="alert alert-primary" role="alert">
+			Converting to Multi-User Mode is a one-way operation that cannot be reversed.  You will need to register as a new user and login with that user immediately to be granted Admin access.  After that, you can add more users with various roles.
+		</p>
 
-	<button type="button" class="btn btn-danger" @onclick="ConvertUserMode">Change to Multi-User Mode</button>
+		<button type="button" class="btn btn-danger" @onclick="ConvertUserMode">Change to Multi-User Mode</button>
 
- </div>
-} else {
-<table>
-	<tr>
-		@*<th>User ID</th>*@
-		<th style="width:20em; padding-left: 85px;">Name</th>
-		<th>User Email</th>
-		<th>Action</th>
-	</tr>
-	@foreach (var user in UserList.OrderBy(u => u.DisplayName))
-	{
+	</div>
+}
+else
+{
+	<QuickGrid Items="UserList" TGridItem="TagzAppUser" >
+		<TemplateColumn Title="Name" Class="UserGridNameColumn" Align="Align.Left">
+			<ItemTemplate>
+				<img class="gravatar" title="Gravatar" src="@context.Email.ToGravatar()" />
+				@context.DisplayName
+			</ItemTemplate>
+		</TemplateColumn>
+		<PropertyColumn Title="User Email" Property="u => u.Email"></PropertyColumn>
+		<TemplateColumn Title="Action">
+			<ItemTemplate>
+				<span style="cursor: pointer" class="link-primary nav-link" @onclick="@(() => AssignRoles(context))">Assign Roles</span>
+			</ItemTemplate>
+		</TemplateColumn>
+	</QuickGrid>
+
+@* 	<table>
 		<tr>
-			<td>
-				<img class="gravatar" title="Gravatar" src="@user.Email.ToGravatar()" />
-				@user.DisplayName
-			</td>
-			<td>@user.Email</td>
-			<td><span style="cursor: pointer" class="link-primary nav-link" @onclick="@(() => AssignRoles(user))">Assign Roles</span></td>
+			<th style="width:20em; padding-left: 85px;">Name</th>
+			<th>User Email</th>
+			<th>Action</th>
 		</tr>
-	}
-</table>
-
-<ManageRoles @ref="ManageRolesDialog" CurrentUser="SelectedUser" OnComplete="CloseManageRoles" />
+		@foreach (var user in UserList.OrderBy(u => u.DisplayName))
+		{
+			<tr>
+				<td>
+					<img class="gravatar" title="Gravatar" src="@user.Email.ToGravatar()" />
+					@user.DisplayName
+				</td>
+				<td>@user.Email</td>
+				<td><span style="cursor: pointer" class="link-primary nav-link" @onclick="@(() => AssignRoles(user))">Assign Roles</span></td>
+			</tr>
+		}
+	</table>
+ *@
+	<ManageRoles @ref="ManageRolesDialog" CurrentUser="SelectedUser" OnComplete="CloseManageRoles" />
 }
 
 @code {
@@ -52,7 +72,7 @@
 	[CascadingParameter]
 	private HttpContext HttpContext { get; set; } = default!;
 
-	private List<TagzAppUser> UserList { get; set; } = [];
+	private IQueryable<TagzAppUser> UserList { get; set; }
 
 	private TagzAppUser SelectedUser { get; set; } = new();
 
@@ -63,7 +83,7 @@
 
 		if (AppConfig.SingleUserMode) return;
 
-		UserList = await UserManager.Users.ToListAsync();
+		UserList = UserManager.Users;
 	}
 
 	private async Task AssignRoles(TagzAppUser user)
@@ -77,15 +97,16 @@
 		SelectedUser = null;
 	}
 
-  private async Task ConvertUserMode()
-  {
+	private async Task ConvertUserMode()
+	{
 		var accepted = await Js.InvokeAsync<bool>("confirm", "Are you sure you would like to convert to multi-user mode?  This is a one-way operation and cannot be reversed");
-		if (accepted) {
+		if (accepted)
+		{
 			AppConfig.SingleUserMode = false;
-   		await AppConfig.SaveConfiguration(ConfigureTagzAppFactory.Current);
+			await AppConfig.SaveConfiguration(ConfigureTagzAppFactory.Current);
 			Program.Restart();
 			NavigationManager.NavigateTo("/");
 		}
-  }
+	}
 
 }
