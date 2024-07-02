@@ -334,7 +334,7 @@
 	{
 
 		var approvalStatus = (int)_FilterApprovalStatus;
-		var currentContent = (await _Connection.InvokeAsync<IEnumerable<ModerationContentModel>>("GetFilteredContentByTag", _Tag, _FilteredProviders.ToArray(), approvalStatus.ToString()))
+		var currentContent = (await _Connection.InvokeAsync<IEnumerable<ModerationContentModel>>("GetFilteredContentByTag", _Tag, _FilteredProviders.ToArray(), approvalStatus))
 			.ToArray();
 
 		foreach (var content in currentContent.OrderByDescending(c => c.Timestamp).ToArray())
