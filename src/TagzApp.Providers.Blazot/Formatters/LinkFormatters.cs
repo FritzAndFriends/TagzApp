@@ -14,9 +14,9 @@ internal static class LinkFormatters
 		if (string.IsNullOrWhiteSpace(bodyText))
 			return bodyText;
 
-		bodyText = LinkFormatters.AddHashTagLinks(bodyText);
-		bodyText = LinkFormatters.AddWebLinks(bodyText);
-		bodyText = LinkFormatters.AddMentionLinks(bodyText);
+		bodyText = AddHashTagLinks(bodyText);
+		bodyText = AddMentionLinks(bodyText);
+		bodyText = AddWebLinks(bodyText);
 		return bodyText;
 	}
 
@@ -40,6 +40,9 @@ internal static class LinkFormatters
 
 	public static string AddWebLinks(string bodyText)
 	{
+		// Had issues with &amp; breaking URL links when in query parameters.
+		bodyText = bodyText.Replace("&amp;", "&");
+
 		return LinkRegex.Replace(bodyText, delegate (Match m)
 		{
 			var fullLink = AddHttpIfMissing(m.Value);

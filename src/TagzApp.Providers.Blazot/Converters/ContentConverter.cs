@@ -46,7 +46,7 @@ public class ContentConverter : IContentConverter
 
 			var content = new Content
 			{
-				Provider = BlazotConstants.ProviderId,
+				Provider = BlazotConstants.Provider,
 				ProviderId = transmission.TransmissionId.ToString(),
 				Author = new Creator
 				{
@@ -99,6 +99,14 @@ public class ContentConverter : IContentConverter
 				{
 					AltText = transmission.WebLink.Description,
 					ImageUri = new Uri(transmission.WebLink.ImageUrl)
+				};
+			}
+
+			if (!string.IsNullOrWhiteSpace(transmission.AnimatedMedia?.Url))
+			{
+				content.PreviewCard = new Card
+				{
+					ImageUri = new Uri(transmission.AnimatedMedia.Url)
 				};
 			}
 
