@@ -31,6 +31,7 @@ public class TwitterConfiguration : HttpClientOptions, IProviderConfiguration
 			"Timeout" => Timeout.ToString(),
 			"DefaultHeaders" => DefaultHeaders?.Serialize() ?? string.Empty,
 			"UseHttp2" => UseHttp2.ToString(),
+			"Enabled" => Enabled.ToString(),
 			_ => string.Empty
 		};
 	}
@@ -43,6 +44,9 @@ public class TwitterConfiguration : HttpClientOptions, IProviderConfiguration
 
 			case "BaseAddress":
 				BaseAddress = new Uri(value);
+				break;
+			case "Enabled":
+				Enabled = bool.Parse(value);
 				break;
 			case "Timeout":
 				Timeout = TimeSpan.Parse(value);

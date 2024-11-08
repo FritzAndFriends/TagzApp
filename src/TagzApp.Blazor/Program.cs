@@ -96,6 +96,11 @@ internal class Program
 			options.KnownProxies.Clear();
 		});
 
+		builder.Services.AddResponseCompression(options =>
+		{
+			options.EnableForHttps = true;
+		});
+
 		// Add OpenTelemetry for logging.
 		builder.Logging.AddOpenTelemetryLogging(builder.Configuration);
 

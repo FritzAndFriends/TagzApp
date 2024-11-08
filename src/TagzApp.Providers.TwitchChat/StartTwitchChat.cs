@@ -6,7 +6,7 @@ namespace TagzApp.Providers.TwitchChat;
 
 public class StartTwitchChat : IConfigureProvider
 {
-	private const string ConfigurationKey = "providers:twitchchat";
+	private const string ConfigurationKey = "TWITCH";
 	private const string _DisplayName = "TwitchChat";
 	private TwitchChatConfiguration? _TwitchChatConfiguration;
 

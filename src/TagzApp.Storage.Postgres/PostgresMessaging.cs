@@ -1,7 +1,6 @@
-using System.Collections.Concurrent;
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Concurrent;
 
 namespace TagzApp.Storage.Postgres;
 
@@ -26,11 +25,12 @@ internal class PostgresMessaging : IDisposable
 	internal async Task StartProviders(IEnumerable<ISocialMediaProvider> providers, CancellationToken cancellationToken)
 	{
 		_ProviderTasks.Clear();
-		var providerConfigs = await LoadProviderConfiguration(providers);
+		//var providerConfigs = await LoadProviderConfiguration(providers);
 
 		foreach (var providerItem in providers)
 		{
-			var providerConfig = providerConfigs.FirstOrDefault(x => x.Name.Equals(providerItem.DisplayName, StringComparison.InvariantCultureIgnoreCase));
+			var providerConfig = await providerItem.GetConfiguration(ConfigureTagzAppFactory.Current);
+			//providerConfigs.FirstOrDefault(x => x.Name.Equals(providerItem.DisplayName, StringComparison.InvariantCultureIgnoreCase));
 
 			// Only add task if provider is activated
 			if (providerConfig != null && providerConfig.Enabled)
