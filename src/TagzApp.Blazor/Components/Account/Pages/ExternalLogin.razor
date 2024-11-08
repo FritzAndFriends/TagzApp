@@ -121,6 +121,7 @@
 		if (externalLoginInfo.Principal.HasClaim(c => c.Type == ClaimTypes.Email))
 		{
 			Input.Email = externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Email) ?? "";
+			Input.DisplayName = externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Name) ?? "";
 		}
 	}
 
@@ -128,6 +129,7 @@
 	{
 		var emailStore = GetEmailStore();
 		var user = CreateUser();
+		user.DisplayName = Input.DisplayName;
 
 		await AssignAdminForFirstUser(user);
 
@@ -207,5 +209,7 @@
 		[Required]
 		[EmailAddress]
 		public string Email { get; set; } = "";
+
+		public string DisplayName { get; set; } = "";
 	}
 }
