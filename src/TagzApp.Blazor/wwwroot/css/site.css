@@ -91,12 +91,12 @@ body {
 #taggedContent .provider,
 #overlayDisplay .provider {
 	grid-area: 1 / 3 / 2 / 4;
-	font-size: 20px;
+	font-size: 23px;
 }
 
 #overlayDisplay.showPreview .provider {
 	grid-area: 1 / 3 / 2 / 4;
-	font-size: 20px;
+	font-size: 23px;
 }
 
 #taggedContent .time,
@@ -353,6 +353,10 @@ MOVED TO THE  HeadContent in Overlay.razor
 	font-size: 15px;
 }
 
+.modal-body p {
+	font-weight: bold;
+}
+
 .modal-body .contentcard {
 	border-radius: 4px;
 	width: 100%;
@@ -437,6 +441,7 @@ MOVED TO THE  HeadContent in Overlay.razor
 
 .modal-header .btn-close {
 	padding-right: 0 !important;
+	font-size: 0.8em;
 }
 
 /** Modal Flip Animation */
