@@ -7,7 +7,7 @@ public class AzureQueueConfiguration : IProviderConfiguration
 {
 
 	[DisplayName("Azure Queue Connectionstring")]
-	public string QueueConnectionString { get; private set; } = string.Empty;
+	public string QueueConnectionString { get; set; } = string.Empty;
 
 	[JsonIgnore]
 	public string Name => "AzureQueue";
