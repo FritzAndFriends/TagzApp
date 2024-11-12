@@ -1,0 +1,67 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using System.Text.Json
+@inject ToastService ToastService
+
+<UiProviderConfig ProviderName="YouTubeChat" Health="@Health" ProviderIconCssClass="bi-youtube">
+
+	<EditForm Model="Model" OnValidSubmit="SaveConfig">
+		<AntiforgeryToken />
+		<ValidationSummary />
+		<dl>
+			<dt><label for="Enabled">Enabled:</label></dt>
+			<dd>
+				<InputCheckbox name="Enabled" @bind-Value="Model.Enabled" />
+			</dd>
+		</dl>
+
+		<button type="submit" class="btn btn-primary">Save</button>
+
+	</EditForm>
+
+</UiProviderConfig>
+
+@code {
+
+	[Parameter, EditorRequired]
+	public ISocialMediaProvider Provider { get; set; } = null!;
+
+	public (SocialMediaStatus Status, string Message) Health { get; set; } = (SocialMediaStatus.Unknown, string.Empty);
+
+
+	public ViewModel Model { get; set; } = new();
+
+	protected override async Task OnParametersSetAsync()
+	{
+
+		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
+
+		Model = new ViewModel
+			{
+				Enabled = string.IsNullOrEmpty(providerConfiguration.GetConfigurationByKey("Enabled")) ? false : bool.Parse(providerConfiguration.GetConfigurationByKey("Enabled"))
+			};
+
+		Health = await Provider.GetHealth();
+
+		await base.OnParametersSetAsync();
+
+	}
+
+	private async Task SaveConfig()
+	{
+
+		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
+
+		providerConfiguration.SetConfigurationByKey("Enabled", Model.Enabled.ToString());
+
+		await Provider.SaveConfiguration(ConfigureTagzAppFactory.Current, providerConfiguration);
+		ToastService.Add($"Saved {providerConfiguration.Name} Configuration", MessageSeverity.Success);
+	}
+
+	public class ViewModel
+	{
+
+
+
+		public bool Enabled { get; set; }
+	}
+}

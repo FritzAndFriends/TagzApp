@@ -5,6 +5,7 @@
 @using TagzApp.Providers.Mastodon
 @using TagzApp.Blazor.Client.Components.Admin
 @using TagzApp.Providers.Twitter
+@using TagzApp.Providers.YouTubeChat
 
 @typeparam TProvider
 
@@ -38,6 +39,11 @@
 	case nameof(TwitterProvider):
 		{
 			<Twitter_Config_Ui Provider="@Provider" />
+			break;
+		}
+	case nameof(YouTubeChatProvider):
+		{
+			<YouTubeChat_Config_Ui Provider="@Provider" />
 			break;
 		}
 	default:

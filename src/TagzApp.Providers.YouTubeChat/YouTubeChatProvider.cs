@@ -15,10 +15,13 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 	private readonly YouTubeChatConfiguration _ChatConfig;
 	public const string ProviderName = "YouTubeChat";
 
+	private string _GoogleClientId;
+	private string _GoogleClientSecret;
+
 	public string Id => "YOUTUBE-CHAT";
 	public string DisplayName => ProviderName;
 	public string Description { get; init; }
-	public TimeSpan NewContentRetrievalFrequency { get; set; } = TimeSpan.FromMinutes(1);
+	public TimeSpan NewContentRetrievalFrequency { get; set; } = TimeSpan.FromSeconds(5);
 
 	public string NewestId { get; set; }
 	public string LiveChatId { get; set; }
@@ -41,14 +44,19 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		_ChatConfig = config;
 		Enabled = config.Enabled;
 
-		var rawConfig = configuration["ApplicationConfiguration:YouTubeChatConfiguration"];
+		_GoogleClientId = configuration[YouTubeChatConfiguration.Key_Google_ClientId];
+		_GoogleClientSecret = configuration[YouTubeChatConfiguration.Key_Google_ClientSecret];
 
-		if (rawConfig == null || rawConfig == "{}") return;
+		// Exit now if we don't have a google config
+		if (string.IsNullOrEmpty(_GoogleClientId) || string.IsNullOrEmpty(_GoogleClientSecret))
+		{
+			_StatusMessage = "Not started - missing Google Authentication";
+			return;
+		}
 
-		var youtubeConfig = JsonSerializer.Deserialize<YouTubeChatApplicationConfiguration>(rawConfig);
-		RefreshToken = youtubeConfig.RefreshToken;
-		LiveChatId = youtubeConfig.LiveChatId;
-		YouTubeEmailId = youtubeConfig.ChannelEmail;
+		RefreshToken = config.RefreshToken;
+		LiveChatId = config.LiveChatId;
+		YouTubeEmailId = config.ChannelEmail;
 
 	}
 
@@ -132,8 +140,8 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		{
 			ClientSecrets = new ClientSecrets
 			{
-				ClientId = _ChatConfig.ClientId,
-				ClientSecret = _ChatConfig.ClientSecret
+				ClientId = _GoogleClientId,
+				ClientSecret = _GoogleClientSecret
 			},
 			Scopes = new[] { YouTubeChatConfiguration.Scope_YouTube }
 		});
