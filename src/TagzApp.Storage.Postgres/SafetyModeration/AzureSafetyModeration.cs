@@ -37,7 +37,7 @@ public class AzureSafetyModeration : INotifyNewMessages
 			{
 				Enabled = true,
 				Key = "67919cd5987c47fd815cb7ec8eea4f6f",
-				Endpoint = "fritzbot"
+				Endpoint = "https://tagzapp-contentsafety.cognitiveservices.azure.com/"
 
 			};
 
