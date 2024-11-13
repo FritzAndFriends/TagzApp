@@ -1,4 +1,5 @@
-﻿@using TagzApp.Providers.AzureQueue
+﻿@using Microsoft.AspNetCore.Identity
+@using TagzApp.Providers.AzureQueue
 @using TagzApp.Providers.Blazot
 @using TagzApp.Providers.Bluesky
 @using TagzApp.Providers.TwitchChat
@@ -6,6 +7,7 @@
 @using TagzApp.Blazor.Client.Components.Admin
 @using TagzApp.Providers.Twitter
 @using TagzApp.Providers.YouTubeChat
+@inject UserManager<TagzAppUser> _UserManager
 
 @typeparam TProvider
 
@@ -43,7 +45,11 @@
 		}
 	case nameof(YouTubeChatProvider):
 		{
+			<CascadingValue Name="GoogleEmail" Value="GoogleEmail">
+			<CascadingValue Name="GoogleRefreshToken" Value="GoogleRefreshToken">
 			<YouTubeChat_Config_Ui Provider="@Provider" />
+			</CascadingValue>
+			</CascadingValue>
 			break;
 		}
 	default:
@@ -57,5 +63,25 @@
 @code {
 	[Parameter, EditorRequired]
 	public TProvider Provider { get; set; }
+
+	[CascadingParameter]
+	private HttpContext HttpContext { get; set; } = default!;
+
+	private string GoogleRefreshToken { get; set; }
+	private string GoogleEmail { get; set; }
+
+	protected override async Task OnParametersSetAsync()
+	{
+
+		if (Provider is YouTubeChatProvider && HttpContext?.User is not null)
+		{
+			var user = await _UserManager.GetUserAsync(HttpContext.User);
+			GoogleRefreshToken = await _UserManager.GetAuthenticationTokenAsync(user, "Google", "refresh_token");
+			GoogleEmail = await _UserManager.GetAuthenticationTokenAsync(user, "Google", "Email");
+		}
+
+		await base.OnParametersSetAsync();
+
+	}
 
 }

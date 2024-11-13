@@ -25,6 +25,8 @@
 	[Parameter, EditorRequired]
 	public ISocialMediaProvider Provider { get; set; } = null!;
 
+	
+
 	public (SocialMediaStatus Status, string Message) Health { get; set; } = (SocialMediaStatus.Unknown, string.Empty);
 
 
@@ -32,6 +34,7 @@
 
 	protected override async Task OnParametersSetAsync()
 	{
+
 
 		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
 
@@ -42,6 +45,8 @@
 
 		Health = await Provider.GetHealth();
 
+		var broadcastMethod = Provider.GetType().GetMethod("GetBroadcastsForUser");
+		var broadcasts = broadcastMethod.Invoke(Provider, []) as IEnumerable<YouTubeBroadcast>;
 		await base.OnParametersSetAsync();
 
 	}

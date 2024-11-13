@@ -15,8 +15,8 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 	private readonly YouTubeChatConfiguration _ChatConfig;
 	public const string ProviderName = "YouTubeChat";
 
-	private string _GoogleClientId;
-	private string _GoogleClientSecret;
+	private const string YouTubeApiKey = "AIzaSyD-zImnv2v_RMqUhYb4YJnzO6vKfIqaUR8";
+	private const string DotNetChannelId = "UCvtT19MZW8dq5Wwfu6B0oxw";
 
 	public string Id => "YOUTUBE-CHAT";
 	public string DisplayName => ProviderName;
@@ -42,21 +42,9 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 	public YouTubeChatProvider(YouTubeChatConfiguration config, IConfiguration configuration)
 	{
 		_ChatConfig = config;
-		Enabled = config.Enabled;
+		Enabled = true; // config.Enabled;
 
-		_GoogleClientId = configuration[YouTubeChatConfiguration.Key_Google_ClientId];
-		_GoogleClientSecret = configuration[YouTubeChatConfiguration.Key_Google_ClientSecret];
-
-		// Exit now if we don't have a google config
-		if (string.IsNullOrEmpty(_GoogleClientId) || string.IsNullOrEmpty(_GoogleClientSecret))
-		{
-			_StatusMessage = "Not started - missing Google Authentication";
-			return;
-		}
-
-		RefreshToken = config.RefreshToken;
 		LiveChatId = config.LiveChatId;
-		YouTubeEmailId = config.ChannelEmail;
 
 	}
 
@@ -136,35 +124,10 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 
 		if (_Service is not null) return _Service;
 
-		var flow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer
-		{
-			ClientSecrets = new ClientSecrets
-			{
-				ClientId = _GoogleClientId,
-				ClientSecret = _GoogleClientSecret
-			},
-			Scopes = new[] { YouTubeChatConfiguration.Scope_YouTube }
-		});
-
-		TokenResponse token;
-		try
-		{
-			token = await flow.RefreshTokenAsync(YouTubeEmailId, RefreshToken, CancellationToken.None);
-		}
-		catch (Exception ex)
-		{
-			Console.WriteLine($"Exception while refreshing token: {ex.Message}");
-
-			_Status = SocialMediaStatus.Unhealthy;
-			_StatusMessage = $"Exception while refreshing token: {ex.Message}";
-
-			throw;
-		}
-		var credential = new UserCredential(flow, "me", token);
-
 		_Service = new YouTubeService(new BaseClientService.Initializer
 		{
-			HttpClientInitializer = credential
+			ApiKey = YouTubeApiKey,
+			ApplicationName = "TagzApp"
 		});
 
 		_Status = SocialMediaStatus.Degraded;
@@ -173,12 +136,18 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		return _Service;
 	}
 
+
 	public async Task StartAsync()
 	{
 
-		if (string.IsNullOrEmpty(LiveChatId) || string.IsNullOrEmpty(RefreshToken)) return;
+		// if (string.IsNullOrEmpty(LiveChatId) || string.IsNullOrEmpty(RefreshToken)) return;
 
 		_Service = await GetGoogleService();
+		var broadcasts = GetBroadcastsForUser();
+		if (broadcasts.Any())
+		{
+			LiveChatId = broadcasts.First().LiveChatId;
+		}
 
 	}
 
@@ -187,8 +156,9 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 
 		var service = await GetGoogleService();
 
-		var channelRequest = service.Channels.List("snippet");
-		channelRequest.Mine = true;
+		var channelRequest = service.Search.List("snippet");
+		//channelRequest.Mine = true;
+		channelRequest.ChannelId = DotNetChannelId;
 		var channels = channelRequest.Execute();
 
 		// Not sure if this is needed, can't replicate "fisrt" error. (https://github.com/FritzAndFriends/TagzApp/issues/241)
@@ -196,15 +166,18 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 
 	}
 
-	public async Task<IEnumerable<YouTubeBroadcast>> GetBroadcastsForUser()
+	public IEnumerable<YouTubeBroadcast> GetBroadcastsForUser()
 	{
 
-		var service = await GetGoogleService();
+		var service = GetGoogleService().GetAwaiter().GetResult();
 
-		var listRequest = service.LiveBroadcasts.List("snippet");
-		listRequest.Mine = true;
-		listRequest.BroadcastType = LiveBroadcastsResource.ListRequest.BroadcastTypeEnum.Event__;
-		LiveBroadcastListResponse broadcasts;
+		var listRequest = service.Search.List("snippet");
+		listRequest.Q = ".NET Conf 2024 - Day 2";
+		listRequest.ChannelId = DotNetChannelId;
+		//listRequest.EventType = SearchResource.ListRequest.EventTypeEnum.Live ;
+		listRequest.Type = "live";
+		listRequest.MaxResults = 500;
+		SearchListResponse broadcasts;
 		try
 		{
 			broadcasts = listRequest.Execute();
@@ -221,15 +194,45 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		}
 
 		var outBroadcasts = new List<YouTubeBroadcast>();
-		outBroadcasts.AddRange(broadcasts.Items
-			.Select(i => new YouTubeBroadcast(i.Id, i.Snippet.Title, i.Snippet.ActualStartTimeDateTimeOffset ?? i.Snippet.ScheduledStartTimeDateTimeOffset, i.Snippet.LiveChatId)));
+		//outBroadcasts.AddRange(broadcasts.Items
+		//	.Select(i => new YouTubeBroadcast(i.Id.VideoId, i.Snippet.Title, i.Snippet.PublishedAtDateTimeOffset);
 
+		var first = true;
 		while (!string.IsNullOrEmpty(broadcasts.NextPageToken) && outBroadcasts.Count < 20)
 		{
-			listRequest.PageToken = broadcasts.NextPageToken;
-			broadcasts = listRequest.Execute();
-			outBroadcasts.AddRange(broadcasts.Items
-				.Select(i => new YouTubeBroadcast(i.Id, i.Snippet.Title, i.Snippet.ActualStartTimeDateTimeOffset ?? i.Snippet.ScheduledStartTimeDateTimeOffset, i.Snippet.LiveChatId)));
+
+			if (first) {
+				first = false;
+			} else {
+				listRequest.PageToken = broadcasts.NextPageToken;
+				broadcasts = listRequest.Execute();
+			}
+
+			foreach (var broadcast in broadcasts.Items)
+			{
+
+				if (!broadcast.Snippet.Title.StartsWith(".NET Conf 2024")) continue;
+
+				var videoRequest = service.Videos.List("liveStreamingDetails");
+				videoRequest.Id = broadcast.Id.VideoId;
+				var videoResponse = videoRequest.Execute();
+
+				if (videoResponse.Items.First().LiveStreamingDetails is null) continue;
+
+				var liveChatId = videoResponse.Items.First().LiveStreamingDetails.ActiveLiveChatId;
+				if (string.IsNullOrEmpty(liveChatId)) continue;
+
+				outBroadcasts.Add(
+					new YouTubeBroadcast(
+						broadcast.Id.VideoId,
+						broadcast.Snippet.Title,
+						broadcast.Snippet.PublishedAtDateTimeOffset,
+						liveChatId
+					));
+
+			}
+
+
 		}
 
 		return outBroadcasts.OrderBy(b => b.BroadcastTime);
@@ -288,8 +291,5 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 	#endregion
 
 }
-
-[JsonSerializable(typeof(YouTubeBroadcast))]
-public record YouTubeBroadcast(string Id, string Title, DateTimeOffset? BroadcastTime, string LiveChatId);
 
 
