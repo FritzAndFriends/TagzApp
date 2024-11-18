@@ -1,108 +1,109 @@
 ﻿@using System.ComponentModel.DataAnnotations
 @using System.Text.Json
-@inject ToastService ToastService
 
-<UiProviderConfig ProviderName="Blazot" Health="@Health" ProviderIconCssClass="bi-blazot">
+<UiProviderConfig ProviderName="Blazot" Health="@_Health" ProviderIconCssClass="bi-blazot">
+    <EditForm Model="_Model" OnValidSubmit="SaveConfigAsync">
+        <AntiforgeryToken />
+        <ValidationSummary />
+        <dl>
+            <dt><label for="ApiKey">Api Key:</label></dt>
+            <dd>
+                <InputText id="ApiKey" name="ApiKey" @bind-Value="_Model.ApiKey" placeholder="Api Key" />
+                <ValidationMessage For="() => _Model.ApiKey" class="text-danger" />
+            </dd>
+            <dt><label for="SecretAuthKey">Secret Auth Key:</label></dt>
+            <dd>
+                <InputText id="SecretAuthKey" type="password" name="SecretAuthKey" @bind-Value="_Model.SecretAuthKey" placeholder="Secret Auth Key" />
+                <ValidationMessage For="() => _Model.SecretAuthKey" class="text-danger" />
+            </dd>
+            <dt><label for="BaseAddress">Base Address:</label></dt>
+            <dd>
+                <InputText id="BaseAddress" name="BaseAddress" @bind-Value="_Model.BaseAddress" placeholder="Base Address of Mastodon Server" />
+                <ValidationMessage For="() => _Model.BaseAddress" class="text-danger" />
+            </dd>
+            <dt><label for="Timeout">Timeout:</label></dt>
+            <dd>
+                <input id="Timeout" name="Timeout" @bind="_Model.Timeout" pattern="\d{2}:\d{2}:\d{2}" />
+                <ValidationMessage For="() => _Model.Timeout" class="text-danger" />
+            </dd>
+            <dt>Default Headers:</dt>
+            <dd>
+                @* Generate a set of textboxes to collect values for the DefaultHeaders dictionary in ViewModel*@
+                <InputDictionary Value="@_Model.DefaultHeaders" KeyCaption="Name" />
 
-	<EditForm Model="Model" OnValidSubmit="SaveConfig">
-		<AntiforgeryToken />
-		<ValidationSummary />
-		<dl>
-			<dt><label for="ApiKey">Api Key:</label></dt>
-			<dd>
-				<InputText name="ApiKey" @bind-Value="Model.ApiKey" placeholder="Api Key" />
-				<ValidationMessage For="() => Model.ApiKey" class="text-danger" />
-			</dd>
-			<dt><label for="SecretAuthKey">Secret Auth Key:</label></dt>
-			<dd>
-				<InputText type="password" name="SecretAuthKey" @bind-Value="Model.SecretAuthKey" placeholder="Secret Auth Key" />
-				<ValidationMessage For="() => Model.SecretAuthKey" class="text-danger" />
-			</dd>
-			<dt><label for="BaseAddress">Base Address:</label></dt>
-			<dd>
-				<InputText name="BaseAddress" @bind-Value="Model.BaseAddress" placeholder="Base Address of Mastodon Server" />
-				<ValidationMessage For="() => Model.BaseAddress" class="text-danger" />
-			</dd>
-			<dt><label for="Timeout">Timeout:</label></dt>
-			<dd>
-				<input name="Timeout" @bind="Model.Timeout" pattern="\d{2}:\d{2}:\d{2}" />
-				<ValidationMessage For="() => Model.Timeout" class="text-danger" />
-			</dd>
-			<dt>Default Headers:</dt>
-			<dd>
-				@* Generate a set of textboxes to collect values for the DefaultHeaders dictionary in ViewModel*@
-				<InputDictionary Value="@Model.DefaultHeaders" KeyCaption="Name" />
+            </dd>
+            <dt><label for="UseHttp2">UseHttp2:</label></dt>
+            <dd>
+                <InputCheckbox id="UseHttp2" name="UseHttp2" @bind-Value="_Model.UseHttp2" />
+            </dd>
+            <dt><label for="WindowRequests">Window Requests:</label></dt>
+            <dd>
+                <InputNumber id="WindowRequests" name="WindowRequests" @bind-Value="_Model.WindowRequests" />
+                <ValidationMessage For="() => _Model.WindowRequests" class="text-danger" />
+            </dd>
+            <dt><label for="WindowSeconds">Window Seconds:</label></dt>
+            <dd>
+                <InputNumber id="WindowSeconds" name="WindowSeconds" @bind-Value="_Model.WindowSeconds" />
+                <ValidationMessage For="() => _Model.WindowSeconds" class="text-danger" />
+            </dd>
+            <dt><label for="Enabled">Enabled:</label></dt>
+            <dd>
+                <InputCheckbox id="Enabled" name="Enabled" @bind-Value="_Model.Enabled" />
+            </dd>
+        </dl>
 
-			</dd>
-			<dt><label for="UseHttp2">UseHttp2:</label></dt>
-			<dd>
-				<InputCheckbox name="UseHttp2" @bind-Value="Model.UseHttp2" />
-			</dd>
-			<dt><label for="WindowRequests">Window Requests:</label></dt>
-			<dd>
-				<InputNumber name="WindowRequests" @bind-Value="Model.WindowRequests" />
-				<ValidationMessage For="() => Model.WindowRequests" class="text-danger" />
-			</dd>
-			<dt><label for="WindowSeconds">Window Seconds:</label></dt>
-			<dd>
-				<InputNumber name="WindowSeconds" @bind-Value="Model.WindowSeconds" />
-				<ValidationMessage For="() => Model.WindowSeconds" class="text-danger" />
-			</dd>
-
-			<dt><label for="Enabled">Enabled:</label></dt>
-			<dd>
-				<InputCheckbox name="Enabled" @bind-Value="Model.Enabled" />
-			</dd>
-		</dl>
-
-		<button type="submit" class="btn btn-primary">Save</button>
-
-	</EditForm>
-
+        <button type="submit" class="btn btn-primary">Save</button>
+    </EditForm>
 </UiProviderConfig>
 
 @code {
-
-	[Parameter, EditorRequired]
-	public ISocialMediaProvider Provider { get; set; } = null!;
-
-	public (SocialMediaStatus Status, string Message) Health { get; set; } = (SocialMediaStatus.Unknown, string.Empty);
-
-
-	public ViewModel Model { get; set; } = new();
+    [Inject] private ToastService ToastService { get; set; } = null!;
+	[Parameter, EditorRequired] public ISocialMediaProvider Provider { get; set; } = null!;
+	private (SocialMediaStatus Status, string Message) _Health = (SocialMediaStatus.Unknown, string.Empty);
+	private ViewModel _Model = new();
 
 	protected override async Task OnParametersSetAsync()
 	{
 		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
-
 		var headers = providerConfiguration.GetConfigurationByKey("DefaultHeaders");
-		var headerDictionary = string.IsNullOrEmpty(headers) ? new() : JsonSerializer.Deserialize<Dictionary<string, string>>(headers);
+		var headerDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(headers) ?? new Dictionary<string, string>();
+        int.TryParse(providerConfiguration.GetConfigurationByKey(nameof(_Model.WindowRequests)), out var windowRequests);
+        int.TryParse(providerConfiguration.GetConfigurationByKey(nameof(_Model.WindowSeconds)), out var windowSeconds);
 
-		Model = new ViewModel
+		_Model = new ViewModel
 			{
-				BaseAddress = providerConfiguration.GetConfigurationByKey("BaseAddress"),
+				ApiKey = providerConfiguration.GetConfigurationByKey(nameof(_Model.ApiKey)),
+				SecretAuthKey = providerConfiguration.GetConfigurationByKey(nameof(_Model.SecretAuthKey)),
+				WindowRequests = windowRequests,
+				WindowSeconds = windowSeconds,
+				BaseAddress = providerConfiguration.GetConfigurationByKey(nameof(_Model.BaseAddress)),
 				DefaultHeaders = headerDictionary,
-				Timeout = TimeSpan.Parse(providerConfiguration.GetConfigurationByKey("Timeout")),
-				UseHttp2 = string.IsNullOrEmpty(providerConfiguration.GetConfigurationByKey("UseHttp2")) ? false : bool.Parse(providerConfiguration.GetConfigurationByKey("UseHttp2")),
-				Enabled = string.IsNullOrEmpty(providerConfiguration.GetConfigurationByKey("Enabled")) ? false : bool.Parse(providerConfiguration.GetConfigurationByKey("Enabled"))
+				Timeout = TimeSpan.Parse(providerConfiguration.GetConfigurationByKey(nameof(_Model.Timeout))),
+				UseHttp2 = !string.IsNullOrWhiteSpace(providerConfiguration.GetConfigurationByKey(nameof(_Model.UseHttp2))) && bool.Parse(providerConfiguration.GetConfigurationByKey(nameof(_Model.UseHttp2))),
+				Enabled = !string.IsNullOrWhiteSpace(providerConfiguration.GetConfigurationByKey(nameof(_Model.Enabled))) && bool.Parse(providerConfiguration.GetConfigurationByKey(nameof(_Model.Enabled)))
 			};
 
-		Health = await Provider.GetHealth();
+		_Health = await Provider.GetHealth();
+        await InvokeAsync(StateHasChanged);
 
 		await base.OnParametersSetAsync();
 	}
 
-	private async Task SaveConfig()
+	private async Task SaveConfigAsync()
 	{
 		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
 
-		Model.DefaultHeaders.Remove(string.Empty);
+		_Model.DefaultHeaders.Remove(string.Empty);
 
-		providerConfiguration.SetConfigurationByKey("BaseAddress", Model.BaseAddress);
-		providerConfiguration.SetConfigurationByKey("Timeout", Model.Timeout.ToString());
-		providerConfiguration.SetConfigurationByKey("DefaultHeaders", JsonSerializer.Serialize(Model.DefaultHeaders));
-		providerConfiguration.SetConfigurationByKey("UseHttp2", Model.UseHttp2.ToString());
-		providerConfiguration.SetConfigurationByKey("Enabled", Model.Enabled.ToString());
+		providerConfiguration.SetConfigurationByKey(nameof(_Model.BaseAddress), _Model.BaseAddress);
+		providerConfiguration.SetConfigurationByKey(nameof(_Model.ApiKey), _Model.ApiKey);
+		providerConfiguration.SetConfigurationByKey(nameof(_Model.SecretAuthKey), _Model.SecretAuthKey);
+		providerConfiguration.SetConfigurationByKey(nameof(_Model.WindowRequests), _Model.WindowRequests.ToString());
+		providerConfiguration.SetConfigurationByKey(nameof(_Model.WindowSeconds), _Model.WindowSeconds.ToString());
+		providerConfiguration.SetConfigurationByKey(nameof(_Model.Timeout), _Model.Timeout.ToString());
+		providerConfiguration.SetConfigurationByKey(nameof(_Model.DefaultHeaders), JsonSerializer.Serialize(_Model.DefaultHeaders));
+		providerConfiguration.SetConfigurationByKey(nameof(_Model.UseHttp2), _Model.UseHttp2.ToString());
+		providerConfiguration.SetConfigurationByKey(nameof(_Model.Enabled), _Model.Enabled.ToString());
 
 		await Provider.SaveConfiguration(ConfigureTagzAppFactory.Current, providerConfiguration);
 		ToastService.Add($"Saved {providerConfiguration.Name} Configuration", MessageSeverity.Success);
@@ -110,18 +111,17 @@
 
 	public class ViewModel
 	{
-
 		// add properties for each of the fields you want to edit
-		[Required]
-		public string ApiKey { get; set; }
+        [Required] 
+        public string ApiKey { get; set; } = string.Empty;
 
-		[Required]
-		public string BaseAddress { get; set; }
+        [Required] 
+        public string BaseAddress { get; set; } = string.Empty;
 
 		public Dictionary<string, string> DefaultHeaders { get; set; } = new();
 
-		[Required]
-		public string SecretAuthKey { get; set; }
+        [Required] 
+        public string SecretAuthKey { get; set; } = string.Empty;
 
 		[Required]
 		public TimeSpan Timeout { get; set; }
@@ -135,8 +135,5 @@
 		public int WindowRequests { get; set; }
 
 		public bool Enabled { get; set; }
-
 	}
-
-
 }
