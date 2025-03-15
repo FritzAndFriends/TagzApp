@@ -1,5 +1,6 @@
 ﻿
 using System.Collections.Concurrent;
+using System.Linq.Expressions;
 using Drastic.Tools;
 using FishyFlip;
 using FishyFlip.Models;
@@ -31,6 +32,11 @@ public class BlueskyProvider : ISocialMediaProvider
 	private HashSet<Hashtag> _Hashtags = new();
 	private ATProtocol _AtProtocol;
 	private string? _TheTag;
+
+	public BlueskyProvider()
+	{
+		Enabled = true;
+	}
 
 	public void Dispose()
 	{
@@ -90,7 +96,7 @@ public class BlueskyProvider : ISocialMediaProvider
 
 		_Config = (await GetConfiguration(ConfigureTagzAppFactory.Current)) as BlueskyConfiguration ?? new BlueskyConfiguration();
 
-		Enabled = _Config.Enabled;
+		//Enabled = _Config.Enabled;
 
 		if (!Enabled)
 		{

@@ -33,6 +33,7 @@ internal class PostgresMessaging : IDisposable
 			//providerConfigs.FirstOrDefault(x => x.Name.Equals(providerItem.DisplayName, StringComparison.InvariantCultureIgnoreCase));
 
 			// Only add task if provider is activated
+			// NOTE: JFRITZ 11/13 - converted to check enabled on the providerItem
 			if (providerConfig != null && providerItem.Enabled)
 			{
 				StartTaskForProvider(providerItem, providerConfig, cancellationToken);

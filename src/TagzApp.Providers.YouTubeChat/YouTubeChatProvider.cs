@@ -21,7 +21,7 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 	public string Id => "YOUTUBE-CHAT";
 	public string DisplayName => ProviderName;
 	public string Description { get; init; }
-	public TimeSpan NewContentRetrievalFrequency { get; set; } = TimeSpan.FromSeconds(5);
+	public TimeSpan NewContentRetrievalFrequency { get; set; } = TimeSpan.FromSeconds(15);
 
 	public string NewestId { get; set; }
 	public string LiveChatId { get; set; }
@@ -63,7 +63,8 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		{
 			contents = await liveChatListRequest.ExecuteAsync();
 			_NextPageToken = contents.NextPageToken;
-			//NewContentRetrievalFrequency = TimeSpan.FromMilliseconds(contents.PollingIntervalMillis.HasValue ? contents.PollingIntervalMillis.Value : 45000);
+			NewContentRetrievalFrequency = contents.PollingIntervalMillis.HasValue ? TimeSpan.FromMilliseconds(contents.PollingIntervalMillis.Value * 10) : TimeSpan.FromSeconds(6);
+			
 		}
 		catch (Exception ex)
 		{
@@ -95,7 +96,7 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 				},
 				Provider = Id,
 				ProviderId = i.Id,
-				Text = i.Snippet.DisplayMessage,
+				Text = string.IsNullOrEmpty(i.Snippet.DisplayMessage) ? "- REMOVED MESSAGE -" : i.Snippet.DisplayMessage,
 				SourceUri = new Uri($"https://youtube.com/livechat/{LiveChatId}"),
 				Timestamp = DateTimeOffset.Parse(i.Snippet.PublishedAtRaw),
 				Type = ContentType.Message,
