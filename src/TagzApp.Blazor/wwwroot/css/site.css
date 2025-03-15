@@ -353,7 +353,9 @@ MOVED TO THE  HeadContent in Overlay.razor
 	font-size: 15px;
 }
 
-.modal-body p, .modal-body *, .modal-body {
+.modal-body p,
+.modal-body *,
+.modal-body {
 	font-weight: bold;
 }
 

@@ -1,8 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Auth.OAuth2.Flows;
-using Google.Apis.Auth.OAuth2.Responses;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
@@ -64,7 +59,7 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 			contents = await liveChatListRequest.ExecuteAsync();
 			_NextPageToken = contents.NextPageToken;
 			NewContentRetrievalFrequency = contents.PollingIntervalMillis.HasValue ? TimeSpan.FromMilliseconds(contents.PollingIntervalMillis.Value * 10) : TimeSpan.FromSeconds(6);
-			
+
 		}
 		catch (Exception ex)
 		{
@@ -202,9 +197,12 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		while (!string.IsNullOrEmpty(broadcasts.NextPageToken) && outBroadcasts.Count < 20)
 		{
 
-			if (first) {
+			if (first)
+			{
 				first = false;
-			} else {
+			}
+			else
+			{
 				listRequest.PageToken = broadcasts.NextPageToken;
 				broadcasts = listRequest.Execute();
 			}

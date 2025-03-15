@@ -50,7 +50,7 @@ public class YouTubeChatConfiguration : IProviderConfiguration
 	/// <value></value>
 	public string RefreshToken { get; set; } = string.Empty;
 
-	public string[] Keys => ["ChannelTitle", "ChannelEmail","BroadcastId","BroadcastTitle","LiveChatId","RefreshToken"];
+	public string[] Keys => ["ChannelTitle", "ChannelEmail", "BroadcastId", "BroadcastTitle", "LiveChatId", "RefreshToken"];
 
 	public string GetConfigurationByKey(string key)
 	{
