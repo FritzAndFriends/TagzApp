@@ -37,6 +37,7 @@ On the moderation screen, you can use the keyboard to navigate the cards on scre
  - Twitter / X
  - TwitchChat
  - YouTube (search for videos that have a given hashtag in the description)
+ - YouTube Live Chat
  - Custom message delivery across Azure Queues, labeled as 'Website'
 
 ## Running a local environment for development 
