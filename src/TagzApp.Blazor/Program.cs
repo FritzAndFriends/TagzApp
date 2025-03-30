@@ -56,6 +56,7 @@ internal class Program
 		builder.AddServiceDefaults();
 
 		var configure = ConfigureTagzAppFactory.Create(builder.Configuration, builder.Services.BuildServiceProvider());
+		builder.Services.AddSingleton<IConfigureTagzApp>(configure);
 
 		// Add OpenTelemetry for tracing and metrics.
 		// NOTE: Shifting to using the Aspire service defaults

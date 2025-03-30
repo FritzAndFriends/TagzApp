@@ -1,5 +1,6 @@
 ﻿@using System.ComponentModel.DataAnnotations
 @using System.Text.Json
+@inject IConfigureTagzApp Config
 
 <UiProviderConfig ProviderName="Blazot" Health="@_Health" ProviderIconCssClass="bi-blazot">
     <EditForm Model="_Model" OnValidSubmit="SaveConfigAsync">
@@ -64,7 +65,7 @@
 
 	protected override async Task OnParametersSetAsync()
 	{
-		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
+		var providerConfiguration = await Provider.GetConfiguration(Config);
 		var headers = providerConfiguration.GetConfigurationByKey("DefaultHeaders");
 		var headerDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(headers) ?? new Dictionary<string, string>();
         int.TryParse(providerConfiguration.GetConfigurationByKey(nameof(_Model.WindowRequests)), out var windowRequests);
@@ -91,7 +92,7 @@
 
 	private async Task SaveConfigAsync()
 	{
-		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
+		var providerConfiguration = await Provider.GetConfiguration(Config);
 
 		_Model.DefaultHeaders.Remove(string.Empty);
 
@@ -105,7 +106,7 @@
 		providerConfiguration.SetConfigurationByKey(nameof(_Model.UseHttp2), _Model.UseHttp2.ToString());
 		providerConfiguration.SetConfigurationByKey(nameof(_Model.Enabled), _Model.Enabled.ToString());
 
-		await Provider.SaveConfiguration(ConfigureTagzAppFactory.Current, providerConfiguration);
+		await Provider.SaveConfiguration(Config, providerConfiguration);
 		ToastService.Add($"Saved {providerConfiguration.Name} Configuration", MessageSeverity.Success);
 	}
 

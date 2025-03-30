@@ -2,7 +2,8 @@
 @inject ToastService ToastService
 @inject HttpClient Http
 @inject NavigationManager NavMgr
-@inject IConfiguration Config
+@inject IConfigureTagzApp Config
+@inject IConfiguration Configuration
 
 <UiProviderConfig ProviderName="TwitchChat" Health="@Health" ProviderIconCssClass="bi-twitch">
 
@@ -74,7 +75,7 @@
 	{
 
 		// Twitch Relay URI
-		var twitchRelayUri = new Uri(new Uri(Config["TwitchRelayUri"]), "/api/GetLoginUrl");
+		var twitchRelayUri = new Uri(new Uri(Configuration["TwitchRelayUri"]), "/api/GetLoginUrl");
 		Console.WriteLine($"BaseUrl:  {NavMgr.BaseUri}");
 
 		try
@@ -94,7 +95,7 @@
 	protected override async Task OnParametersSetAsync()
 	{
 
-		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
+		var providerConfiguration = await Provider.GetConfiguration(Config);
 
 		Model = new ViewModel
 		{
@@ -113,14 +114,14 @@
 	private async Task SaveConfig()
 	{
 
-		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
+		var providerConfiguration = await Provider.GetConfiguration(Config);
 
 		providerConfiguration.SetConfigurationByKey("ChatBotName", Model.ChatBotName);
 		providerConfiguration.SetConfigurationByKey("OAuthToken", Model.OAuthToken);
 		providerConfiguration.SetConfigurationByKey("ChannelName", Model.ChannelName);
 		providerConfiguration.SetConfigurationByKey("Enabled", Model.Enabled.ToString());
 
-		await Provider.SaveConfiguration(ConfigureTagzAppFactory.Current, providerConfiguration);
+		await Provider.SaveConfiguration(Config, providerConfiguration);
 		ToastService.Add($"Saved {providerConfiguration.Name} Configuration", MessageSeverity.Success);
 
 		// get the new health status
