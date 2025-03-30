@@ -27,9 +27,14 @@ public class TwitchChatConfiguration : IProviderConfiguration
 		ChannelName = string.Empty
 	};
 
+	[JsonIgnore]
 	public string Name => "TwitchChat";
+
+	[JsonIgnore]
 	public string Description => "Read all messages from a specified Twitch channel";
 	public bool Enabled { get; set; }
+
+	[JsonIgnore]
 	public string[] Keys => ["ClientId", "ClientSecret", "ChatBotName", "OAuthToken", "ChannelName"];
 
 	public string GetConfigurationByKey(string key)
