@@ -383,6 +383,10 @@
 			var video = document.getElementById(video);
 			video.muted = true;
 		},
+
+		SetTitle: function (newTitle) {
+			document.title = newTitle;
+		},
 	};
 
 	window.WaterfallUi = waterfallUi;

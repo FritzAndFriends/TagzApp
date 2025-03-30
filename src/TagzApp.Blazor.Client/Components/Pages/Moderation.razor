@@ -25,8 +25,8 @@
 			@foreach (var moderator in _Moderators)
 			{
 				<img id="moderator-@moderator.Email"
-						 title="@moderator.DisplayName"
-						 src="@moderator.AvatarImageSource" />
+				title="@moderator.DisplayName"
+				src="@moderator.AvatarImageSource" />
 			}
 		</span>
 	</div>
@@ -55,9 +55,9 @@
 			{
 				<input type="checkbox" class="btn-check" name="options" id="@provider.Id" checked autocomplete="off">
 				<label title="@provider.Name" 
-					class="btn btn-outline-primary providerSwitch" 
-					@onclick="() => ToggleProviderFilter(provider.Id)"
-					for="@provider.Id"><i class="provider bi @ContentModel.MapProviderToIcon(provider.Id)"></i></label>
+				class="btn btn-outline-primary providerSwitch" 
+				@onclick="() => ToggleProviderFilter(provider.Id)"
+				for="@provider.Id"><i class="provider bi @ContentModel.MapProviderToIcon(provider.Id)"></i></label>
 			}
 
 		</div>
@@ -175,6 +175,7 @@
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		await JSRuntime.InvokeVoidAsync("window.WaterfallUi.ConfigureKeyboardSupport");
+		await JSRuntime.InvokeVoidAsync("window.WaterfallUi.SetTitle","Message Moderation");
 		await base.OnAfterRenderAsync(firstRender);
 	}
 
