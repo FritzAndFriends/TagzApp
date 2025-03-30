@@ -386,7 +386,7 @@
 
 		SetTitle: function (newTitle) {
 			document.title = newTitle;
-		}
+		},
 	};
 
 	window.WaterfallUi = waterfallUi;
