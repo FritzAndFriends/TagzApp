@@ -8,6 +8,11 @@
 		<AntiforgeryToken />
 		<ValidationSummary />
 		<dl>
+			<dt><label for="YouTubeApiKey">YouTube API Key:</label></dt>
+			<dd>
+				<InputText id="YouTubeApiKey" name="YouTubeApiKey" @bind-Value="Model.YouTubeApiKey" />
+				<ValidationMessage For="@(() => Model.YouTubeApiKey)" />
+			</dd>
 			<dt><label for="Enabled">Enabled:</label></dt>
 			<dd>
 				<InputCheckbox name="Enabled" @bind-Value="Model.Enabled" />
@@ -25,21 +30,18 @@
 	[Parameter, EditorRequired]
 	public ISocialMediaProvider Provider { get; set; } = null!;
 
-	
-
 	public (SocialMediaStatus Status, string Message) Health { get; set; } = (SocialMediaStatus.Unknown, string.Empty);
-
 
 	public ViewModel Model { get; set; } = new();
 
 	protected override async Task OnParametersSetAsync()
 	{
 
-
 		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
 
 		Model = new ViewModel
 			{
+				YouTubeApiKey = providerConfiguration.GetConfigurationByKey("YouTubeApiKey"),
 				Enabled = string.IsNullOrEmpty(providerConfiguration.GetConfigurationByKey("Enabled")) ? false : bool.Parse(providerConfiguration.GetConfigurationByKey("Enabled"))
 			};
 
@@ -56,6 +58,7 @@
 
 		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
 
+		providerConfiguration.SetConfigurationByKey("YouTubeApiKey", Model.YouTubeApiKey);
 		providerConfiguration.SetConfigurationByKey("Enabled", Model.Enabled.ToString());
 
 		await Provider.SaveConfiguration(ConfigureTagzAppFactory.Current, providerConfiguration);
@@ -65,7 +68,7 @@
 	public class ViewModel
 	{
 
-
+		public string YouTubeApiKey { get; set; } = string.Empty;
 
 		public bool Enabled { get; set; }
 	}

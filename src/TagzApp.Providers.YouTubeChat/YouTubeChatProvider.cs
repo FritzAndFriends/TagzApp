@@ -10,7 +10,6 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 	private readonly YouTubeChatConfiguration _ChatConfig;
 	public const string ProviderName = "YouTubeChat";
 
-	private const string YouTubeApiKey = "AIzaSyD-zImnv2v_RMqUhYb4YJnzO6vKfIqaUR8";
 	private const string DotNetChannelId = "UCvtT19MZW8dq5Wwfu6B0oxw";
 
 	public string Id => "YOUTUBE-CHAT";
@@ -122,7 +121,7 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 
 		_Service = new YouTubeService(new BaseClientService.Initializer
 		{
-			ApiKey = YouTubeApiKey,
+			ApiKey = _ChatConfig.YouTubeApiKey,
 			ApplicationName = "TagzApp"
 		});
 
