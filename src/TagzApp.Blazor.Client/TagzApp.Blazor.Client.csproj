@@ -1,28 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
-
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
     <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.10" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="8.0.10" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" VersionOverride="9.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" VersionOverride="9.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" VersionOverride="9.0.3" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" VersionOverride="9.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" VersionOverride="9.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" VersionOverride="9.0.3" />
   </ItemGroup>
-
-	<ItemGroup>
-		<Using Include="TagzApp.Common" />
-		<Using Include="TagzApp.Common.Models" />
-	</ItemGroup>
-
+  <ItemGroup>
+    <Using Include="TagzApp.Common" />
+    <Using Include="TagzApp.Common.Models" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
     <ProjectReference Include="..\TagzApp.Components\TagzApp.Components.csproj" />
     <ProjectReference Include="..\TagzApp.ViewModels\TagzApp.ViewModels.csproj" />
   </ItemGroup>
-
 </Project>
