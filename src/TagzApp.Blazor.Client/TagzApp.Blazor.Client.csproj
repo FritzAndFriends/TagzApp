@@ -22,7 +22,7 @@
     <Using Include="TagzApp.Common.Models" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
+    <ProjectReference Include="..\TagzApp.Common.Client\TagzApp.Common.Client.csproj" />
     <ProjectReference Include="..\TagzApp.Components\TagzApp.Components.csproj" />
     <ProjectReference Include="..\TagzApp.ViewModels\TagzApp.ViewModels.csproj" />
   </ItemGroup>

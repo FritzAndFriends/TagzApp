@@ -1,5 +1,6 @@
 ﻿@using System.ComponentModel.DataAnnotations
 @inject ToastService ToastService
+@inject IConfigureTagzApp Config
 
 <UiProviderConfig ProviderName="AzureQueue" Health="@Health" ProviderIconCssClass="bi-globe2">
 
@@ -36,7 +37,7 @@
 
 	protected override async Task OnParametersSetAsync()
 	{
-		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
+		var providerConfiguration = await Provider.GetConfiguration(Config);
 
 		Model = new ViewModel
 			{
@@ -52,12 +53,12 @@
 	private async Task SaveConfig()
 	{
 
-		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
+		var providerConfiguration = await Provider.GetConfiguration(Config);
 
 		providerConfiguration.SetConfigurationByKey("QueueConnectionString", Model.QueueConnectionString);
 		providerConfiguration.SetConfigurationByKey("Enabled", Model.Enabled.ToString());
 
-		await Provider.SaveConfiguration(ConfigureTagzAppFactory.Current, providerConfiguration);
+		await Provider.SaveConfiguration(Config, providerConfiguration);
 		ToastService.Add($"Saved {providerConfiguration.Name} Configuration", MessageSeverity.Success);
 	}
 

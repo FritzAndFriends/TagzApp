@@ -73,6 +73,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.ServiceDefaults", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.MigrationService", "TagzApp.DatabaseMigration\TagzApp.MigrationService.csproj", "{F1F4F081-22D3-4F8A-AD34-8BD270848F8E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagzApp.Common.Client", "TagzApp.Common.Client\TagzApp.Common.Client.csproj", "{D5123984-3306-48A5-860D-E1EE5DC79AA3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -175,6 +177,10 @@ Global
 		{F1F4F081-22D3-4F8A-AD34-8BD270848F8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F1F4F081-22D3-4F8A-AD34-8BD270848F8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F1F4F081-22D3-4F8A-AD34-8BD270848F8E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5123984-3306-48A5-860D-E1EE5DC79AA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5123984-3306-48A5-860D-E1EE5DC79AA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5123984-3306-48A5-860D-E1EE5DC79AA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5123984-3306-48A5-860D-E1EE5DC79AA3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -204,6 +210,7 @@ Global
 		{70CA3D81-8CBB-4C63-9D8D-ADE58CCE5FE8} = {6B73C62C-6CC8-4C85-A24F-FA84489B3137}
 		{290F15DE-B3E8-4FCA-ABF5-C223D611BA6B} = {6B73C62C-6CC8-4C85-A24F-FA84489B3137}
 		{F1F4F081-22D3-4F8A-AD34-8BD270848F8E} = {370455D5-6EA6-44C1-B315-B621F7B6A954}
+		{D5123984-3306-48A5-860D-E1EE5DC79AA3} = {370455D5-6EA6-44C1-B315-B621F7B6A954}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F2AD77A5-5B2D-41FC-AD37-8EF8A4E54410}

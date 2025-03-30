@@ -48,14 +48,7 @@ public static class AppExtensions
 	public static IServiceCollection AddPostgresSecurityServices(this IHostApplicationBuilder builder, ConnectionSettings connectionSettings)
 	{
 
-		//builder.AddNpgsqlDbContext<TagzApp.Security.SecurityContext>("securitydb");
-		builder.Services.AddNpgsql<SecurityContext>(
-			builder.Configuration.GetConnectionString("securitydb"),
-			options =>
-			{
-				options.MigrationsAssembly(typeof(SecurityContextModelSnapshot).Assembly.FullName);
-			});
-		builder.EnrichNpgsqlDbContext<SecurityContext>();
+		builder.AddNpgsqlDbContext<TagzApp.Security.SecurityContext>("securitydb");
 
 		var serviceLocator = builder.Services.BuildServiceProvider();
 		var securityContext = serviceLocator.GetRequiredService<TagzApp.Security.SecurityContext>();

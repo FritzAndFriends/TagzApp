@@ -23,4 +23,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="Npgsql" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TagzApp.Common.Client\TagzApp.Common.Client.csproj" />
+  </ItemGroup>
 </Project>

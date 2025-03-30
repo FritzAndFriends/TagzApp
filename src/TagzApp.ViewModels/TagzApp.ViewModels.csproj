@@ -5,10 +5,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <Using Include="TagzApp.Common" />
-    <Using Include="TagzApp.Common.Models" />
+    <ProjectReference Include="..\TagzApp.Common.Client\TagzApp.Common.Client.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
+    <Using Include="TagzApp.Common" />
+    <Using Include="TagzApp.Common.Models" />
   </ItemGroup>
 </Project>

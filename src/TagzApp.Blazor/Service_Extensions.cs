@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using TagzApp.Blazor.Client.Services;
 using TagzApp.Blazor.Components.Account;
 using TagzApp.Blazor.Services;
+using TagzApp.Storage.Postgres.Security.Migrations;
 
 namespace TagzApp.Blazor;
 
@@ -40,6 +41,14 @@ public static class Service_Extensions
 
 	public static async Task<IServiceCollection> AddTagzAppSecurity(this IHostApplicationBuilder builder, IConfigureTagzApp configure, IConfiguration configuration)
 	{
+
+		//builder.Services.AddDbContext<SecurityContext>(options =>
+		//{
+		//	options.UseNpgsql(configuration.GetConnectionString("securitydb"), opt =>
+		//	{
+		//		opt.MigrationsAssembly(typeof(SecurityContextModelSnapshot).Assembly.FullName);
+		//	});
+		//});
 
 		if (ConfigureTagzAppFactory.IsConfigured)
 		{

@@ -13,6 +13,7 @@ public static class DatabaseConfig
 		var dbPassword = builder.AddParameter("dbPassword", false);
 
 		var dbServer = builder.AddPostgres("dbServer", password: dbPassword)
+			.WithImageTag("16.4")
 			.WithPgAdmin()
 			.WithDataVolume("tagzapp-dev");
 

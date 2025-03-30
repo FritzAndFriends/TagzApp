@@ -1,6 +1,8 @@
 ﻿@using System.ComponentModel.DataAnnotations
 @using System.Text.Json
 @inject ToastService ToastService
+@inject IConfigureTagzApp Config
+
 
 <UiProviderConfig ProviderName="Bluesky" Health="@Health" ProviderIconCssClass="icon-bluesky">
 
@@ -33,7 +35,7 @@
 	protected override async Task OnParametersSetAsync()
 	{
 
-		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
+		var providerConfiguration = await Provider.GetConfiguration(Config);
 
 		var headers = providerConfiguration.GetConfigurationByKey("DefaultHeaders");
 		var headerDictionary = string.IsNullOrEmpty(headers) ? new() : JsonSerializer.Deserialize<Dictionary<string, string>>(headers);
@@ -50,11 +52,11 @@
 
 	private async Task SaveConfig()
 	{
-		var providerConfiguration = await Provider.GetConfiguration(ConfigureTagzAppFactory.Current);
+		var providerConfiguration = await Provider.GetConfiguration(Config);
 
 		providerConfiguration.SetConfigurationByKey("Enabled", Model.Enabled.ToString());
 
-		await Provider.SaveConfiguration(ConfigureTagzAppFactory.Current, providerConfiguration);
+		await Provider.SaveConfiguration(Config, providerConfiguration);
 		ToastService.Add($"Saved {providerConfiguration.Name} Configuration", MessageSeverity.Success);
 
 		// Update the health of the service after changes applied
