@@ -17,7 +17,7 @@
     <PackageVersion Include="BlazorDownloadFile" Version="2.4.0.2" />
     <PackageVersion Include="Bogus" Version="35.5.1" />
     <PackageVersion Include="C3D.Extensions.Playwright.AspNetCore.Xunit" Version="0.1.32" />
-    <PackageVersion Include="Dapper" Version="2.1.35" />
+    <PackageVersion Include="Dapper" Version="2.1.66" />
     <PackageVersion Include="Drastic.Utilities" Version="1.0.10" />
     <PackageVersion Include="Ensure.That" Version="11.0.0-p3" />
     <PackageVersion Include="FishyFlip" Version="2.1.1" />
@@ -70,8 +70,8 @@
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
     <PackageVersion Include="Microsoft.Playwright" Version="1.44.0" />
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.6.146" />
-    <PackageVersion Include="Npgsql" Version="8.0.3" />
-    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
+    <PackageVersion Include="Npgsql" Version="9.0.3" />
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.3" />
     <PackageVersion Include="OpenTelemetry" Version="1.9.0" />
     <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.9.0" />
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.9.0" />
@@ -81,7 +81,7 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.Process" Version="0.5.0-beta.4" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.9.0" />
     <PackageVersion Include="PSC.Blazor.Components.MarkdownEditor" Version="8.0.5" />
-    <PackageVersion Include="StackExchange.Redis" Version="2.7.33" />
+    <PackageVersion Include="StackExchange.Redis" Version="2.8.31" />
     <PackageVersion Include="System.Net.Http.Json" Version="9.0.3" />
     <PackageVersion Include="xunit" Version="2.8.1" />
     <PackageVersion Include="xunit.analyzers" Version="1.14.0" />
