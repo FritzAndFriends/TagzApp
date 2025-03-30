@@ -1,31 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
-	<ItemGroup>
-		<InternalsVisibleTo Include="TagzApp.UnitTest" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Using Include="TagzApp.Common" />
-		<Using Include="TagzApp.Common.Models" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <PackageReference Include="Dapper" Version="2.1.35" />
-	  <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="8.0.6" />
-	  <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
-	  <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
-	  <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="8.0.0" />
-	  <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
-	  <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
-	  <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
-	  <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
-	  <PackageReference Include="Npgsql" Version="8.0.3" />
-	</ItemGroup>
-
+  <ItemGroup>
+    <InternalsVisibleTo Include="TagzApp.UnitTest" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="TagzApp.Common" />
+    <Using Include="TagzApp.Common.Models" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Dapper" />
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Npgsql" />
+  </ItemGroup>
 </Project>

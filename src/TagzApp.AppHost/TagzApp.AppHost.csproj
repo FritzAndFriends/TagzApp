@@ -1,25 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.1.0" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsAspireHost>true</IsAspireHost>
     <UserSecretsId>9620e5ce-6c82-4271-9ba8-e10189d974b1</UserSecretsId>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="8.2.1" />
-    <PackageReference Include="Aspire.Hosting.Azure.PostgreSQL" Version="8.2.1" />
-    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="8.2.1" />
-    <PackageReference Include="Aspire.Hosting.Redis" Version="8.2.1" />
+    <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.Azure.PostgreSQL" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+    <PackageReference Include="Aspire.Hosting.Redis" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" VersionOverride="9.0.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" VersionOverride="9.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" VersionOverride="9.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" VersionOverride="9.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Http" VersionOverride="9.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" VersionOverride="9.0.2" />
+    <PackageReference Include="StackExchange.Redis" VersionOverride="2.8.22" />
   </ItemGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\TagzApp.AppHostExtensions\TagzApp.AppHostExtensions.csproj" IsAspireProjectResource="false" />
     <ProjectReference Include="..\TagzApp.Blazor\TagzApp.Blazor.csproj" />
     <ProjectReference Include="..\TagzApp.DatabaseMigration\TagzApp.MigrationService.csproj" />
   </ItemGroup>
-
 </Project>

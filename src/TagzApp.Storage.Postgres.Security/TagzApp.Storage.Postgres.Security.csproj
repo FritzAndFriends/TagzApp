@@ -1,25 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-		<BaseOutputPath>..\TagzApp.Web\bin\</BaseOutputPath>
+    <BaseOutputPath>..\TagzApp.Web\bin\</BaseOutputPath>
   </PropertyGroup>
-
-	<ItemGroup>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.6" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Using Include="TagzApp.Common" />
-		<Using Include="TagzApp.Common.Models" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
-	  <ProjectReference Include="..\TagzApp.Security\TagzApp.Security.csproj" />
-	</ItemGroup>
-
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" VersionOverride="9.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" VersionOverride="9.0.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="TagzApp.Common" />
+    <Using Include="TagzApp.Common.Models" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
+    <ProjectReference Include="..\TagzApp.Security\TagzApp.Security.csproj" />
+  </ItemGroup>
 </Project>
