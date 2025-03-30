@@ -69,6 +69,16 @@ public static class AppExtensions
 			Console.WriteLine($"Error while migrating security context to Postgres: {ex}");
 		}
 
+		// ensure roles exist
+		//if (!securityContext.Roles.Any())
+		//{
+		//	var roleManager = serviceLocator.GetRequiredService<RoleManager<IdentityRole>>();
+		//	roleManager.CreateAsync(new IdentityRole(RolesAndPolicies.Role.Admin)).GetAwaiter().GetResult();
+		//	roleManager.CreateAsync(new IdentityRole(RolesAndPolicies.Role.Moderator)).GetAwaiter().GetResult();
+
+
+		//}
+
 		return builder.Services;
 
 	}

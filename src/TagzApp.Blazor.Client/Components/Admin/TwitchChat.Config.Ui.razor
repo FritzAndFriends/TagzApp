@@ -75,6 +75,7 @@
 
 		// Twitch Relay URI
 		var twitchRelayUri = new Uri(new Uri(Config["TwitchRelayUri"]), "/api/GetLoginUrl");
+		Console.WriteLine($"BaseUrl:  {NavMgr.BaseUri}");
 
 		try
 		{

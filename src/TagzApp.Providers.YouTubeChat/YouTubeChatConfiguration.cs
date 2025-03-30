@@ -10,46 +10,9 @@ public class YouTubeChatConfiguration : IProviderConfiguration
 
 	public const string Scope_YouTube = "https://www.googleapis.com/auth/youtube";
 
-	public string ClientId { get; set; }
-
-	public string ClientSecret { get; set; }
 	public string Name => "YouTubeChat";
 	public string Description => "Listen to messages in YouTube LiveChat for a Live Stream";
 	public bool Enabled { get; set; }
-	public string[] Keys => ["ClientId", "ClientSecret"];
-
-	public string GetConfigurationByKey(string key)
-	{
-		return key switch
-		{
-			"ClientId" => ClientId,
-			"ClientSecret" => ClientSecret,
-			_ => string.Empty
-		};
-	}
-
-	public void SetConfigurationByKey(string key, string value)
-	{
-
-		switch (key)
-		{
-			case "ClientId":
-				ClientId = value;
-				break;
-			case "ClientSecret":
-				ClientSecret = value;
-				break;
-			default:
-				throw new NotImplementedException();
-
-		}
-
-	}
-}
-
-
-public class YouTubeChatApplicationConfiguration
-{
 
 	/// <summary>
 	/// Title of the YouTube Channel we are monitoring
@@ -87,4 +50,62 @@ public class YouTubeChatApplicationConfiguration
 	/// <value></value>
 	public string RefreshToken { get; set; } = string.Empty;
 
+	/// <summary>
+	/// API Key used to authenticate with YouTube
+	/// </summary>
+	public string YouTubeApiKey { get; set; } = string.Empty;
+
+	public string[] Keys => ["ChannelTitle", "ChannelEmail", "BroadcastId", "BroadcastTitle", "LiveChatId", "RefreshToken", "YouTubeApiKey"];
+
+	public string GetConfigurationByKey(string key)
+	{
+		return key switch
+		{
+			"ChannelTitle" => ChannelTitle,
+			"ChannelEmail" => ChannelEmail,
+			"BroadcastId" => BroadcastId,
+			"BroadcastTitle" => BroadcastTitle,
+			"LiveChatId" => LiveChatId,
+			"RefreshToken" => RefreshToken,
+			"YouTubeApiKey" => YouTubeApiKey,
+			"Enabled" => Enabled.ToString(),
+			_ => string.Empty
+		};
+	}
+
+	public void SetConfigurationByKey(string key, string value)
+	{
+
+		switch (key)
+		{
+			case "ChannelTitle":
+				ChannelTitle = value;
+				break;
+			case "ChannelEmail":
+				ChannelEmail = value;
+				break;
+			case "BroadcastId":
+				BroadcastId = value;
+				break;
+			case "BroadcastTitle":
+				BroadcastTitle = value;
+				break;
+			case "LiveChatId":
+				LiveChatId = value;
+				break;
+			case "RefreshToken":
+				RefreshToken = value;
+				break;
+			case "YouTubeApiKey":
+				YouTubeApiKey = value;
+				break;
+			case "Enabled":
+				Enabled = bool.Parse(value);
+				break;
+			default:
+				throw new NotImplementedException();
+
+		}
+
+	}
 }

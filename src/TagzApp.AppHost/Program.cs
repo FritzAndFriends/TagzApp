@@ -1,4 +1,3 @@
-using Aspire.Hosting;
 using TagzApp.AppHost;
 
 var builder = DistributedApplication.CreateBuilder(args);
@@ -11,7 +10,7 @@ builder.AddDatabase(
 var twitchCache = builder.AddRedis("twitchCache");
 var twitchRelay = builder.AddExecutable("twitchrelay",
 		"func", @"..\TagzApp.TwitchRelay", "start", "--verbose", "--port", "7082")
-	.WithHttpEndpoint(7082, 7082,"http", "foo", false)
+	.WithHttpEndpoint(7082, 7082, "http", "foo", false)
 	.WithEnvironment("cache", twitchCache.Resource.ConnectionStringExpression)
 	.WithEnvironment("TwitchRedirectUri", "http://localhost:7082/api/twitchcallback");
 
@@ -20,8 +19,8 @@ var twitchRelay = builder.AddExecutable("twitchrelay",
 var tagzAppWeb = builder.AddProject<Projects.TagzApp_Blazor>("web", "https")
 	.WaitForCompletion(migration)
 	.WithReference(db)
-	.WithReference(securityDb)
-	.WithEnvironment("TwitchRelayUri", "http://localhost:7082");
+	.WithReference(securityDb);
+//.WithEnvironment("TwitchRelayUri", "http://localhost:7082");
 
 #endregion
 

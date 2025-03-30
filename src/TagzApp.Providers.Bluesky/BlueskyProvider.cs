@@ -32,6 +32,11 @@ public class BlueskyProvider : ISocialMediaProvider
 	private ATProtocol _AtProtocol;
 	private string? _TheTag;
 
+	public BlueskyProvider()
+	{
+		Enabled = true;
+	}
+
 	public void Dispose()
 	{
 		_AtWebSocketProtocol?.Dispose();
@@ -90,7 +95,7 @@ public class BlueskyProvider : ISocialMediaProvider
 
 		_Config = (await GetConfiguration(ConfigureTagzAppFactory.Current)) as BlueskyConfiguration ?? new BlueskyConfiguration();
 
-		Enabled = _Config.Enabled;
+		//Enabled = _Config.Enabled;
 
 		if (!Enabled)
 		{

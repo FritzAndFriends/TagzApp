@@ -33,6 +33,14 @@
 		<EditForm Model="Input" OnValidSubmit="OnValidSubmitAsync" FormName="confirmation" method="post">
 			<DataAnnotationsValidator />
 			<ValidationSummary class="text-danger" role="alert" />
+
+			@* add an input for DisplayName *@
+			<div class="form-floating mb-3">
+				<InputText @bind-Value="Input.DisplayName" class="form-control" autocomplete="name" placeholder="Please enter your display name." />
+				<label for="display-name" class="form-label">Display Name</label>
+				<ValidationMessage For="() => Input.DisplayName" />
+					</div>
+
 			<div class="form-floating mb-3">
 				<InputText @bind-Value="Input.Email" class="form-control" autocomplete="email" placeholder="Please enter your email." />
 				<label for="email" class="form-label">Email</label>
@@ -121,6 +129,7 @@
 		if (externalLoginInfo.Principal.HasClaim(c => c.Type == ClaimTypes.Email))
 		{
 			Input.Email = externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Email) ?? "";
+			Input.DisplayName = externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Name) ?? "";
 		}
 	}
 
@@ -128,6 +137,7 @@
 	{
 		var emailStore = GetEmailStore();
 		var user = CreateUser();
+		user.DisplayName = Input.DisplayName;
 
 		await AssignAdminForFirstUser(user);
 
@@ -137,6 +147,9 @@
 		var result = await UserManager.CreateAsync(user);
 		if (result.Succeeded)
 		{
+
+			await UserManager.AddClaimAsync(user, new Claim("DisplayName", Input.DisplayName));
+
 			result = await UserManager.AddLoginAsync(user, externalLoginInfo);
 			if (result.Succeeded)
 			{
@@ -207,5 +220,8 @@
 		[Required]
 		[EmailAddress]
 		public string Email { get; set; } = "";
+
+		[Required]
+		public string DisplayName { get; set; } = "";
 	}
 }

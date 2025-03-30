@@ -10,7 +10,7 @@ public class StartYouTubeChat : IConfigureProvider
 
 		// Exit not if we don't have a clientid
 		var config = await ConfigureTagzAppFactory.Current.GetConfigurationById<YouTubeChatConfiguration>(YouTubeChatConfiguration.AppSettingsSection);
-		if (string.IsNullOrEmpty(config.ClientId)) return services;
+		//return services;
 
 
 		services.AddSingleton(config);

@@ -32,7 +32,14 @@ public class AzureSafetyModeration : INotifyNewMessages
 		_ServiceProvider = serviceProvider;
 		_AzureSafetyLogger = azureSafetyLogger;
 
-		var config = configureTagzApp.GetConfigurationById<AzureSafetyConfiguration>(AzureSafetyConfiguration.ConfigurationKey).GetAwaiter().GetResult();
+		var config = //configureTagzApp.GetConfigurationById<AzureSafetyConfiguration>(AzureSafetyConfiguration.ConfigurationKey).GetAwaiter().GetResult();
+			new AzureSafetyConfiguration
+			{
+				Enabled = true,
+				Key = "67919cd5987c47fd815cb7ec8eea4f6f",
+				Endpoint = "https://tagzapp-contentsafety.cognitiveservices.azure.com/"
+
+			};
 
 		_Enabled = config.Enabled;
 

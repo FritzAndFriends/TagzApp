@@ -339,7 +339,16 @@
 
 		foreach (var content in currentContent.OrderByDescending(c => c.Timestamp).ToArray())
 		{
-			_Content.Add(content.Timestamp, content);
+			try
+			{
+				_Content.Add(content.Timestamp, content);
+			}
+			catch (Exception ex)
+			{
+				_Content.Add(content.Timestamp.AddMicroseconds(1), content);
+
+			}
+			
 		}
 
 		_Loading = false;

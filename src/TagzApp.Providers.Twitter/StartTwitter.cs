@@ -12,7 +12,7 @@ public class StartTwitter : IConfigureProvider
 	public async Task<IServiceCollection> RegisterServices(IServiceCollection services, CancellationToken cancellationToken = default)
 	{
 
-		_TwitterConfiguration = await ConfigureTagzAppFactory.Current.GetConfigurationById<TwitterConfiguration>(TwitterConfiguration.AppSettingsSection);
+		_TwitterConfiguration = await ConfigureTagzAppFactory.Current.GetConfigurationById<TwitterConfiguration>("TWITTER");
 
 		services.AddSingleton(_TwitterConfiguration ?? new TwitterConfiguration());
 		services.AddHttpClient<ISocialMediaProvider, TwitterProvider, TwitterConfiguration>(_TwitterConfiguration ?? new TwitterConfiguration());

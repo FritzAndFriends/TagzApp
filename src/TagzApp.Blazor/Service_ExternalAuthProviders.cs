@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
+using TagzApp.Providers.YouTubeChat;
 
 namespace TagzApp.Blazor;
 
@@ -43,6 +44,8 @@ public static class Service_ExternalAuthProviders
 		builder.AddExternalProvider("Microsoft", configuration, options => builder.AddMicrosoftAccount(options));
 		builder.AddExternalProvider("GitHub", configuration, options => builder.AddGitHub(options));
 		builder.AddExternalProvider("LinkedIn", configuration, options => builder.AddLinkedIn(options));
+		builder.AddExternalProvider("Google", configuration, options => builder.AddGoogle(options));
+
 
 		// AddYouTubeProvider(builder, configuration);
 
@@ -51,18 +54,18 @@ public static class Service_ExternalAuthProviders
 
 	private static void AddYouTubeProvider(AuthenticationBuilder builder, IConfiguration configuration)
 	{
-		if (!string.IsNullOrEmpty(configuration["Authentication:Google:ClientId"]))
+		if (!string.IsNullOrEmpty(configuration[YouTubeChatConfiguration.Key_Google_ClientId]))
 		{
 			builder.AddGoogle(options =>
 			{
 
 				// TODO: Add YouTubeChatConfiguration
 
-				//options.ClientId = configuration[YouTubeChatConfiguration.Key_Google_ClientId];
-				//options.ClientSecret = configuration[YouTubeChatConfiguration.Key_Google_ClientSecret];
-				//options.SaveTokens = true;
-				//options.AccessType = "offline";  // Allow a refresh token to be delivered
-				//options.Scope.Add(YouTubeChatConfiguration.Scope_YouTube);
+				options.ClientId = configuration[YouTubeChatConfiguration.Key_Google_ClientId]!;
+				options.ClientSecret = configuration[YouTubeChatConfiguration.Key_Google_ClientSecret]!;
+				options.SaveTokens = true;
+				options.AccessType = "offline";  // Allow a refresh token to be delivered
+				options.Scope.Add(YouTubeChatConfiguration.Scope_YouTube);
 				options.Events.OnTicketReceived = ctx =>
 				{
 					var tokens = ctx.Properties.GetTokens().ToList();

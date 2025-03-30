@@ -5,7 +5,7 @@ using StackExchange.Redis;
 using TagzApp.TwitchRelay;
 
 var host = new HostBuilder()
-		.ConfigureFunctionsWorkerDefaults()
+		.ConfigureFunctionsWebApplication()
 		.ConfigureServices(services =>
 		{
 			services.AddHttpClient();
