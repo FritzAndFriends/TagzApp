@@ -14,6 +14,7 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 
 	public string Id => "TWITCH";
 	public string DisplayName => "TwitchChat";
+	private const string AppSettingsSection = "provider-twitch";
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(1);
 	public string Description { get; init; } = "Twitch is where millions of people come together live every day to chat, interact, and make their own entertainment together.";
 	public bool Enabled { get; private set; }
@@ -232,12 +233,12 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 
 	public async Task<IProviderConfiguration> GetConfiguration(IConfigureTagzApp configure)
 	{
-		return await configure.GetConfigurationById<TwitchChatConfiguration>(Id);
+		return await configure.GetConfigurationById<TwitchChatConfiguration>(AppSettingsSection);
 	}
 
 	public async Task SaveConfiguration(IConfigureTagzApp configure, IProviderConfiguration providerConfiguration)
 	{
-		await configure.SetConfigurationById(Id, (TwitchChatConfiguration)providerConfiguration);
+		await configure.SetConfigurationById(AppSettingsSection, (TwitchChatConfiguration)providerConfiguration);
 
 		// handle channelname change
 		if (_Config.ChannelName != ((TwitchChatConfiguration)providerConfiguration).ChannelName)
