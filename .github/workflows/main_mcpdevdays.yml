@@ -17,8 +17,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
@@ -26,11 +24,9 @@ jobs:
           dotnet-version: '9.x'
 
       - name: Build with dotnet
-        working-directory: src/TagzApp.Blazor
         run: dotnet build --configuration Release
 
       - name: dotnet publish
-        working-directory: src/TagzApp.Blazor
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
@@ -42,13 +38,23 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    
+    permissions:
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: .net-app
       
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_B78FC2B6E4A14CCBB4B2591AFF43D1D1 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_79DD4683316A419F94C0A87BDCDC91FF }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_38B3D6A501F64C55B321C702FB3CADFF }}
+
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
@@ -56,4 +62,4 @@ jobs:
           app-name: 'mcpdevdays'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_025FF1A9606A4B528D7FA56CECD9B17F }}
+          
