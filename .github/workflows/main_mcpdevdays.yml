@@ -17,6 +17,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
@@ -24,9 +26,11 @@ jobs:
           dotnet-version: '9.x'
 
       - name: Build with dotnet
+        working-directory: src/TagzApp.Blazor
         run: dotnet build --configuration Release
 
       - name: dotnet publish
+        working-directory: src/TagzApp.Blazor
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
