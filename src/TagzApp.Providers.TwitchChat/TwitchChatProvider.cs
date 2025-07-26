@@ -31,7 +31,7 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 
 	public TwitchChatProvider(ILogger<TwitchChatProvider> logger, IConfiguration configuration, HttpClient client, ProviderInstrumentation? instrumentation = null)
 	{
-		_Config = ConfigureTagzAppFactory.Current.GetConfigurationById<TwitchChatConfiguration>(Id).GetAwaiter().GetResult();
+		_Config = ConfigureTagzAppFactory.Current.GetConfigurationById<TwitchChatConfiguration>(AppSettingsSection).GetAwaiter().GetResult();
 		_Logger = logger;
 		_ProfileRepository = new TwitchProfileRepository(configuration, client);
 		Enabled = _Config.Enabled;
