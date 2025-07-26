@@ -6,6 +6,7 @@ using Polly;
 using Polly.Extensions.Http;
 using Polly.Registry;
 using System.Net;
+using System.Net.Http.Headers;
 using TagzApp.Communication.Configuration;
 using TagzApp.Communication.Handlers;
 
@@ -24,7 +25,7 @@ public static class IServiceCollectionExtensions
 	/// <param name="services"><see cref="IServiceCollection"/> reference to add context to</param>
 	/// <param name="options">Http Client Options</param>
 	/// <exception cref="ArgumentNullException">Raised whenever any of the provided arguments is null</exception>
-	public static IServiceCollection AddHttpClient<TClient, TImplementation, TClientOptions>(this IServiceCollection services, HttpClientOptions options)
+	public static IServiceCollection AddHttpClient<TClient, TImplementation, TClientOptions>(this IServiceCollection services, TClientOptions options)
 				where TClient : class
 				where TImplementation : class, TClient
 				where TClientOptions : HttpClientOptions, new()
@@ -38,7 +39,7 @@ public static class IServiceCollectionExtensions
 				.Services;
 	}
 
-	private static IHttpClientBuilder GetHttpClientBuild<TClient, TImplementation, TClientOptions>(this IServiceCollection services, HttpClientOptions options)
+	private static IHttpClientBuilder GetHttpClientBuild<TClient, TImplementation, TClientOptions>(this IServiceCollection services, TClientOptions options)
 			where TClient : class
 					where TImplementation : class, TClient
 					where TClientOptions : HttpClientOptions, new()
@@ -68,6 +69,16 @@ public static class IServiceCollectionExtensions
 							 {
 								 httpClient.DefaultRequestHeaders.Add(headerName, options.DefaultHeaders[headerName]);
 							 }
+						 }
+
+						 if (options is IProviderConfiguration providerConfiguration)
+						 {
+							 // If the provider configuration is provided, and there is a Bearer token, then add it
+							 if (providerConfiguration.Keys.Contains("BearerToken") && !string.IsNullOrEmpty(providerConfiguration.GetConfigurationByKey("BearerToken")))
+							 {
+								 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", providerConfiguration.GetConfigurationByKey("BearerToken"));
+							 }
+
 						 }
 
 						 if (options.UseHttp2)

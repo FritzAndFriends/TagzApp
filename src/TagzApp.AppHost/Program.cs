@@ -17,7 +17,7 @@ var twitchRelay = builder.AddExecutable("twitchrelay",
 #region Website
 
 var tagzAppWeb = builder.AddProject<Projects.TagzApp_Blazor>("web", "https")
-	.WaitForCompletion(migration)
+	//.WaitForCompletion(migration)
 	.WithReference(db)
 	.WithReference(securityDb);
 //.WithEnvironment("TwitchRelayUri", "http://localhost:7082");

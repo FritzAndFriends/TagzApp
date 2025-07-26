@@ -20,6 +20,8 @@ public class YouTubeChatConfiguration : IProviderConfiguration
 	/// <value></value>
 	public string ChannelTitle { get; set; } = string.Empty;
 
+	public string ChannelId { get; set; } = string.Empty;
+
 	/// <summary>
 	/// Email used to authenticate with YouTube
 	/// </summary>
@@ -55,7 +57,7 @@ public class YouTubeChatConfiguration : IProviderConfiguration
 	/// </summary>
 	public string YouTubeApiKey { get; set; } = string.Empty;
 
-	public string[] Keys => ["ChannelTitle", "ChannelEmail", "BroadcastId", "BroadcastTitle", "LiveChatId", "RefreshToken", "YouTubeApiKey"];
+	public string[] Keys => ["ChannelTitle", "ChannelId", "ChannelEmail", "BroadcastId", "BroadcastTitle", "LiveChatId", "RefreshToken", "YouTubeApiKey"];
 
 	public string GetConfigurationByKey(string key)
 	{
@@ -63,6 +65,7 @@ public class YouTubeChatConfiguration : IProviderConfiguration
 		{
 			"ChannelTitle" => ChannelTitle,
 			"ChannelEmail" => ChannelEmail,
+			"ChannelId" => ChannelId,
 			"BroadcastId" => BroadcastId,
 			"BroadcastTitle" => BroadcastTitle,
 			"LiveChatId" => LiveChatId,
@@ -80,6 +83,9 @@ public class YouTubeChatConfiguration : IProviderConfiguration
 		{
 			case "ChannelTitle":
 				ChannelTitle = value;
+				break;
+			case "ChannelId":
+				ChannelId = value;
 				break;
 			case "ChannelEmail":
 				ChannelEmail = value;
