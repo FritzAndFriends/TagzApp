@@ -677,6 +677,17 @@ a {
 	filter: brightness(0) saturate(100%);
 }
 
+.providerSwitch .icon-bluesky {
+	width: 23px;
+	height: 20px;
+	margin-top: 4px;
+	display: inline-block;
+	background-image: url(/img/Bluesky_Logo.svg);
+	background-size: contain;
+	filter: grayscale(100%) brightness(1000%);
+}
+
+
 /* User grid */
 .UserGridNameColumn {
 	width: 20em;
