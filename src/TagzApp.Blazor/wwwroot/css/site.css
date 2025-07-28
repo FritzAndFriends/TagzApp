@@ -687,6 +687,11 @@ a {
 	filter: grayscale(100%) brightness(1000%);
 }
 
+@media (prefers-color-scheme: dark) {
+  .icon-bluesky {
+    filter: brightness(1000%) grayscale(100%)!important;
+  }
+}
 
 /* User grid */
 .UserGridNameColumn {

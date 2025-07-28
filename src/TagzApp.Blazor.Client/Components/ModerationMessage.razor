@@ -21,7 +21,6 @@
 			{
 				<i class="bi bi-x-circle-fill reject" title="Reject this content" @onclick="async () => await Moderate(ModerationState.Rejected)"></i>
 			}
-			<i class="bi bi-x-circle-fill reject" title="Reject this content" @onclick="async () => await Moderate(ModerationState.Rejected)"></i>
 			<i class="bi bi-journal-text more"
 				 @onclick="@(() => NavigationManager.NavigateTo($"/MessageDetails/{Content.Provider}/{Content.ProviderId}"))"
 				 title="More Actions"></i>
@@ -64,13 +63,22 @@
 		if (Content.Content.PreviewCard.ImageUri.ToString().EndsWith(".mp4"))
 		{
 			<div class="contentcard">
-				<video id="video_@Content.ProviderId" muted controls="controls" autoplay src="@Content.Content.PreviewCard.ImageUri" class="card-img-top" alt="@Content.Content.PreviewCard.AltText"></video>
+				<video id="video_@Content.ProviderId" 
+					   muted controls="controls" autoplay 
+					   src="@Content.Content.PreviewCard.ImageUri" 
+					   class="card-img-top" 
+					   alt="@Content.Content.PreviewCard.AltText"
+					   onloadedmetadata="window.Masonry?.resizeGridItem(this.closest('article'))"></video>
 			</div>
 		}
 		else
 		{
 			<div class="contentcard">
-				<img onerror="this.onerror=null; window.WaterfallUi.FixEmbedImage(this);" src="@Content.Content.PreviewCard.ImageUri" class="card-img-top" alt="@Content.Content.PreviewCard.AltText" />
+				<img onload="window.Masonry?.resizeGridItem(this.closest('article'))" 
+					 onerror="this.onerror=null; window.WaterfallUi.FixEmbedImage(this);" 
+					 src="@Content.Content.PreviewCard.ImageUri" 
+					 class="card-img-top" 
+					 alt="@Content.Content.PreviewCard.AltText" />
 			</div>
 		}
 
@@ -127,10 +135,10 @@
 
 		if (firstRender)
 		{
-			JSRuntime.InvokeVoidAsync("window.Masonry.resizeGridItem", thisArticle);
+			await JSRuntime.InvokeVoidAsync("window.Masonry.resizeGridItem", thisArticle);
 
 			var thisRef = DotNetObjectReference.Create(this);
-			JSRuntime.InvokeVoidAsync("window.WaterfallUi.AddMessage", Content.ProviderId, thisRef);
+			await JSRuntime.InvokeVoidAsync("window.WaterfallUi.AddMessage", Content.ProviderId, thisRef);
 
 
 		}
