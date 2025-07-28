@@ -1,4 +1,5 @@
 ﻿@using TagzApp.ViewModels.Data
+@using Microsoft.JSInterop
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 
@@ -115,7 +116,7 @@
 	// public EventCallback<ModerationAction> OnModerate { get; set; }
 
 	[CascadingParameter]
-	public Components.Pages.Moderation ModerationPage { get; set; }
+	public Components.Pages.Moderation ModerationPage { get; set; } = default!;
 
 	private ElementReference thisArticle;
 
@@ -188,14 +189,29 @@
 
 	}
 
-	public async Task DisplayModeration(bool show)
+	public void DisplayModeration(bool show)
 	{
+		if (ShowModerationActions == show) return; // Avoid unnecessary state changes
+		
 		ShowModerationActions = show;
-
-		if (show)
-			await JSRuntime.InvokeVoidAsync("window.WaterfallUi.PauseNewContent", 5000);
-		else
-			await JSRuntime.InvokeVoidAsync("window.WaterfallUi.ResumeContent");
+		StateHasChanged();
+		
+		// Only call JS functions if we actually need to pause/resume content
+		// This removes the async delay from the hover interaction
+		_ = Task.Run(async () =>
+		{
+			try
+			{
+				if (show)
+					await JSRuntime.InvokeVoidAsync("window.WaterfallUi.PauseNewContent", 5000);
+				else
+					await JSRuntime.InvokeVoidAsync("window.WaterfallUi.ResumeContent");
+			}
+			catch
+			{
+				// Ignore JS interop errors to prevent hover delays
+			}
+		});
 	}
 
 	[JSInvokable]
