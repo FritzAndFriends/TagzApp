@@ -38,10 +38,13 @@ When running TagzApp in development mode using .NET Aspire:
 
 ## Moderation Interface Overview
 
-As a moderator, your job is to review the content that is arriving from all of the different social media platforms and to prove those messages that will be visible publicly on the waterfall interface.  Approved messages will be highlighted in green with an approved status appearing inside the card, and rejected messages will appear in read with a rejected message appearing inside the card.
- read with a rejected message appearing inside the card. read with a rejected message appearing inside the card.
+As a moderator, your job is to review the content that is arriving from all of the different social media platforms and to approve those messages that will be visible publicly on the waterfall interface. Approved messages will be highlighted in green with an approved status appearing inside the card, and rejected messages will appear in red with a rejected message appearing inside the card.
 
-Messages will appear automatically from the top left of the screen as they are discovered by TagzApp on the connected social media services. If messages are arriving too quickly, you can press the pause button in the bottom left corner of the screen. Don't forget to unpause When you're ready to resume viewing fresh content flowing on the screen.
+Before content reaches you for review, TagzApp uses Azure Content Safety to automatically screen all incoming messages. This AI-powered service performs an initial review of content, automatically rejecting messages that contain potentially harmful material such as hate speech, violence, sexual content, or self-harm references. This automated first-pass helps protect users and allows you to focus your attention on content that requires human judgment and nuanced review.
+
+Messages will appear automatically from the top left of the screen as they are discovered by TagzApp on the connected social media services. If messages are arriving too quickly, you can press the pause button in the bottom left corner of the screen. Don't forget to unpause when you're ready to resume viewing fresh content flowing on the screen.
+
+
 
 The moderation interface consists of several key areas:
 
