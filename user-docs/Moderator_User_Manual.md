@@ -38,6 +38,11 @@ When running TagzApp in development mode using .NET Aspire:
 
 ## Moderation Interface Overview
 
+As a moderator, your job is to review the content that is arriving from all of the different social media platforms and to prove those messages that will be visible publicly on the waterfall interface.  Approved messages will be highlighted in green with an approved status appearing inside the card, and rejected messages will appear in read with a rejected message appearing inside the card.
+ read with a rejected message appearing inside the card. read with a rejected message appearing inside the card.
+
+Messages will appear automatically from the top left of the screen as they are discovered by TagzApp on the connected social media services. If messages are arriving too quickly, you can press the pause button in the bottom left corner of the screen. Don't forget to unpause When you're ready to resume viewing fresh content flowing on the screen.
+
 The moderation interface consists of several key areas:
 
 ### 1. Header Information
@@ -62,7 +67,7 @@ Toggle buttons to show/hide content from specific social media platforms:
 
 ### 3. Content Display Area
 
-Content is displayed in a waterfall layout where each message appears as a card containing:
+Content is displayed in a waterfall layout with the latest messages appearing in the top-left corner and flowing right, then down. Each message appears as a card containing:
 
 #### Message Information
 - **Author Profile Picture**: Shows the user's avatar
