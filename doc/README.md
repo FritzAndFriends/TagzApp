@@ -4,10 +4,11 @@ This is documentation for writing new features and for using the TagzApp softwar
 
 ## Table of Contents
 1. [Adding new social media providers](#media-providers)
-2. [Icons](#icons)
-3. [Testing](#testing)
-4. [Custom Test Execution Ordering](#ordering)
-5. [Docker](#docker)
+2. [Provider Configuration Pattern](#provider-configuration)
+3. [Icons](#icons)
+4. [Testing](#testing)
+5. [Custom Test Execution Ordering](#ordering)
+6. [Docker](#docker)
 
 <div id='media-providers'/>
 
@@ -41,6 +42,26 @@ public class StartMastodon : IConfigureProvider
 ```
 
 Please throw an `TagzApp.Common.Exceptions.InvalidConfigurationException` if any configuration for your provider is missing.
+
+<div id='provider-configuration'/>
+
+## Provider Configuration Pattern
+
+TagzApp uses a standardized configuration pattern with `IOptionsMonitor<T>` for reactive configuration updates. This pattern provides immediate configuration updates, self-contained configuration management, and support for testing scenarios.
+
+For detailed implementation guidance, see the [Provider Configuration Pattern Guide](./Provider-Configuration-Pattern.md).
+
+**Key Features:**
+- **Immediate Updates**: Configuration changes affect providers instantly without restart
+- **Self-Contained**: Each provider handles its own configuration persistence
+- **Reactive**: Automatic notifications when configuration changes
+- **Testable**: Clean separation between production and testing scenarios
+
+**Quick Start:**
+1. Inherit from `BaseProviderConfiguration<T>` in `TagzApp.Common.Client`
+2. Use `IOptionsMonitor<T>` in your provider constructor
+3. Handle configuration changes with `HandleConfigurationChange()` method
+4. Use `StaticOptionsMonitor<T>` from `TagzApp.Common.Configuration` for testing
 
 <div id='icons'/>
 
