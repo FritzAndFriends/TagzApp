@@ -14,7 +14,7 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 
 	public string Id => "TWITCH";
 	public string DisplayName => "TwitchChat";
-	private const string AppSettingsSection = "provider-twitch";
+	internal const string AppSettingsSection = "provider-twitch";
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(1);
 	public string Description { get; init; } = "Twitch is where millions of people come together live every day to chat, interact, and make their own entertainment together.";
 	public bool Enabled { get; private set; }

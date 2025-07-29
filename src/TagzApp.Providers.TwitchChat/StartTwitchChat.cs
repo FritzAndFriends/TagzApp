@@ -13,7 +13,7 @@ public class StartTwitchChat : IConfigureProvider
 	public async Task<IServiceCollection> RegisterServices(IServiceCollection services, CancellationToken cancellationToken = default)
 	{
 
-		_TwitchChatConfiguration = await ConfigureTagzAppFactory.Current.GetConfigurationById<TwitchChatConfiguration>(ConfigurationKey);
+		_TwitchChatConfiguration = await ConfigureTagzAppFactory.Current.GetConfigurationById<TwitchChatConfiguration>(TwitchChatProvider.AppSettingsSection);
 
 		services.AddSingleton(_TwitchChatConfiguration ?? TwitchChatConfiguration.Empty);
 		services.AddHttpClient<ISocialMediaProvider, TwitchChatProvider, HttpClientOptions>(new());
