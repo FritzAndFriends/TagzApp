@@ -5,7 +5,7 @@ namespace TagzApp.WebTest.Tests;
 
 // This fixture creates a new web application, new browser, and a single page for the lifetime of the fixture
 // The fixture is in context for the duration of all the tests in a single class.
-public class ModalFixture : PlaywrightPageFixture<Web.Program>
+public class ModalFixture : PlaywrightPageFixture<Program>
 {
 	public ModalFixture(IMessageSink output) : base(output)
 	{

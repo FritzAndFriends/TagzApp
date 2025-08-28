@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using TagzApp.Security;
 using TagzApp.WebTest.Fixtures;
 
 namespace TagzApp.WebTest.Tests.WithModerationEnabled;
@@ -51,7 +52,7 @@ public class ModerationAuthorizationTests : TestsBase
 	[Fact()]
 	public async Task ModeratorCanModerate()
 	{
-		await using var context = await WebApp.CreateAuthorisedPlaywrightBrowserPageAsync(Web.Security.Role.Moderator);
+		await using var context = await WebApp.CreateAuthorisedPlaywrightBrowserPageAsync(RolesAndPolicies.Role.Moderator);
 		var page = context.Page;
 
 		await page.GotoAsync("/Moderation");
@@ -63,7 +64,7 @@ public class ModerationAuthorizationTests : TestsBase
 	[Fact()]
 	public async Task AdminCanModerate()
 	{
-		await using var context = await WebApp.CreateAuthorisedPlaywrightBrowserPageAsync(Web.Security.Role.Admin);
+		await using var context = await WebApp.CreateAuthorisedPlaywrightBrowserPageAsync(RolesAndPolicies.Role.Admin);
 		var page = context.Page;
 
 		await page.GotoAsync("/Moderation");

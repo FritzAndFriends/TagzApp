@@ -11,7 +11,7 @@ namespace TagzApp.WebTest.Fixtures;
 /// Functionality is now wrapped in the nuget package C3D.Extensions.Playwright.AspNetCore.Xunit
 /// </p>
 /// </summary>
-public class PlaywrightFixture : PlaywrightFixture<Web.Program>
+public class PlaywrightFixture : PlaywrightFixture<Program>
 {
 	public override string? Environment { get; } = "Test";
 
@@ -27,7 +27,7 @@ public class PlaywrightFixture : PlaywrightFixture<Web.Program>
 	{
 
 		ConfigureTagzAppFactory.CreateInMemoryProvider();
-		TagzApp.Web.Program.TestMode = true;
+		TagzApp.Blazor.Program.TestMode = true;
 
 
 		//ServicesExtensions.SocialMediaProviders = new List<IConfigureProvider> { new StartStubSocialMediaProvider() };
