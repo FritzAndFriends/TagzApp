@@ -1,12 +1,12 @@
 ﻿using C3D.Extensions.Playwright.AspNetCore.Xunit;
 using TagzApp.WebTest.Fixtures;
-using Program = TagzApp.Web.Program;
+using Program = TagzApp.Blazor.Program;
 
 namespace TagzApp.WebTest.Tests;
 
 // This fixture creates a new web application, new browser, and a single page for the lifetime of the fixture
 // The fixture is in context for the duration of all the tests in a single class.
-public class WhenFirstSearchingForTagsFixture : PlaywrightPageFixture<Web.Program>
+public class WhenFirstSearchingForTagsFixture : PlaywrightPageFixture<Program>
 {
 	public WhenFirstSearchingForTagsFixture(IMessageSink output) : base(output)
 	{
