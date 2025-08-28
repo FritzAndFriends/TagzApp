@@ -1,15 +1,20 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
+using TagzApp.Common;
 
 namespace TagzApp.Providers.TwitchChat;
 
-public class TwitchChatConfiguration : IProviderConfiguration
+public class TwitchChatConfiguration : BaseProviderConfiguration<TwitchChatConfiguration>
 {
+	/// <summary>
+	/// The configuration key used to store this configuration in the TagzApp configuration system
+	/// </summary>
+	protected override string ConfigurationKey => "provider-twitch";
 
 	[JsonPropertyOrder(1)]
-	public string ClientId { get; set; }
+	public string ClientId { get; set; } = string.Empty;
 
 	[JsonPropertyOrder(2)]
-	public string ClientSecret { get; set; }
+	public string ClientSecret { get; set; } = string.Empty;
 
 	[JsonPropertyOrder(3)]
 	public string ChatBotName { get; set; } = string.Empty;
@@ -28,16 +33,17 @@ public class TwitchChatConfiguration : IProviderConfiguration
 	};
 
 	[JsonIgnore]
-	public string Name => "TwitchChat";
+	public override string Name => "TwitchChat";
 
 	[JsonIgnore]
-	public string Description => "Read all messages from a specified Twitch channel";
-	public bool Enabled { get; set; }
+	public override string Description => "Read all messages from a specified Twitch channel";
+	
+	public override bool Enabled { get; set; }
 
 	[JsonIgnore]
-	public string[] Keys => ["ClientId", "ClientSecret", "ChatBotName", "OAuthToken", "ChannelName"];
+	public override string[] Keys => ["ClientId", "ClientSecret", "ChatBotName", "OAuthToken", "ChannelName"];
 
-	public string GetConfigurationByKey(string key)
+	public override string GetConfigurationByKey(string key)
 	{
 		return key switch
 		{
@@ -51,7 +57,7 @@ public class TwitchChatConfiguration : IProviderConfiguration
 		};
 	}
 
-	public void SetConfigurationByKey(string key, string value)
+	public override void SetConfigurationByKey(string key, string value)
 	{
 		switch (key)
 		{
@@ -75,7 +81,34 @@ public class TwitchChatConfiguration : IProviderConfiguration
 				break;
 			default:
 				throw new NotImplementedException($"Unable to set value for key '{key}'");
-
 		}
 	}
+
+	/// <summary>
+	/// Updates this instance with values from another configuration instance
+	/// </summary>
+	/// <param name="source">The source configuration to copy from</param>
+	protected override void UpdateFromConfiguration(TwitchChatConfiguration source)
+	{
+		ClientId = source.ClientId;
+		ClientSecret = source.ClientSecret;
+		ChatBotName = source.ChatBotName;
+		OAuthToken = source.OAuthToken;
+		ChannelName = source.ChannelName;
+		Enabled = source.Enabled;
+	}
+
+	/// <summary>
+	/// Public method to update configuration from another instance
+	/// </summary>
+	/// <param name="source">The source configuration to copy from</param>
+	public void UpdateFrom(TwitchChatConfiguration source)
+	{
+		UpdateFromConfiguration(source);
+	}
+
+	/// <summary>
+	/// Gets the configuration key used by this configuration type
+	/// </summary>
+	internal new static string GetConfigurationKey() => "provider-twitch";
 }

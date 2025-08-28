@@ -20,6 +20,10 @@
 				<input name="Timeout" @bind="Model.Timeout" pattern="\d{2}:\d{2}:\d{2}" />
 				<ValidationMessage For="() => Model.Timeout" class="text-danger" />
 			</dd>
+			<dt><label for="BearerToken">Bearer Token:</label></dt>
+			<dd>
+				<InputText name="BearerToken" @bind-Value="Model.BearerToken" placeholder="Bearer Token"></InputText>
+			</dd>
 			<dt>Default Headers:</dt>
 			<dd>
 				@* Generate a set of textboxes to collect values for the DefaultHeaders dictionary in ViewModel*@
@@ -63,6 +67,7 @@
 		Model = new ViewModel
 			{
 				BaseAddress = providerConfiguration.GetConfigurationByKey("BaseAddress"),
+				BearerToken = providerConfiguration.GetConfigurationByKey("BearerToken"),
 				DefaultHeaders = headerDictionary,
 				Timeout = TimeSpan.Parse(providerConfiguration.GetConfigurationByKey("Timeout")),
 				UseHttp2 = string.IsNullOrEmpty(providerConfiguration.GetConfigurationByKey("UseHttp2")) ? false : bool.Parse(providerConfiguration.GetConfigurationByKey("UseHttp2")),
@@ -83,6 +88,7 @@
 		Model.DefaultHeaders.Remove(string.Empty);
 
 		providerConfiguration.SetConfigurationByKey("BaseAddress", Model.BaseAddress);
+		providerConfiguration.SetConfigurationByKey("BearerToken", Model.BearerToken);
 		providerConfiguration.SetConfigurationByKey("Timeout", Model.Timeout.ToString());
 		providerConfiguration.SetConfigurationByKey("DefaultHeaders", JsonSerializer.Serialize(Model.DefaultHeaders));
 		providerConfiguration.SetConfigurationByKey("UseHttp2", Model.UseHttp2.ToString());
@@ -103,6 +109,8 @@
 		public TimeSpan Timeout { get; set; }
 
 		public Dictionary<string, string> DefaultHeaders { get; set; } = new();
+
+		public string BearerToken { get; set; } = string.Empty;
 
 		public bool	UseHttp2 { get; set; }
 

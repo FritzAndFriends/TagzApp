@@ -1,11 +1,12 @@
 using Azure;
 using Azure.AI.ContentSafety;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Text.RegularExpressions;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace TagzApp.Storage.Postgres.SafetyModeration;
 
@@ -32,16 +33,18 @@ public class AzureSafetyModeration : INotifyNewMessages
 		_ServiceProvider = serviceProvider;
 		_AzureSafetyLogger = azureSafetyLogger;
 
+		var siteConfig = serviceProvider.GetRequiredService<IConfiguration>();
+
 		var config = //configureTagzApp.GetConfigurationById<AzureSafetyConfiguration>(AzureSafetyConfiguration.ConfigurationKey).GetAwaiter().GetResult();
 			new AzureSafetyConfiguration
 			{
 				Enabled = true,
-				Key = "67919cd5987c47fd815cb7ec8eea4f6f",
-				Endpoint = "https://tagzapp-contentsafety.cognitiveservices.azure.com/"
+				Key = siteConfig["contentsafety_key"],
+				Endpoint = siteConfig["contentsafety_endpoint"]
 
 			};
 
-		_Enabled = config.Enabled;
+		_Enabled = string.IsNullOrEmpty(siteConfig["contentsafety-key"]) ? false : config.Enabled;
 
 		_ContentSafetyKey = config.Key;
 		_ContentSafetyEndpoint = config.Endpoint;

@@ -33,13 +33,22 @@
 		if (Content.PreviewCard.ImageUri.ToString().EndsWith(".mp4"))
 		{
 			<div class="contentcard">
-				<video id="video_@Content.ProviderId" controls="controls" autoplay src="@Content.PreviewCard.ImageUri" class="card-img-top" alt="@Content.PreviewCard.AltText"></video>
+				<video id="video_@Content.ProviderId" 
+					   controls="controls" autoplay 
+					   src="@Content.PreviewCard.ImageUri" 
+					   class="card-img-top" 
+					   alt="@Content.PreviewCard.AltText"
+					   onloadedmetadata="window.Masonry?.resizeGridItem(this.closest('article'))"></video>
 			</div>
 		}
 		else
 		{
 			<div class="contentcard">
-				<img onerror="this.onerror=null; window.WaterfallUi.FixEmbedImage(this);" src="@Content.PreviewCard.ImageUri" class="card-img-top" alt="@Content.PreviewCard.AltText" />
+				<img onload="window.Masonry?.resizeGridItem(this.closest('article'))" 
+					 onerror="this.onerror=null; window.WaterfallUi.FixEmbedImage(this);" 
+					 src="@Content.PreviewCard.ImageUri" 
+					 class="card-img-top" 
+					 alt="@Content.PreviewCard.AltText" />
 			</div>
 		}
 	}
@@ -67,7 +76,7 @@
 		if (Content.HasVideoPreview) {
 			await JSRuntime.InvokeVoidAsync("window.WaterfallUi.MuteVideo", $"video_{Content.ProviderId}");
 		}
-		JSRuntime.InvokeVoidAsync("window.Masonry.resizeGridItem", thisArticle);
+		await JSRuntime.InvokeVoidAsync("window.Masonry.resizeGridItem", thisArticle);
 
 		await base.OnAfterRenderAsync(firstRender);
 	}

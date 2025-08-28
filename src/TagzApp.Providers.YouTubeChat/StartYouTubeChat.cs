@@ -9,7 +9,7 @@ public class StartYouTubeChat : IConfigureProvider
 	{
 
 		// Exit not if we don't have a clientid
-		var config = await ConfigureTagzAppFactory.Current.GetConfigurationById<YouTubeChatConfiguration>(YouTubeChatConfiguration.AppSettingsSection);
+		var config = await ConfigureTagzAppFactory.Current.GetConfigurationById<YouTubeChatConfiguration>(YouTubeChatProvider.ProviderId);
 		//return services;
 
 

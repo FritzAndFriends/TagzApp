@@ -14,6 +14,26 @@
 				<InputText id="YouTubeApiKey" name="YouTubeApiKey" @bind-Value="Model.YouTubeApiKey" />
 				<ValidationMessage For="@(() => Model.YouTubeApiKey)" />
 			</dd>
+			<dt><label for="ChannelId">Channel ID:</label></dt>
+			<dd>
+				<InputText id="ChannelId" name="ChannelId" @bind-Value="Model.ChannelId" />
+				<ValidationMessage For="@(() => Model.ChannelId)" />
+			</dd>
+			<dt><label for="LiveChatId">Broadcast:</label></dt>
+			<dd>
+				<!-- search button -->
+				<button type="button" class="btn btn-secondary" @onclick="GetBroadcasts">
+					<i class="bi bi-search"></i> Search</button>
+				<!-- select dropdown for broadcasts -->
+				<InputSelect id="LiveChatId" name="LiveChatId" @bind-Value="Model.LiveChatId">
+					<option value="">Select a broadcast</option>
+					@foreach (var broadcast in Broadcasts)
+					{
+						<option value="@broadcast.LiveChatId">@broadcast.Title</option>
+					}
+				</InputSelect>
+				<ValidationMessage For="@(() => Model.LiveChatId)" />
+			</dd>
 			<dt><label for="Enabled">Enabled:</label></dt>
 			<dd>
 				<InputCheckbox name="Enabled" @bind-Value="Model.Enabled" />
@@ -35,6 +55,8 @@
 
 	public ViewModel Model { get; set; } = new();
 
+	IEnumerable<YouTubeBroadcast> Broadcasts { get; set; } = [];
+
 	protected override async Task OnParametersSetAsync()
 	{
 
@@ -42,16 +64,30 @@
 
 		Model = new ViewModel
 			{
+			ChannelId = providerConfiguration.GetConfigurationByKey("ChannelId") ?? string.Empty,
+			LiveChatId = providerConfiguration.GetConfigurationByKey("LiveChatId") ?? string.Empty,
 				YouTubeApiKey = providerConfiguration.GetConfigurationByKey("YouTubeApiKey"),
 				Enabled = string.IsNullOrEmpty(providerConfiguration.GetConfigurationByKey("Enabled")) ? false : bool.Parse(providerConfiguration.GetConfigurationByKey("Enabled"))
 			};
 
 		Health = await Provider.GetHealth();
 
-		var broadcastMethod = Provider.GetType().GetMethod("GetBroadcastsForUser");
-		var broadcasts = broadcastMethod.Invoke(Provider, []) as IEnumerable<YouTubeBroadcast>;
 		await base.OnParametersSetAsync();
 
+	}
+
+	private async Task GetBroadcasts()
+	{
+		try
+		{
+			var broadcastMethod = Provider.GetType().GetMethod("GetBroadcastsForUser");
+			Broadcasts = broadcastMethod.Invoke(Provider, []) as IEnumerable<YouTubeBroadcast> ?? [];
+			ToastService.Add("Broadcasts loaded successfully.", MessageSeverity.Success);
+		}
+		catch (Exception ex)
+		{
+			ToastService.Add($"Error loading broadcasts: {ex.Message}", MessageSeverity.Danger);
+		}
 	}
 
 	private async Task SaveConfig()
@@ -59,6 +95,8 @@
 
 		var providerConfiguration = await Provider.GetConfiguration(Config);
 
+		providerConfiguration.SetConfigurationByKey("ChannelId", Model.ChannelId);
+		providerConfiguration.SetConfigurationByKey("LiveChatId", Model.LiveChatId);
 		providerConfiguration.SetConfigurationByKey("YouTubeApiKey", Model.YouTubeApiKey);
 		providerConfiguration.SetConfigurationByKey("Enabled", Model.Enabled.ToString());
 
@@ -69,6 +107,12 @@
 	public class ViewModel
 	{
 
+		[Required(ErrorMessage = "Channel ID is required.")]
+		public string ChannelId { get; set; } = string.Empty;
+
+		public string LiveChatId { get; set; } = string.Empty;
+
+		[Required(ErrorMessage = "YouTube API Key is required.")]
 		public string YouTubeApiKey { get; set; } = string.Empty;
 
 		public bool Enabled { get; set; }

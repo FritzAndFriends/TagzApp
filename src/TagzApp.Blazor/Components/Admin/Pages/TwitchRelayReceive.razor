@@ -28,7 +28,7 @@ else
 	{
 
 		// Get the Twitch provider and then its configuration
-		TwitchProvider = messagingService.Providers.FirstOrDefault(p => p.Id == "provider-twitch");
+		TwitchProvider = messagingService.Providers.FirstOrDefault(p => p.Id == "TWITCH");
 		if (TwitchProvider is null) return;
 
 		Configuration = await TwitchProvider.GetConfiguration(ConfigureTagzAppFactory.Current);

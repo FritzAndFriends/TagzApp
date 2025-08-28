@@ -674,7 +674,23 @@ a {
 	display: inline-block;
 	background-image: url(/img/Bluesky_Logo.svg);
 	background-size: contain;
-	filter: brightness(0) invert(1);
+	filter: brightness(0) saturate(100%);
+}
+
+.providerSwitch .icon-bluesky {
+	width: 23px;
+	height: 20px;
+	margin-top: 4px;
+	display: inline-block;
+	background-image: url(/img/Bluesky_Logo.svg);
+	background-size: contain;
+	filter: grayscale(100%) brightness(1000%);
+}
+
+@media (prefers-color-scheme: dark) {
+  .icon-bluesky {
+    filter: brightness(1000%) grayscale(100%)!important;
+  }
 }
 
 /* User grid */

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Web;
 using TagzApp.Common.Telemetry;
+using TagzApp.Common.Configuration;
 
 namespace TagzApp.Providers.TwitchChat;
 
@@ -11,52 +12,87 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 {
 	private bool _DisposedValue;
 	private IChatClient? _Client;
+	private readonly IOptionsMonitor<TwitchChatConfiguration> _ConfigMonitor;
+	private readonly IDisposable? _ConfigChangeSubscription;
 
 	public string Id => "TWITCH";
 	public string DisplayName => "TwitchChat";
-	private const string AppSettingsSection = "provider-twitch";
+	internal const string AppSettingsSection = "provider-twitch";
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds(1);
 	public string Description { get; init; } = "Twitch is where millions of people come together live every day to chat, interact, and make their own entertainment together.";
-	public bool Enabled { get; private set; }
+	public bool Enabled => _ConfigMonitor.CurrentValue.Enabled;
 
 	private SocialMediaStatus _Status = SocialMediaStatus.Unhealthy;
 	private string _StatusMessage = "Not started";
 
 	private static readonly ConcurrentQueue<Content> _Contents = new();
 	private static readonly CancellationTokenSource _CancellationTokenSource = new();
-	private TwitchChatConfiguration _Config;
 	private readonly ILogger<TwitchChatProvider> _Logger;
 	private readonly TwitchProfileRepository _ProfileRepository;
 	private readonly ProviderInstrumentation? _Instrumentation;
 
-	public TwitchChatProvider(ILogger<TwitchChatProvider> logger, IConfiguration configuration, HttpClient client, ProviderInstrumentation? instrumentation = null)
+	public TwitchChatProvider(ILogger<TwitchChatProvider> logger, IConfiguration configuration, HttpClient client, IOptionsMonitor<TwitchChatConfiguration> configMonitor, ProviderInstrumentation? instrumentation = null)
 	{
-		_Config = ConfigureTagzAppFactory.Current.GetConfigurationById<TwitchChatConfiguration>(Id).GetAwaiter().GetResult();
+		_ConfigMonitor = configMonitor;
 		_Logger = logger;
 		_ProfileRepository = new TwitchProfileRepository(configuration, client);
-		Enabled = _Config.Enabled;
 		_Instrumentation = instrumentation;
 
-		if (!string.IsNullOrWhiteSpace(_Config.Description))
+		// Subscribe to configuration changes
+		_ConfigChangeSubscription = _ConfigMonitor.OnChange(async (config, name) =>
 		{
-			Description = _Config.Description;
+			await HandleConfigurationChange(config);
+		});
+
+		var currentConfig = _ConfigMonitor.CurrentValue;
+		if (!string.IsNullOrWhiteSpace(currentConfig.Description))
+		{
+			Description = currentConfig.Description;
 		}
 	}
 
 	internal TwitchChatProvider(IOptions<TwitchChatConfiguration> settings, ILogger<TwitchChatProvider> logger, IChatClient chatClient)
 	{
-		_Config = settings.Value;
+		// For static scenarios (testing, development) - create a static options monitor wrapper that returns the settings value
+		_ConfigMonitor = settings.ToStaticMonitor();
+		_ConfigChangeSubscription = null; // No change subscription for static configurations
 		_Logger = logger;
+		_ProfileRepository = null!; // Will be null for testing
 		ListenForMessages(chatClient);
 	}
 
-	private async Task ListenForMessages(IChatClient chatClient = null)
+	private async Task HandleConfigurationChange(TwitchChatConfiguration newConfig)
 	{
+		var previousConfig = _ConfigMonitor.CurrentValue;
+		
+		// Handle channel name change
+		if (_Client != null && _Client.IsRunning && previousConfig.ChannelName != newConfig.ChannelName)
+		{
+			_Client.ListenToNewChannel(newConfig.ChannelName);
+		}
+
+		// Handle enabled state change
+		if (previousConfig.Enabled != newConfig.Enabled)
+		{
+			if (newConfig.Enabled)
+			{
+				await StartAsync();
+			}
+			else
+			{
+				await StopAsync();
+			}
+		}
+	}
+
+	private Task ListenForMessages(IChatClient? chatClient = null)
+	{
+		var currentConfig = _ConfigMonitor.CurrentValue;
 
 		_Status = SocialMediaStatus.Degraded;
 		_StatusMessage = "Starting TwitchChat client";
 
-		_Client = chatClient ?? new ChatClient(_Config.ChannelName, _Config.ChatBotName, _Config.OAuthToken, _Logger);
+		_Client = chatClient ?? new ChatClient(currentConfig.ChannelName, currentConfig.ChatBotName, currentConfig.OAuthToken, _Logger);
 
 		_Client.NewMessage += async (sender, args) =>
 		{
@@ -76,7 +112,7 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 			{
 				Provider = Id,
 				ProviderId = args.MessageId,
-				SourceUri = new Uri($"https://twitch.tv/{_Config.ChannelName}"),
+				SourceUri = new Uri($"https://twitch.tv/{_ConfigMonitor.CurrentValue.ChannelName}"),
 				Author = new Creator
 				{
 					ProfileUri = new Uri($"https://twitch.tv/{args.UserName}"),
@@ -100,11 +136,13 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 			_Logger.LogError(ex, "Failed to initialize TwitchChat client");
 			_Status = SocialMediaStatus.Unhealthy;
 			_StatusMessage = $"Failed to initialize TwitchChat client: '{ex.Message}'";
-			return;
+			return Task.CompletedTask;
 		}
 
 		_Status = SocialMediaStatus.Healthy;
 		_StatusMessage = "OK";
+
+		return Task.CompletedTask;
 
 	}
 
@@ -179,6 +217,7 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 		{
 			if (disposing)
 			{
+				_ConfigChangeSubscription?.Dispose();
 				_Client?.Dispose();
 			}
 
@@ -202,18 +241,18 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 		GC.SuppressFinalize(this);
 	}
 
-	public Task StartAsync()
+	public async Task StartAsync()
 	{
+		var currentConfig = _ConfigMonitor.CurrentValue;
 
-		if (string.IsNullOrEmpty(_Config.ChannelName) || string.IsNullOrEmpty(_Config.OAuthToken))
+		if (string.IsNullOrEmpty(currentConfig.ChannelName) || string.IsNullOrEmpty(currentConfig.OAuthToken))
 		{
 			_Status = SocialMediaStatus.Unhealthy;
 			_StatusMessage = "TwitchChat client is not configured";
-			return Task.CompletedTask;
+			return;
 		}
 
-		ListenForMessages();
-		return Task.CompletedTask;
+		await ListenForMessages();
 	}
 
 	public Task<(SocialMediaStatus Status, string Message)> GetHealth()
@@ -233,34 +272,33 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 
 	public async Task<IProviderConfiguration> GetConfiguration(IConfigureTagzApp configure)
 	{
-		return await configure.GetConfigurationById<TwitchChatConfiguration>(AppSettingsSection);
+		return await BaseProviderConfiguration<TwitchChatConfiguration>.CreateFromConfigurationAsync<TwitchChatConfiguration>(configure);
 	}
 
 	public async Task SaveConfiguration(IConfigureTagzApp configure, IProviderConfiguration providerConfiguration)
 	{
-		await configure.SetConfigurationById(AppSettingsSection, (TwitchChatConfiguration)providerConfiguration);
+		var twitchConfig = (TwitchChatConfiguration)providerConfiguration;
+		await twitchConfig.SaveToConfigurationAsync(configure);
+
+		var currentConfig = _ConfigMonitor.CurrentValue;
 
 		// handle channelname change
-		if (_Config.ChannelName != ((TwitchChatConfiguration)providerConfiguration).ChannelName)
+		if (currentConfig.ChannelName != twitchConfig.ChannelName)
 		{
-			_Client.ListenToNewChannel(((TwitchChatConfiguration)providerConfiguration).ChannelName);
-			_Config.ChannelName = ((TwitchChatConfiguration)providerConfiguration).ChannelName;
+			_Client?.ListenToNewChannel(twitchConfig.ChannelName);
 		}
 
 		// Handle enabled state change
-		if (_Config.Enabled != providerConfiguration.Enabled && _Config.Enabled)
+		if (currentConfig.Enabled != providerConfiguration.Enabled && currentConfig.Enabled)
 		{
-			Enabled = providerConfiguration.Enabled;
-			_Config = (TwitchChatConfiguration)providerConfiguration;
 			await StopAsync();
 		}
-		else if (_Config.Enabled != providerConfiguration.Enabled && !_Config.Enabled)
+		else if (currentConfig.Enabled != providerConfiguration.Enabled && !currentConfig.Enabled)
 		{
-			Enabled = providerConfiguration.Enabled;
-			_Config = (TwitchChatConfiguration)providerConfiguration;
 			await StartAsync();
 		}
 
-
+		// The IOptionsMonitor will automatically pick up the changes from the saved configuration
+		// No need to manually update since it's reactive
 	}
 }
