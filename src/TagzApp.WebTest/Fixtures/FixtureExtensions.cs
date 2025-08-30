@@ -4,7 +4,7 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using TagzApp.Web.Services;
+using TagzApp.Blazor.Services;
 
 namespace TagzApp.WebTest.Fixtures;
 

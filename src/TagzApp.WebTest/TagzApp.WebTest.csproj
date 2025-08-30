@@ -29,6 +29,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
+    <ProjectReference Include="..\TagzApp.Blazor\TagzApp.Blazor.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

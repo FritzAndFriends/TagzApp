@@ -6,7 +6,9 @@ using TagzApp.Blazor;
 using TagzApp.Blazor.Hubs;
 using TagzApp.Communication.Extensions;
 
-internal class Program
+namespace TagzApp.Blazor;
+
+public class Program
 {
 
 	private static CancellationTokenSource _Source = new();
