@@ -1,4 +1,5 @@
-# TagzApp
+# <img alt="TagzApp logo" src="doc/img/Tagzap_level_transparent-750h.webp" height="200" />
+
 A new website tool that searches social media for hashtags, and tracks chat interaction on several live streaming services
 
 ![Sample Screenshot from August 7, 2023](doc/img/Screenshot-2023-09-26.png)
@@ -71,9 +72,15 @@ The `MessageClient` class, provided by the `TagzApp.Lib.AzureQueue` package, ena
    - Messages sent using the `MessageClient` will appear on TagzApp with a globe icon for the provider.
 
 ## Running a local environment for development 
-If you do not have the proper Postgres database running locally, you can instead use the default embedded database:
-1. Remove the Postgres-related connection strings from TagzApp.Blazor\appsettings.Development.json
-2. Run from the command line: `dotnet watch --project .\src\TagzApp.Blazor\`.
-   The site should spin up and open the First Start Configuration page.
-3. Choose Sqlite and submit. After a short delay, The home page should show.
-4. To get started, navigate to "System Admin" and add a hashtag to watch, then navigate to Waterfall to see the content.
+
+The application has been updated to work with .NET Aspire and will start with a Postgres container and support for Mastodon.  With the .NET CLI installed, you can start the application using:
+
+```bash
+dotnet run --project src/AppHost
+```
+
+If you have the Aspire CLI installed, you can run a local instance with:
+
+```bash
+aspire run
+```
