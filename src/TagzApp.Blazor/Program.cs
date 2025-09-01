@@ -104,9 +104,6 @@ public class Program
 			options.EnableForHttps = true;
 		});
 
-		// Add OpenTelemetry for logging.
-		builder.Logging.AddOpenTelemetryLogging(builder.Configuration);
-
 		var app = builder.Build();
 
 		// Configure the HTTP request pipeline.
