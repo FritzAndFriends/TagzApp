@@ -70,12 +70,12 @@ public static class Service_Extensions
 				.PersistKeysToDbContext<SecurityContext>();
 
 			builder.Services.AddIdentityCore<TagzAppUser>(options =>
-									options.SignIn.RequireConfirmedAccount = true
-							)
-							.AddRoles<IdentityRole>()
-							.AddEntityFrameworkStores<SecurityContext>()
-							.AddSignInManager()
-							.AddDefaultTokenProviders();
+						options.SignIn.RequireConfirmedAccount = false
+				)
+				.AddRoles<IdentityRole>()
+				.AddEntityFrameworkStores<SecurityContext>()
+				.AddSignInManager()
+				.AddDefaultTokenProviders();
 
 			builder.Services.AddSingleton<IEmailSender<TagzAppUser>, IdentityNoOpEmailSender>();
 
