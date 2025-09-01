@@ -128,7 +128,7 @@ public class Program
 			// running in single-user mode -- the current user is an admin
 			if (appConfig.SingleUserMode)
 			{
-				logger.LogInformation("Running in single-user mode");
+
 				context.User = new ClaimsPrincipal(
 					new ClaimsIdentity(new[] {
 						new Claim(ClaimTypes.Name, "Admin User"),
@@ -136,10 +136,8 @@ public class Program
 						new Claim("DisplayName", "Admin User"),
 						new Claim(ClaimTypes.Role, RolesAndPolicies.Role.Admin)
 					}, IdentityConstants.ApplicationScheme));
-			} else {
-				logger.LogInformation("Running in multi-user mode");
-			}
-
+			} 
+			
 			await next();
 
 		});
