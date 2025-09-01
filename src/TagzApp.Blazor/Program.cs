@@ -1,6 +1,7 @@
 global using TagzApp.Security;
 using BlazorDownloadFile;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using TagzApp.Blazor;
 using TagzApp.Blazor.Hubs;
@@ -120,21 +121,26 @@ public class Program
 			app.UseResponseCompression();
 		}
 
-		app.Use((context, next) =>
+		app.Use(async (context, next) =>
 		{
+			var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
 
 			// running in single-user mode -- the current user is an admin
 			if (appConfig.SingleUserMode)
 			{
+				logger.LogInformation("Running in single-user mode");
 				context.User = new ClaimsPrincipal(
 					new ClaimsIdentity(new[] {
 						new Claim(ClaimTypes.Name, "Admin User"),
+						new Claim(ClaimTypes.NameIdentifier, "admin-user"),
 						new Claim("DisplayName", "Admin User"),
 						new Claim(ClaimTypes.Role, RolesAndPolicies.Role.Admin)
-					}, "Basic"));
+					}, IdentityConstants.ApplicationScheme));
+			} else {
+				logger.LogInformation("Running in multi-user mode");
 			}
 
-			return next();
+			await next();
 
 		});
 
@@ -143,6 +149,9 @@ public class Program
 
 		app.UseStaticFiles();
 		app.UseAntiforgery();
+		
+		app.UseAuthentication();
+		app.UseAuthorization();
 
 		app.MapRazorComponents<TagzApp.Blazor.Components.App>()
 				.AddInteractiveServerRenderMode()
