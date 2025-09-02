@@ -1,8 +1,8 @@
 # <img alt="TagzApp logo" src="doc/img/Tagzap_level_transparent-750h.webp" height="200" />
 
-A new website tool that searches social media for hashtags, and tracks chat interaction on several live streaming services
+A website tool that searches social media for hashtags, and tracks chat interaction on several live streaming services
 
-![Sample Screenshot from August 7, 2023](doc/img/Screenshot-2023-09-26.png)
+![Screenshot from .NET Conf 2024](doc/img/dotnetconf2024-inuse.png)
 
 ### Overlay display
 
@@ -11,76 +11,72 @@ When some content is selected on the waterfall display, we have an overlay avail
 ![image](https://github.com/FritzAndFriends/TagzApp/assets/78577/0d7e422a-166a-4d7d-8ea5-ea59f3f4ccbd)
 
 
-## Current Status
+## Current Features
 
-We have completed an initial minimum viable product and stress tested the application by capturing tweets during the NFL kickoff grame on September 7, 2023 between Kansas City and Detroit using the hashtag #DETvsKC
+TagzApp has been successfully deployed and proven in production for major .NET community events, having powered the social media aggregation for both **.NET Conf 2023** and **.NET Conf 2024**. The application has demonstrated its reliability and scalability in handling high-volume, real-time social media content during these large-scale developer conferences.
 
-Data is stored in a combination of Sqlite and Postgres databases.  We have configured an extensive provider model so that we can add new social media services in the future.
+### Production-Proven Features
 
-Live chat integration (TwitchChat, YouTubeChat, etc) captures all messages that are delivered over that service.
+#### Social Media Provider Support
+TagzApp currently supports **seven different social media providers**, offering comprehensive coverage across major platforms:
+- **[Blazot](https://www.blazot.com/)** - Developer-focused social platform
+- **Bluesky** - Decentralized social networking
+- **Mastodon** - Federated social network  
+- **Twitter/X** - Major social media platform
+- **TwitchChat** - Live streaming chat integration
+- **YouTube** - Video search by hashtag in descriptions
+- **YouTube Live Chat** - Real-time chat during live streams
+- **Azure Queue Integration** - Custom message delivery for website integration
 
-We also have a simple moderation capability.
+#### Advanced Moderation Capabilities
+The application features a comprehensive moderation system designed for high-traffic events:
 
-## Keyboard navigation supported on moderation screen
+- **Multi-layered content review** with human moderator oversight
+- **Keyboard navigation support** for efficient moderation workflows
+- **Real-time approval/rejection** with immediate visual feedback
+- **Bulk moderation actions** for managing high-volume content streams
+- **User blocking capabilities** with granular control options
 
-On the moderation screen, you can use the keyboard to navigate the cards on screen:
+#### Azure Content Safety Integration
+TagzApp incorporates **automated AI-powered moderation** through Azure Content Safety:
 
-- arrows to move a cursor between the various messages
-- Enter to select a message for moderation
-- Y to approve a message
-- N to reject a message
+- **Automated initial screening** of all incoming content across four critical categories:
+  - Sexual content detection
+  - Hate speech identification  
+  - Self-harm content flagging
+  - Violence-related content filtering
+- **Severity-based automatic rejection** with configurable thresholds
+- **Human moderator override capabilities** for nuanced decision-making
+- **Detailed AI reasoning** provided to moderators for informed review
+- **24/7 automated protection** ensuring continuous content monitoring
 
-### Currently Supported Services
+#### Professional Overlay System
+Multiple overlay formats are available for live streaming and broadcast integration:
 
- - [Blazot](https://www.blazot.com/)
- - Bluesky
- - Mastodon
- - Twitter / X
- - TwitchChat
- - YouTube (search for videos that have a given hashtag in the description)
- - YouTube Live Chat
- - Custom message delivery across Azure Queues, labeled as 'Website'
+- **Landscape Overlay** (`/overlay`) - Optimized for widescreen displays and OBS integration
+- **Portrait Overlay** (`/PortraitOverlay`) - Designed for mobile-friendly and vertical layouts  
+- **Real-time content selection** - Content selected on the waterfall automatically appears on overlays
+- **Video capture device compatibility** - Seamless integration with streaming software
+- **Customizable styling** with CSS configuration options
+- **Preview capabilities** for testing before going live
 
-## Integrating TagzApp with Your Application using Azure Storage Queues
+#### Technical Architecture
+Built on modern .NET technologies for scalability and performance:
 
-The `MessageClient` class, provided by the `TagzApp.Lib.AzureQueue` package, enables seamless integration of your application or website with TagzApp by leveraging Azure Storage Queues. This allows you to send messages that will appear on TagzApp in real-time. Ensure that the `TagzApp.Lib.AzureQueue` package is installed in your project before proceeding.
+- **.NET 9** with Blazor Server and WebAssembly hybrid architecture
+- **SignalR** for real-time communication and live updates
+- **PostgreSQL** for robust data storage and management
+- **.NET Aspire** for cloud-native application orchestration
+- **Azure integration** for cloud deployment and scaling
+- **Docker support** for containerized deployments
 
-### Steps to Configure and Use the MessageClient
+#### Features Ready for Your Next Event
+- **Role-based access control** with admin and moderator permissions
+- **Single-user mode** for smaller events or private instances  
+- **Extensive configuration management** with database-backed settings
+- **Telemetry and monitoring** integration for production observability
+- **Responsive design** optimized for desktop and mobile moderation workflows
 
-1. **Set Up Azure Queue**:
-   - Create an Azure Storage account if you don't already have one.
-   - Create a queue in the Azure Storage account.
-   - Note down the connection string and queue name.
+## Contributing or running in development mode
 
-2. **Integrate MessageClient in Your Application**:
-   - Add a reference to the `TagzApp.Lib.AzureQueue` library in your project.
-   - Use the `MessageClient` class to send messages to the Azure Queue.
-
-3. **Code Example**:
-   ```csharp
-   using TagzApp.Lib.AzureQueue;
-
-   // Initialize the MessageClient with your Azure Storage connection string and queue name
-   var messageClient = new MessageClient("<YourConnectionString>", "<YourQueueName>");
-
-   // Submit a message to the queue
-   await messageClient.SubmitMessage("Hello, TagzApp!", "AuthorName");
-   ```
-
-4. **Run Your Application**:
-   - Ensure your application has network access to the Azure Storage account.
-   - Messages sent using the `MessageClient` will appear on TagzApp with a globe icon for the provider.
-
-## Running a local environment for development 
-
-The application has been updated to work with .NET Aspire and will start with a Postgres container and support for Mastodon.  With the .NET CLI installed, you can start the application using:
-
-```bash
-dotnet run --project src/AppHost
-```
-
-If you have the Aspire CLI installed, you can run a local instance with:
-
-```bash
-aspire run
-```
+If you want to run your own version of TagzApp locally, check out the [CONTRIBUTING.md](CONTRIBUTING.md) document
