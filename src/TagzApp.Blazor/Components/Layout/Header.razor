@@ -7,7 +7,14 @@
 <header>
 	<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3 bg-body">
 		<div class="container">
-			<a class="navbar-brand" href="/">@AppConfiguration.SiteName</a>
+			<a class="navbar-brand" href="/">
+			@if (AppConfiguration.SiteName != null && !AppConfiguration.SiteName.Equals("TagzApp",StringComparison.InvariantCultureIgnoreCase))
+			{
+				@AppConfiguration.SiteName
+			} else {
+				<img src="/img/tagzapp_levelx750h.webp" alt="TagzApp" style="max-height: 80px;" />
+			}
+			</a>
 
 			@if (ConfigureTagzAppFactory.IsConfigured)
 			{
