@@ -12,6 +12,30 @@
 
 <PageTitle>Message Moderation</PageTitle>
 
+@* Connection Status Indicator *@
+@if (_ConnectionState != HubConnectionState.Connected)
+{
+	<div class="alert alert-warning border-0 rounded-0 mb-0 d-flex align-items-center justify-content-center connection-indicator @(_ConnectionState.ToString().ToLower())" style="position: sticky; top: 0; z-index: 1050;">
+		<div class="d-flex align-items-center">
+			@if (_ConnectionState == HubConnectionState.Reconnecting)
+			{
+				<div class="spinner-border spinner-border-sm text-warning me-2" role="status" aria-hidden="true"></div>
+				<span><strong>Reconnecting to server...</strong> (Attempt @_ReconnectAttempt)</span>
+			}
+			else if (_ConnectionState == HubConnectionState.Disconnected)
+			{
+				<i class="bi bi-wifi-off text-danger me-2"></i>
+				<span><strong>Connection lost.</strong> Attempting to reconnect...</span>
+			}
+			else
+			{
+				<div class="spinner-border spinner-border-sm text-info me-2" role="status" aria-hidden="true"></div>
+				<span><strong>Connecting to server...</strong></span>
+			}
+		</div>
+	</div>
+}
+
 <div class="row">
 	<div class="col-md-12">
 		<h1 class="text-center">Moderate Content for TagzApp (@_Tag)</h1>
@@ -97,15 +121,6 @@
 
 </div>
 
-@*
-
-			window.TagzApp.ActivateKeyboardNavigation();
-
-			window.onload = window.Masonry.resizeAllGridItems();
-			window.addEventListener("resize", Masonry.resizeAllGridItems);
-
-*@
-
 @code {
 
 	[CascadingParameter(Name = "HideFooter")] public bool HideFooter { get; set; }
@@ -143,7 +158,10 @@
 		}
 	}
 
-	private HubConnection _Connection;
+	private HubConnection? _Connection;
+
+	private HubConnectionState _ConnectionState = HubConnectionState.Disconnected;
+	private int _ReconnectAttempt = 0;
 
 	private bool _IsDisposing = false;
 
@@ -156,19 +174,21 @@
 
 		await ConfigureSignalRConnection();
 
-		_Tag = (await _Connection.InvokeAsync<string[]>("GetTags"))?.First();
+		if (_Connection?.State == HubConnectionState.Connected)
+		{
+			_Tag = (await _Connection.InvokeAsync<string[]>("GetTags"))?.FirstOrDefault() ?? string.Empty;
 
+			BlockedUserCount = await _Connection.InvokeAsync<int>("GetBlockedUserCount");
 
-		BlockedUserCount = await _Connection.InvokeAsync<int>("GetBlockedUserCount");
+			_Providers = await _Connection.InvokeAsync<IEnumerable<AvailableProvider>>("GetAvailableProviders");
+			_FilteredProviders = _Providers.Select(p => p.Id).ToList();
 
-		_Providers = await _Connection.InvokeAsync<IEnumerable<AvailableProvider>>("GetAvailableProviders");
-		_FilteredProviders = _Providers.Select(p => p.Id).ToList();
+			_Moderators = (await _Connection.InvokeAsync<NewModerator[]>("GetCurrentModerators")).ToHashSet();
 
-		_Moderators = (await _Connection.InvokeAsync<NewModerator[]>("GetCurrentModerators")).ToHashSet();
+			await InitializeContent();
+		}
 
 		await base.OnInitializedAsync();
-
-		await InitializeContent();
 
 	}
 
@@ -182,42 +202,81 @@
 	async Task ConfigureSignalRConnection()
 	{
 
+		_ConnectionState = HubConnectionState.Connecting;
+		await InvokeAsync(StateHasChanged);
+
 		_Connection = new HubConnectionBuilder()
 					.WithUrl(NavigationManager.ToAbsoluteUri("/mod"))
-					.WithAutomaticReconnect()
+					.WithAutomaticReconnect(new[] { TimeSpan.Zero, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(10) })
 					.Build();
+
+		_Connection.Reconnecting += async (error) => {
+			_ConnectionState = HubConnectionState.Reconnecting;
+			_ReconnectAttempt++;
+			await InvokeAsync(StateHasChanged);
+		};
+
+		_Connection.Reconnected += async (connectionId) => {
+			_ConnectionState = HubConnectionState.Connected;
+			_ReconnectAttempt = 0;
+			await InvokeAsync(StateHasChanged);
+		};
 
 		await ListenForModerationContent();
 
-		_Connection.Closed += async _ => {
+		_Connection.Closed += async (error) => {
+
+			_ConnectionState = HubConnectionState.Disconnected;
+			await InvokeAsync(StateHasChanged);
 
 			if (_IsDisposing) return;
 
-			while (!_IsDisposing)
+			_ReconnectAttempt = 0;
+
+			while (!_IsDisposing && _Connection.State == HubConnectionState.Disconnected)
 			{
+				_ReconnectAttempt++;
+				await InvokeAsync(StateHasChanged);
 
 				await Task.Delay(2000);
 				try {
-	
-					await ConfigureSignalRConnection();
+
+					_ConnectionState = HubConnectionState.Connecting;
+					await InvokeAsync(StateHasChanged);
+
+					await _Connection.StartAsync();
+					_ConnectionState = HubConnectionState.Connected;
+					_ReconnectAttempt = 0;
+					await InvokeAsync(StateHasChanged);
+					break;
 
 				} catch (Exception ex)
 				{
-
-					Console.WriteLine($"Error while attempting to reconnect ({_Connection.State.ToString()}) to server: {ex.Message}");
-
+					_ConnectionState = HubConnectionState.Disconnected;
+					Console.WriteLine($"Error while attempting to reconnect (Attempt {_ReconnectAttempt}): {ex.Message}");
 				}
 
 			}
 
 		};
 
-		await _Connection.StartAsync();
+		try 
+		{
+			await _Connection.StartAsync();
+			_ConnectionState = HubConnectionState.Connected;
+			await InvokeAsync(StateHasChanged);
+		}
+		catch (Exception ex)
+		{
+			_ConnectionState = HubConnectionState.Disconnected;
+			Console.WriteLine($"Error starting connection: {ex.Message}");
+		}
 
 	}
 
 	async Task ListenForModerationContent()
 	{
+		if (_Connection == null) return;
 
 		_Connection.On<ContentModel>("NewWaterfallMessage", async (content) =>
 		{
@@ -272,6 +331,8 @@
 			{
 				_Content.Add(content.Timestamp, content);
 			}
+
+			await InvokeAsync(StateHasChanged);
 
 		});
 
@@ -333,6 +394,7 @@
 
 	async Task InitializeContent()
 	{
+		if (_Connection?.State != HubConnectionState.Connected) return;
 
 		var approvalStatus = (int)_FilterApprovalStatus;
 		var currentContent = (await _Connection.InvokeAsync<IEnumerable<ModerationContentModel>>("GetFilteredContentByTag", _Tag, _FilteredProviders.ToArray(), approvalStatus))
@@ -344,7 +406,7 @@
 			{
 				_Content.Add(content.Timestamp, content);
 			}
-			catch (Exception ex)
+			catch (ArgumentException)
 			{
 				_Content.Add(content.Timestamp.AddMicroseconds(1), content);
 
@@ -358,8 +420,10 @@
 
 	public async Task Moderate(ModerationAction action)
 	{
-
-		await _Connection.InvokeAsync("SetStatus", action.Provider, action.ProviderId, action.State);
+		if (_Connection?.State == HubConnectionState.Connected)
+		{
+			await _Connection.InvokeAsync("SetStatus", action.Provider, action.ProviderId, action.State);
+		}
 		// TODO: Tag message appropriately to indicate moderation state
 
 	}
@@ -386,7 +450,7 @@
 		await InvokeAsync(StateHasChanged);
 	}
 
-	async Task ToggleProviderFilter(string providerId)
+	Task ToggleProviderFilter(string providerId)
 	{
 
 		if (_FilteredProviders.Contains(providerId))
@@ -407,9 +471,11 @@
 			FilterContent = null;
 		});
 
+		return Task.CompletedTask;
+
 	}
 
-	private Task FilterContent;
+	private Task? FilterContent;
 
 	private enum FilterModerationState
 	{
@@ -431,3 +497,46 @@
 	}
 
 }
+
+<style>
+	.connection-indicator {
+		background: linear-gradient(90deg, #fff3cd 0%, #ffeaa7 100%);
+		border-left: 4px solid #ffc107;
+		box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+		animation: pulse-warning 2s infinite;
+	}
+
+	.connection-indicator.connecting {
+		background: linear-gradient(90deg, #d1ecf1 0%, #bee5eb 100%);
+		border-left-color: #17a2b8;
+	}
+
+	.connection-indicator.reconnecting {
+		background: linear-gradient(90deg, #fff3cd 0%, #ffeaa7 100%);
+		border-left-color: #ffc107;
+	}
+
+	.connection-indicator.disconnected {
+		background: linear-gradient(90deg, #f8d7da 0%, #f5c6cb 100%);
+		border-left-color: #dc3545;
+	}
+
+	@@keyframes pulse-warning {
+		0%, 100% { 
+			opacity: 1; 
+		}
+		50% { 
+			opacity: 0.8; 
+		}
+	}
+
+	.bi-wifi-off {
+		animation: shake 0.5s infinite;
+	}
+
+	@@keyframes shake {
+		0%, 100% { transform: translateX(0); }
+		25% { transform: translateX(-2px); }
+		75% { transform: translateX(2px); }
+	}
+</style>

@@ -16,6 +16,47 @@
 <body>
 	<Routes />
 	<script src="_framework/blazor.web.js"></script>
+	<script>
+		// Disable default Blazor reconnection UI
+		window.addEventListener('DOMContentLoaded', function () {
+			// For Blazor Server
+			if (window.Blazor && window.Blazor.defaultReconnectionHandler) {
+				window.Blazor.defaultReconnectionHandler._reconnectDisplay = {
+					show: () => { /* Do nothing - custom UI will handle this */ },
+					hide: () => { /* Do nothing - custom UI will handle this */ },
+					failed: () => { /* Do nothing - custom UI will handle this */ },
+					rejected: () => { /* Do nothing - custom UI will handle this */ }
+				};
+			}
+			
+			// For newer versions of Blazor, also try this approach
+			if (window.Blazor && window.Blazor.reconnect) {
+				window.Blazor.reconnect = {
+					show: () => { /* Do nothing - custom UI will handle this */ },
+					hide: () => { /* Do nothing - custom UI will handle this */ },
+					failed: () => { /* Do nothing - custom UI will handle this */ },
+					rejected: () => { /* Do nothing - custom UI will handle this */ }
+				};
+			}
+		});
+
+		// Alternative approach: Hide the default modal via CSS if it appears
+		document.addEventListener('DOMContentLoaded', function() {
+			const style = document.createElement('style');
+			style.textContent = `
+				#blazor-error-ui,
+				.blazor-error-boundary,
+				#components-reconnect-modal,
+				.components-reconnect-show,
+				.components-reconnect-hide,
+				.components-reconnect-failed,
+				.components-reconnect-rejected {
+					display: none !important;
+				}
+			`;
+			document.head.appendChild(style);
+		});
+	</script>
 	<script src="/lib/jquery/dist/jquery.min.js"></script>
 	<script src="/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 	<script src="/lib/microsoft-signalr/signalr.min.js"></script>
