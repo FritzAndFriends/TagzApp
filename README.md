@@ -1,4 +1,4 @@
-# <img alt="TagzApp logo" src="doc/img/Tagzap_level_transparent-750h.webp" height="200" />
+# <img alt="TagzApp logo" src="doc/img/Tagzap_level_transparent-700h.webp" height="200" />
 
 A website tool that searches social media for hashtags, and tracks chat interaction on several live streaming services
 
