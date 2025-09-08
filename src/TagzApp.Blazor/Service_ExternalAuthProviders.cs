@@ -7,35 +7,55 @@ namespace TagzApp.Blazor;
 public static class Service_ExternalAuthProviders
 {
 
-	/// <summary>
-	/// A collection of externally configured providers
-	/// </summary>
-	public static AuthenticationBuilder AddExternalProvider(this AuthenticationBuilder builder, string name,
-		IConfiguration configuration,
-		Action<IConfiguration> action)
-	{
-		var section = configuration.GetSection($"Authentication:{name}");
-		if (section is not null) action(section);
-		return builder;
-	}
-
 	public static AuthenticationBuilder AddExternalProvider(this AuthenticationBuilder builder, string name,
 		IConfiguration configuration,
 		Action<Action<Microsoft.AspNetCore.Authentication.OAuth.OAuthOptions>> action)
 	{
-		return builder.AddExternalProvider(name, configuration, (section) =>
-		{
-			var clientID = section["ClientID"];
-			var clientSecret = section["ClientSecret"];
-			if (!string.IsNullOrEmpty(clientID) && !string.IsNullOrEmpty(clientSecret))
+
+		var section = configuration.GetSection($"Authentication:{name}");
+
+		var clientID = section?["ClientID"] ?? string.Empty;
+		var clientSecret = section?["ClientSecret"] ?? string.Empty;
+
+		action(options =>
 			{
-				action(options =>
+
+				if (!string.IsNullOrEmpty(clientID) && !string.IsNullOrEmpty(clientSecret))
 				{
 					options.ClientId = clientID;
 					options.ClientSecret = clientSecret;
-				});
-			}
-		});
+					return;
+				}
+
+				// Override the OAuth events to read configuration at runtime
+				options.Events.OnRedirectToAuthorizationEndpoint = async context =>
+				{
+					// Get fresh configuration from your config service/database
+					var configService = context.HttpContext.RequestServices.GetRequiredService<IConfigureTagzApp>();
+					clientID = await configService.GetConfigurationStringById($"Authentication:{name}:ClientID");
+					clientSecret = await configService.GetConfigurationStringById($"Authentication:{name}:ClientSecret");
+
+					if (string.IsNullOrEmpty(clientID) || string.IsNullOrEmpty(clientSecret))
+					{
+						// No configuration - redirect to error page
+						context.Response.Redirect($"/Account/ProviderNotConfigured?provider={name}");
+						context.Response.StatusCode = 403; // Forbidden
+						return;
+					}
+
+
+					// Update the options with fresh configuration
+					context.Options.ClientId = clientID;
+					context.Options.ClientSecret = clientSecret;
+
+					// Continue with normal OAuth flow
+					context.Response.Redirect(context.RedirectUri);
+				};	
+
+			});
+
+		return builder;
+
 	}
 
 	public static AuthenticationBuilder AddExternalProviders(this AuthenticationBuilder builder,
@@ -52,6 +72,7 @@ public static class Service_ExternalAuthProviders
 		return builder;
 	}
 
+	// This isn't currently used... but it might be useful in the future.
 	private static void AddYouTubeProvider(AuthenticationBuilder builder, IConfiguration configuration)
 	{
 		if (!string.IsNullOrEmpty(configuration[YouTubeChatConfiguration.Key_Google_ClientId]))

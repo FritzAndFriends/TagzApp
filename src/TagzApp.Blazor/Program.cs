@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using TagzApp.Blazor;
 using TagzApp.Blazor.Hubs;
+using TagzApp.Blazor.Services;
 using TagzApp.Communication.Extensions;
 
 namespace TagzApp.Blazor;
@@ -151,6 +152,8 @@ public class Program
 		
 		app.UseAuthentication();
 		app.UseAuthorization();
+
+		app.UseMiddleware<DynamicAuthMiddleware>();
 
 		app.MapRazorComponents<TagzApp.Blazor.Components.App>()
 				.AddInteractiveServerRenderMode()
