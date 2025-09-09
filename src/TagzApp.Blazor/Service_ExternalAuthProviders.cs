@@ -61,8 +61,8 @@ public static class Service_ExternalAuthProviders
 						? $"{context.Request.Scheme}://{context.Request.Host}{context.Options.CallbackPath}"
 						: context.RedirectUri;
 
-					// This doesn't look like the right calculation of STATE
-					var state = context.Properties.Items[".xsrf"];
+					// Properly generate the state parameter using the StateDataFormat
+					var state = context.Options.StateDataFormat.Protect(context.Properties);
 					var scope = string.Join(" ", context.Options.Scope);
 
 					var authUrl = $"{authorizationEndpoint}" +
