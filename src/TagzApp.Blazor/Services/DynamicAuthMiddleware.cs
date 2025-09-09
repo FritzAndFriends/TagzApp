@@ -1,24 +1,24 @@
-using Microsoft.Extensions.Primitives;
-
 namespace TagzApp.Blazor.Services;
 
 public class DynamicAuthMiddleware
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<DynamicAuthMiddleware> _logger;
+	private readonly RequestDelegate _next;
+	private readonly ILogger<DynamicAuthMiddleware> _logger;
 
-    public DynamicAuthMiddleware(RequestDelegate next, ILogger<DynamicAuthMiddleware> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
 
-    public async Task InvokeAsync(HttpContext context)
+
+	public DynamicAuthMiddleware(RequestDelegate next, ILogger<DynamicAuthMiddleware> logger)
+	{
+		_next = next;
+		_logger = logger;
+	}
+
+	public async Task InvokeAsync(HttpContext context)
 	{
 		if (context.Request.Path.StartsWithSegments("/Account/PerformExternalLogin"))
 		{
 			var provider = context.Request.Form["provider"];
-			var configService = context.RequestServices.GetRequiredService<IConfigureTagzApp>();
+			var configService = context.RequestServices.GetRequiredService<IConfiguration>();
 
 			// Check if this provider is properly configured
 			var hasConfig = await CheckProviderConfiguration(configService, provider);
@@ -32,12 +32,12 @@ public class DynamicAuthMiddleware
 		await _next(context);
 	}
 
-	public static async Task<bool> CheckProviderConfiguration(IConfigureTagzApp configService, string provider)
+	public static async Task<bool> CheckProviderConfiguration(IConfiguration configService, string provider)
 	{
-		return (
-			!string.IsNullOrEmpty(await configService.GetConfigurationStringById($"Authentication:{provider}:ClientID"))
-			&& !string.IsNullOrEmpty(await configService.GetConfigurationStringById($"Authentication:{provider}:ClientSecret"))
-			);
+		return
+			!string.IsNullOrEmpty(configService[$"Authentication:{provider}:ClientID"])
+			&& !string.IsNullOrEmpty(configService[$"Authentication:{provider}:ClientSecret"])
+			;
 
 	}
 }
