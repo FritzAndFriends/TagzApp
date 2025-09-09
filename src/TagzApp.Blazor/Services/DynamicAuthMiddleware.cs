@@ -15,10 +15,11 @@ public class DynamicAuthMiddleware
 
 	public async Task InvokeAsync(HttpContext context)
 	{
+
 		if (context.Request.Path.StartsWithSegments("/Account/PerformExternalLogin"))
 		{
 			var provider = context.Request.Form["provider"];
-			var configService = context.RequestServices.GetRequiredService<IConfiguration>();
+			var configService = context.RequestServices.GetRequiredService<IConfigureTagzApp>();
 
 			// Check if this provider is properly configured
 			var hasConfig = await CheckProviderConfiguration(configService, provider);
@@ -32,11 +33,17 @@ public class DynamicAuthMiddleware
 		await _next(context);
 	}
 
-	public static async Task<bool> CheckProviderConfiguration(IConfiguration configService, string provider)
+	public static async Task<bool> CheckProviderConfiguration(IConfigureTagzApp configService, string provider)
 	{
+
+		var section = await configService.GetConfigurationById<Dictionary<string, string>>($"Authentication:{provider}");
+
+		var clientID = section?.ContainsKey("ClientID") == true ? section["ClientID"] : string.Empty;
+		var clientSecret = section?.ContainsKey("ClientSecret") == true ? section["ClientSecret"] : string.Empty;
+
 		return
-			!string.IsNullOrEmpty(configService[$"Authentication:{provider}:ClientID"])
-			&& !string.IsNullOrEmpty(configService[$"Authentication:{provider}:ClientSecret"])
+			!string.IsNullOrEmpty(clientID)
+			&& !string.IsNullOrEmpty(clientSecret)
 			;
 
 	}

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using TagzApp.Providers.YouTubeChat;
 
 namespace TagzApp.Blazor;
@@ -11,17 +12,27 @@ public static class Service_ExternalAuthProviders
 	public const string CLIENTID_DUMMY = "<DUMMY CLIENT ID>";
 	public const string CLIENTSECRET_DUMMY = "<DUMMY CLIENT SECRET>";
 
+	/// <summary>
+	/// Dictionary of external authentication providers with their configuration actions
+	/// </summary>
+	public static readonly Dictionary<string, Action<AuthenticationBuilder, Action<OAuthOptions>>> ExternalProviders = new()
+	{
+		["Microsoft"] = (builder, options) => builder.AddMicrosoftAccount(options),
+		["GitHub"] = (builder, options) => builder.AddGitHub(options),
+		["LinkedIn"] = (builder, options) => builder.AddLinkedIn(options),
+		["Google"] = (builder, options) => builder.AddGoogle(options)
+	};
+
+
 	public static AuthenticationBuilder AddExternalProvider(this AuthenticationBuilder builder, string name,
-		IConfiguration configuration,
+		IConfigureTagzApp configuration,
 		Action<Action<OAuthOptions>> action)
 	{
 
-		var section = configuration.GetSection($"Authentication:{name}");
+		var section = configuration.GetConfigurationById<Dictionary<string, string>>($"Authentication:{name}").GetAwaiter().GetResult();
 
-		//var clientID = section?["ClientID"] ?? CLIENTID_DUMMY;
-		//var clientSecret = section?["ClientSecret"] ?? CLIENTSECRET_DUMMY;
-		var clientID = CLIENTID_DUMMY;
-		var clientSecret = CLIENTSECRET_DUMMY;
+		var clientID = section?.ContainsKey("ClientID") == true ? (section["ClientID"] ?? CLIENTID_DUMMY) : CLIENTID_DUMMY;
+		var clientSecret = section?.ContainsKey("ClientSecret") == true ? (section["ClientSecret"] ?? CLIENTSECRET_DUMMY) : CLIENTSECRET_DUMMY;
 
 		action(options =>
 			{
@@ -35,9 +46,10 @@ public static class Service_ExternalAuthProviders
 				options.Events.OnRedirectToAuthorizationEndpoint = async context =>
 				{
 					// Get fresh configuration from your config service/database
-					var configService = context.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
-					var innerClientID = configService[$"Authentication:{name}:ClientID"];
-					var innerClientSecret = configService[$"Authentication:{name}:ClientSecret"];
+					var configService = context.HttpContext.RequestServices.GetRequiredService<IConfigureTagzApp>();
+					var keys = await configService.GetConfigurationById<Dictionary<string, string>>($"Authentication:{name}");
+					var innerClientID = keys["ClientID"];
+					var innerClientSecret = keys["ClientSecret"];
 
 					if (innerClientID == CLIENTID_DUMMY || innerClientSecret == CLIENTSECRET_DUMMY)
 					{
@@ -84,13 +96,13 @@ public static class Service_ExternalAuthProviders
 	}
 
 	public static AuthenticationBuilder AddExternalProviders(this AuthenticationBuilder builder,
-		IConfiguration configuration)
+		IConfigureTagzApp configuration)
 	{
-		builder.AddExternalProvider("Microsoft", configuration, options => builder.AddMicrosoftAccount(options));
-		builder.AddExternalProvider("GitHub", configuration, options => builder.AddGitHub(options));
-		builder.AddExternalProvider("LinkedIn", configuration, options => builder.AddLinkedIn(options));
-		builder.AddExternalProvider("Google", configuration, options => builder.AddGoogle(options));
 
+		foreach (var provider in ExternalProviders)
+		{
+			builder.AddExternalProvider(provider.Key, configuration, options => provider.Value(builder, options));
+		}
 
 		// AddYouTubeProvider(builder, configuration);
 

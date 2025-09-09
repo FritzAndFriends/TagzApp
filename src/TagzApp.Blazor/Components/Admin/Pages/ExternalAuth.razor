@@ -1,0 +1,178 @@
+@page "/Admin/ExternalAuth"
+@attribute [Authorize(Roles = RolesAndPolicies.Role.Admin)]
+@rendermode InteractiveServer
+@layout Admin.Shared.AdminLayout
+@using Microsoft.AspNetCore.Authorization
+@using System.ComponentModel.DataAnnotations
+@using System.Text.Json
+@using TagzApp.Blazor.Client.Bootstrap
+@inject IConfigureTagzApp ConfigService
+@inject ILogger<ExternalAuth> Logger
+@inject TagzApp.Blazor.Client.Services.ToastService ToastService
+
+<PageTitle>System Administration: External Authentication Providers</PageTitle>
+
+<h2>External Authentication Providers</h2>
+
+<p class="text-muted">Configure OAuth providers for external authentication. Users will be able to log in using these providers.</p>
+
+<div class="row">
+    @foreach (var provider in ExternalProviders)
+    {
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">@provider.Name</h5>
+                </div>
+                <div class="card-body">
+                    <EditForm Model="provider" OnValidSubmit="() => SaveProviderAsync(provider)">
+                        <DataAnnotationsValidator />
+                        
+                        <div class="mb-3">
+                            <label for="@($"clientId_{provider.Name}")" class="form-label">Client ID</label>
+                            <InputText id="@($"clientId_{provider.Name}")" 
+                                      class="form-control" 
+                                      @bind-Value="provider.ClientId" 
+                                      placeholder="Enter Client ID" />
+                            <ValidationMessage For="() => provider.ClientId" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="@($"clientSecret_{provider.Name}")" class="form-label">Client Secret</label>
+                            <InputText id="@($"clientSecret_{provider.Name}")" 
+                                      class="form-control" 
+                                      type="password" 
+                                      @bind-Value="provider.ClientSecret" 
+                                      placeholder="Enter Client Secret" />
+                            <ValidationMessage For="() => provider.ClientSecret" />
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary" disabled="@provider.IsSaving">
+                                @if (provider.IsSaving)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                }
+                                Save Configuration
+                            </button>
+                            
+                            @if (provider.IsConfigured)
+                            {
+                                <span class="badge bg-success align-self-center">
+                                    <i class="bi bi-check-circle me-1"></i>Configured
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary align-self-center">
+                                    <i class="bi bi-exclamation-circle me-1"></i>Not Configured
+                                </span>
+                            }
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="mt-4">
+    <div class="alert alert-info">
+        <h6><i class="bi bi-info-circle me-2"></i>Configuration Notes:</h6>
+        <ul class="mb-0">
+            <li><strong>Client ID</strong> and <strong>Client Secret</strong> are obtained from the respective OAuth provider's developer console.</li>
+            <li>Ensure your redirect URIs are configured correctly in each provider's settings.</li>
+            <li>Common redirect URI format: <code>https://yourdomain.com/signin-{provider}</code></li>
+            <li>Changes take effect immediately but may require users to log out and back in.</li>
+        </ul>
+    </div>
+</div>
+
+@code {
+    private List<ExternalProviderViewModel> ExternalProviders { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProvidersAsync();
+    }
+
+    private async Task LoadProvidersAsync()
+    {
+
+        ExternalProviders = new List<ExternalProviderViewModel>();
+
+        foreach (var provider in Service_ExternalAuthProviders.ExternalProviders)
+        {
+            var providerModel = new ExternalProviderViewModel
+            {
+                Name = provider.Key,
+            };
+
+            // Load existing configuration
+            try
+            {
+                var config = await ConfigService.GetConfigurationById<Dictionary<string, string>>($"Authentication:{provider.Key}");
+                if (config != null)
+                {
+                    providerModel.ClientId = config.GetValueOrDefault("ClientID", string.Empty);
+                    providerModel.ClientSecret = config.GetValueOrDefault("ClientSecret", string.Empty);
+                    providerModel.Enabled = !string.IsNullOrEmpty(providerModel.ClientId) && !string.IsNullOrEmpty(providerModel.ClientSecret) && bool.TryParse(config.GetValueOrDefault("Enabled", "false"), out var isEnabled) && isEnabled;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex, "Failed to load configuration for provider {Provider}", provider.Key);
+            }
+
+            ExternalProviders.Add(providerModel);
+        }
+    }
+
+    private async Task SaveProviderAsync(ExternalProviderViewModel provider)
+    {
+        try
+        {
+            provider.IsSaving = true;
+            StateHasChanged();
+
+            var config = new Dictionary<string, string>
+            {
+                ["ClientID"] = provider.ClientId ?? string.Empty,
+                ["ClientSecret"] = provider.ClientSecret ?? string.Empty,
+                ["Enabled"] = provider.Enabled.ToString()
+            };
+
+            await ConfigService.SetConfigurationById($"Authentication:{provider.Name}", config);
+
+            ToastService.Add($"Saved {provider.Name} configuration successfully", MessageSeverity.Success);
+            Logger.LogInformation("Saved external auth configuration for {Provider}", provider.Name);
+        }
+        catch (Exception ex)
+        {
+            ToastService.Add($"Failed to save {provider.Name} configuration: {ex.Message}", MessageSeverity.Danger);
+            Logger.LogError(ex, "Failed to save external auth configuration for {Provider}", provider.Name);
+        }
+        finally
+        {
+            provider.IsSaving = false;
+            StateHasChanged();
+        }
+    }
+
+    public class ExternalProviderViewModel
+    {
+        public string Name { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Client ID is required")]
+        public string? ClientId { get; set; }
+
+        [Required(ErrorMessage = "Client Secret is required")]
+        public string? ClientSecret { get; set; }
+
+        public bool Enabled { get; set; }
+
+        public bool IsSaving { get; set; }
+
+        public bool IsConfigured => !string.IsNullOrWhiteSpace(ClientId) && !string.IsNullOrWhiteSpace(ClientSecret);
+    }
+}
