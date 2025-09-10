@@ -9,10 +9,23 @@
 @inject IConfigureTagzApp ConfigService
 @inject ILogger<ExternalAuth> Logger
 @inject TagzApp.Blazor.Client.Services.ToastService ToastService
+@inject ApplicationConfiguration AppConfig
+@inject NavigationManager NavigationManager
+@inject IJSRuntime Js
 
 <PageTitle>System Administration: External Authentication Providers</PageTitle>
 
 <h2>External Authentication Providers</h2>
+
+@* Phase 1: Single User Mode Warning Banner *@
+@if (AppConfig.SingleUserMode)
+{
+    <div class="alert alert-warning mb-4">
+        <h6><i class="bi bi-exclamation-triangle me-2"></i>Single User Mode Active</h6>
+        <p class="mb-2">You're currently in single-user mode. Configure at least one external authentication provider below before switching to multi-user mode.</p>
+        <p class="mb-0"><strong>Important:</strong> Once you switch to multi-user mode, you'll need to log in using one of these configured providers to regain admin access.</p>
+    </div>
+}
 
 <p class="text-muted">Configure OAuth providers for external authentication. Users will be able to log in using these providers.</p>
 
@@ -105,6 +118,36 @@
         </ul>
     </div>
 </div>
+
+@* Phase 2: Ready for Multi-User Mode Button *@
+@if (AppConfig.SingleUserMode && HasConfiguredProvider())
+{
+    <div class="mt-4">
+        <div class="alert alert-success">
+            <h6><i class="bi bi-check-circle me-2"></i>Ready for Multi-User Mode</h6>
+            <p class="mb-2">You have configured at least one external authentication provider. You can now safely switch to multi-user mode.</p>
+            <p class="mb-3"><strong>Next steps:</strong></p>
+            <ol class="mb-3">
+                <li>Click "Switch to Multi-User Mode" below</li>
+                <li>You'll be redirected to the login page</li>
+                <li>Log in using one of the configured external providers</li>
+                <li>You'll automatically receive admin rights as the first user</li>
+            </ol>
+            <button type="button" class="btn btn-success btn-lg" @onclick="ConvertToMultiUserMode">
+                <i class="bi bi-shield-check me-2"></i>Switch to Multi-User Mode
+            </button>
+        </div>
+    </div>
+}
+else if (AppConfig.SingleUserMode)
+{
+    <div class="mt-4">
+        <div class="alert alert-info">
+            <h6><i class="bi bi-info-circle me-2"></i>Configure External Authentication</h6>
+            <p class="mb-0">Configure at least one external authentication provider above to enable multi-user mode.</p>
+        </div>
+    </div>
+}
 
 @code {
     private List<ExternalProviderViewModel> ExternalProviders { get; set; } = new();
@@ -230,6 +273,46 @@
     {
         provider.IsEditingSecret = false;
         provider.ClientSecret = null; // clear any entered value
+    }
+
+    private bool HasConfiguredProvider()
+    {
+        return ExternalProviders.Any(p => p.IsConfigured);
+    }
+
+    private async Task ConvertToMultiUserMode()
+    {
+        var configuredProviders = ExternalProviders.Where(p => p.IsConfigured).Select(p => p.Name).ToList();
+        var providerList = string.Join(", ", configuredProviders);
+        
+        var confirmed = await Js.InvokeAsync<bool>("confirm", 
+            $"Are you sure you want to switch to multi-user mode?\n\n" +
+            $"Configured providers: {providerList}\n\n" +
+            $"This action cannot be reversed. You will need to log in using one of these external providers to regain admin access.\n\n" +
+            $"Continue?");
+        
+        if (confirmed)
+        {
+            try
+            {
+                // Phase 3: Switch to multi-user mode
+                AppConfig.SingleUserMode = false;
+                await AppConfig.SaveConfiguration(ConfigureTagzAppFactory.Current);
+                
+                ToastService.Add("Successfully switched to multi-user mode. Redirecting to login...", MessageSeverity.Success);
+                
+                // Give the user a moment to see the success message
+                await Task.Delay(2000);
+                
+                // Redirect to login page
+                NavigationManager.NavigateTo("/Account/Login", forceLoad: true);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to switch to multi-user mode");
+                ToastService.Add($"Failed to switch to multi-user mode: {ex.Message}", MessageSeverity.Danger);
+            }
+        }
     }
 
     public class ExternalProviderViewModel : System.ComponentModel.DataAnnotations.IValidatableObject
