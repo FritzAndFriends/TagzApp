@@ -21,8 +21,20 @@
     {
         <div class="col-md-6 mb-4">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">@provider.Name</h5>
+                    @if (provider.IsConfigured)
+                    {
+                        <span class="badge bg-success">
+                            <i class="bi bi-check-circle me-1"></i>Configured
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">
+                            <i class="bi bi-exclamation-circle me-1"></i>Not Configured
+                        </span>
+                    }
                 </div>
                 <div class="card-body">
                     <EditForm Model="provider" OnValidSubmit="() => SaveProviderAsync(provider)">
@@ -39,12 +51,31 @@
 
                         <div class="mb-3">
                             <label for="@($"clientSecret_{provider.Name}")" class="form-label">Client Secret</label>
-                            <InputText id="@($"clientSecret_{provider.Name}")" 
-                                      class="form-control" 
-                                      type="password" 
-                                      @bind-Value="provider.ClientSecret" 
-                                      placeholder="Enter Client Secret" />
-                            <ValidationMessage For="() => provider.ClientSecret" />
+
+                            @if (!provider.HasClientSecret || provider.IsEditingSecret)
+                            {
+                                <InputText id="@($"clientSecret_{provider.Name}")" 
+                                           class="form-control" 
+                                           type="password" 
+                                           @bind-Value="provider.ClientSecret" 
+                                           placeholder="Enter Client Secret" />
+                                <ValidationMessage For="() => provider.ClientSecret" />
+
+                                @if (provider.HasClientSecret)
+                                {
+                                    <div class="mt-2">
+                                        <button type="button" class="btn btn-link text-decoration-none" @onclick="() => CancelEditingSecret(provider)">Cancel</button>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="input-group">
+                                    <input type="text" class="form-control" value="••••••••" readonly aria-label="Client Secret is set" />
+                                    <button type="button" class="btn btn-outline-secondary" @onclick="() => StartEditingSecret(provider)">Change</button>
+                                </div>
+                                <div class="form-text">A client secret is currently saved. Click Change to update it.</div>
+                            }
                         </div>
 
                         <div class="d-flex gap-2">
@@ -55,19 +86,6 @@
                                 }
                                 Save Configuration
                             </button>
-                            
-                            @if (provider.IsConfigured)
-                            {
-                                <span class="badge bg-success align-self-center">
-                                    <i class="bi bi-check-circle me-1"></i>Configured
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary align-self-center">
-                                    <i class="bi bi-exclamation-circle me-1"></i>Not Configured
-                                </span>
-                            }
                         </div>
                     </EditForm>
                 </div>
@@ -115,8 +133,13 @@
                 if (config != null)
                 {
                     providerModel.ClientId = config.GetValueOrDefault("ClientID", string.Empty);
-                    providerModel.ClientSecret = config.GetValueOrDefault("ClientSecret", string.Empty);
-                    providerModel.Enabled = !string.IsNullOrEmpty(providerModel.ClientId) && !string.IsNullOrEmpty(providerModel.ClientSecret) && bool.TryParse(config.GetValueOrDefault("Enabled", "false"), out var isEnabled) && isEnabled;
+
+                    // DO NOT load the secret into memory to avoid exposing it in the UI.
+                    var secretFromStore = config.GetValueOrDefault("ClientSecret", string.Empty);
+                    providerModel.HasClientSecret = !string.IsNullOrEmpty(secretFromStore);
+                    providerModel.ClientSecret = null; // keep secret out of memory/UI unless user chooses to change it
+
+                    providerModel.Enabled = !string.IsNullOrEmpty(providerModel.ClientId) && providerModel.HasClientSecret && bool.TryParse(config.GetValueOrDefault("Enabled", "false"), out var isEnabled) && isEnabled;
                 }
             }
             catch (Exception ex)
@@ -132,17 +155,55 @@
     {
         try
         {
+            // perform conditional validation: if no secret exists in store and user hasn't provided one, stop
+            if (string.IsNullOrWhiteSpace(provider.ClientId))
+            {
+                ToastService.Add($"Client ID is required for {provider.Name}", MessageSeverity.Danger);
+                return;
+            }
+
+            if (!provider.HasClientSecret && string.IsNullOrWhiteSpace(provider.ClientSecret))
+            {
+                ToastService.Add($"Client Secret is required for {provider.Name}", MessageSeverity.Danger);
+                return;
+            }
+
             provider.IsSaving = true;
             StateHasChanged();
+
+            // Determine which secret to save:
+            // - If the user entered a new secret (ClientSecret not empty), use that
+            // - Else if the store already had a secret and user did not choose to edit it, retrieve it and preserve it
+            // - Otherwise save empty
+            string clientSecretToSave;
+            if (!string.IsNullOrWhiteSpace(provider.ClientSecret))
+            {
+                clientSecretToSave = provider.ClientSecret;
+            }
+            else if (provider.HasClientSecret && !provider.IsEditingSecret)
+            {
+                // fetch existing config to preserve existing secret value
+                var existing = await ConfigService.GetConfigurationById<Dictionary<string, string>>($"Authentication:{provider.Name}");
+                clientSecretToSave = existing?.GetValueOrDefault("ClientSecret", string.Empty) ?? string.Empty;
+            }
+            else
+            {
+                clientSecretToSave = string.Empty;
+            }
 
             var config = new Dictionary<string, string>
             {
                 ["ClientID"] = provider.ClientId ?? string.Empty,
-                ["ClientSecret"] = provider.ClientSecret ?? string.Empty,
+                ["ClientSecret"] = clientSecretToSave ?? string.Empty,
                 ["Enabled"] = provider.Enabled.ToString()
             };
 
             await ConfigService.SetConfigurationById($"Authentication:{provider.Name}", config);
+
+            // After successful save, do not keep the secret in memory. Mark that a secret exists if the saved value is non-empty.
+            provider.IsEditingSecret = false;
+            provider.HasClientSecret = !string.IsNullOrWhiteSpace(clientSecretToSave);
+            provider.ClientSecret = null;
 
             ToastService.Add($"Saved {provider.Name} configuration successfully", MessageSeverity.Success);
             Logger.LogInformation("Saved external auth configuration for {Provider}", provider.Name);
@@ -159,20 +220,52 @@
         }
     }
 
-    public class ExternalProviderViewModel
+    private void StartEditingSecret(ExternalProviderViewModel provider)
+    {
+        provider.IsEditingSecret = true;
+        provider.ClientSecret = string.Empty; // allow entering a new secret
+    }
+
+    private void CancelEditingSecret(ExternalProviderViewModel provider)
+    {
+        provider.IsEditingSecret = false;
+        provider.ClientSecret = null; // clear any entered value
+    }
+
+    public class ExternalProviderViewModel : System.ComponentModel.DataAnnotations.IValidatableObject
     {
         public string Name { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Client ID is required")]
         public string? ClientId { get; set; }
 
-        [Required(ErrorMessage = "Client Secret is required")]
+        // Do not annotate ClientSecret as [Required] because it may already exist in secure storage.
         public string? ClientSecret { get; set; }
 
         public bool Enabled { get; set; }
 
         public bool IsSaving { get; set; }
 
-        public bool IsConfigured => !string.IsNullOrWhiteSpace(ClientId) && !string.IsNullOrWhiteSpace(ClientSecret);
+        // Indicates whether a secret exists in the backing store. We don't load the secret into memory.
+        public bool HasClientSecret { get; set; }
+
+        // True when the user has chosen to change the secret in the UI
+        public bool IsEditingSecret { get; set; }
+
+        public bool IsConfigured => !string.IsNullOrWhiteSpace(ClientId) && (HasClientSecret || !string.IsNullOrWhiteSpace(ClientSecret));
+
+        // Custom validation to require ClientSecret only if no secret exists in store and user isn't editing
+        public IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> Validate(System.ComponentModel.DataAnnotations.ValidationContext validationContext)
+        {
+            if (string.IsNullOrWhiteSpace(ClientId))
+            {
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Client ID is required", new[] { nameof(ClientId) });
+            }
+
+            if (!HasClientSecret && string.IsNullOrWhiteSpace(ClientSecret))
+            {
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Client Secret is required", new[] { nameof(ClientSecret) });
+            }
+        }
     }
 }
