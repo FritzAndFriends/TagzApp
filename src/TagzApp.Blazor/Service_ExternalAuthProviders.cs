@@ -20,7 +20,8 @@ public static class Service_ExternalAuthProviders
 		["Microsoft"] = (builder, options) => builder.AddMicrosoftAccount(options),
 		["GitHub"] = (builder, options) => builder.AddGitHub(options),
 		["LinkedIn"] = (builder, options) => builder.AddLinkedIn(options),
-		["Google"] = (builder, options) => builder.AddGoogle(options)
+		["Google"] = (builder, options) => builder.AddGoogle(options),
+		["Twitch"] = (builder, options) => builder.AddTwitch(options)
 	};
 
 
