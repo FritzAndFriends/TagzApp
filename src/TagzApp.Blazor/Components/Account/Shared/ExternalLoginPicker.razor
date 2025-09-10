@@ -1,10 +1,10 @@
 ﻿@using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
+@using TagzApp.Blazor.Services
 
-@inject SignInManager<TagzAppUser> SignInManager
 @inject IdentityRedirectManager RedirectManager
 
-@if (externalLogins.Length == 0)
+@if (!externalLogins.Any())
 {
     <div>
         <p>
@@ -22,7 +22,7 @@ else
             <p>
                 @foreach (var provider in externalLogins)
                 {
-                    <button type="submit" class="btn btn-primary mx-1" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+                    <button type="submit" class="btn btn-primary mx-1" name="provider" value="@provider" title="Log in using your @provider account">@provider</button>
                 }
             </p>
         </div>
@@ -30,13 +30,25 @@ else
 }
 
 @code {
-    private AuthenticationScheme[] externalLogins = [];
+    private List<string> externalLogins = new();
 
     [SupplyParameterFromQuery]
     private string? ReturnUrl { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        externalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).ToArray();
+
+			var config = ConfigureTagzAppFactory.Current;
+
+			foreach (var provider in Service_ExternalAuthProviders.ExternalProviders)
+			{
+
+				if (await DynamicAuthMiddleware.CheckProviderConfiguration(config, provider.Key))
+				{
+					externalLogins.Add(provider.Key);
+				}
+
+			}
+
     }
 }

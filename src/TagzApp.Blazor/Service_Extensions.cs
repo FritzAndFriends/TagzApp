@@ -58,7 +58,7 @@ public static class Service_Extensions
 				options.DefaultScheme = IdentityConstants.ApplicationScheme;
 				options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
 			})
-					.AddExternalProviders(configuration)
+					.AddExternalProviders(configure)
 					.AddIdentityCookies();
 
 			await builder.AddSecurityContext(configure);
