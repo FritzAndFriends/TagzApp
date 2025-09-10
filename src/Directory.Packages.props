@@ -12,6 +12,7 @@
     <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.1.0" />
     <PackageVersion Include="AspNet.Security.OAuth.GitHub" Version="8.2.0" />
     <PackageVersion Include="AspNet.Security.OAuth.LinkedIn" Version="8.2.0" />
+    <PackageVersion Include="AspNet.Security.OAuth.Twitch" Version="9.4.0" />
     <PackageVersion Include="Azure.AI.ContentSafety" Version="1.0.0" />
     <PackageVersion Include="Azure.Storage.Queues" Version="12.18.0" />
     <PackageVersion Include="BlazorDownloadFile" Version="2.4.0.2" />
