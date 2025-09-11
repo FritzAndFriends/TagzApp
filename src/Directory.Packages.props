@@ -10,6 +10,7 @@
     <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="9.4.0" />
     <PackageVersion Include="Aspire.Hosting.Redis" Version="9.4.0" />
     <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.1.0" />
+    <PackageVersion Include="AspNet.Security.OAuth.Apple" Version="9.4.0" />
     <PackageVersion Include="AspNet.Security.OAuth.GitHub" Version="8.2.0" />
     <PackageVersion Include="AspNet.Security.OAuth.LinkedIn" Version="8.2.0" />
     <PackageVersion Include="AspNet.Security.OAuth.Twitch" Version="9.4.0" />
