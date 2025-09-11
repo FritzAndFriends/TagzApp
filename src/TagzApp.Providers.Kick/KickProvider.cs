@@ -55,7 +55,7 @@ public class KickProvider : ISocialMediaProvider, IDisposable
 	internal KickProvider(IOptions<KickConfiguration> settings, ILogger<KickProvider> logger, IChatClient chatClient)
 	{
 		// For static scenarios (testing, development) - create a static options monitor wrapper that returns the settings value
-		_ConfigMonitor = settings.ToStaticMonitor();
+		_ConfigMonitor = TagzApp.Common.Testing.OptionsMonitorExtensions.ToStaticMonitor(settings);
 		_ConfigChangeSubscription = null; // No change subscription for static configurations
 		_Logger = logger;
 		_ProfileRepository = null!; // Will be null for testing

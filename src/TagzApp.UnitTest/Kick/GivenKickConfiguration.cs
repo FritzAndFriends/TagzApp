@@ -13,7 +13,7 @@ public class GivenKickConfiguration
 		// Assert
 		Assert.Equal("Kick", config.Name);
 		Assert.Equal("Read all messages from a specified Kick channel", config.Description);
-		Assert.Equal("provider-kick", config.GetConfigurationKey());
+		Assert.Equal("provider-kick", KickConfiguration.GetConfigurationKey());
 		Assert.False(config.Enabled);
 		Assert.Empty(config.ChannelName);
 		Assert.Empty(config.ApiKey);
