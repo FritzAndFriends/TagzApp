@@ -41,6 +41,7 @@
     <ProjectReference Include="..\TagzApp.Storage.Sqlite.Security\TagzApp.Storage.Sqlite.Security.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="AspNet.Security.OAuth.Twitch" />
     <PackageReference Include="BlazorDownloadFile" />
     <PackageReference Include="gravatar" />
     <PackageReference Include="AspNet.Security.OAuth.GitHub" />
