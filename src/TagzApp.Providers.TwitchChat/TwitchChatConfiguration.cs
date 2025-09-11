@@ -37,7 +37,7 @@ public class TwitchChatConfiguration : BaseProviderConfiguration<TwitchChatConfi
 
 	[JsonIgnore]
 	public override string Description => "Read all messages from a specified Twitch channel";
-	
+
 	public override bool Enabled { get; set; }
 
 	[JsonIgnore]

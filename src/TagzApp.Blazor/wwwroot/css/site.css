@@ -677,6 +677,11 @@ a {
 	filter: brightness(0) saturate(100%);
 }
 
+/* Bluesky icon specifically for home page platform display with blue color */
+.home-platform-icons .icon-bluesky {
+	filter: invert(15%) sepia(100%) saturate(7500%) hue-rotate(210deg) brightness(100%) contrast(100%);
+}
+
 .providerSwitch .icon-bluesky {
 	width: 23px;
 	height: 20px;
@@ -684,6 +689,7 @@ a {
 	display: inline-block;
 	background-image: url(/img/Bluesky_Logo.svg);
 	background-size: contain;
+	background-repeat: no-repeat;
 	filter: grayscale(100%) brightness(1000%);
 }
 
