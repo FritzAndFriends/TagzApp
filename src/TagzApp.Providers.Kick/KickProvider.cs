@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Web;
 using TagzApp.Common.Telemetry;
 using TagzApp.Common.Configuration;
+using TagzApp.Common.Testing;
 
 namespace TagzApp.Providers.Kick;
 
