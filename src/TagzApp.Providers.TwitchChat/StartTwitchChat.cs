@@ -42,7 +42,7 @@ public class TwitchChatConfigurationSetup : IConfigureOptions<TwitchChatConfigur
 			.CreateFromConfigurationAsync<TwitchChatConfiguration>(ConfigureTagzAppFactory.Current)
 			.GetAwaiter()
 			.GetResult();
-		
+
 		options.UpdateFrom(config);
 	}
 }

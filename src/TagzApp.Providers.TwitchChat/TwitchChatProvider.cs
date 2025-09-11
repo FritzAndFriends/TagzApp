@@ -64,7 +64,7 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 	private async Task HandleConfigurationChange(TwitchChatConfiguration newConfig)
 	{
 		var previousConfig = _ConfigMonitor.CurrentValue;
-		
+
 		// Handle channel name change
 		if (_Client != null && _Client.IsRunning && previousConfig.ChannelName != newConfig.ChannelName)
 		{
