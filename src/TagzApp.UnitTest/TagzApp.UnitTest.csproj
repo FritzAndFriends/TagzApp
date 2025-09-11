@@ -31,6 +31,7 @@
     <ProjectReference Include="..\TagzApp.Providers.Blazot\TagzApp.Providers.Blazot.csproj" />
     <ProjectReference Include="..\TagzApp.Providers.Mastodon\TagzApp.Providers.Mastodon.csproj" />
     <ProjectReference Include="..\TagzApp.Providers.TwitchChat\TagzApp.Providers.TwitchChat.csproj" />
+    <ProjectReference Include="..\TagzApp.Providers.YouTubeChat\TagzApp.Providers.YouTubeChat.csproj" />
     <ProjectReference Include="..\TagzApp.Providers.Youtube\TagzApp.Providers.Youtube.csproj" />
   </ItemGroup>
 </Project>
