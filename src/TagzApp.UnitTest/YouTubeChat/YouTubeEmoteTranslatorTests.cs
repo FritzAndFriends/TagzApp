@@ -11,14 +11,14 @@ public class YouTubeEmoteTranslatorTests
 	public void TryIdentifyEmotes_FindsUpsideDownEmote()
 	{
 		// Arrange
-		var sample = "Atilla says hello! :upside_down:";
+		var sample = "Atilla says hello! :upside_down_face:";
 
 		// Build a minimal JSON payload that LoadEmotes can parse containing the desired shortcut
 		var json = "[{" +
 			"\"emojiId\": \"u\"," +
 			"\"image\": { \"thumbnails\": [ { \"url\": \"https://example.com/upside.svg\" } ] }," +
 			"\"searchTerms\": [\"upside\",\"down\"]," +
-			"\"shortcuts\": [\":upside_down:\"] } ]";
+			"\"shortcuts\": [\":upside_down_face:\"] } ]";
 
 		var httpClient = new HttpClient(new TestHttpMessageHandler(json));
 		YouTubeEmoteTranslator.LoadEmotes(httpClient, 0).GetAwaiter().GetResult();
@@ -31,7 +31,7 @@ public class YouTubeEmoteTranslatorTests
 		Assert.Single(emotes);
 		var emote = emotes[0];
 		Assert.Equal(19, emote.Pos); // position of ":upside_down:" in sample (zero-based)
-		Assert.Equal(13, emote.Length); // length of ":upside_down:"
+		Assert.Equal(18, emote.Length); // length of ":upside_down_face:"
 		Assert.Equal("https://example.com/upside.svg", emote.ImageUrl);
 	}
 
