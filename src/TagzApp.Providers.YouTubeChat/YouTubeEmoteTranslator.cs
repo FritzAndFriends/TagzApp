@@ -39,7 +39,7 @@ public class YouTubeEmoteTranslator
 			if (text.Contains(shortcut, StringComparison.InvariantCultureIgnoreCase))
 			{
 
-				var newEmote = new Emote()
+				// var newEmote = new Emote()
 
 			}
 
