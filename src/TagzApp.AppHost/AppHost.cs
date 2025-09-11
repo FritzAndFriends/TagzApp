@@ -7,7 +7,8 @@ builder.AddDatabase(
 	out var securityDb,
 	out var migration);
 
-var twitchCache = builder.AddRedis("twitchCache");
+var twitchCache = builder.AddRedis("twitchCache")
+		.WithRedisInsight();
 var twitchRelay = builder.AddExecutable("twitchrelay",
 		"func", @"..\TagzApp.TwitchRelay", "start", "--verbose", "--port", "7082")
 	.WithHttpEndpoint(7082, 7082, "http", "foo", false)
