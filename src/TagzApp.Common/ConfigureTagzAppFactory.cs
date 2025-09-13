@@ -24,12 +24,26 @@ public static class ConfigureTagzAppFactory
 
 		Current = EmptyConfigureTagzApp.Instance;
 
-		Current = new DbConfigureTagzApp();
+		// Create encryption helper if configuration is available
+		EncryptionHelper? encryptionHelper = null;
+		try
+		{
+			var scope = services.CreateScope();
+			var logger = scope.ServiceProvider.GetService<ILogger<EncryptionHelper>>();
+			encryptionHelper = new EncryptionHelper(configuration, logger);
+		}
+		catch (Exception)
+		{
+			// Encryption not configured - will store data in plain text
+			// This is acceptable for development or if encryption is not required
+		}
+
+		Current = new DbConfigureTagzApp(encryptionHelper);
 		var connectionString = configuration.GetConnectionString("tagzappdb");
 
 		try
 		{
-			Current.InitializeConfiguration("", connectionString);
+			Current.InitializeConfiguration("", connectionString ?? throw new InvalidOperationException("Database connection string 'tagzappdb' is not configured"));
 			Current.SetConfigurationById<ConnectionSettings>(ConnectionSettings.ConfigurationKey, new ConnectionSettings
 			{
 				ContentProvider = "postgres",
@@ -79,15 +93,15 @@ public static class ConfigureTagzAppFactory
 			CommentHandling = JsonCommentHandling.Skip
 		});
 
-		if (jsonObj["ConnectionStrings"] is null)
+		if (jsonObj?["ConnectionStrings"] is null)
 		{
 
-			jsonObj["ConnectionStrings"] = new JsonObject();
+			jsonObj!["ConnectionStrings"] = new JsonObject();
 
 		}
 
-		jsonObj["ConnectionStrings"]["AppConfigProvider"] = provider;
-		jsonObj["ConnectionStrings"]["AppConfigConnection"] = configurationString;
+		jsonObj!["ConnectionStrings"]!["AppConfigProvider"] = provider;
+		jsonObj["ConnectionStrings"]!["AppConfigConnection"] = configurationString;
 
 		// update appsettings.json with the new configuration
 		using (var file = File.CreateText("appsettings.json"))
@@ -105,7 +119,7 @@ public static class ConfigureTagzAppFactory
 		}
 
 		Current = new DbConfigureTagzApp();
-		Current.InitializeConfiguration(provider, configurationString);
+		await Current.InitializeConfiguration(provider, configurationString);
 		IsConfigured = true;
 
 	}
