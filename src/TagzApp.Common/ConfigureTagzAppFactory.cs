@@ -19,12 +19,36 @@ public static class ConfigureTagzAppFactory
 
 	public static	EncryptionHelper? _EncryptionHelper = null;
 
-	public static IConfigureTagzApp Create(IConfiguration configuration, IServiceProvider services)
+	public static IConfigureTagzApp Create(
+		IConfiguration configuration,
+		IServiceProvider services,
+		Func<IServiceProvider, IConfiguration, IConfigureTagzApp> externalConfigSource = null!)
 	{
 
 		if (Current != EmptyConfigureTagzApp.Instance) { return Current; }
 
 		Current = EmptyConfigureTagzApp.Instance;
+
+		// Check for external configuration source first
+		if (externalConfigSource is not null)
+		{
+			try
+			{
+				Current = externalConfigSource(services, configuration);
+				Current.InitializeConfiguration("postgres", "tagzappdb")
+					.GetAwaiter().GetResult();
+				IsConfigured = true;
+				return Current;
+			}
+			catch (Exception ex)
+			{
+				var scope = services.CreateScope();
+				var logger = scope.ServiceProvider.GetRequiredService<ILogger<DbConfigureTagzApp>>();
+				logger.LogError(ex, "Unable to initialize external configuration provider");
+				Current = EmptyConfigureTagzApp.Instance;
+				IsConfigured = false;
+			}
+		}
 
 		// Create encryption helper if configuration is available
 		try

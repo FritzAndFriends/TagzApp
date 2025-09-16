@@ -1,6 +1,10 @@
+using AzureKeyVaultEmulator.Aspire.Hosting;
 using TagzApp.AppHost;
 
 var builder = DistributedApplication.CreateBuilder(args);
+
+var keyVault = builder.AddAzureKeyVault("vault")
+		.RunAsEmulator(new KeyVaultEmulatorOptions { Persist = true }, configSectionName: "AzureKeyVault");
 
 builder.AddDatabase(
 	out var db,
@@ -21,7 +25,9 @@ var tagzAppWeb = builder.AddProject<Projects.TagzApp_Blazor>("web", "https")
 	//.WaitForCompletion(migration)
 	.WaitFor(db)
 	.WithReference(db)
-	.WithReference(securityDb);
+	.WithReference(securityDb)
+	.WaitFor(keyVault)
+	.WithReference(keyVault);
 //.WithEnvironment("TwitchRelayUri", "http://localhost:7082");
 
 #endregion

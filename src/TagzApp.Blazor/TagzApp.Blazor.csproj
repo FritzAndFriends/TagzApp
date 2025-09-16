@@ -27,6 +27,7 @@
   <ItemGroup>
     <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
     <ProjectReference Include="..\TagzApp.Blazor.Client\TagzApp.Blazor.Client.csproj" />
+    <ProjectReference Include="..\TagzApp.Configuration.AzureKeyVault\TagzApp.Configuration.AzureKeyVault.csproj" />
     <ProjectReference Include="..\TagzApp.Providers.AzureQueue\TagzApp.Providers.AzureQueue.csproj" />
     <ProjectReference Include="..\TagzApp.Providers.Blazot\TagzApp.Providers.Blazot.csproj" />
     <ProjectReference Include="..\TagzApp.Providers.Bluesky\TagzApp.Providers.Bluesky.csproj" />
@@ -43,6 +44,7 @@
   <ItemGroup>
     <PackageReference Include="AspNet.Security.OAuth.Apple" />
     <PackageReference Include="AspNet.Security.OAuth.Twitch" />
+    <PackageReference Include="AzureKeyVaultEmulator.Client" />
     <PackageReference Include="BlazorDownloadFile" />
     <PackageReference Include="gravatar" />
     <PackageReference Include="AspNet.Security.OAuth.GitHub" />

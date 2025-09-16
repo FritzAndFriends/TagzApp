@@ -6,6 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Aspire.Hosting.AppHost" Version="9.4.2" />
+    <PackageVersion Include="Aspire.Hosting.Azure.KeyVault" Version="9.4.2" />
     <PackageVersion Include="Aspire.Hosting.Azure.PostgreSQL" Version="9.4.0" />
     <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="9.4.0" />
     <PackageVersion Include="Aspire.Hosting.Redis" Version="9.4.0" />
@@ -19,6 +20,8 @@
     <PackageVersion Include="Azure.Identity" Version="1.14.2" />
     <PackageVersion Include="Azure.Security.KeyVault.Secrets" Version="4.8.0" />
     <PackageVersion Include="Azure.Storage.Queues" Version="12.18.0" />
+    <PackageVersion Include="AzureKeyVaultEmulator.Aspire.Hosting" Version="2.6.1" />
+    <PackageVersion Include="AzureKeyVaultEmulator.Client" Version="2.6.1" />
     <PackageVersion Include="BlazorDownloadFile" Version="2.4.0.2" />
     <PackageVersion Include="Bogus" Version="35.5.1" />
     <PackageVersion Include="C3D.Extensions.Playwright.AspNetCore.Xunit" Version="0.1.32" />
