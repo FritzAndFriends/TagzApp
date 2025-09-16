@@ -17,6 +17,8 @@ public static class ConfigureTagzAppFactory
 
 	public static IConfigureTagzApp Current = EmptyConfigureTagzApp.Instance;
 
+	public static	EncryptionHelper? _EncryptionHelper = null;
+
 	public static IConfigureTagzApp Create(IConfiguration configuration, IServiceProvider services)
 	{
 
@@ -25,25 +27,26 @@ public static class ConfigureTagzAppFactory
 		Current = EmptyConfigureTagzApp.Instance;
 
 		// Create encryption helper if configuration is available
-		EncryptionHelper? encryptionHelper = null;
 		try
 		{
 			var scope = services.CreateScope();
 			var logger = scope.ServiceProvider.GetService<ILogger<EncryptionHelper>>();
-			encryptionHelper = new EncryptionHelper(configuration, logger);
+			_EncryptionHelper = new EncryptionHelper(configuration, logger);
 		}
 		catch (Exception)
 		{
 			// Encryption not configured - will store data in plain text
 			// This is acceptable for development or if encryption is not required
 		}
+		if (!_EncryptionHelper.Enabled) _EncryptionHelper = null;
 
-		Current = new DbConfigureTagzApp(encryptionHelper);
+		Current = new DbConfigureTagzApp(_EncryptionHelper);
 		var connectionString = configuration.GetConnectionString("tagzappdb");
 
 		try
 		{
-			Current.InitializeConfiguration("", connectionString ?? throw new InvalidOperationException("Database connection string 'tagzappdb' is not configured"));
+			Current.InitializeConfiguration("postgres", connectionString ?? throw new InvalidOperationException("Database connection string 'tagzappdb' is not configured"))
+				.GetAwaiter().GetResult();
 			Current.SetConfigurationById<ConnectionSettings>(ConnectionSettings.ConfigurationKey, new ConnectionSettings
 			{
 				ContentProvider = "postgres",
