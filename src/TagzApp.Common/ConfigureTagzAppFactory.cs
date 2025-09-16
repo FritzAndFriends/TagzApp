@@ -37,8 +37,12 @@ public static class ConfigureTagzAppFactory
 				Current = externalConfigSource(services, configuration);
 				Current.InitializeConfiguration("postgres", "tagzappdb")
 					.GetAwaiter().GetResult();
-				IsConfigured = true;
-				return Current;
+
+				if (Current is not EmptyConfigureTagzApp)
+				{
+					IsConfigured = true;
+					return Current;
+				}
 			}
 			catch (Exception ex)
 			{

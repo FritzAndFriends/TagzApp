@@ -27,7 +27,7 @@ var tagzAppWeb = builder.AddProject<Projects.TagzApp_Blazor>("web", "https")
 	.WithReference(db)
 	.WithReference(securityDb)
 	.WaitFor(keyVault)
-	.WithReference(keyVault);
+	; //.WithReference(keyVault);
 //.WithEnvironment("TwitchRelayUri", "http://localhost:7082");
 
 #endregion

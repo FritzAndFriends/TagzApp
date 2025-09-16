@@ -22,6 +22,11 @@ public static class KeyVaultExtensions
 	{
 
 		var vaultUri = configuration.GetConnectionString("vault");
+		if (string.IsNullOrEmpty(vaultUri))
+		{
+			// do nothing -- no vault configured
+			return services;
+		}
 
 		if (isDevelopment)
 			services.AddAzureKeyVaultEmulator(vaultUri, secrets: true, certificates: true, keys: true);
@@ -51,6 +56,12 @@ public static class KeyVaultExtensions
 
 		var logger = services.GetRequiredService<ILogger<AzureKeyVaultConfigureTagzApp>>();
 		var secretClient = services.GetRequiredService<SecretClient>();
+
+		if (secretClient is null)
+		{
+			logger.LogWarning("Azure Key Vault SecretClient is not configured. Skipping Azure Key Vault configuration provider.");
+			return EmptyConfigureTagzApp.Instance;
+		}
 
 		return new AzureKeyVaultConfigureTagzApp(secretClient, logger);
 	}
