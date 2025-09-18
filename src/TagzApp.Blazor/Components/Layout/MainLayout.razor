@@ -8,16 +8,19 @@
 
 <Header />
 <ToastProvider/>
+<ConnectionStatusHandler />
 
 <div class="container">
 	<main role="main" class="pb-3">
 
-		@if (ShouldStartFirstConfiguration) {
-			<TagzApp.Blazor.Components.Pages.FirstStartConfiguration></TagzApp.Blazor.Components.Pages.FirstStartConfiguration>
-		} else
-		{
-			@Body
-		}
+		<CustomErrorBoundary>
+			@if (ShouldStartFirstConfiguration) {
+				<TagzApp.Blazor.Components.Pages.FirstStartConfiguration></TagzApp.Blazor.Components.Pages.FirstStartConfiguration>
+			} else
+			{
+				@Body
+			}
+		</CustomErrorBoundary>
 
 	</main>
 </div>
