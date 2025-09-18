@@ -54,8 +54,17 @@ public static class KeyVaultExtensions
 			)
 	{
 
+		SecretClient? secretClient = null;
 		var logger = services.GetRequiredService<ILogger<AzureKeyVaultConfigureTagzApp>>();
-		var secretClient = services.GetRequiredService<SecretClient>();
+
+		try
+		{
+			secretClient = services.GetRequiredService<SecretClient>();
+		}
+		catch (Exception ex)
+		{
+			logger.LogWarning(ex, "Azure Key Vault SecretClient is not configured.");
+		}
 
 		if (secretClient is null)
 		{

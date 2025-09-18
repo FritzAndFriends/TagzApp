@@ -78,6 +78,7 @@ public static class ConfigureTagzAppFactory
 			Current.SetConfigurationById<ConnectionSettings>(ConnectionSettings.ConfigurationKey, new ConnectionSettings
 			{
 				ContentProvider = "postgres",
+				ContentConnectionString = "tagzappdb",
 				SecurityProvider = "postgres",
 			}).GetAwaiter().GetResult();
 			IsConfigured = true;

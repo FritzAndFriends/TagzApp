@@ -134,10 +134,6 @@ public class Program
 		app.UseHttpsRedirection();
 
 		app.UseStaticFiles();
-
-		app.UseAuthentication();
-		app.UseAuthorization();
-
 		// running in single-user mode -- the current user is an admin
 		app.Use(async (context, next) =>
 		{
@@ -157,6 +153,10 @@ public class Program
 			await next();
 
 		});
+
+		app.UseAuthentication();
+		app.UseAuthorization();
+
 
 		app.UseAntiforgery();
 		app.UseMiddleware<DynamicAuthMiddleware>();
