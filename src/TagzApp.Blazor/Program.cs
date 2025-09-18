@@ -6,6 +6,8 @@ using System.Security.Claims;
 using TagzApp.Blazor.Hubs;
 using TagzApp.Blazor.Services;
 using TagzApp.Communication.Extensions;
+using TagzApp.Configuration.AzureKeyVault;
+using KeyVaultExtensions = TagzApp.Configuration.AzureKeyVault.KeyVaultExtensions;
 
 namespace TagzApp.Blazor;
 
@@ -58,7 +60,12 @@ public class Program
 		// Configure the Aspire provided service defaults
 		builder.AddServiceDefaults();
 
-		var configure = ConfigureTagzAppFactory.Create(builder.Configuration, builder.Services.BuildServiceProvider());
+		builder.Services.SetKeyVaultOptions(builder.Configuration, builder.Environment.IsDevelopment());
+
+		var configure = ConfigureTagzAppFactory.Create(
+			builder.Configuration,
+			builder.Services.BuildServiceProvider(),
+			KeyVaultExtensions.AddAzureKeyVaultConfiguration);
 		builder.Services.AddSingleton<IConfigureTagzApp>(configure);
 
 		// Add OpenTelemetry for tracing and metrics.
@@ -127,10 +134,6 @@ public class Program
 		app.UseHttpsRedirection();
 
 		app.UseStaticFiles();
-
-		app.UseAuthentication();
-		app.UseAuthorization();
-
 		// running in single-user mode -- the current user is an admin
 		app.Use(async (context, next) =>
 		{
@@ -150,6 +153,10 @@ public class Program
 			await next();
 
 		});
+
+		app.UseAuthentication();
+		app.UseAuthorization();
+
 
 		app.UseAntiforgery();
 		app.UseMiddleware<DynamicAuthMiddleware>();
