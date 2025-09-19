@@ -18,7 +18,9 @@
 				<TagzApp.Blazor.Components.Pages.FirstStartConfiguration></TagzApp.Blazor.Components.Pages.FirstStartConfiguration>
 			} else
 			{
-				@Body
+				<CustomErrorBoundary @rendermode="InteractiveServer">
+					@Body
+				</CustomErrorBoundary>
 			}
 		</CustomErrorBoundary>
 

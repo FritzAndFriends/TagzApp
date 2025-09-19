@@ -1,0 +1,59 @@
+@page "/test-error"
+@rendermode InteractiveServer
+
+<h3>Test Error Component</h3>
+
+<p>This component is used to test the CustomErrorBoundary component.</p>
+
+<div class="alert alert-info">
+    <h5>ErrorBoundary Testing:</h5>
+    <ul>
+        <li><strong>Red Button</strong>: Throws exception in event handler - <em>NOT caught by ErrorBoundary</em></li>
+        <li><strong>Orange Button</strong>: Throws exception during rendering - <em>IS caught by ErrorBoundary</em></li>
+    </ul>
+</div>
+
+<p><strong>Manual Test:</strong> <a href="/test-error-simple">Click here to test render exception</a></p>
+
+<button class="btn btn-danger me-2" @onclick="ThrowError">
+    🚫 Throw Event Handler Error (Not Caught)
+</button>
+
+<button class="btn btn-warning" @onclick="ThrowRenderError">
+    ⚠️ Throw Render Error (Caught by ErrorBoundary)
+</button>
+
+@if (throwRenderError)
+{
+    @RenderErrorContent()
+}
+
+@code {
+    private bool throwRenderError = false;
+    
+    private async Task ThrowError()
+    {
+        // This exception will NOT be caught by ErrorBoundary
+        // because it occurs in an event handler, not during rendering
+        await Task.Delay(100);
+        throw new InvalidOperationException("❌ This exception from an event handler is NOT caught by ErrorBoundary. You should see this in the browser console/dev tools.");
+    }
+    
+    private void ThrowRenderError()
+    {
+        // This will trigger a render that causes an exception
+        // which WILL be caught by ErrorBoundary
+        throwRenderError = true;
+        StateHasChanged(); // Force a re-render to trigger the exception
+    }
+    
+    private RenderFragment RenderErrorContent() => builder =>
+    {
+        builder.OpenElement(0, "div");
+        builder.AddContent(1, "About to throw...");
+        builder.CloseElement();
+        
+        // This will throw during rendering and should be caught by ErrorBoundary
+        throw new InvalidOperationException("🎯 This exception occurs during rendering and SHOULD be caught by ErrorBoundary!");
+    };
+}

@@ -112,7 +112,7 @@
         ConnectionState = ConnectionStatus.Connecting;
         ReconnectAttempt = 1;
         await InvokeAsync(StateHasChanged);
-        
+
         if (_jsModule is not null)
         {
             await _jsModule.InvokeVoidAsync("attemptReconnection");
@@ -129,7 +129,11 @@
         _hideTimer?.Dispose();
         if (_jsModule is not null)
         {
-            await _jsModule.DisposeAsync();
+            try
+            {
+                await _jsModule.DisposeAsync();
+            }
+            catch { /* Ignore disposal errors */  }
         }
     }
 
@@ -220,12 +224,12 @@
         font-weight: 500;
     }
 
-    @keyframes spin {
+    @@keyframes spin {
         from { transform: rotate(0deg); }
         to { transform: rotate(360deg); }
     }
 
-    @media (max-width: 768px) {
+    @@media (max-width: 768px) {
         .connection-status-card {
             margin: 1rem;
             padding: 1.5rem;

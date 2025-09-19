@@ -1,0 +1,14 @@
+@page "/test-error-simple"
+
+<h3>Simple Render Error Test</h3>
+
+<p>This component always throws a render exception to test ErrorBoundary behavior.</p>
+
+@{
+    // This will throw during rendering and should be caught by CustomErrorBoundary
+    throw new InvalidOperationException("🎯 SIMPLE TEST: This exception occurs during rendering and SHOULD be caught by ErrorBoundary!");
+}
+
+@code {
+    
+}

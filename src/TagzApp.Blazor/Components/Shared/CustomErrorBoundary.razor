@@ -1,10 +1,6 @@
 @using System.Diagnostics
-@using TagzApp.Blazor.Client.Services
-@using TagzApp.Blazor.Client.Bootstrap
-@inject ToastService ToastService
 @inject IJSRuntime JSRuntime
-@implements IErrorBoundary
-@implements IDisposable
+@inherits ErrorBoundary
 
 @if (CurrentException is not null)
 {
@@ -20,35 +16,28 @@
                     We're sorry, but an unexpected error has occurred. Our team has been notified and is working on a fix.
                 </p>
                 
-                @if (ShowDetails)
-                {
-                    <div class="error-details">
-                        <h4>Error Details:</h4>
-                        <div class="error-details-content">
-                            <strong>Type:</strong> @CurrentException.GetType().Name<br />
-                            <strong>Message:</strong> @CurrentException.Message
-                            @if (!string.IsNullOrEmpty(RequestId))
-                            {
-                                <br /><strong>Request ID:</strong> <code>@RequestId</code>
-                            }
-                        </div>
+                <div class="error-details" style="display: block;">
+                    <h4>Error Details:</h4>
+                    <div class="error-details-content">
+                        <strong>Type:</strong> @CurrentException.GetType().Name<br />
+                        <strong>Message:</strong> @CurrentException.Message
+                        @if (!string.IsNullOrEmpty(RequestId))
+                        {
+                            <br /><strong>Request ID:</strong> <code>@RequestId</code>
+                        }
                     </div>
-                }
+                </div>
             </div>
             
             <div class="error-actions">
-                <button class="btn btn-primary error-btn" @onclick="RefreshPage">
+                <a href="/" class="btn btn-primary error-btn">
+                    <i class="bi bi-house me-2"></i>
+                    Go Home
+                </a>
+                <a href="javascript:window.location.reload()" class="btn btn-outline-secondary error-btn">
                     <i class="bi bi-arrow-clockwise me-2"></i>
                     Refresh Page
-                </button>
-                <button class="btn btn-outline-secondary error-btn" @onclick="ToggleDetails">
-                    <i class="bi bi-info-circle me-2"></i>
-                    @(ShowDetails ? "Hide" : "Show") Details
-                </button>
-                <button class="btn btn-outline-secondary error-btn" @onclick="RecoverContent">
-                    <i class="bi bi-arrow-return-left me-2"></i>
-                    Try to Continue
-                </button>
+                </a>
             </div>
         </div>
     </div>
@@ -59,71 +48,9 @@ else
 }
 
 @code {
-    [Parameter] public RenderFragment? ChildContent { get; set; }
-    [Parameter] public int MaximumErrorCount { get; set; } = 100;
-    [CascadingParameter] private HttpContext? HttpContext { get; set; }
+    private string RequestId => Activity.Current?.Id ?? HttpContext?.HttpContext?.TraceIdentifier ?? "";
 
-    public Exception? CurrentException { get; private set; }
-
-    private int _errorCount;
-    private bool ShowDetails { get; set; } = false;
-    private string? RequestId { get; set; }
-
-    protected override void OnInitialized()
-    {
-        RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
-    }
-
-    public async Task ProcessErrorAsync(Exception exception)
-    {
-        _errorCount++;
-        CurrentException = exception;
-
-        // Log the error (you might want to integrate with your logging system)
-        Console.WriteLine($"Error boundary caught exception: {exception}");
-
-        // Show a toast for less severe errors or if we haven't hit the error limit
-        if (_errorCount <= 3)
-        {
-            ToastService.Add("An error occurred, but the application is attempting to recover.", MessageSeverity.Warning);
-        }
-
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private async Task RefreshPage()
-    {
-        await JSRuntime.InvokeVoidAsync("location.reload");
-    }
-
-    private void ToggleDetails()
-    {
-        ShowDetails = !ShowDetails;
-        StateHasChanged();
-    }
-
-    private void RecoverContent()
-    {
-        CurrentException = null;
-        _errorCount = 0;
-        ShowDetails = false;
-        StateHasChanged();
-        
-        ToastService.Add("Attempting to recover. If problems persist, please refresh the page.", MessageSeverity.Info);
-    }
-
-    public void Recover()
-    {
-        CurrentException = null;
-        _errorCount = 0;
-        ShowDetails = false;
-        InvokeAsync(StateHasChanged);
-    }
-
-    public void Dispose()
-    {
-        // Cleanup if needed
-    }
+    [Inject] private IHttpContextAccessor? HttpContext { get; set; }
 }
 
 <style>
@@ -216,9 +143,22 @@ else
         padding: 0.5rem 1rem;
         font-weight: 500;
         white-space: nowrap;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid transparent;
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
+        user-select: none;
+        transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
     }
 
-    @media (max-width: 768px) {
+    .error-btn:hover {
+        text-decoration: none;
+    }
+
+    @@media (max-width: 768px) {
         .custom-error-card {
             margin: 1rem;
             padding: 1.5rem;
@@ -234,7 +174,7 @@ else
     }
 
     /* Dark theme adjustments */
-    @media (prefers-color-scheme: dark) {
+    @@media (prefers-color-scheme: dark) {
         .error-details {
             background-color: var(--bs-gray-800);
         }

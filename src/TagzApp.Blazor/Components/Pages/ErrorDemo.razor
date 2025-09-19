@@ -1,0 +1,99 @@
+@page "/error-demo"
+@using TagzApp.Blazor.Client.Services
+@using TagzApp.Blazor.Client.Bootstrap
+@inject ToastService ToastService
+
+<PageTitle>Error UI Demo</PageTitle>
+
+<div class="container mt-4">
+    <h1>Error UI Demo</h1>
+    <p>This page demonstrates the custom error UI components for TagzApp.</p>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Error Boundary Test</h3>
+                </div>
+                <div class="card-body">
+                    <p>Click the button below to trigger an error that will be caught by the error boundary:</p>
+                    <button class="btn btn-danger" @onclick="ThrowException">
+                        <i class="bi bi-bug me-2"></i>
+                        Trigger Error Boundary
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Toast Notifications</h3>
+                </div>
+                <div class="card-body">
+                    <p>Test different toast notification types:</p>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-info" @onclick="ShowInfoToast">
+                            <i class="bi bi-info-circle me-2"></i>Info Toast
+                        </button>
+                        <button class="btn btn-success" @onclick="ShowSuccessToast">
+                            <i class="bi bi-check-circle me-2"></i>Success Toast
+                        </button>
+                        <button class="btn btn-warning" @onclick="ShowWarningToast">
+                            <i class="bi bi-exclamation-triangle me-2"></i>Warning Toast
+                        </button>
+                        <button class="btn btn-danger" @onclick="ShowDangerToast">
+                            <i class="bi bi-x-circle me-2"></i>Error Toast
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <div class="alert alert-info">
+            <h4><i class="bi bi-lightbulb me-2"></i>About the Custom Error UI</h4>
+            <p>TagzApp now features a custom error interface that:</p>
+            <ul>
+                <li><strong>Matches the design:</strong> Uses the same rounded corners and styling as the social media cards</li>
+                <li><strong>Handles reconnection:</strong> Automatically detects and handles Blazor/SignalR connection issues</li>
+                <li><strong>Provides recovery options:</strong> Users can try to continue or refresh the page</li>
+                <li><strong>Shows helpful information:</strong> Error details can be toggled for debugging</li>
+                <li><strong>Integrates with toasts:</strong> Less critical errors show as toast notifications</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+@code {
+    private void ThrowException()
+    {
+        throw new InvalidOperationException("This is a test exception to demonstrate the error boundary functionality!");
+    }
+    
+    private void ShowToast(MessageSeverity severity, string message)
+    {
+        ToastService.Add(message, severity);
+    }
+    
+    private void ShowInfoToast()
+    {
+        ShowToast(MessageSeverity.Info, "This is an info message.");
+    }
+    
+    private void ShowSuccessToast()
+    {
+        ShowToast(MessageSeverity.Success, "Operation completed successfully!");
+    }
+    
+    private void ShowWarningToast()
+    {
+        ShowToast(MessageSeverity.Warning, "This is a warning message.");
+    }
+    
+    private void ShowDangerToast()
+    {
+        ShowToast(MessageSeverity.Danger, "This is an error message.");
+    }
+}
