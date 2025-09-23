@@ -1,0 +1,246 @@
+@using TagzApp.Blazor.Client.Services
+@using TagzApp.Blazor.Client.Bootstrap
+@inject ToastService ToastService
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+@rendermode InteractiveServer
+
+@if (ShowConnectionStatus)
+{
+    <div class="connection-status-overlay">
+        <div class="connection-status-card">
+            <div class="connection-status-content">
+                @switch (ConnectionState)
+                {
+                    case ConnectionStatus.Connecting:
+                        <div class="connection-status-icon connecting">
+                            <i class="bi bi-arrow-repeat"></i>
+                        </div>
+                        <h4>Reconnecting...</h4>
+                        <p>Attempting to restore connection to TagzApp.</p>
+                        <div class="connection-progress">
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                     style="width: @(ReconnectAttempt * 25)%"></div>
+                            </div>
+                            <small class="text-muted">Attempt @ReconnectAttempt of 4</small>
+                        </div>
+                        break;
+
+                    case ConnectionStatus.Failed:
+                        <div class="connection-status-icon failed">
+                            <i class="bi bi-wifi-off"></i>
+                        </div>
+                        <h4>Connection Lost</h4>
+                        <p>Unable to maintain connection to TagzApp. Some features may not work properly.</p>
+                        <div class="connection-actions">
+                            <button class="btn btn-primary" @onclick="ManualReconnect">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Try Again
+                            </button>
+                            <button class="btn btn-outline-secondary" @onclick="RefreshPage">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Refresh Page
+                            </button>
+                        </div>
+                        break;
+
+                    case ConnectionStatus.Connected:
+                        <div class="connection-status-icon connected">
+                            <i class="bi bi-wifi"></i>
+                        </div>
+                        <h4>Connection Restored</h4>
+                        <p>Successfully reconnected to TagzApp.</p>
+                        break;
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private ConnectionStatus ConnectionState { get; set; } = ConnectionStatus.Connected;
+    private bool ShowConnectionStatus { get; set; } = false;
+    private int ReconnectAttempt { get; set; } = 0;
+    private IJSObjectReference? _jsModule;
+    private Timer? _hideTimer;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/connection-handler.js");
+            await _jsModule.InvokeVoidAsync("initializeConnectionHandler", DotNetObjectReference.Create(this));
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnConnectionStateChanged(string state, int attempt = 0)
+    {
+        var newState = state.ToLowerInvariant() switch
+        {
+            "connecting" => ConnectionStatus.Connecting,
+            "disconnected" => ConnectionStatus.Failed,
+            "connected" => ConnectionStatus.Connected,
+            _ => ConnectionStatus.Connected
+        };
+
+        ConnectionState = newState;
+        ReconnectAttempt = attempt;
+        ShowConnectionStatus = newState != ConnectionStatus.Connected;
+
+        if (newState == ConnectionStatus.Connected && ShowConnectionStatus)
+        {
+            // Show success briefly, then hide
+            _hideTimer?.Dispose();
+            _hideTimer = new Timer(async _ =>
+            {
+                ShowConnectionStatus = false;
+                await InvokeAsync(StateHasChanged);
+            }, null, 2000, Timeout.Infinite);
+
+            ToastService.Add("Connection restored successfully.", MessageSeverity.Success);
+        }
+        else if (newState == ConnectionStatus.Failed)
+        {
+            ToastService.Add("Connection lost. Attempting to reconnect...", MessageSeverity.Warning);
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ManualReconnect()
+    {
+        ConnectionState = ConnectionStatus.Connecting;
+        ReconnectAttempt = 1;
+        await InvokeAsync(StateHasChanged);
+
+        if (_jsModule is not null)
+        {
+            await _jsModule.InvokeVoidAsync("attemptReconnection");
+        }
+    }
+
+    private async Task RefreshPage()
+    {
+        await JSRuntime.InvokeVoidAsync("location.reload");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _hideTimer?.Dispose();
+        if (_jsModule is not null)
+        {
+            try
+            {
+                await _jsModule.DisposeAsync();
+            }
+            catch { /* Ignore disposal errors */  }
+        }
+    }
+
+    public enum ConnectionStatus
+    {
+        Connected,
+        Connecting,
+        Failed
+    }
+}
+
+<style>
+    .connection-status-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9998;
+        backdrop-filter: blur(2px);
+    }
+
+    .connection-status-card {
+        background-color: var(--bs-body-bg);
+        border: 1px solid var(--bs-border-color);
+        border-radius: 20px;
+        padding: 2rem;
+        max-width: 400px;
+        width: 90%;
+        box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.2);
+        text-align: center;
+    }
+
+    .connection-status-content h4 {
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+        color: var(--bs-body-color);
+    }
+
+    .connection-status-content p {
+        margin-bottom: 1.5rem;
+        color: var(--bs-text-muted);
+    }
+
+    .connection-status-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .connection-status-icon.connecting {
+        color: var(--bs-warning);
+        animation: spin 2s linear infinite;
+    }
+
+    .connection-status-icon.failed {
+        color: var(--bs-danger);
+    }
+
+    .connection-status-icon.connected {
+        color: var(--bs-success);
+    }
+
+    .connection-progress {
+        margin-bottom: 1.5rem;
+    }
+
+    .connection-progress .progress {
+        height: 8px;
+        margin-bottom: 0.5rem;
+        border-radius: 4px;
+    }
+
+    .connection-actions {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .connection-actions .btn {
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+    }
+
+    @@keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    @@media (max-width: 768px) {
+        .connection-status-card {
+            margin: 1rem;
+            padding: 1.5rem;
+        }
+
+        .connection-actions {
+            flex-direction: column;
+        }
+
+        .connection-actions .btn {
+            width: 100%;
+        }
+    }
+</style>

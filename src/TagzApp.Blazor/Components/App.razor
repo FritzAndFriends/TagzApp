@@ -17,30 +17,33 @@
 	<Routes />
 	<script src="_framework/blazor.web.js"></script>
 	<script>
-		// Disable default Blazor reconnection UI
+		// Enhanced Blazor reconnection UI override
 		window.addEventListener('DOMContentLoaded', function () {
 			// For Blazor Server
 			if (window.Blazor && window.Blazor.defaultReconnectionHandler) {
 				window.Blazor.defaultReconnectionHandler._reconnectDisplay = {
-					show: () => { /* Do nothing - custom UI will handle this */ },
-					hide: () => { /* Do nothing - custom UI will handle this */ },
-					failed: () => { /* Do nothing - custom UI will handle this */ },
-					rejected: () => { /* Do nothing - custom UI will handle this */ }
+					show: () => { /* Custom UI handles this */ },
+					hide: () => { /* Custom UI handles this */ },
+					failed: () => { /* Custom UI handles this */ },
+					rejected: () => { /* Custom UI handles this */ }
 				};
 			}
 			
-			// For newer versions of Blazor, also try this approach
+			// For newer versions of Blazor
 			if (window.Blazor && window.Blazor.reconnect) {
 				window.Blazor.reconnect = {
-					show: () => { /* Do nothing - custom UI will handle this */ },
-					hide: () => { /* Do nothing - custom UI will handle this */ },
-					failed: () => { /* Do nothing - custom UI will handle this */ },
-					rejected: () => { /* Do nothing - custom UI will handle this */ }
+					show: () => { /* Custom UI handles this */ },
+					hide: () => { /* Custom UI handles this */ },
+					failed: () => { /* Custom UI handles this */ },
+					rejected: () => { /* Custom UI handles this */ }
 				};
 			}
+
+			// Store SignalR connections for custom reconnection handling
+			window.tagzAppSignalR = window.tagzAppSignalR || [];
 		});
 
-		// Alternative approach: Hide the default modal via CSS if it appears
+		// Hide all default Blazor error UI elements
 		document.addEventListener('DOMContentLoaded', function() {
 			const style = document.createElement('style');
 			style.textContent = `
