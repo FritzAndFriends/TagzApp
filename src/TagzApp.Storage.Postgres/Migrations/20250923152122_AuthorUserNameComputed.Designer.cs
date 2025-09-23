@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TagzApp.Storage.Postgres;
@@ -11,9 +12,11 @@ using TagzApp.Storage.Postgres;
 namespace TagzApp.Storage.Postgres.Migrations
 {
     [DbContext(typeof(TagzAppContext))]
-    partial class TagzAppContextModelSnapshot : ModelSnapshot
+    [Migration("20250923152122_AuthorUserNameComputed")]
+    partial class AuthorUserNameComputed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -71,12 +74,12 @@ namespace TagzApp.Storage.Postgres.Migrations
 
                     b.Property<string>("Author")
                         .IsRequired()
-                        .HasColumnType("jsonb");
+                        .HasColumnType("text");
 
                     b.Property<string>("AuthorUserName")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("text")
-                        .HasComputedColumnSql("lower((\"Author\" ->> 'UserName'))", true);
+                        .HasComputedColumnSql("lower((\"Author\"::jsonb ->> 'UserName'))", true);
 
                     b.Property<string>("Emotes")
                         .HasColumnType("text");
@@ -117,8 +120,6 @@ namespace TagzApp.Storage.Postgres.Migrations
                     b.HasKey("Id");
 
                     b.HasAlternateKey("Provider", "ProviderId");
-
-                    b.HasIndex("Provider", "AuthorUserName", "Timestamp");
 
                     b.ToTable("Content");
                 });

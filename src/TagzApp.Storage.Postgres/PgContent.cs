@@ -32,6 +32,9 @@ public class PgContent
 
 	public string? Emotes { get; set; }
 
+	// Computed column (generated) extracting lower-cased username from JSON Author
+	public string? AuthorUserName { get; private set; }
+
 	public PgModerationAction? ModerationAction { get; internal set; }
 
 	public static explicit operator Content(PgContent thisContent)
