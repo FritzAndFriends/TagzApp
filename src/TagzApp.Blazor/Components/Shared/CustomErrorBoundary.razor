@@ -1,9 +1,8 @@
 @using System.Diagnostics
 @inject IJSRuntime JSRuntime
-@inherits ErrorBoundary
 
-@if (CurrentException is not null)
-{
+<ErrorBoundary>
+	<ErrorContent>
     <div class="custom-error-boundary">
         <div class="custom-error-card">
             <div class="error-header">
@@ -19,8 +18,8 @@
                 <div class="error-details" style="display: block;">
                     <h4>Error Details:</h4>
                     <div class="error-details-content">
-                        <strong>Type:</strong> @CurrentException.GetType().Name<br />
-                        <strong>Message:</strong> @CurrentException.Message
+                        <strong>Type:</strong> @context.GetBaseException().GetType().Name<br />
+                        <strong>Message:</strong> @context.GetBaseException().Message
                         @if (!string.IsNullOrEmpty(RequestId))
                         {
                             <br /><strong>Request ID:</strong> <code>@RequestId</code>
@@ -41,16 +40,18 @@
             </div>
         </div>
     </div>
-}
-else
-{
+	</ErrorContent>
+	<ChildContent>
     @ChildContent
-}
+	</ChildContent>
+</ErrorBoundary>
 
 @code {
     private string RequestId => Activity.Current?.Id ?? HttpContext?.HttpContext?.TraceIdentifier ?? "";
 
     [Inject] private IHttpContextAccessor? HttpContext { get; set; }
+
+		[Parameter] public required RenderFragment ChildContent { get; set; }
 }
 
 <style>

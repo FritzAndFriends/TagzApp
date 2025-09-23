@@ -13,16 +13,15 @@
 <div class="container">
 	<main role="main" class="pb-3">
 
-		<CustomErrorBoundary>
+
 			@if (ShouldStartFirstConfiguration) {
 				<TagzApp.Blazor.Components.Pages.FirstStartConfiguration></TagzApp.Blazor.Components.Pages.FirstStartConfiguration>
 			} else
 			{
-				<CustomErrorBoundary @rendermode="InteractiveServer">
+				<CustomErrorBoundary>
 					@Body
 				</CustomErrorBoundary>
 			}
-		</CustomErrorBoundary>
 
 	</main>
 </div>
