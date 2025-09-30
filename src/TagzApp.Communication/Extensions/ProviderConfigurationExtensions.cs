@@ -1,5 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using TagzApp.Common;
 
 namespace TagzApp.Communication.Extensions;
 
