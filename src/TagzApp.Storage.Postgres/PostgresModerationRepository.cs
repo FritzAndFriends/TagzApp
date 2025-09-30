@@ -248,4 +248,30 @@ internal class PostgresModerationRepository : IModerationRepository
 			.ToArray();
 
 	}
+
+	public async Task<(string Description, decimal Latitude, decimal Longitude)> GetLocationFromTable(string location)
+	{
+
+		return await _Context.Locations.Where(l => l.Name == location.ToLowerInvariant())
+			.Select(l => new ValueTuple<string, decimal, decimal>(l.Name, l.Latitude, l.Longitude))
+			.FirstOrDefaultAsync();
+
+
+	}
+
+	public async Task AddLocationToTable(string description, decimal latitude, decimal longitude)
+	{
+
+		// add the new location to the table with a lowercase name for searching
+		var loc = new PgGeolocation
+		{
+			Name = description.ToLowerInvariant(),
+			Latitude = latitude,
+			Longitude = longitude
+		};
+		_Context.Locations.Add(loc);
+		await _Context.SaveChangesAsync();
+
+
+	}
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Fritz.Charlie.Components.Map;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -21,6 +22,7 @@ public static class AppExtensions
 	{
 
 		builder.AddNpgsqlDbContext<TagzAppContext>(connectionSettings.ContentConnectionString);
+		builder.Services.AddScoped<IViewerLocationService, PostgresViewerLocationService>();
 
 
 		//services.AddScoped<IProviderConfigurationRepository, PostgresProviderConfigurationRepository>();

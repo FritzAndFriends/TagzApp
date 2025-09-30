@@ -25,6 +25,10 @@ public class TagzAppContext : DbContext
 
 	public DbSet<Tag> TagsWatched { get; set; }
 
+	public DbSet<PgGeolocation> Locations { get; set; }
+
+	public DbSet<PgViewerLocation> ViewerLocations { get; set; }
+
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 
@@ -61,6 +65,9 @@ public class TagzAppContext : DbContext
 		modelBuilder.Entity<Tag>().Property(t => t.Text)
 			.HasMaxLength(50)
 			.IsRequired();
+
+		modelBuilder.Entity<PgViewerLocation>()
+			.HasKey(PgViewerLocation => new { PgViewerLocation.StreamId, PgViewerLocation.HashedUserId});
 
 		base.OnModelCreating(modelBuilder);
 
