@@ -9,13 +9,24 @@
 
 /* Recent messages table styles */
 .recent-messages-wrapper {
-	border-top: 1px solid rgba(0,0,0,0.05);
+	border-top: 1px solid rgba(0, 0, 0, 0.05);
 }
-.recent-messages-table tbody tr td { vertical-align: top; }
-.recent-messages-table tbody tr:hover { background-color: var(--bs-table-hover-bg, rgba(0,0,0,.03)); cursor: pointer; }
-.recent-messages-table .badge { font-size: 0.65rem; }
+.recent-messages-table tbody tr td {
+	vertical-align: top;
+}
+.recent-messages-table tbody tr:hover {
+	background-color: var(--bs-table-hover-bg, rgba(0, 0, 0, 0.03));
+	cursor: pointer;
+}
+.recent-messages-table .badge {
+	font-size: 0.65rem;
+}
 @media (max-width: 768px) {
-	.recent-messages-wrapper { max-height: 200px; }
+	.recent-messages-wrapper {
+		max-height: 200px;
+	}
 	.recent-messages-table th:nth-child(2),
-	.recent-messages-table td:nth-child(2) { width: 70px !important; }
+	.recent-messages-table td:nth-child(2) {
+		width: 70px !important;
+	}
 }

@@ -3,10 +3,8 @@
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Text.Json;
-using TagzApp.Common;
 
 namespace TagzApp.Configuration.AzureKeyVault;
 
@@ -221,7 +219,8 @@ public class AzureKeyVaultConfigureTagzApp : IConfigureTagzApp, IDisposable
 		var keyVaultUri = new Uri(_options.KeyVaultUri!);
 
 		// Allows "localhost" to be used instead of "<vault-name>.vault.azure.net" as the vaultUri
-		var options = new SecretClientOptions {
+		var options = new SecretClientOptions
+		{
 			DisableChallengeResourceVerification = keyVaultUri.Host.Contains("localhost", StringComparison.InvariantCultureIgnoreCase)
 		};
 

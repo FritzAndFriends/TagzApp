@@ -232,41 +232,69 @@ body {
 
 /* Animations */
 @keyframes fadeIn {
-	from { opacity: 0; }
-	to { opacity: 1; }
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
 }
 
 @keyframes slideIn {
-	from { 
+	from {
 		opacity: 0;
 		transform: translateY(-20px) scale(0.95);
 	}
-	to { 
+	to {
 		opacity: 1;
 		transform: translateY(0) scale(1);
 	}
 }
 
 @keyframes spin {
-	from { transform: rotate(0deg); }
-	to { transform: rotate(360deg); }
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
 }
 
 @keyframes pulse {
-	0%, 100% { opacity: 1; }
-	50% { opacity: 0.7; }
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.7;
+	}
 }
 
 @keyframes shake {
-	0%, 100% { transform: translateX(0); }
-	25% { transform: translateX(-5px); }
-	75% { transform: translateX(5px); }
+	0%,
+	100% {
+		transform: translateX(0);
+	}
+	25% {
+		transform: translateX(-5px);
+	}
+	75% {
+		transform: translateX(5px);
+	}
 }
 
 @keyframes checkmark {
-	0% { transform: scale(0.8); opacity: 0.5; }
-	50% { transform: scale(1.1); }
-	100% { transform: scale(1); opacity: 1; }
+	0% {
+		transform: scale(0.8);
+		opacity: 0.5;
+	}
+	50% {
+		transform: scale(1.1);
+	}
+	100% {
+		transform: scale(1);
+		opacity: 1;
+	}
 }
 
 /* Dark theme adjustments */
@@ -274,7 +302,7 @@ body {
 	.error-details {
 		background-color: var(--bs-gray-800);
 	}
-	
+
 	.connection-progress .progress {
 		background-color: var(--bs-gray-700);
 	}
@@ -294,7 +322,7 @@ body {
 	.error-btn {
 		width: 100%;
 	}
-	
+
 	.connection-status-card {
 		margin: 1rem;
 		padding: 1.5rem;
@@ -307,7 +335,7 @@ body {
 	.connection-actions .btn {
 		width: 100%;
 	}
-	
+
 	.error-icon,
 	.connection-status-icon {
 		font-size: 2.5rem;
@@ -966,7 +994,8 @@ a {
 
 /* Bluesky icon specifically for home page platform display with blue color */
 .home-platform-icons .icon-bluesky {
-	filter: invert(15%) sepia(100%) saturate(7500%) hue-rotate(210deg) brightness(100%) contrast(100%);
+	filter: invert(15%) sepia(100%) saturate(7500%) hue-rotate(210deg)
+		brightness(100%) contrast(100%);
 }
 
 .providerSwitch .icon-bluesky {
@@ -981,9 +1010,9 @@ a {
 }
 
 @media (prefers-color-scheme: dark) {
-  .icon-bluesky {
-    filter: brightness(1000%) grayscale(100%)!important;
-  }
+	.icon-bluesky {
+		filter: brightness(1000%) grayscale(100%) !important;
+	}
 }
 
 /* User grid */
