@@ -67,8 +67,8 @@
 	[CascadingParameter]
 	private HttpContext HttpContext { get; set; } = default!;
 
-	private string GoogleRefreshToken { get; set; }
-	private string GoogleEmail { get; set; }
+	private string GoogleRefreshToken { get; set; } = string.Empty;
+	private string GoogleEmail { get; set; } = string.Empty;
 
 	protected override async Task OnParametersSetAsync()
 	{
@@ -76,8 +76,11 @@
 		if (Provider is YouTubeChatProvider && HttpContext?.User is not null)
 		{
 			var user = await _UserManager.GetUserAsync(HttpContext.User);
-			GoogleRefreshToken = await _UserManager.GetAuthenticationTokenAsync(user, "Google", "refresh_token");
-			GoogleEmail = await _UserManager.GetAuthenticationTokenAsync(user, "Google", "Email");
+			if (user is not null)
+			{
+				GoogleRefreshToken = await _UserManager.GetAuthenticationTokenAsync(user, "Google", "refresh_token") ?? string.Empty;
+				GoogleEmail = await _UserManager.GetAuthenticationTokenAsync(user, "Google", "Email") ?? string.Empty;
+			}
 		}
 
 		await base.OnParametersSetAsync();

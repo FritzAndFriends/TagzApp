@@ -22,6 +22,7 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 	public string YouTubeEmailId { get; set; }
 	public bool Enabled { get; }
 
+	private readonly HttpClient _HttpClient;
 	private string _GoogleException = string.Empty;
 
 	private CancellationTokenSource _TokenSource = new();
@@ -32,10 +33,11 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 	private SocialMediaStatus _Status = SocialMediaStatus.Unhealthy;
 	private string _StatusMessage = "Not started";
 
-	public YouTubeChatProvider(YouTubeChatConfiguration config, IConfiguration configuration)
+	public YouTubeChatProvider(YouTubeChatConfiguration config, IConfiguration configuration, HttpClient httpClient)
 	{
 		_ChatConfig = config;
 		Enabled = true; // config.Enabled;
+		_HttpClient = httpClient;
 
 	}
 
@@ -135,6 +137,7 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		// if (string.IsNullOrEmpty(LiveChatId) || string.IsNullOrEmpty(RefreshToken)) return;
 
 		_Service = await GetGoogleService();
+		await YouTubeEmoteTranslator.LoadEmotes(_HttpClient, 10);
 
 		if (!_ChatConfig.Enabled)
 		{

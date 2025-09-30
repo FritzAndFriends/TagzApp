@@ -20,7 +20,7 @@ public static class AppExtensions
 	public static IServiceCollection AddPostgresServices(this IHostApplicationBuilder builder, IConfigureTagzApp configureTagzApp, ConnectionSettings connectionSettings)
 	{
 
-		builder.AddNpgsqlDbContext<TagzAppContext>("tagzappdb");
+		builder.AddNpgsqlDbContext<TagzAppContext>(connectionSettings.ContentConnectionString);
 
 
 		//services.AddScoped<IProviderConfigurationRepository, PostgresProviderConfigurationRepository>();

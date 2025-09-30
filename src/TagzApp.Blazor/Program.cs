@@ -1,10 +1,13 @@
 global using TagzApp.Security;
 using BlazorDownloadFile;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
-using TagzApp.Blazor;
 using TagzApp.Blazor.Hubs;
+using TagzApp.Blazor.Services;
 using TagzApp.Communication.Extensions;
+using TagzApp.Configuration.AzureKeyVault;
+using KeyVaultExtensions = TagzApp.Configuration.AzureKeyVault.KeyVaultExtensions;
 
 namespace TagzApp.Blazor;
 
@@ -57,7 +60,12 @@ public class Program
 		// Configure the Aspire provided service defaults
 		builder.AddServiceDefaults();
 
-		var configure = ConfigureTagzAppFactory.Create(builder.Configuration, builder.Services.BuildServiceProvider());
+		builder.Services.SetKeyVaultOptions(builder.Configuration, builder.Environment.IsDevelopment());
+
+		var configure = ConfigureTagzAppFactory.Create(
+			builder.Configuration,
+			builder.Services.BuildServiceProvider(),
+			KeyVaultExtensions.AddAzureKeyVaultConfiguration);
 		builder.Services.AddSingleton<IConfigureTagzApp>(configure);
 
 		// Add OpenTelemetry for tracing and metrics.
@@ -104,9 +112,6 @@ public class Program
 			options.EnableForHttps = true;
 		});
 
-		// Add OpenTelemetry for logging.
-		builder.Logging.AddOpenTelemetryLogging(builder.Configuration);
-
 		var app = builder.Build();
 
 		// Configure the HTTP request pipeline.
@@ -118,34 +123,43 @@ public class Program
 		else
 		{
 			app.UseExceptionHandler("/Error", createScopeForErrors: true);
+			app.UseStatusCodePagesWithReExecute("/Error/{0}");
 			// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 			app.UseHsts();
 			app.UseResponseCompression();
 		}
 
-		app.Use((context, next) =>
-		{
-
-			// running in single-user mode -- the current user is an admin
-			if (appConfig.SingleUserMode)
-			{
-				context.User = new ClaimsPrincipal(
-					new ClaimsIdentity(new[] {
-						new Claim(ClaimTypes.Name, "Admin User"),
-						new Claim("DisplayName", "Admin User"),
-						new Claim(ClaimTypes.Role, RolesAndPolicies.Role.Admin)
-					}, "Basic"));
-			}
-
-			return next();
-
-		});
 
 
 		app.UseHttpsRedirection();
 
 		app.UseStaticFiles();
+		// running in single-user mode -- the current user is an admin
+		app.Use(async (context, next) =>
+		{
+
+			if (appConfig.SingleUserMode)
+			{
+
+				context.User = new ClaimsPrincipal(
+					new ClaimsIdentity(new[] {
+						new Claim(ClaimTypes.Name, "Admin User"),
+						new Claim(ClaimTypes.NameIdentifier, "admin-user"),
+						new Claim("DisplayName", "Admin User"),
+						new Claim(ClaimTypes.Role, RolesAndPolicies.Role.Admin)
+					}, IdentityConstants.ApplicationScheme));
+			}
+
+			await next();
+
+		});
+
+		app.UseAuthentication();
+		app.UseAuthorization();
+
+
 		app.UseAntiforgery();
+		app.UseMiddleware<DynamicAuthMiddleware>();
 
 		app.MapRazorComponents<TagzApp.Blazor.Components.App>()
 				.AddInteractiveServerRenderMode()

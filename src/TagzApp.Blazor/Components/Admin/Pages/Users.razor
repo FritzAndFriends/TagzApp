@@ -17,96 +17,112 @@
 
 @if (AppConfig.SingleUserMode)
 {
-	<div>
-		You're in Single User Mode
+    <div>
+        <h4>Single User Mode</h4>
 
-		<p class="alert alert-primary" role="alert">
-			Converting to Multi-User Mode is a one-way operation that cannot be reversed.  You will need to register as a new user and login with that user immediately to be granted Admin access.  After that, you can add more users with various roles.
-		</p>
-
-		<button type="button" class="btn btn-danger" @onclick="ConvertUserMode">Change to Multi-User Mode</button>
-
-	</div>
+        <div class="alert alert-primary" role="alert">
+            <h6><i class="bi bi-info-circle me-2"></i>Single User Mode Active</h6>
+            <p class="mb-2">You're currently in single-user mode. To enable multi-user authentication and manage user roles, you need to configure external authentication providers first.</p>
+            <p class="mb-3"><strong>Note:</strong> Converting to Multi-User Mode is a one-way operation that cannot be reversed.</p>
+            
+            <div class="d-grid gap-2 d-md-block">
+                <a href="/Admin/ExternalAuth" class="btn btn-primary">
+                    <i class="bi bi-shield-lock me-1"></i>Configure External Authentication
+                </a>
+            </div>
+            
+            <div class="mt-3">
+                <small class="text-muted">
+                    <strong>Next steps:</strong> Configure at least one external authentication provider, then switch to multi-user mode from the External Authentication page.
+                </small>
+            </div>
+        </div>
+    </div>
 }
 else
 {
-	<QuickGrid Items="UserList" TGridItem="TagzAppUser" >
-		<TemplateColumn Title="Name" Class="UserGridNameColumn" Align="Align.Left">
-			<ItemTemplate>
-				<img class="gravatar" title="Gravatar" src="@context.Email.ToGravatar()" />
-				@context.DisplayName
-			</ItemTemplate>
-		</TemplateColumn>
-		<PropertyColumn Title="User Email" Property="u => u.Email"></PropertyColumn>
-		<TemplateColumn Title="Action">
-			<ItemTemplate>
-				<span style="cursor: pointer" class="link-primary nav-link" @onclick="@(() => AssignRoles(context))">Assign Roles</span>
-			</ItemTemplate>
-		</TemplateColumn>
-	</QuickGrid>
+    <QuickGrid Items="UserList" TGridItem="UserViewModel" >
+        <TemplateColumn Title="Name" Class="UserGridNameColumn" Align="Align.Left">
+            <ItemTemplate>
+                <img class="gravatar" title="Gravatar" src="@context.Email.ToGravatar()" />
+                @context.DisplayName
+            </ItemTemplate>
+        </TemplateColumn>
+        <PropertyColumn Title="User Email" Property="u => u.Email"></PropertyColumn>
+        <PropertyColumn Title="User Roles" Property="u => string.Join(',', u.Roles)"></PropertyColumn>
+        <TemplateColumn Title="Action">
+            <ItemTemplate>
+                <span style="cursor: pointer" class="link-primary nav-link" @onclick="@(() => AssignRoles(context))">Assign Roles</span>
+            </ItemTemplate>
+        </TemplateColumn>
+    </QuickGrid>
 
-@* 	<table>
-		<tr>
-			<th style="width:20em; padding-left: 85px;">Name</th>
-			<th>User Email</th>
-			<th>Action</th>
-		</tr>
-		@foreach (var user in UserList.OrderBy(u => u.DisplayName))
-		{
-			<tr>
-				<td>
-					<img class="gravatar" title="Gravatar" src="@user.Email.ToGravatar()" />
-					@user.DisplayName
-				</td>
-				<td>@user.Email</td>
-				<td><span style="cursor: pointer" class="link-primary nav-link" @onclick="@(() => AssignRoles(user))">Assign Roles</span></td>
-			</tr>
-		}
-	</table>
- *@
-	<ManageRoles @ref="ManageRolesDialog" CurrentUser="SelectedUser" OnComplete="CloseManageRoles" />
+    <ManageRoles @ref="ManageRolesDialog" CurrentUser="SelectedUser" OnComplete="CloseManageRoles" />
 }
 
 @code {
 
-	[CascadingParameter]
-	private HttpContext HttpContext { get; set; } = default!;
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
 
-	private IQueryable<TagzAppUser> UserList { get; set; }
+    private IQueryable<UserViewModel> UserList { get; set; } = Enumerable.Empty<UserViewModel>().AsQueryable();
 
-	private TagzAppUser SelectedUser { get; set; } = new();
+    private UserViewModel SelectedUser { get; set; } = new(null!);
 
-	private ManageRoles ManageRolesDialog = new();
+    private ManageRoles ManageRolesDialog = new();
 
-	override protected async Task OnParametersSetAsync()
-	{
+    override protected async Task OnParametersSetAsync()
+    {
+        if (AppConfig.SingleUserMode) return;
 
-		if (AppConfig.SingleUserMode) return;
+        var users = await UserManager.Users.ToListAsync();
+        var userViewModels = new List<UserViewModel>();
+        
+        foreach (var user in users)
+        {
+            var userViewModel = new UserViewModel(user);
+            userViewModel.Roles = (await UserManager.GetRolesAsync(user)).ToList();
+            userViewModels.Add(userViewModel);
+        }
+        
+        UserList = userViewModels.AsQueryable();
+    }
 
-		UserList = UserManager.Users;
-	}
+    private async Task AssignRoles(UserViewModel user)
+    {
+        SelectedUser = user;
+        await ManageRolesDialog.Open();
+    }
 
-	private async Task AssignRoles(TagzAppUser user)
-	{
-		SelectedUser = user;
-		await ManageRolesDialog.Open();
-	}
+    private void CloseManageRoles()
+    {
+        SelectedUser = new UserViewModel(null!);
+    }
 
-	private void CloseManageRoles()
-	{
-		SelectedUser = null;
-	}
+    public class UserViewModel : TagzAppUser
+    {
+        public UserViewModel(TagzAppUser user) : base()
+        {
+            if (user is null) return;
 
-	private async Task ConvertUserMode()
-	{
-		var accepted = await Js.InvokeAsync<bool>("confirm", "Are you sure you would like to convert to multi-user mode?  This is a one-way operation and cannot be reversed");
-		if (accepted)
-		{
-			AppConfig.SingleUserMode = false;
-			await AppConfig.SaveConfiguration(ConfigureTagzAppFactory.Current);
-			Program.Restart();
-			NavigationManager.NavigateTo("/");
-		}
-	}
+            this.Id = user.Id;
+            this.UserName = user.UserName;
+            this.NormalizedUserName = user.NormalizedUserName;
+            this.Email = user.Email;
+            this.NormalizedEmail = user.NormalizedEmail;
+            this.EmailConfirmed = user.EmailConfirmed;
+            this.PasswordHash = user.PasswordHash;
+            this.SecurityStamp = user.SecurityStamp;
+            this.ConcurrencyStamp = user.ConcurrencyStamp;
+            this.PhoneNumber = user.PhoneNumber;
+            this.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
+            this.TwoFactorEnabled = user.TwoFactorEnabled;
+            this.LockoutEnd = user.LockoutEnd;
+            this.LockoutEnabled = user.LockoutEnabled;
+            this.AccessFailedCount = user.AccessFailedCount;
+            this.DisplayName = user.DisplayName;
+        }
 
+        public List<string> Roles { get; set; } = new();
+    }
 }

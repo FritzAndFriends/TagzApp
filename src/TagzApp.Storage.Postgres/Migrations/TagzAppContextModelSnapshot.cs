@@ -17,7 +17,7 @@ namespace TagzApp.Storage.Postgres.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.6")
+                .HasAnnotation("ProductVersion", "9.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -71,7 +71,12 @@ namespace TagzApp.Storage.Postgres.Migrations
 
                     b.Property<string>("Author")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("AuthorUserName")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("text")
+                        .HasComputedColumnSql("lower((\"Author\" ->> 'UserName'))", true);
 
                     b.Property<string>("Emotes")
                         .HasColumnType("text");
@@ -112,6 +117,8 @@ namespace TagzApp.Storage.Postgres.Migrations
                     b.HasKey("Id");
 
                     b.HasAlternateKey("Provider", "ProviderId");
+
+                    b.HasIndex("Provider", "AuthorUserName", "Timestamp");
 
                     b.ToTable("Content");
                 });
