@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using TagzApp.Providers.YouTubeChat;
 
 namespace TagzApp.Blazor;

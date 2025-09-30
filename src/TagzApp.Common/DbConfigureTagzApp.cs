@@ -1,7 +1,6 @@
 ﻿// Ignore Spelling: Tagz
 
 using Dapper;
-using Microsoft.Data.Sqlite;
 using Npgsql;
 using System.Data;
 using System.Text.Json;
@@ -91,7 +90,7 @@ public class DbConfigureTagzApp : IConfigureTagzApp, IDisposable
 
 	}
 
-	private IDbConnection GetConnection() 
+	private IDbConnection GetConnection()
 	{
 		if (string.IsNullOrEmpty(_ProviderName) || string.IsNullOrEmpty(_ConnectionString))
 		{
