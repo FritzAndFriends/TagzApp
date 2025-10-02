@@ -12,6 +12,8 @@ public class TagzAppContextFactory : IDesignTimeDbContextFactory<TagzAppContext>
 	{
 		var optionsBuilder = new DbContextOptionsBuilder<TagzAppContext>();
 
+		optionsBuilder.EnableSensitiveDataLogging(); 
+
 		var cs = Environment.GetEnvironmentVariable("TAGZAPP_CONTENT_DB")
 						 ?? "Host=localhost;Port=5432;Database=tagzapp;Username=postgres;Password=postgres";
 

@@ -1,12 +1,6 @@
-﻿using Fritz.Charlie.Common;
+﻿using System.Collections.Concurrent;
 using Fritz.Charlie.Components.Map;
-using Microsoft.EntityFrameworkCore.Storage;
-using Org.BouncyCastle.Security;
-using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Text.Json;
-using System.Threading.Channels;
-using System.Xml;
 
 namespace TagzApp.Blazor.Services;
 

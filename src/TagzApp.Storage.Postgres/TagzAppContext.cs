@@ -2,7 +2,7 @@
 
 namespace TagzApp.Storage.Postgres;
 
-public class TagzAppContext : DbContext
+public partial class TagzAppContext : DbContext
 {
 
 	public TagzAppContext(DbContextOptions options) : base(options)
@@ -68,6 +68,10 @@ public class TagzAppContext : DbContext
 
 		modelBuilder.Entity<PgViewerLocation>()
 			.HasKey(PgViewerLocation => new { PgViewerLocation.StreamId, PgViewerLocation.HashedUserId});
+
+		// Seed initial location data
+		modelBuilder.Entity<PgGeolocation>()
+			.HasData(GetCommonLocations());
 
 		base.OnModelCreating(modelBuilder);
 
