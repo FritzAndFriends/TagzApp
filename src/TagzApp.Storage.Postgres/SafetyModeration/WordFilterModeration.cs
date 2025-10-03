@@ -1,46 +1,75 @@
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
+using TagzApp.Common.Models;
 
 namespace TagzApp.Storage.Postgres.SafetyModeration;
 
 public class WordFilterModeration : INotifyNewMessages
 {
-	private const string _KeyBlockedUsersCache = "blockedUsers";
-	private readonly IMemoryCache _Cache;
 	private INotifyNewMessages _NotifyNewMessages;
 	private readonly IServiceProvider _ServiceProvider;
 	private readonly ILogger<WordFilterModeration> _WordFilterLogger;
-	private readonly bool _Enabled;
-	private readonly string[] _BlockedWords;
+	private readonly object _ConfigLock = new object();
+	private bool _Enabled;
+	private string[] _BlockedWords;
 
 	public WordFilterModeration(
-		IMemoryCache cache,
 		INotifyNewMessages notifyNewMessages,
 		IServiceProvider serviceProvider,
 		IConfigureTagzApp configureTagzApp,
 		ILogger<WordFilterModeration> wordFilterLogger)
 	{
-		_Cache = cache;
 		_NotifyNewMessages = notifyNewMessages;
 		_ServiceProvider = serviceProvider;
 		_WordFilterLogger = wordFilterLogger;
 
-		var siteConfig = serviceProvider.GetRequiredService<IConfiguration>();
+		// Subscribe to configuration changes
+		WordFilterConfiguration.ConfigurationChanged += OnConfigurationChanged;
 
-		var config = //configureTagzApp.GetConfigurationById<WordFilterConfiguration>(WordFilterConfiguration.ConfigurationKey).GetAwaiter().GetResult();
-			new WordFilterConfiguration
+		// Load initial configuration
+		LoadConfiguration(configureTagzApp).GetAwaiter().GetResult();
+
+		_WordFilterLogger.LogInformation("WordFilter moderation initialized - Enabled: {Enabled}, BlockedWords Count: {Count}", 
+			_Enabled, _BlockedWords.Length);
+	}
+
+	private async Task LoadConfiguration(IConfigureTagzApp configureTagzApp)
+	{
+		try
+		{
+			var config = await configureTagzApp.GetConfigurationById<WordFilterConfiguration>(WordFilterConfiguration.ConfigurationKey);
+			
+			lock (_ConfigLock)
 			{
-				Enabled = siteConfig.GetValue<bool>("wordfilter_enabled", false),
-				BlockedWords = siteConfig.GetSection("wordfilter_blockedwords").Get<string[]>() ?? Array.Empty<string>()
-			};
+				_Enabled = config.Enabled;
+				_BlockedWords = config.BlockedWords ?? Array.Empty<string>();
+			}
 
-		_Enabled = config.Enabled;
-		_BlockedWords = config.BlockedWords;
+			_WordFilterLogger.LogInformation("WordFilter configuration loaded - Enabled: {Enabled}, BlockedWords Count: {Count}", 
+				_Enabled, _BlockedWords.Length);
+		}
+		catch (Exception ex)
+		{
+			_WordFilterLogger.LogError(ex, "Failed to load WordFilter configuration - disabling word filtering");
+			lock (_ConfigLock)
+			{
+				_Enabled = false;
+				_BlockedWords = Array.Empty<string>();
+			}
+		}
+	}
 
-		using IServiceScope scope = ReloadBlockedUserCache();
+	private void OnConfigurationChanged(object? sender, WordFilterConfigurationChangedEventArgs e)
+	{
+		lock (_ConfigLock)
+		{
+			_Enabled = e.Configuration.Enabled;
+			_BlockedWords = e.Configuration.BlockedWords ?? Array.Empty<string>();
+		}
+
+		_WordFilterLogger.LogInformation("WordFilter configuration updated via event - Enabled: {Enabled}, BlockedWords Count: {Count}", 
+			_Enabled, _BlockedWords.Length);
 	}
 
 	public void NotifyApprovedContent(string hashtag, Content content, ModerationAction action)
@@ -57,35 +86,17 @@ public class WordFilterModeration : INotifyNewMessages
 
 	public void NotifyNewContent(string hashtag, Content content)
 	{
-		// Check if this content is created by one of the blocked users listed in the cache
-		var usersBlocked = _Cache.GetOrCreate(_KeyBlockedUsersCache, _ => new List<(string Provider, string UserName, BlockedUserCapabilities Capabilities)>());
-		var isBlocked = usersBlocked
-			.FirstOrDefault(a => a.Provider.Equals(content.Provider, StringComparison.InvariantCultureIgnoreCase)
-				&& a.UserName.Equals('@' + content.Author.UserName.TrimStart('@'), StringComparison.InvariantCultureIgnoreCase));
+		bool enabled;
+		string[] blockedWords;
 
-		if (!string.IsNullOrEmpty(isBlocked.Provider))
+		// Get current configuration with thread safety
+		lock (_ConfigLock)
 		{
-			using var scope = _ServiceProvider.CreateScope();
-			var moderationRepository = scope.ServiceProvider.GetRequiredService<IModerationRepository>();
-			moderationRepository.ModerateWithReason("BLOCKED-USER", content.Provider, content.ProviderId, ModerationState.Rejected, "Blocked User").GetAwaiter().GetResult();
-
-			if (isBlocked.Capabilities != BlockedUserCapabilities.Hidden)
-			{
-				_NotifyNewMessages.NotifyNewContent(hashtag, content);
-				_NotifyNewMessages.NotifyRejectedContent(hashtag, content, new ModerationAction
-				{
-					Provider = content.Provider,
-					ProviderId = content.ProviderId,
-					State = ModerationState.Rejected,
-					Timestamp = DateTimeOffset.UtcNow,
-					Moderator = "BLOCKED-USER",
-					Reason = "Blocked User"
-				});
-			}
-			return;
+			enabled = _Enabled;
+			blockedWords = _BlockedWords;
 		}
 
-		if (!_Enabled || _BlockedWords.Length == 0)
+		if (!enabled || blockedWords.Length == 0)
 		{
 			_NotifyNewMessages.NotifyNewContent(hashtag, content);
 			return;
@@ -101,11 +112,14 @@ public class WordFilterModeration : INotifyNewMessages
 			return;
 		}
 
-		var blockedWordsFound = CheckForBlockedWords(clearText);
+		var blockedWordsFound = CheckForBlockedWords(clearText, blockedWords);
 
 		if (blockedWordsFound.Any())
 		{
 			string reason = $"Contains blocked words/phrases: {string.Join(", ", blockedWordsFound)}";
+
+			_WordFilterLogger.LogInformation("Message from {Provider} rejected due to blocked words: {Words}", 
+				content.Provider, string.Join(", ", blockedWordsFound));
 
 			// Add moderation from Word Filter
 			using var scope = _ServiceProvider.CreateScope();
@@ -131,26 +145,14 @@ public class WordFilterModeration : INotifyNewMessages
 
 	public void NotifyNewBlockedCount(int blockedCount)
 	{
-		// reload the blocked users list
-		using IServiceScope scope = ReloadBlockedUserCache();
 		_NotifyNewMessages.NotifyNewBlockedCount(blockedCount);
 	}
 
-	private IServiceScope ReloadBlockedUserCache()
-	{
-		var scope = _ServiceProvider.CreateScope();
-		var moderationRepository = scope.ServiceProvider.GetRequiredService<IModerationRepository>();
-		var blockedUsers = moderationRepository.GetBlockedUsers().GetAwaiter().GetResult();
-		_WordFilterLogger.LogInformation($"Blocked user count: {blockedUsers.Count()}");
-		(moderationRepository as PostgresModerationRepository)?.UpdateBlockedUsersCache(blockedUsers);
-		return scope;
-	}
-
-	private List<string> CheckForBlockedWords(string text)
+	private List<string> CheckForBlockedWords(string text, string[] blockedWords)
 	{
 		var foundWords = new List<string>();
 
-		foreach (var blockedWord in _BlockedWords)
+		foreach (var blockedWord in blockedWords)
 		{
 			if (string.IsNullOrWhiteSpace(blockedWord)) continue;
 
@@ -183,10 +185,10 @@ public class WordFilterModeration : INotifyNewMessages
 	/// </summary>
 	private class HtmlCleaner
 	{
-		private static readonly Regex _tags_ = new(@"<[^>]+?>", RegexOptions.Multiline | RegexOptions.Compiled);
+		private static readonly Regex _Tags = new(@"<[^>]+?>", RegexOptions.Multiline | RegexOptions.Compiled);
 
 		//add characters that are should not be removed to this regex
-		private static readonly Regex _notOkCharacter_ = new(@"[^\w;&#@.:/\\?=|%!() -]", RegexOptions.Compiled);
+		private static readonly Regex _NotOkCharacter = new(@"[^\w;&#@.:/\\?=|%!() -]", RegexOptions.Compiled);
 
 		public static string UnHtml(string html)
 		{
@@ -198,8 +200,8 @@ public class WordFilterModeration : INotifyNewMessages
 			html = RemoveTag(html, "<style", "</style>");
 
 			//replace matches of these regexes with space
-			html = _tags_.Replace(html, " ");
-			html = _notOkCharacter_.Replace(html, " ");
+			html = _Tags.Replace(html, " ");
+			html = _NotOkCharacter.Replace(html, " ");
 			html = SingleSpacedTrim(html);
 
 			return html;
