@@ -425,3 +425,4 @@ FodyWeavers.xsd
 /observability-config/tempo-data
 /observability-config/loki-data
 /observability-config/prometheus-data
+MODERATION_UI_CHANGES.md
