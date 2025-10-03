@@ -40,6 +40,21 @@ public class TagzAppContext : DbContext
 				t => new DateTimeOffset(t, TimeSpan.Zero)
 			);
 
+		// Store Author as jsonb so we can index/query efficiently
+		modelBuilder.Entity<PgContent>()
+			.Property(c => c.Author)
+			.HasColumnType("jsonb");
+
+		// Computed column for AuthorUserName (lower-cased username extracted from JSON Author)
+		// Author column is already jsonb, so no cast required. Keep expression aligned with current snapshot to avoid needless migrations.
+		modelBuilder.Entity<PgContent>()
+			.Property(c => c.AuthorUserName)
+			.HasComputedColumnSql("lower((\"Author\" ->> 'UserName'))", stored: true);
+
+		// Index to accelerate lookups by provider + author username + recency
+		modelBuilder.Entity<PgContent>()
+			.HasIndex(c => new { c.Provider, c.AuthorUserName, c.Timestamp });
+
 
 		modelBuilder.Entity<PgModerationAction>().HasAlternateKey(c => new { c.Provider, c.ProviderId });
 

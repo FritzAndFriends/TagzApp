@@ -17,22 +17,68 @@ public static class ConfigureTagzAppFactory
 
 	public static IConfigureTagzApp Current = EmptyConfigureTagzApp.Instance;
 
-	public static IConfigureTagzApp Create(IConfiguration configuration, IServiceProvider services)
+	public static EncryptionHelper? _EncryptionHelper = null;
+
+	public static IConfigureTagzApp Create(
+		IConfiguration configuration,
+		IServiceProvider services,
+		Func<IServiceProvider, IConfiguration, IConfigureTagzApp> externalConfigSource = null!)
 	{
 
 		if (Current != EmptyConfigureTagzApp.Instance) { return Current; }
 
 		Current = EmptyConfigureTagzApp.Instance;
 
-		Current = new DbConfigureTagzApp();
+		// Check for external configuration source first
+		if (externalConfigSource is not null)
+		{
+			try
+			{
+				Current = externalConfigSource(services, configuration);
+				Current.InitializeConfiguration("postgres", "tagzappdb")
+					.GetAwaiter().GetResult();
+
+				if (Current is not EmptyConfigureTagzApp)
+				{
+					IsConfigured = true;
+					return Current;
+				}
+			}
+			catch (Exception ex)
+			{
+				var scope = services.CreateScope();
+				var logger = scope.ServiceProvider.GetRequiredService<ILogger<DbConfigureTagzApp>>();
+				logger.LogError(ex, "Unable to initialize external configuration provider");
+				Current = EmptyConfigureTagzApp.Instance;
+				IsConfigured = false;
+			}
+		}
+
+		// Create encryption helper if configuration is available
+		try
+		{
+			var scope = services.CreateScope();
+			var logger = scope.ServiceProvider.GetService<ILogger<EncryptionHelper>>();
+			_EncryptionHelper = new EncryptionHelper(configuration, logger);
+		}
+		catch (Exception)
+		{
+			// Encryption not configured - will store data in plain text
+			// This is acceptable for development or if encryption is not required
+		}
+		if (!_EncryptionHelper.Enabled) _EncryptionHelper = null;
+
+		Current = new DbConfigureTagzApp(_EncryptionHelper);
 		var connectionString = configuration.GetConnectionString("tagzappdb");
 
 		try
 		{
-			Current.InitializeConfiguration("", connectionString);
+			Current.InitializeConfiguration("postgres", connectionString ?? throw new InvalidOperationException("Database connection string 'tagzappdb' is not configured"))
+				.GetAwaiter().GetResult();
 			Current.SetConfigurationById<ConnectionSettings>(ConnectionSettings.ConfigurationKey, new ConnectionSettings
 			{
 				ContentProvider = "postgres",
+				ContentConnectionString = "tagzappdb",
 				SecurityProvider = "postgres",
 			}).GetAwaiter().GetResult();
 			IsConfigured = true;
@@ -79,15 +125,15 @@ public static class ConfigureTagzAppFactory
 			CommentHandling = JsonCommentHandling.Skip
 		});
 
-		if (jsonObj["ConnectionStrings"] is null)
+		if (jsonObj?["ConnectionStrings"] is null)
 		{
 
-			jsonObj["ConnectionStrings"] = new JsonObject();
+			jsonObj!["ConnectionStrings"] = new JsonObject();
 
 		}
 
-		jsonObj["ConnectionStrings"]["AppConfigProvider"] = provider;
-		jsonObj["ConnectionStrings"]["AppConfigConnection"] = configurationString;
+		jsonObj!["ConnectionStrings"]!["AppConfigProvider"] = provider;
+		jsonObj["ConnectionStrings"]!["AppConfigConnection"] = configurationString;
 
 		// update appsettings.json with the new configuration
 		using (var file = File.CreateText("appsettings.json"))
@@ -105,7 +151,7 @@ public static class ConfigureTagzAppFactory
 		}
 
 		Current = new DbConfigureTagzApp();
-		Current.InitializeConfiguration(provider, configurationString);
+		await Current.InitializeConfiguration(provider, configurationString);
 		IsConfigured = true;
 
 	}

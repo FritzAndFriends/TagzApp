@@ -12,6 +12,36 @@
 
 <PageTitle>Message Moderation</PageTitle>
 
+@* Connection Status Indicator *@
+@if (_ConnectionState != HubConnectionState.Connected && !_IsInitialConnection)
+{
+	<div class="alert alert-warning border-0 rounded-0 mb-0 connection-indicator @(_ConnectionState.ToString().ToLower())" style="position: sticky; top: 0; z-index: 1050;" role="alert" aria-live="polite">
+		<div class="d-flex align-items-center justify-content-center py-2">
+			@if (_ConnectionState == HubConnectionState.Reconnecting)
+			{
+				<i class="bi bi-exclamation-triangle me-2" style="font-size: 1.1em;"></i>
+				<span><strong>Reconnecting to server...</strong> (Attempt @_ReconnectAttempt)</span>
+			}
+			else if (_ConnectionState == HubConnectionState.Disconnected)
+			{
+				<i class="bi bi-wifi-off me-2" style="font-size: 1.1em;"></i>
+				<span><strong>Connection lost.</strong> Preparing to reconnect...</span>
+			}
+			else
+			{
+				<i class="bi bi-info-circle me-2" style="font-size: 1.1em;"></i>
+				<span><strong>Connecting to server...</strong></span>
+			}
+		</div>
+		@if (_ConnectionState == HubConnectionState.Reconnecting || _ConnectionState == HubConnectionState.Disconnected || _ConnectionState == HubConnectionState.Connecting)
+		{
+			<div class="reconnect-progress-full">
+				<div class="reconnect-progress-bar-full" style="width: @(_ProgressPercentage)%;"></div>
+			</div>
+		}
+	</div>
+}
+
 <div class="row">
 	<div class="col-md-12">
 		<h1 class="text-center">Moderate Content for TagzApp (@_Tag)</h1>
@@ -97,15 +127,6 @@
 
 </div>
 
-@*
-
-			window.TagzApp.ActivateKeyboardNavigation();
-
-			window.onload = window.Masonry.resizeAllGridItems();
-			window.addEventListener("resize", Masonry.resizeAllGridItems);
-
-*@
-
 @code {
 
 	[CascadingParameter(Name = "HideFooter")] public bool HideFooter { get; set; }
@@ -143,7 +164,13 @@
 		}
 	}
 
-	private HubConnection _Connection;
+	private HubConnection? _Connection;
+
+	private HubConnectionState _ConnectionState = HubConnectionState.Disconnected;
+	private int _ReconnectAttempt = 0;
+	private Timer? _ProgressTimer;
+	private int _ProgressPercentage = 100;
+	private bool _IsInitialConnection = true; // Track if this is the first connection attempt
 
 	private bool _IsDisposing = false;
 
@@ -156,19 +183,21 @@
 
 		await ConfigureSignalRConnection();
 
-		_Tag = (await _Connection.InvokeAsync<string[]>("GetTags"))?.First();
+		if (_Connection?.State == HubConnectionState.Connected)
+		{
+			_Tag = (await _Connection.InvokeAsync<string[]>("GetTags"))?.FirstOrDefault() ?? string.Empty;
 
+			BlockedUserCount = await _Connection.InvokeAsync<int>("GetBlockedUserCount");
 
-		BlockedUserCount = await _Connection.InvokeAsync<int>("GetBlockedUserCount");
+			_Providers = await _Connection.InvokeAsync<IEnumerable<AvailableProvider>>("GetAvailableProviders");
+			_FilteredProviders = _Providers.Select(p => p.Id).ToList();
 
-		_Providers = await _Connection.InvokeAsync<IEnumerable<AvailableProvider>>("GetAvailableProviders");
-		_FilteredProviders = _Providers.Select(p => p.Id).ToList();
+			_Moderators = (await _Connection.InvokeAsync<NewModerator[]>("GetCurrentModerators")).ToHashSet();
 
-		_Moderators = (await _Connection.InvokeAsync<NewModerator[]>("GetCurrentModerators")).ToHashSet();
+			await InitializeContent();
+		}
 
 		await base.OnInitializedAsync();
-
-		await InitializeContent();
 
 	}
 
@@ -179,45 +208,213 @@
 		await base.OnAfterRenderAsync(firstRender);
 	}
 
+	private void StartProgressCountdown(int durationMs)
+	{
+
+		StopProgressCountdown(); // Ensure any existing timer is stopped
+		
+		_ProgressPercentage = 100;
+
+		// Don't start timer for very short durations
+		if (durationMs < 100)
+		{
+			_ProgressPercentage = 0;
+			return;
+		}
+
+		var interval = Math.Max(50, durationMs / 100); // Update at least every 50ms, but not more than 100 times
+		var steps = durationMs / interval;
+		var decrementPerStep = 100.0 / steps;
+		var currentStep = 0;
+
+		_ProgressTimer = new Timer(_ =>
+		{
+			currentStep++;
+			var newPercentage = Math.Max(0, (int)(100 - (decrementPerStep * currentStep)));
+			
+			if (_ProgressPercentage != newPercentage)
+			{
+				_ProgressPercentage = newPercentage;
+				
+				try
+				{
+					InvokeAsync(StateHasChanged);
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine($"Error updating UI: {ex.Message}");
+				}
+			}
+			
+			if (currentStep >= steps)
+			{
+				StopProgressCountdown();
+			}
+		}, null, 0, interval);
+	}
+
+	private void StopProgressCountdown()
+	{
+		if (_ProgressTimer != null)
+		{
+			Console.WriteLine("Stopping progress countdown");
+			_ProgressTimer.Change(Timeout.Infinite, Timeout.Infinite);
+			_ProgressTimer.Dispose();
+			_ProgressTimer = null;
+		}
+	}
+
+	private async Task StartManualReconnection()
+	{
+		_ReconnectAttempt = 0;
+
+		while (!_IsDisposing && _Connection?.State == HubConnectionState.Disconnected && _ReconnectAttempt < _ReconnectDelays.Length)
+		{
+			var delay = _ReconnectDelays[_ReconnectAttempt];
+			_ReconnectAttempt++;
+
+			Console.WriteLine($"Starting reconnection attempt {_ReconnectAttempt} of {_ReconnectDelays.Length} - waiting {delay.TotalSeconds} seconds");
+
+			// Update UI to show reconnecting state
+			_ConnectionState = HubConnectionState.Reconnecting;
+			_ProgressPercentage = 100;
+			await InvokeAsync(StateHasChanged);
+
+			// Start progress countdown for the current delay duration
+			StartProgressCountdown((int)delay.TotalMilliseconds);
+
+			// Wait for the delay period
+			await Task.Delay(delay);
+
+			// Stop the progress timer before attempting connection
+			StopProgressCountdown();
+
+			// Only attempt reconnection if we're still disconnected and not disposing
+			if (!_IsDisposing && _Connection?.State == HubConnectionState.Disconnected)
+			{
+				try 
+				{
+					Console.WriteLine($"Attempting to connect (attempt {_ReconnectAttempt})...");
+					_ConnectionState = HubConnectionState.Connecting;
+					_ProgressPercentage = 100;
+					await InvokeAsync(StateHasChanged);
+
+					// Start progress countdown for the connection timeout duration
+					StartProgressCountdown((int)_ConnectionTimeout.TotalMilliseconds);
+
+					// Use CancellationToken for connection timeout
+					using var cts = new CancellationTokenSource(_ConnectionTimeout);
+					await _Connection.StartAsync(cts.Token);
+					
+					// Connection successful
+					StopProgressCountdown();
+					_ConnectionState = HubConnectionState.Connected;
+					_ReconnectAttempt = 0;
+					_ProgressPercentage = 0;
+					Console.WriteLine("Reconnection successful!");
+					await InvokeAsync(StateHasChanged);
+					return; // Exit the reconnection loop
+
+				} 
+				catch (OperationCanceledException)
+				{
+					StopProgressCountdown();
+					_ConnectionState = HubConnectionState.Disconnected;
+					Console.WriteLine($"Reconnection attempt {_ReconnectAttempt} timed out after {_ConnectionTimeout.TotalSeconds} seconds");
+					_ProgressPercentage = 0;
+					await InvokeAsync(StateHasChanged);
+				}
+				catch (Exception ex)
+				{
+					StopProgressCountdown();
+					_ConnectionState = HubConnectionState.Disconnected;
+					Console.WriteLine($"Reconnection attempt {_ReconnectAttempt} failed: {ex.Message}");
+					_ProgressPercentage = 0;
+					await InvokeAsync(StateHasChanged);
+				}
+			}
+			else
+			{
+				Console.WriteLine("Connection state changed or component is disposing, stopping reconnection attempts");
+				break;
+			}
+		}
+
+		// If we've exhausted all attempts, remain disconnected
+		if (_ReconnectAttempt >= _ReconnectDelays.Length && !_IsDisposing)
+		{
+			Console.WriteLine("All reconnection attempts exhausted. Connection permanently lost.");
+			_ConnectionState = HubConnectionState.Disconnected;
+			_ProgressPercentage = 0;
+			StopProgressCountdown();
+			await InvokeAsync(StateHasChanged);
+		}
+	}
+
+private static readonly TimeSpan[] _ReconnectDelays = new[] { 
+	TimeSpan.FromSeconds(1), 
+	TimeSpan.FromSeconds(2), 
+	TimeSpan.FromSeconds(5), 
+	TimeSpan.FromSeconds(10),
+	TimeSpan.FromSeconds(20),
+	TimeSpan.FromSeconds(30)
+};
+private static readonly TimeSpan _ConnectionTimeout = TimeSpan.FromSeconds(3); // 5 second connection timeout
+
 	async Task ConfigureSignalRConnection()
 	{
 
+		_ConnectionState = HubConnectionState.Connecting;
+		await InvokeAsync(StateHasChanged);
+
 		_Connection = new HubConnectionBuilder()
 					.WithUrl(NavigationManager.ToAbsoluteUri("/mod"))
-					.WithAutomaticReconnect()
 					.Build();
 
-		await ListenForModerationContent();
+		ListenForModerationContent();
 
-		_Connection.Closed += async _ => {
+		_Connection.Closed += async (error) => {
+
+			Console.WriteLine("Connection was closed");
+
+			_ConnectionState = HubConnectionState.Disconnected;
+			_ProgressPercentage = 100;
+			await InvokeAsync(StateHasChanged);
 
 			if (_IsDisposing) return;
 
-			while (!_IsDisposing)
-			{
-
-				await Task.Delay(2000);
-				try {
-	
-					await ConfigureSignalRConnection();
-
-				} catch (Exception ex)
-				{
-
-					Console.WriteLine($"Error while attempting to reconnect ({_Connection.State.ToString()}) to server: {ex.Message}");
-
-				}
-
-			}
+			await StartManualReconnection();
 
 		};
 
-		await _Connection.StartAsync();
+		try 
+		{
+			using var cts = new CancellationTokenSource(_ConnectionTimeout);
+			await _Connection.StartAsync(cts.Token);
+			_ConnectionState = HubConnectionState.Connected;
+			_IsInitialConnection = false; // Initial connection successful
+			await InvokeAsync(StateHasChanged);
+		}
+		catch (OperationCanceledException)
+		{
+			_ConnectionState = HubConnectionState.Disconnected;
+			_IsInitialConnection = false; // Initial connection failed
+			Console.WriteLine($"Initial connection timed out after {_ConnectionTimeout.TotalSeconds} seconds");
+			await InvokeAsync(StateHasChanged);
+		}
+		catch (Exception ex)
+		{
+			_ConnectionState = HubConnectionState.Disconnected;
+			_IsInitialConnection = false; // Initial connection failed
+			Console.WriteLine($"Error starting connection: {ex.Message}");
+			await InvokeAsync(StateHasChanged);
+		}
 
 	}
 
-	async Task ListenForModerationContent()
+	Task ListenForModerationContent()
 	{
+		if (_Connection == null) return Task.CompletedTask;
 
 		_Connection.On<ContentModel>("NewWaterfallMessage", async (content) =>
 		{
@@ -273,6 +470,8 @@
 				_Content.Add(content.Timestamp, content);
 			}
 
+			await InvokeAsync(StateHasChanged);
+
 		});
 
 		_Connection.On<int>("NewBlockedUserCount", async (newCount) =>
@@ -296,6 +495,8 @@
 				await InvokeAsync(StateHasChanged);
 			}
 		});
+
+		return Task.CompletedTask;
 
 	}
 
@@ -333,6 +534,7 @@
 
 	async Task InitializeContent()
 	{
+		if (_Connection?.State != HubConnectionState.Connected) return;
 
 		var approvalStatus = (int)_FilterApprovalStatus;
 		var currentContent = (await _Connection.InvokeAsync<IEnumerable<ModerationContentModel>>("GetFilteredContentByTag", _Tag, _FilteredProviders.ToArray(), approvalStatus))
@@ -344,7 +546,7 @@
 			{
 				_Content.Add(content.Timestamp, content);
 			}
-			catch (Exception ex)
+			catch (ArgumentException)
 			{
 				_Content.Add(content.Timestamp.AddMicroseconds(1), content);
 
@@ -358,8 +560,10 @@
 
 	public async Task Moderate(ModerationAction action)
 	{
-
-		await _Connection.InvokeAsync("SetStatus", action.Provider, action.ProviderId, action.State);
+		if (_Connection?.State == HubConnectionState.Connected)
+		{
+			await _Connection.InvokeAsync("SetStatus", action.Provider, action.ProviderId, action.State);
+		}
 		// TODO: Tag message appropriately to indicate moderation state
 
 	}
@@ -386,7 +590,7 @@
 		await InvokeAsync(StateHasChanged);
 	}
 
-	async Task ToggleProviderFilter(string providerId)
+	Task ToggleProviderFilter(string providerId)
 	{
 
 		if (_FilteredProviders.Contains(providerId))
@@ -407,9 +611,11 @@
 			FilterContent = null;
 		});
 
+		return Task.CompletedTask;
+
 	}
 
-	private Task FilterContent;
+	private Task? FilterContent;
 
 	private enum FilterModerationState
 	{
@@ -423,6 +629,7 @@
 	{
 
 		_IsDisposing = true;
+		StopProgressCountdown();
 		if (_Connection is not null)
 		{
 			await _Connection.DisposeAsync();
@@ -431,3 +638,103 @@
 	}
 
 }
+
+<style>
+	.connection-indicator {
+		background: linear-gradient(90deg, #fff3cd 0%, #ffeaa7 100%);
+		border-left: 4px solid #ffc107;
+		box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+		animation: pulse-warning 2s infinite;
+		color: #212529 !important;
+		font-weight: 600;
+	}
+
+	.connection-indicator.connecting {
+		background: linear-gradient(90deg, #cce7f0 0%, #a7d0e4 100%);
+		border-left-color: #0288d1;
+		color: #01579b !important;
+	}
+
+	.connection-indicator.reconnecting {
+		background: linear-gradient(90deg, #ffeaa7 0%, #ffcc02 100%);
+		border-left-color: #f57c00;
+		color: #e65100 !important;
+	}
+
+	.connection-indicator.disconnected {
+		background: linear-gradient(90deg, #ffcdd2 0%, #ef9a9a 100%);
+		border-left-color: #d32f2f;
+		color: #b71c1c !important;
+	}
+
+	.reconnect-progress {
+		width: 200px;
+		height: 4px;
+		background: rgba(255,255,255,0.3);
+		border-radius: 2px;
+		overflow: hidden;
+		margin: 0 8px;
+	}
+
+	.reconnect-progress-bar {
+		height: 100%;
+		background: currentColor;
+		border-radius: 2px;
+		transition: width 100ms linear;
+	}
+
+	.reconnect-progress-full {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		width: 100%;
+		height: 4px;
+		background: rgba(0,0,0,0.2);
+		overflow: hidden;
+	}
+
+	.reconnect-progress-bar-full {
+		height: 100%;
+		background: currentColor;
+		transition: width 100ms linear;
+		opacity: 0.8;
+	}
+
+	.reconnect-progress-bar.animate {
+		animation: countdown 2s linear;
+	}
+
+	@@keyframes countdown {
+		from { width: 100%; }
+		to { width: 0%; }
+	}
+
+	@@keyframes pulse-warning {
+		0%, 100% { 
+			opacity: 1; 
+		}
+		50% { 
+			opacity: 0.85; 
+		}
+	}
+
+	.bi-wifi-off {
+		animation: shake 0.5s infinite;
+	}
+
+	@@keyframes shake {
+		0%, 100% { transform: translateX(0); }
+		25% { transform: translateX(-2px); }
+		75% { transform: translateX(2px); }
+	}
+
+	@@keyframes spin {
+		from { transform: rotate(0deg); }
+		to { transform: rotate(360deg); }
+	}
+
+	.connection-indicator strong {
+		color: inherit !important;
+	}
+</style>

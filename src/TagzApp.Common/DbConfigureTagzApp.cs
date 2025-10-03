@@ -1,7 +1,6 @@
 ﻿// Ignore Spelling: Tagz
 
 using Dapper;
-using Microsoft.Data.Sqlite;
 using Npgsql;
 using System.Data;
 using System.Text.Json;
@@ -12,10 +11,16 @@ public class DbConfigureTagzApp : IConfigureTagzApp, IDisposable
 {
 
 	private bool _DisposedValue;
+	private readonly EncryptionHelper? _EncryptionHelper;
 
 	public static IEnumerable<string> SupportedDbs = ["postgres", "sqlite"];
-	private static string _ProviderName;
-	private static string _ConnectionString;
+	private static string? _ProviderName;
+	private static string? _ConnectionString;
+
+	public DbConfigureTagzApp(EncryptionHelper? encryptionHelper = null)
+	{
+		_EncryptionHelper = encryptionHelper;
+	}
 
 	public async Task<T> GetConfigurationById<T>(string id) where T : new()
 	{
@@ -25,7 +30,10 @@ public class DbConfigureTagzApp : IConfigureTagzApp, IDisposable
 
 		if (string.IsNullOrEmpty(outValue)) { return new T(); }
 
-		return JsonSerializer.Deserialize<T>(outValue);
+		// Decrypt the value if encryption helper is available
+		var decryptedValue = _EncryptionHelper?.Decrypt(outValue) ?? outValue;
+
+		return JsonSerializer.Deserialize<T>(decryptedValue) ?? new T();
 
 	}
 
@@ -37,7 +45,10 @@ public class DbConfigureTagzApp : IConfigureTagzApp, IDisposable
 
 		if (string.IsNullOrEmpty(outValue)) { return string.Empty; }
 
-		return JsonSerializer.Deserialize<string>(outValue);
+		// Decrypt the value if encryption helper is available
+		var decryptedValue = _EncryptionHelper?.Decrypt(outValue) ?? outValue;
+
+		return JsonSerializer.Deserialize<string>(decryptedValue) ?? string.Empty;
 	}
 
 
@@ -79,7 +90,14 @@ public class DbConfigureTagzApp : IConfigureTagzApp, IDisposable
 
 	}
 
-	private IDbConnection GetConnection() => GetConnection(_ProviderName, _ConnectionString);
+	private IDbConnection GetConnection()
+	{
+		if (string.IsNullOrEmpty(_ProviderName) || string.IsNullOrEmpty(_ConnectionString))
+		{
+			throw new InvalidOperationException("Database configuration has not been initialized. Call InitializeConfiguration first.");
+		}
+		return GetConnection(_ProviderName, _ConnectionString);
+	}
 
 	private static IDbConnection GetConnection(string providerName, string connectionString)
 	{
@@ -91,7 +109,10 @@ public class DbConfigureTagzApp : IConfigureTagzApp, IDisposable
 	public async Task SetConfigurationById<T>(string id, T value)
 	{
 
-		var outValue = JsonSerializer.Serialize(value);
+		var serializedValue = JsonSerializer.Serialize(value);
+
+		// Encrypt the value if encryption helper is available
+		var outValue = _EncryptionHelper?.Encrypt(serializedValue) ?? serializedValue;
 
 		using var conn = GetConnection();
 		var exists = await conn.QuerySingleAsync<int>("SELECT COUNT(1) FROM SystemConfiguration WHERE id = @id", new { id = id });

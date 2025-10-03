@@ -25,7 +25,12 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 		base(logger, socialMediaProviders)
 	{
 		_Services = services;
-		_NotifyNewMessages = new AzureSafetyModeration(cache, notifyNewMessages, services, ConfigureTagzAppFactory.Current, azureSafetyLogger);
+
+		// Create moderation pipeline: SignalRNotifier → WordFilterModeration → AzureSafetyModeration
+		using var scope = services.CreateScope();
+		var wordFilterLogger = scope.ServiceProvider.GetRequiredService<ILogger<WordFilterModeration>>();
+		var wordFilterModeration = new WordFilterModeration(notifyNewMessages, services, ConfigureTagzAppFactory.Current, wordFilterLogger);
+		_NotifyNewMessages = new AzureSafetyModeration(cache, wordFilterModeration, services, ConfigureTagzAppFactory.Current, azureSafetyLogger);
 	}
 
 	private List<string> _TagsTracked = new();

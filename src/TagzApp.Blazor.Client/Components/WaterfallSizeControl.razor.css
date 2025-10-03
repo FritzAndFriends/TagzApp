@@ -1,0 +1,123 @@
+.waterfall-size-control {
+	position: absolute;
+	right: 1em;
+	top: calc(100dvh - 6em);
+	cursor: pointer;
+	z-index: 50;
+	width: 4rem;
+}
+
+.size-control-panel {
+	position: relative;
+}
+
+.size-toggle {
+	position: relative;
+	width: 4rem;
+	height: 4rem;
+	opacity: 0.6;
+}
+
+.size-toggle:hover {
+	opacity: 1;
+}
+
+.size-icon {
+	position: absolute;
+	left: 52%;
+	top: 75%;
+	transform: translate(-50%, -50%);
+	font-size: 2rem;
+	z-index: 1;
+	color: #fff;
+}
+
+.size-icon-bg {
+	position: absolute;
+	left: 0;
+	top: 0;
+	font-size: 4rem;
+	z-index: -1;
+	color: #17a2b8;
+}
+
+.size-settings-panel {
+	position: absolute;
+	bottom: 5rem;
+	right: 0;
+	background: white;
+	border-radius: 8px;
+	padding: 1.5rem;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+	min-width: 300px;
+	animation: slideUp 0.2s ease-out;
+}
+
+@media (prefers-color-scheme: dark) {
+	.size-settings-panel {
+		background: #2b2b2b;
+		border: 1px solid #444;
+	}
+}
+
+@keyframes slideUp {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.size-setting {
+	margin-bottom: 1.5rem;
+}
+
+.size-setting label {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 0.5rem;
+	font-weight: 600;
+	font-size: 0.9rem;
+}
+
+.size-value {
+	color: #0066cc;
+	font-weight: bold;
+}
+
+.size-hints {
+	display: flex;
+	justify-content: space-between;
+	font-size: 0.75rem;
+	color: #666;
+	margin-top: 0.25rem;
+}
+
+@media (prefers-color-scheme: dark) {
+	.size-hints {
+		color: #999;
+	}
+}
+
+.size-presets {
+	display: flex;
+	gap: 0.5rem;
+	margin-top: 1rem;
+	padding-top: 1rem;
+	border-top: 1px solid #e0e0e0;
+}
+
+@media (prefers-color-scheme: dark) {
+	.size-presets {
+		border-top-color: #444;
+	}
+}
+
+.size-presets button {
+	flex: 1;
+	font-size: 0.8rem;
+}

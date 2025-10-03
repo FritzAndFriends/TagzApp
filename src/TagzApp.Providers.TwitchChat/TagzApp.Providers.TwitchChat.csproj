@@ -14,6 +14,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Http" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+    <PackageReference Include="OpenTelemetry" />
     <PackageReference Include="System.Net.Http.Json" />
     <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
     <ProjectReference Include="..\TagzApp.Communication\TagzApp.Communication.csproj" />

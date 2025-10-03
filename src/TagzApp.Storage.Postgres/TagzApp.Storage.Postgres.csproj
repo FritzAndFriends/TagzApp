@@ -23,6 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
+    <ProjectReference Include="..\TagzApp.Common.Client\TagzApp.Common.Client.csproj" />
     <ProjectReference Include="..\TagzApp.Communication\TagzApp.Communication.csproj" />
     <ProjectReference Include="..\TagzApp.Security\TagzApp.Security.csproj" />
     <ProjectReference Include="..\TagzApp.Storage.Postgres.Security\TagzApp.Storage.Postgres.Security.csproj" />

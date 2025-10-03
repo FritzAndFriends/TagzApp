@@ -1,0 +1,16 @@
+@page "/Account/ProviderNotConfigured"
+@using Microsoft.AspNetCore.Authorization
+
+<PageTitle>Provider Not Configured</PageTitle>
+
+<div class="alert alert-warning">
+    <h4>Authentication Provider Not Available</h4>
+    <p>The <strong>@Provider</strong> authentication provider has not been configured by the system administrator.</p>
+    <p>Please contact your administrator or try a different login method.</p>
+    <a href="/Account/Login" class="btn btn-primary">Back to Login</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private string Provider { get; set; } = "Unknown";
+}
