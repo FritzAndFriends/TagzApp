@@ -7,6 +7,7 @@ using TagzApp.Blazor.Hubs;
 using TagzApp.Blazor.Services;
 using TagzApp.Communication.Extensions;
 using TagzApp.Configuration.AzureKeyVault;
+
 using KeyVaultExtensions = TagzApp.Configuration.AzureKeyVault.KeyVaultExtensions;
 
 namespace TagzApp.Blazor;
@@ -77,6 +78,9 @@ public class Program
 
 		var modalConfig = await ModalConfiguration.LoadFromConfiguration(configure);
 		builder.Services.AddSingleton(modalConfig);
+
+		var wordFilterConfig = await WordFilterConfiguration.LoadFromConfiguration(configure);
+		builder.Services.AddSingleton(wordFilterConfig);
 
 		// Add services to the container.
 		builder.Services.AddRazorComponents()

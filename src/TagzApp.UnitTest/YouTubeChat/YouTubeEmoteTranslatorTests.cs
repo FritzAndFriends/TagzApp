@@ -1,7 +1,4 @@
-using Xunit;
 using TagzApp.Providers.YouTubeChat;
-using System.Net.Http;
-using System.Reflection;
 
 namespace TagzApp.UnitTest.YouTubeChat;
 

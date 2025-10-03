@@ -1,0 +1,116 @@
+@namespace TagzApp.Blazor.Client.Components.Admin
+@using System.ComponentModel.DataAnnotations
+@using System.Text.Json
+@using Microsoft.AspNetCore.Components.Forms
+@using TagzApp.Common.Models
+
+@inject ToastService ToastService
+@inject IConfigureTagzApp Config
+
+<div class="card">
+	<div class="card-header">
+		<h5 class="card-title mb-0">
+			<i class="bi bi-filter-circle"></i> Word Filter Configuration
+		</h5>
+	</div>
+	<div class="card-body">
+		<EditForm Model="Model" OnValidSubmit="SaveConfig">
+			<AntiforgeryToken />
+			<ValidationSummary />
+			<dl>
+				<dt><label for="Enabled">Enable Word Filter:</label></dt>
+				<dd>
+					<InputCheckbox id="Enabled" name="Enabled" @bind-Value="Model.Enabled" />
+				</dd>
+				<dt><label for="BlockedWords">Blocked Words/Phrases (one per line):</label></dt>
+				<dd>
+					<textarea id="BlockedWords" name="BlockedWords" class="form-control" rows="8" 
+						@bind="@BlockedWordsText" placeholder="Enter words or phrases to block, one per line"></textarea>
+					<small class="form-text text-muted">
+						Enter words or phrases that should be automatically blocked. Each line represents one blocked term.
+					</small>
+				</dd>
+			</dl>
+
+			<div class="mt-3">
+				<button type="submit" class="btn btn-primary">
+					<i class="bi bi-save"></i> Save Configuration
+				</button>
+				<button type="button" class="btn btn-secondary ms-2" @onclick="LoadConfig">
+					<i class="bi bi-arrow-clockwise"></i> Reload
+				</button>
+			</div>
+		</EditForm>
+
+		@if (!string.IsNullOrEmpty(StatusMessage))
+		{
+			<div class="alert alert-info mt-3" role="alert">
+				@StatusMessage
+			</div>
+		}
+	</div>
+</div>
+
+@code {
+	public ViewModel Model { get; set; } = new();
+	public string BlockedWordsText { get; set; } = string.Empty;
+	public string StatusMessage { get; set; } = string.Empty;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadConfig();
+		await base.OnInitializedAsync();
+	}
+
+	private async Task LoadConfig()
+	{
+		try
+		{
+			var config = await WordFilterConfiguration.LoadFromConfiguration(Config);
+			
+			Model = new ViewModel
+			{
+				Enabled = config.Enabled
+			};
+
+			BlockedWordsText = string.Join(Environment.NewLine, config.BlockedWords ?? Array.Empty<string>());
+			StatusMessage = string.Empty;
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			StatusMessage = $"Error loading configuration: {ex.Message}";
+		}
+	}
+
+	private async Task SaveConfig()
+	{
+		try
+		{
+			var config = new WordFilterConfiguration
+			{
+				Enabled = Model.Enabled,
+				BlockedWords = BlockedWordsText
+					.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+					.Select(w => w.Trim())
+					.Where(w => !string.IsNullOrEmpty(w))
+					.ToArray()
+			};
+
+			await config.SaveConfiguration(Config);
+
+			ToastService.Add("Word Filter Configuration Saved Successfully", MessageSeverity.Success);
+			StatusMessage = $"Configuration saved with {config.BlockedWords?.Length ?? 0} blocked words/phrases.";
+		}
+		catch (Exception ex)
+		{
+			ToastService.Add($"Error saving configuration: {ex.Message}", MessageSeverity.Danger);
+			StatusMessage = $"Error saving configuration: {ex.Message}";
+		}
+	}
+
+	public class ViewModel
+	{
+		public bool Enabled { get; set; }
+	}
+}
