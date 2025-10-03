@@ -1,5 +1,3 @@
-using TagzApp.Common;
-
 namespace TagzApp.Common.Models;
 
 public class WordFilterConfiguration
@@ -32,7 +30,7 @@ public class WordFilterConfiguration
 	public async Task SaveConfiguration(IConfigureTagzApp configure)
 	{
 		await configure.SetConfigurationById(ConfigurationKey, this);
-		
+
 		// Raise the configuration changed event
 		ConfigurationChanged?.Invoke(this, new WordFilterConfigurationChangedEventArgs(this));
 	}

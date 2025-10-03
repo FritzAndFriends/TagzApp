@@ -1,7 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
-using TagzApp.Common.Models;
 
 namespace TagzApp.Storage.Postgres.SafetyModeration;
 
@@ -10,7 +9,7 @@ public class WordFilterModeration : INotifyNewMessages
 	private INotifyNewMessages _NotifyNewMessages;
 	private readonly IServiceProvider _ServiceProvider;
 	private readonly ILogger<WordFilterModeration> _WordFilterLogger;
-	private readonly object _ConfigLock = new object();
+	private readonly object _ConfigLock = new();
 	private bool _Enabled;
 	private string[] _BlockedWords;
 
@@ -30,7 +29,7 @@ public class WordFilterModeration : INotifyNewMessages
 		// Load initial configuration
 		LoadConfiguration(configureTagzApp).GetAwaiter().GetResult();
 
-		_WordFilterLogger.LogInformation("WordFilter moderation initialized - Enabled: {Enabled}, BlockedWords Count: {Count}", 
+		_WordFilterLogger.LogInformation("WordFilter moderation initialized - Enabled: {Enabled}, BlockedWords Count: {Count}",
 			_Enabled, _BlockedWords.Length);
 	}
 
@@ -39,14 +38,14 @@ public class WordFilterModeration : INotifyNewMessages
 		try
 		{
 			var config = await configureTagzApp.GetConfigurationById<WordFilterConfiguration>(WordFilterConfiguration.ConfigurationKey);
-			
+
 			lock (_ConfigLock)
 			{
 				_Enabled = config.Enabled;
 				_BlockedWords = config.BlockedWords ?? Array.Empty<string>();
 			}
 
-			_WordFilterLogger.LogInformation("WordFilter configuration loaded - Enabled: {Enabled}, BlockedWords Count: {Count}", 
+			_WordFilterLogger.LogInformation("WordFilter configuration loaded - Enabled: {Enabled}, BlockedWords Count: {Count}",
 				_Enabled, _BlockedWords.Length);
 		}
 		catch (Exception ex)
@@ -68,7 +67,7 @@ public class WordFilterModeration : INotifyNewMessages
 			_BlockedWords = e.Configuration.BlockedWords ?? Array.Empty<string>();
 		}
 
-		_WordFilterLogger.LogInformation("WordFilter configuration updated via event - Enabled: {Enabled}, BlockedWords Count: {Count}", 
+		_WordFilterLogger.LogInformation("WordFilter configuration updated via event - Enabled: {Enabled}, BlockedWords Count: {Count}",
 			_Enabled, _BlockedWords.Length);
 	}
 
@@ -118,7 +117,7 @@ public class WordFilterModeration : INotifyNewMessages
 		{
 			string reason = $"Contains blocked words/phrases: {string.Join(", ", blockedWordsFound)}";
 
-			_WordFilterLogger.LogInformation("Message from {Provider} rejected due to blocked words: {Words}", 
+			_WordFilterLogger.LogInformation("Message from {Provider} rejected due to blocked words: {Words}",
 				content.Provider, string.Join(", ", blockedWordsFound));
 
 			// Add moderation from Word Filter

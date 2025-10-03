@@ -17,7 +17,7 @@ public class ChatClient : IChatClient
 	/// </summary>
 	internal const string ACTIVITY_NAME = "TagzApp.Providers.TwitchChat";
 	private static readonly ActivitySource s_activitySource = new(ACTIVITY_NAME);
-	
+
 	private TcpClient _TcpClient;
 	private StreamReader inputStream;
 	private StreamWriter outputStream;
@@ -213,11 +213,11 @@ public class ChatClient : IChatClient
 				}
 
 				lastMessageReceivedTimestamp = DateTime.Now;
-				
+
 				// Create OpenTelemetry scope for message processing
 				using var activity = s_activitySource.StartActivity("Process Message", ActivityKind.Internal);
 				activity?.SetTag("tagzapp.provider", "twitch");
-				
+
 				Logger.LogTrace($"> {msg}");
 
 				// Handle the Twitch keep-alive
@@ -259,7 +259,7 @@ public class ChatClient : IChatClient
 	{
 
 		Logger.LogDebug("Processing message: " + msg);
-		
+
 		// Get current activity to add tags
 		var currentActivity = Activity.Current;
 
@@ -291,10 +291,10 @@ public class ChatClient : IChatClient
 			List<Emote> emotes = IdentifyEmotes(msg);
 
 			message = ChatClient.reChatMessage.Match(msg).Groups[1].Value;
-			
+
 			// Add telemetry tags for chat message details
 			currentActivity?.SetTag("tagzapp.message.timestamp", timestamp);
-			
+
 			Logger.LogTrace($"Message received from '{userName}': {message}");
 			NewMessage?.Invoke(this, new NewMessageEventArgs
 			{

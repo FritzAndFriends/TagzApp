@@ -25,7 +25,7 @@ public class PostgresMessagingService : BaseProviderManager, IMessagingService
 		base(logger, socialMediaProviders)
 	{
 		_Services = services;
-		
+
 		// Create moderation pipeline: SignalRNotifier → WordFilterModeration → AzureSafetyModeration
 		using var scope = services.CreateScope();
 		var wordFilterLogger = scope.ServiceProvider.GetRequiredService<ILogger<WordFilterModeration>>();

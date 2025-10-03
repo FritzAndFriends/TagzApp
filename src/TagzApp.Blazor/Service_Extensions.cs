@@ -1,11 +1,9 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using TagzApp.Blazor.Client.Services;
 using TagzApp.Blazor.Components.Account;
 using TagzApp.Blazor.Services;
-using TagzApp.Storage.Postgres.Security.Migrations;
 
 namespace TagzApp.Blazor;
 

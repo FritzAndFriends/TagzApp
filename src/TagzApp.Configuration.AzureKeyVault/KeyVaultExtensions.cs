@@ -4,9 +4,7 @@ using Azure.Security.KeyVault.Secrets;
 using AzureKeyVaultEmulator.Aspire.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
-using TagzApp.Common;
 
 namespace TagzApp.Configuration.AzureKeyVault;
 
@@ -31,7 +29,8 @@ public static class KeyVaultExtensions
 		if (isDevelopment)
 			services.AddAzureKeyVaultEmulator(vaultUri, secrets: true, certificates: true, keys: true);
 		else
-			services.AddScoped<SecretClient>(_ => 			{
+			services.AddScoped<SecretClient>(_ =>
+			{
 				var client = new SecretClient(new Uri(vaultUri), new Azure.Identity.DefaultAzureCredential());
 				return client;
 			});

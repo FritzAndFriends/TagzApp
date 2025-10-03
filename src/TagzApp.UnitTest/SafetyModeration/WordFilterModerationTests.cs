@@ -1,11 +1,3 @@
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using TagzApp.Storage.Postgres.SafetyModeration;
-using Xunit;
-
 namespace TagzApp.UnitTest.SafetyModeration;
 
 public class WordFilterModerationTests
@@ -33,7 +25,7 @@ public class WordFilterModerationTests
 	{
 		// Arrange
 		var blockedWords = new[] { "test", "example" };
-		
+
 		// Act
 		var config = new WordFilterConfiguration
 		{

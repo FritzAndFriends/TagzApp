@@ -1,7 +1,4 @@
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using TagzApp.Common;
-using Xunit;
 
 namespace TagzApp.UnitTest.Common;
 

@@ -17,7 +17,7 @@ public static class ConfigureTagzAppFactory
 
 	public static IConfigureTagzApp Current = EmptyConfigureTagzApp.Instance;
 
-	public static	EncryptionHelper? _EncryptionHelper = null;
+	public static EncryptionHelper? _EncryptionHelper = null;
 
 	public static IConfigureTagzApp Create(
 		IConfiguration configuration,
