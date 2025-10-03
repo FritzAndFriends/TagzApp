@@ -65,6 +65,11 @@ body {
 	user-select: none;
 }
 
+#taggedContent article:hover,
+#taggedContent article.keyboard-cursor {
+	overflow: visible;
+}
+
 #taggedContent .ProfilePicture,
 #overlayDisplay .ProfilePicture,
 #overlayDisplay.showPreview .ProfilePicture,
@@ -492,34 +497,62 @@ MOVED TO THE  HeadContent in Overlay.razor
 #moderationAction {
 	position: absolute;
 	top: 0;
-	left: 0;
-	width: 100%;
+	right: -80px;
+	width: 80px;
 	height: 100%;
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	grid-template-rows: 50% 50%;
-	flex-direction: row;
-	justify-content: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
 	align-items: center;
-	background-color: rgba(204, 204, 204, 0.7);
+	background-color: rgba(255, 255, 255, 0.95);
+	border-left: 2px solid #e2e8ed;
+	border-radius: 0 20px 20px 0;
+	box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
 	z-index: 10;
+	transition: right 0.3s ease-in-out;
+	padding: 10px 0;
+	gap: 10px;
+}
+
+article:hover #moderationAction,
+article.keyboard-cursor #moderationAction {
+	right: 0;
 }
 
 #moderationAction i {
 	width: 100%;
 	text-align: center;
-	font-size: 3.5em;
+	font-size: 2.5em;
 	color: #333;
+	padding: 10px 0;
+	transition: all 0.2s ease;
+	cursor: pointer;
+	border-radius: 8px;
+}
+
+#moderationAction i.approve:hover {
+	color: var(--bs-success);
+	background-color: rgba(var(--bs-success-rgb), 0.1);
+}
+
+#moderationAction i.reject:hover {
+	color: var(--bs-danger);
+	background-color: rgba(var(--bs-danger-rgb), 0.1);
 }
 
 #moderationAction i.more {
-	grid-column: 1 / 3;
-	grid-row: 2 / 3;
+	font-size: 2em;
+	margin-top: auto;
 }
 
-#moderationAction i:hover {
-	color: firebrick;
-	cursor: pointer;
+#moderationAction i.more:hover {
+	color: var(--bs-primary);
+	background-color: rgba(var(--bs-primary-rgb), 0.1);
+}
+
+#moderationAction i:focus-visible {
+	outline: 2px solid var(--bs-primary);
+	outline-offset: 2px;
 }
 
 article.status-approved {
