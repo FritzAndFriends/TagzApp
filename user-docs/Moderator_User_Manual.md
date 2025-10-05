@@ -119,7 +119,7 @@ A pause button in the bottom left corner allows you to temporarily stop new cont
 
 ### Individual Message Moderation
 
-When you hover over a message, moderation controls appear:
+When you hover over a message or navigate to it with keyboard arrows, a moderation panel slides out from the right side of the card:
 
 #### Primary Actions
 - **Approve (✓)**: Marks content as approved for public display
@@ -129,18 +129,21 @@ When you hover over a message, moderation controls appear:
 #### Additional Actions
 - **More Actions (📄)**: Opens detailed message view with additional options
 
+The slide-out panel keeps the message content fully visible while providing easy access to moderation actions. All buttons are keyboard accessible using Tab to navigate and Enter or Space to activate.
+
 ### Moderation Workflows
 
 #### Approving Content
 
-When content needs review, hover over the message to reveal moderation controls:
+When content needs review, hover over the message to reveal the moderation panel sliding in from the right side:
 
 ![Moderation hover controls](images/moderation-hover-controls.png)
 
 To approve a message:
-1. Click the **checkmark (✓)** button to approve the content
-2. The message status will change to "Approved" 
-3. The content becomes visible to all users on the waterfall display
+1. Hover over the message or use keyboard navigation to select it
+2. Click the **checkmark (✓)** button from the side panel to approve the content
+3. The message status will change to "Approved" 
+4. The content becomes visible to all users on the waterfall display
 
 ![After approving content](images/moderation-after-approval.png)
 
@@ -150,8 +153,8 @@ The approved content will show a green "Approved" status indicator, and the mode
 
 To reject inappropriate or unwanted content:
 
-1. Hover over the message to reveal moderation controls
-2. Click the **X button** (Reject this content) to reject the message
+1. Hover over the message or use keyboard navigation to select it
+2. Click the **X button** from the side panel to reject the message
 3. The message status will change to "Rejected"
 4. Rejected content is hidden from public view but remains visible to moderators
 
@@ -405,11 +408,11 @@ This section provides visual references for all major features of the moderation
 
 ### Interactive Moderation Controls
 
-When you hover over a message, moderation controls become visible:
+When you hover over a message or navigate to it with keyboard, a moderation panel slides out from the right side of the card:
 
 ![Hover Controls](images/moderation-hover-controls.png)
 
-*Hovering over a message reveals approve, reject, and additional action buttons*
+*Hovering over a message reveals a side panel with approve, reject, and additional action buttons. The panel slides in smoothly while keeping the message content fully visible.*
 
 ### Header and Filter Controls
 

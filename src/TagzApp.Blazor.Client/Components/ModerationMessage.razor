@@ -1,5 +1,6 @@
 ﻿@using TagzApp.ViewModels.Data
 @using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Components.Web
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 
@@ -9,24 +10,43 @@
 				 @onmouseleave="() => DisplayModeration(false)">
 	@* @onclick="() => OnContentSelected?.InvokeAsync(Content)"> *@
 
-	@if (ShowModerationActions)
-	{
-		<div id="moderationAction">
-			<i class="bi bi-check2 approve" title="Approve this content" @onclick="async () => await Moderate(ModerationState.Approved)"></i>
-			
-			@if (Content.State == ModerationState.Rejected)
-			{
-				<i class="bi bi-eye" title="Reveal this content" @onclick="Reveal"></i>
-			}
-			else
-			{
-				<i class="bi bi-x-circle-fill reject" title="Reject this content" @onclick="async () => await Moderate(ModerationState.Rejected)"></i>
-			}
-			<i class="bi bi-journal-text more"
-				 @onclick="@(() => NavigationManager.NavigateTo($"/MessageDetails/{Content.Provider}/{Content.ProviderId}"))"
-				 title="More Actions"></i>
-		</div>
-	}
+	<div id="moderationAction" role="toolbar" aria-label="Moderation actions">
+		<i class="bi bi-check2 approve" 
+		   role="button"
+		   tabindex="0"
+		   aria-label="Approve this content"
+		   title="Approve this content" 
+		   @onclick="async () => await Moderate(ModerationState.Approved)"
+		   @onkeydown="async (e) => await HandleKeyDown(e, ModerationState.Approved)"></i>
+		
+		@if (Content.State == ModerationState.Rejected)
+		{
+			<i class="bi bi-eye" 
+			   role="button"
+			   tabindex="0"
+			   aria-label="Reveal this content"
+			   title="Reveal this content" 
+			   @onclick="Reveal"
+			   @onkeydown="async (e) => await HandleKeyDownReveal(e)"></i>
+		}
+		else
+		{
+			<i class="bi bi-x-circle-fill reject" 
+			   role="button"
+			   tabindex="0"
+			   aria-label="Reject this content"
+			   title="Reject this content" 
+			   @onclick="async () => await Moderate(ModerationState.Rejected)"
+			   @onkeydown="async (e) => await HandleKeyDown(e, ModerationState.Rejected)"></i>
+		}
+		<i class="bi bi-journal-text more"
+		   role="button"
+		   tabindex="0"
+		   aria-label="More Actions"
+		   @onclick="@(() => NavigationManager.NavigateTo($"/MessageDetails/{Content.Provider}/{Content.ProviderId}"))"
+		   @onkeydown="@((e) => HandleKeyDownNavigate(e))"
+		   title="More Actions"></i>
+	</div>
 
 	<img class="ProfilePicture"
 			 src="@Content.AuthorProfileImageUri"
@@ -232,6 +252,32 @@
 	public void Reveal()
 	{
 		_Reveal = true;
+	}
+
+	private async Task HandleKeyDown(KeyboardEventArgs e, ModerationState action)
+	{
+		if (e.Key == "Enter" || e.Key == " ")
+		{
+			await Moderate(action);
+		}
+	}
+
+	private Task HandleKeyDownReveal(KeyboardEventArgs e)
+	{
+		if (e.Key == "Enter" || e.Key == " ")
+		{
+			Reveal();
+			StateHasChanged();
+		}
+		return Task.CompletedTask;
+	}
+
+	private void HandleKeyDownNavigate(KeyboardEventArgs e)
+	{
+		if (e.Key == "Enter" || e.Key == " ")
+		{
+			NavigationManager.NavigateTo($"/MessageDetails/{Content.Provider}/{Content.ProviderId}");
+		}
 	}
 
 }
