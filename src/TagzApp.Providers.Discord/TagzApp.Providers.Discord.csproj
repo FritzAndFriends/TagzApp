@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Using Include="TagzApp.Common" />
+    <Using Include="TagzApp.Common.Models" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="TagzApp.UnitTest" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+    <PackageReference Include="OpenTelemetry" />
+    <PackageReference Include="System.Net.Http.Json" />
+    <PackageReference Include="System.Net.WebSockets.Client" />
+    <PackageReference Include="System.Text.Json" />
+    <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
+    <ProjectReference Include="..\TagzApp.Communication\TagzApp.Communication.csproj" />
+  </ItemGroup>
+</Project>
