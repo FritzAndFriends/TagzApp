@@ -53,6 +53,12 @@ These guides explain how to obtain API credentials and configure social media co
   - API key generation
   - Rate limit management
 
+- **[Azure Queue Configuration](providers/content/AzureQueue-Configuration.md)** - Configure custom message queue integration
+  - Azure Storage Account setup
+  - Queue creation and management
+  - Connection string configuration
+  - Message format and integration examples
+
 ### Authentication Provider Configuration Guides
 
 These guides explain how to set up external login providers for TagzApp:
@@ -91,6 +97,36 @@ These guides explain how to set up external login providers for TagzApp:
   - Services ID configuration
   - JWT client secret generation
   - Privacy features
+
+## Adding Screenshots
+
+The documentation above references several configuration steps that would benefit from screenshots. To add screenshots:
+
+1. **For Content Providers:** Take screenshots showing:
+   - Developer console/portal pages
+   - API key generation screens
+   - Configuration forms
+   - Successful configuration indicators
+
+2. **For Authentication Providers:** Take screenshots showing:
+   - OAuth app registration forms
+   - Client credential pages
+   - Redirect URI configuration
+   - TagzApp login page with provider buttons
+
+3. **Save screenshots to:** `user-docs/images/providers/`
+   - Content providers: `user-docs/images/providers/content/[provider-name]/`
+   - Authentication providers: `user-docs/images/providers/authentication/[provider-name]/`
+
+4. **Reference in documentation:** Use relative paths like:
+   ```markdown
+   ![Twitter Developer Portal](../../images/providers/content/twitter/developer-portal.png)
+   ```
+
+5. **Screenshot naming conventions:**
+   - Use lowercase and hyphens: `twitter-api-keys.png`
+   - Be descriptive: `github-oauth-app-creation.png`
+   - Include step numbers if helpful: `01-azure-create-app.png`
 
 ## Screenshots
 
