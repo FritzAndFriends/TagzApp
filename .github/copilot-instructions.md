@@ -246,4 +246,118 @@ Located in `scripts/` directory:
 - Use `--no-restore` flag for subsequent builds
 - Database operations may be slow on first run due to migrations
 
-This application serves as a real-time social media aggregation tool with extensive provider support and modern .NET development practices.
+## Documentation Structure
+
+### Repository Documentation
+- **[CONTRIBUTING.md](../CONTRIBUTING.md)**: Contribution guidelines, code style, testing requirements
+- **[CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md)**: Community standards and behavior expectations
+- **[README.md](../README.md)**: Project overview, features, and quick start guide
+
+### Developer Documentation (`doc/` directory)
+- **[doc/README.md](../doc/README.md)**: Main developer documentation hub
+- **[doc/Configuration-Encryption.md](../doc/Configuration-Encryption.md)**: AES-256 encryption for sensitive config (API keys, tokens)
+- **[doc/Provider-Configuration-Pattern.md](../doc/Provider-Configuration-Pattern.md)**: How to create new social media providers
+- **[doc/QueueIntegration.md](../doc/QueueIntegration.md)**: Azure Queue integration for external apps
+- **[doc/Azure-KeyVault-Configuration.md](../doc/Azure-KeyVault-Configuration.md)**: Azure Key Vault setup and usage
+
+### User Documentation (`user-docs/` directory)
+- **[user-docs/Moderator_User_Manual.md](../user-docs/Moderator_User_Manual.md)**: Complete guide for content moderators
+
+### Provider-Specific Documentation
+- **[src/TagzApp.Providers.Blazot/ReadMe.md](../src/TagzApp.Providers.Blazot/ReadMe.md)**: Blazot API integration guide
+- Each provider project may contain specific README files for setup instructions
+
+## Provider System Architecture
+
+### Creating New Providers
+When adding a new social media provider:
+
+1. **Create Provider Project**: Follow naming pattern `TagzApp.Providers.[PlatformName]`
+2. **Implement Interface**: Implement `ISocialMediaProvider` from `TagzApp.Common`
+3. **Configuration UI**: Create Blazor component in `TagzApp.Blazor.Client/Components/Admin/[Platform].Config.Ui.razor`
+4. **Reference Documentation**: See `doc/Provider-Configuration-Pattern.md` for complete pattern
+5. **Add Tests**: Include unit tests in `TagzApp.UnitTest` project
+
+### Provider Configuration Pattern
+All providers follow a consistent pattern:
+- Configuration stored in database (optionally encrypted)
+- Admin UI for provider setup and API key management
+- Health check endpoint for monitoring provider status
+- Enable/disable toggle for each provider
+- Graceful error handling with detailed logging
+
+### Supported Providers (7 platforms)
+- **Blazot**: Developer-focused social platform
+- **Bluesky**: AT Protocol integration
+- **Mastodon**: Federated network support
+- **Twitter/X**: OAuth-based integration
+- **TwitchChat**: Via relay server (see TwitchRelayUri config)
+- **YouTube**: Video hashtag search
+- **YouTube Live Chat**: Real-time chat integration
+- **Azure Queue**: Custom message delivery integration
+
+## Security Best Practices
+
+### Configuration Encryption
+- **Always encrypt** sensitive data (API keys, OAuth tokens, connection strings)
+- Uses **AES-256-CBC** encryption with configurable keys
+- See `doc/Configuration-Encryption.md` for implementation details
+- Encryption keys managed via environment variables or Azure Key Vault
+- Graceful degradation: app continues with warnings if encryption unavailable
+
+### API Keys and Secrets
+- **Never commit** API keys, tokens, or secrets to the repository
+- Use `.env.local` for local development (gitignored)
+- Use Azure Key Vault for production deployments
+- Provider API keys stored encrypted in database
+- Rotation supported through provider configuration UI
+
+### Authentication and Authorization
+- Role-based access control (Admin, Moderator roles)
+- Single-user mode available for private instances
+- External authentication providers supported (configured in appsettings.json)
+- Admin panel access restricted to authenticated users with proper roles
+
+## Contributing Guidelines
+
+### Before Submitting Pull Requests
+1. Review **[CONTRIBUTING.md](../CONTRIBUTING.md)** for complete guidelines
+2. Follow **Microsoft C# Coding Conventions**
+3. Run full validation: format, build, and test
+4. Include unit tests for new code
+5. Add end-to-end tests for UI changes (Playwright)
+6. Update documentation if adding features
+7. Reference the related issue in your PR
+
+### Code Style Enforcement
+- GitHub Actions will reject PRs with formatting violations
+- Always run `dotnet format` before committing
+- Use `.editorconfig` settings (already configured in repository)
+- Follow existing patterns in the codebase
+
+### Community Standards
+- Follow **[CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md)** (Contributor Covenant)
+- Be respectful and professional in discussions
+- Contact Fritz at jeff@jeffreyfritz.com for questions
+
+## Additional Resources
+
+### Icons and UI Assets
+- Using **Bootstrap Icons** (MIT licensed) - do not introduce other icon libraries
+- UI components use **Bootstrap 5** framework
+- Responsive design required for all new UI components
+
+### Monitoring and Observability
+- **OpenTelemetry** integration for distributed tracing
+- **Application Insights** support for Azure deployments
+- Structured logging throughout the application
+- Health checks available for all providers and services
+
+### Azure Content Safety Integration
+- Automated content moderation for incoming posts
+- Four screening categories: sexual, hate, self-harm, violence
+- Severity-based auto-rejection with configurable thresholds
+- Human moderator override capabilities
+- Detailed AI reasoning provided to moderators
+
+This application serves as a real-time social media aggregation tool with extensive provider support and modern .NET development practices. It has been successfully deployed for major .NET community events including .NET Conf 2023 and 2024.
