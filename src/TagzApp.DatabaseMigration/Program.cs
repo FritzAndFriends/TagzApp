@@ -10,7 +10,8 @@ builder.AddServiceDefaults();
 builder.Services.AddHostedService<Worker>();
 
 builder.Services.AddDbContext<SecurityContext>(
-	options => options.UseNpgsql(builder.Configuration.GetConnectionString("securitydb"), options => {
+	options => options.UseNpgsql(builder.Configuration.GetConnectionString("securitydb"), options =>
+	{
 		options.MigrationsAssembly(typeof(SecurityContextModelSnapshot).Assembly.FullName);
 	})
 );

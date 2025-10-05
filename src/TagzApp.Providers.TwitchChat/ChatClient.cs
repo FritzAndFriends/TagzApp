@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 namespace TagzApp.Providers.TwitchChat;
 
@@ -10,6 +11,13 @@ public class ChatClient : IChatClient
 {
 
 	public const string LOGGER_CATEGORY = "Providers.TwitchChat";
+	/// <summary>
+	/// OpenTelemetry ActivitySource name for Twitch chat operations.
+	/// Enables distributed tracing and telemetry for message processing, sending, and receiving.
+	/// </summary>
+	internal const string ACTIVITY_NAME = "TagzApp.Providers.TwitchChat";
+	private static readonly ActivitySource s_activitySource = new(ACTIVITY_NAME);
+
 	private TcpClient _TcpClient;
 	private StreamReader inputStream;
 	private StreamWriter outputStream;
@@ -96,7 +104,7 @@ public class ChatClient : IChatClient
 		inputStream = new StreamReader(_TcpClient.GetStream());
 		outputStream = new StreamWriter(_TcpClient.GetStream());
 
-		Logger.LogTrace("Beginning IRC authentication to Twitch");
+		Logger.LogDebug("Beginning IRC authentication to Twitch");
 		outputStream.WriteLine("CAP REQ :twitch.tv/tags twitch.tv/commands twitch.tv/membership");
 		outputStream.WriteLine($"PASS oauth:{_OAuthToken}");
 		outputStream.WriteLine($"NICK {ChatBotName}");
@@ -153,6 +161,11 @@ public class ChatClient : IChatClient
 	/// <param name="message"></param>
 	public void PostMessage(string message)
 	{
+		using var activity = s_activitySource.StartActivity("Send Twitch Message", ActivityKind.Client);
+		activity?.SetTag("twitch.channel", ChannelName);
+		activity?.SetTag("twitch.bot.name", ChatBotName);
+		activity?.SetTag("twitch.message.content", message);
+		activity?.SetTag("twitch.message.type", "post");
 
 		var fullMessage = $":{ChatBotName}!{ChatBotName}@{ChatBotName}.tmi.twitch.tv PRIVMSG #{ChannelName} :{message}";
 
@@ -162,6 +175,11 @@ public class ChatClient : IChatClient
 
 	public void WhisperMessage(string message, string userName)
 	{
+		using var activity = s_activitySource.StartActivity("Send Twitch Whisper", ActivityKind.Client);
+		activity?.SetTag("twitch.bot.name", ChatBotName);
+		activity?.SetTag("twitch.target.user", userName);
+		activity?.SetTag("twitch.message.content", message);
+		activity?.SetTag("twitch.message.type", "whisper");
 
 		var fullMessage = $":{ChatBotName}!{ChatBotName}@{ChatBotName}.tmi.twitch.tv PRIVMSG #jtv :/w {userName} {message}";
 		SendMessage(fullMessage);
@@ -195,16 +213,23 @@ public class ChatClient : IChatClient
 				}
 
 				lastMessageReceivedTimestamp = DateTime.Now;
+
+				// Create OpenTelemetry scope for message processing
+				using var activity = s_activitySource.StartActivity("Process Message", ActivityKind.Internal);
+				activity?.SetTag("tagzapp.provider", "twitch");
+
 				Logger.LogTrace($"> {msg}");
 
 				// Handle the Twitch keep-alive
 				if (msg.StartsWith("PING"))
 				{
+					activity?.SetTag("twitch.message.type", "ping");
 					Logger.LogWarning("Received PING from Twitch... sending PONG");
 					SendMessage($"PONG :{msg.Split(':')[1]}");
 					continue;
 				}
 
+				activity?.SetTag("twitch.message.type", "chat");
 				ProcessMessage(msg);
 
 			}
@@ -233,18 +258,23 @@ public class ChatClient : IChatClient
 	private void ProcessMessage(string msg)
 	{
 
-		Logger.LogError("Processing message: " + msg);
+		Logger.LogDebug("Processing message: " + msg);
+
+		// Get current activity to add tags
+		var currentActivity = Activity.Current;
 
 		var userName = "";
 		var message = "";
 
 		userName = ChatClient.reUserName.Match(msg).Groups[1].Value;
+		currentActivity?.SetTag("tagzapp.message.username", userName);
 		//if (userName.Equals(ChatBotName, StringComparison.InvariantCultureIgnoreCase)) return; // Exit and do not process if the bot posted this message
 
 
 		if (msg.Contains($"{ChatBotName} :Welcome, GLHF!", StringComparison.InvariantCultureIgnoreCase))
 		{
 			IsConnected = true;
+			currentActivity?.SetTag("twitch.connection.welcome", true);
 		}
 
 		// Review messages sent to the channel
@@ -261,6 +291,10 @@ public class ChatClient : IChatClient
 			List<Emote> emotes = IdentifyEmotes(msg);
 
 			message = ChatClient.reChatMessage.Match(msg).Groups[1].Value;
+
+			// Add telemetry tags for chat message details
+			currentActivity?.SetTag("tagzapp.message.timestamp", timestamp);
+
 			Logger.LogTrace($"Message received from '{userName}': {message}");
 			NewMessage?.Invoke(this, new NewMessageEventArgs
 			{

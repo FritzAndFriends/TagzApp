@@ -30,7 +30,7 @@ public interface IModerationRepository
 
 	Task<IEnumerable<Content>> GetRejectedContent(DateTimeOffset dateTimeOffset, int limit);
 
-	Task<(Content Content, ModerationAction Action)> GetContentWithModeration(string provider, string providerId);
+	Task<(Content Content, ModerationAction? Action)> GetContentWithModeration(string provider, string providerId);
 
 
 	/// <summary>
@@ -61,6 +61,15 @@ public interface IModerationRepository
 	/// <param name="provider">Provider the user is acting on</param>
 	/// <returns></returns>
 	Task UnblockUser(string userId, string provider);
+
+	/// <summary>
+	/// Retrieve recent content created by a specific author on a provider, including moderation actions if present.
+	/// </summary>
+	/// <param name="provider">Provider the content was delivered from</param>
+	/// <param name="authorUserName">The Author.UserName (including leading @ if stored that way) to filter by</param>
+	/// <param name="limit">Maximum number of records to return (default 10)</param>
+	/// <returns>Collection of tuples of Content and optional ModerationAction</returns>
+	Task<IEnumerable<(Content Content, ModerationAction? Action)>> GetRecentContentByAuthor(string provider, string authorUserName, int limit = 10);
 
 
 }

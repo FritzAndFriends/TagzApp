@@ -1,11 +1,12 @@
 ﻿
-using System.Collections.Concurrent;
 using Drastic.Tools;
 using FishyFlip;
 using FishyFlip.Models;
 using FishyFlip.Tools;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Debug;
+using System.Collections.Concurrent;
 
 namespace TagzApp.Providers.Bluesky;
 
@@ -16,6 +17,8 @@ public class BlueskyProvider : ISocialMediaProvider
 	private ATWebSocketProtocol? _AtWebSocketProtocol;
 
 	public string Id => "BLUESKY";
+
+	public static readonly string ConfigurationKey = "provider-BLUESKY";
 
 	public string DisplayName => "Bluesky";
 
@@ -32,9 +35,19 @@ public class BlueskyProvider : ISocialMediaProvider
 	private ATProtocol _AtProtocol;
 	private string? _TheTag;
 
-	public BlueskyProvider()
+	private readonly ILogger<BlueskyProvider> _Logger;
+
+	public BlueskyProvider(BlueskyConfiguration configuration, ILogger<BlueskyProvider> logger)
 	{
-		Enabled = true;
+		Enabled = configuration.Enabled;
+		_Config = configuration;
+		_Logger = logger;
+
+		if (!Enabled)
+		{
+			_status = (SocialMediaStatus.Disabled, "Bluesky is not enabled");
+		}
+
 	}
 
 	public void Dispose()
@@ -79,6 +92,7 @@ public class BlueskyProvider : ISocialMediaProvider
 		{
 			Enabled = providerConfiguration.Enabled;
 			_Config = (BlueskyConfiguration)providerConfiguration;
+			_status = (SocialMediaStatus.Disabled, "Bluesky is disabled");
 			await StopAsync();
 		}
 		else if (_Config.Enabled != providerConfiguration.Enabled && !_Config.Enabled)
@@ -93,12 +107,11 @@ public class BlueskyProvider : ISocialMediaProvider
 	public async Task StartAsync()
 	{
 
-		_Config = (await GetConfiguration(ConfigureTagzAppFactory.Current)) as BlueskyConfiguration ?? new BlueskyConfiguration();
-
 		//Enabled = _Config.Enabled;
 
 		if (!Enabled)
 		{
+			_Logger.LogInformation("Bluesky is not starting and is marking as disabled");
 			_status.status = SocialMediaStatus.Disabled;
 			_status.message = "Bluesky is disabled";
 			return;
@@ -123,6 +136,8 @@ public class BlueskyProvider : ISocialMediaProvider
 
 		_status.status = SocialMediaStatus.Healthy;
 		_status.message = "Connected to Bluesky";
+
+		_Logger.LogInformation("Bluesky started successfully");
 
 	}
 

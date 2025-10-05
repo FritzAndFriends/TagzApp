@@ -6,7 +6,11 @@
 				<RedirectToLogin />
 			</NotAuthorized>
 		</AuthorizeRouteView>
-		<FocusOnNavigate RouteData="@routeData" Selector="h1" />
 
 	</Found>
+	<NotFound>
+		<LayoutView Layout="@typeof(Layout.MainLayout)">
+			<TagzApp.Blazor.Components.Pages.Error404 />
+		</LayoutView>
+	</NotFound>
 </Router>

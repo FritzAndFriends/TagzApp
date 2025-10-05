@@ -16,16 +16,16 @@ public static class ProviderConfigurationExtensions
 	/// <param name="configureTagzApp">The configuration provider</param>
 	/// <returns>The configured service collection</returns>
 	public static async Task<IServiceCollection> AddProviderConfiguration<TConfig>(
-		this IServiceCollection services, 
-		IConfigureTagzApp configureTagzApp) 
+		this IServiceCollection services,
+		IConfigureTagzApp configureTagzApp)
 		where TConfig : BaseProviderConfiguration<TConfig>, new()
 	{
 		// Load the configuration instance
 		var configInstance = await BaseProviderConfiguration<TConfig>.CreateFromConfigurationAsync<TConfig>(configureTagzApp);
-		
+
 		// Register it as a singleton
 		services.AddSingleton<TConfig>(configInstance);
-		
+
 		return services;
 	}
 
