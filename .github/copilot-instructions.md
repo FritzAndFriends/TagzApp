@@ -175,10 +175,10 @@ Located in `scripts/` directory:
 - Azure Storage connection strings for queue integration
 
 ### Configuration Files
-- `.env`: Development environment variables
-- `.env.local`: Local overrides (gitignored)
+- **User Secrets**: Local development secrets (managed via `dotnet user-secrets` in AppHost project)
 - `appsettings.json`: Application configuration
 - `global.json`: .NET SDK version specification
+- AppHost project configuration: Parameters passed to child applications via `.WithEnvironment()` or `.WithReference()`
 
 ## Build Timing Expectations
 
@@ -307,7 +307,9 @@ All providers follow a consistent pattern:
 
 ### API Keys and Secrets
 - **Never commit** API keys, tokens, or secrets to the repository
-- Use `.env.local` for local development (gitignored)
+- Use **.NET user secrets** for local development (AppHost project has UserSecretsId configured)
+  - Configure secrets in the AppHost project: `dotnet user-secrets set "Key" "Value" --project src/TagzApp.AppHost`
+  - Parameters are passed from AppHost to child applications via `.WithEnvironment()` or `.WithReference()`
 - Use Azure Key Vault for production deployments
 - Provider API keys stored encrypted in database
 - Rotation supported through provider configuration UI
