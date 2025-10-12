@@ -3,6 +3,7 @@
 @using TagzApp.Providers.Blazot
 @using TagzApp.Providers.Bluesky
 @using TagzApp.Providers.TwitchChat
+@using TagzApp.Providers.Kick
 @using TagzApp.Providers.Mastodon
 @using TagzApp.Blazor.Client.Components.Admin
 @using TagzApp.Providers.Twitter
@@ -26,6 +27,11 @@
 	case nameof(BlueskyProvider):
 		{
 			<Bluesky_Config_Ui Provider="@Provider" />
+			break;
+		}
+	case nameof(KickProvider):
+		{
+			<Kick_Config_Ui Provider="@Provider" />
 			break;
 		}
 	case nameof(MastodonProvider):
