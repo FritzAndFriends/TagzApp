@@ -110,6 +110,54 @@
 				</EditForm>
 			</div>
 		</div>
+
+		@if (_RecentAuthorMessages?.Any() ?? false)
+		{
+			<div class="card mt-3">
+				<div class="card-header">
+					Recent messages from @Model.AuthorDisplayName (@Model.AuthorUserName)
+				</div>
+				<div class="table-responsive recent-messages-wrapper" style="max-height: 300px; overflow-y: auto;">
+                    <table class="table table-sm table-hover mb-0 recent-messages-table">
+                        <thead class="table-light sticky-top" style="position: sticky; top: 0; z-index: 5;">
+                            <tr>
+                                <th style="width: 110px;">Time</th>
+                                <th style="width: 90px;">Status</th>
+                                <th>Message</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var msg in _RecentAuthorMessages)
+                        {
+                            <tr>
+                                <td class="text-muted align-top" style="white-space: nowrap;">@msg.Timestamp.ToLocalTime().ToString("g")</td>
+                                <td class="align-top">
+                                    @if (msg.State == ModerationState.Approved)
+                                    {
+                                        <span class="badge bg-success">Approved</span>
+                                    }
+									else if (msg.State == ModerationState.Rejected)
+									{
+										var rejectedReason = string.IsNullOrWhiteSpace(msg.Reason) ? "Rejected" : msg.Reason;
+										<span class="badge bg-danger" title="@rejectedReason">Rejected</span>
+									}
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Pending</span>
+                                    }
+                                </td>
+                                <td style="font-size: 0.85em; line-height: 1.2em; max-width: 0;">
+                                    <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="@((MarkupString)msg.Content.FormatContentWithEmotes())">
+                                        @((MarkupString)(msg.Content.FormatContentWithEmotes()))
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+			</div>
+		}
 	</div>
 </div>
 }
@@ -125,9 +173,11 @@
 	[CascadingParameter]
 	private HttpContext HttpContext { get; set; } = default!;
 
-	public ModerationContentModel Model { get; set; }
+	public ModerationContentModel? Model { get; set; }
 
-	private string ValidationMessage { get; set; }
+	private List<ModerationContentModel> _RecentAuthorMessages { get; set; } = new();
+
+	private string? ValidationMessage { get; set; }
 
 	private BlockedUserCapabilities BlockedUserCapabilities { get; set; } = BlockedUserCapabilities.Moderated;
 
@@ -137,6 +187,17 @@
 		var content = await ModerationRepository.GetContentWithModeration(Provider, ProviderId);
 		Model = ModerationContentModel.ToModerationContentModel(content.Content, content.Action);
 
+		if (Model is not null)
+		{
+			// Load recent messages by same author on this provider (excluding current)
+			var recent = await ModerationRepository.GetRecentContentByAuthor(Provider, Model.AuthorUserName, 10);
+			_RecentAuthorMessages = recent
+				.Where(r => r.Content.ProviderId != ProviderId)
+				.Select(r => ModerationContentModel.ToModerationContentModel(r.Content, r.Action))
+				.OrderByDescending(r => r.Timestamp)
+				.ToList();
+		}
+
 		await base.OnInitializedAsync();
 
 	}
@@ -144,16 +205,31 @@
 	async Task BlockUser()
 	{
 
-		var user = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+		var identityName = HttpContext?.User?.Identity?.Name;
+		if (identityName is null)
+		{
+			ValidationMessage = "Unable to identify current user.";
+			return;
+		}
+		var user = await UserManager.FindByNameAsync(identityName);
+		if (user is null)
+		{
+			ValidationMessage = "Unable to find moderator user account.";
+			return;
+		}
 
-		await ModerationRepository.BlockUser(
-			Model.AuthorUserName, 
-			Model.Provider, 
-			user.DisplayName, 
-			new DateTimeOffset(new DateTime(2050, 1, 1), TimeSpan.Zero), 
-			BlockedUserCapabilities);
-		ValidationMessage = $"User {Model.AuthorUserName} has been blocked on {Model.Provider.ToLowerInvariant().Humanize(LetterCasing.Title)}";
+		if (Model is not null)
+		{
+			await ModerationRepository.BlockUser(
+				Model.AuthorUserName,
+				Model.Provider,
+				user.DisplayName!,
+				new DateTimeOffset(new DateTime(2050, 1, 1), TimeSpan.Zero),
+				BlockedUserCapabilities);
+			ValidationMessage = $"User {Model.AuthorUserName} has been blocked on {Model.Provider.ToLowerInvariant().Humanize(LetterCasing.Title)}";
+		}
 		
 	}
 
 }
+

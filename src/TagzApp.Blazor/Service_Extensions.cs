@@ -1,11 +1,9 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using TagzApp.Blazor.Client.Services;
 using TagzApp.Blazor.Components.Account;
 using TagzApp.Blazor.Services;
-using TagzApp.Storage.Postgres.Security.Migrations;
 
 namespace TagzApp.Blazor;
 
@@ -42,14 +40,6 @@ public static class Service_Extensions
 	public static async Task<IServiceCollection> AddTagzAppSecurity(this IHostApplicationBuilder builder, IConfigureTagzApp configure, IConfiguration configuration)
 	{
 
-		//builder.Services.AddDbContext<SecurityContext>(options =>
-		//{
-		//	options.UseNpgsql(configuration.GetConnectionString("securitydb"), opt =>
-		//	{
-		//		opt.MigrationsAssembly(typeof(SecurityContextModelSnapshot).Assembly.FullName);
-		//	});
-		//});
-
 		if (ConfigureTagzAppFactory.IsConfigured)
 		{
 
@@ -66,7 +56,7 @@ public static class Service_Extensions
 				options.DefaultScheme = IdentityConstants.ApplicationScheme;
 				options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
 			})
-					.AddExternalProviders(configuration)
+					.AddExternalProviders(configure)
 					.AddIdentityCookies();
 
 			await builder.AddSecurityContext(configure);
@@ -78,12 +68,12 @@ public static class Service_Extensions
 				.PersistKeysToDbContext<SecurityContext>();
 
 			builder.Services.AddIdentityCore<TagzAppUser>(options =>
-									options.SignIn.RequireConfirmedAccount = true
-							)
-							.AddRoles<IdentityRole>()
-							.AddEntityFrameworkStores<SecurityContext>()
-							.AddSignInManager()
-							.AddDefaultTokenProviders();
+						options.SignIn.RequireConfirmedAccount = false
+				)
+				.AddRoles<IdentityRole>()
+				.AddEntityFrameworkStores<SecurityContext>()
+				.AddSignInManager()
+				.AddDefaultTokenProviders();
 
 			builder.Services.AddSingleton<IEmailSender<TagzAppUser>, IdentityNoOpEmailSender>();
 

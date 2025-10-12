@@ -1,0 +1,354 @@
+@page "/Admin/ExternalAuth"
+@attribute [Authorize(Roles = RolesAndPolicies.Role.Admin)]
+@rendermode InteractiveServer
+@layout Admin.Shared.AdminLayout
+@using Microsoft.AspNetCore.Authorization
+@using System.ComponentModel.DataAnnotations
+@using System.Text.Json
+@using TagzApp.Blazor.Client.Bootstrap
+@inject IConfigureTagzApp ConfigService
+@inject ILogger<ExternalAuth> Logger
+@inject TagzApp.Blazor.Client.Services.ToastService ToastService
+@inject ApplicationConfiguration AppConfig
+@inject NavigationManager NavigationManager
+@inject IJSRuntime Js
+
+<PageTitle>System Administration: External Authentication Providers</PageTitle>
+
+<h2>External Authentication Providers</h2>
+
+@* Phase 1: Single User Mode Warning Banner *@
+@if (AppConfig.SingleUserMode)
+{
+    <div class="alert alert-warning mb-4">
+        <h6><i class="bi bi-exclamation-triangle me-2"></i>Single User Mode Active</h6>
+        <p class="mb-2">You're currently in single-user mode. Configure at least one external authentication provider below before switching to multi-user mode.</p>
+        <p class="mb-0"><strong>Important:</strong> Once you switch to multi-user mode, you'll need to log in using one of these configured providers to regain admin access.</p>
+    </div>
+}
+
+<p class="text-muted">Configure OAuth providers for external authentication. Users will be able to log in using these providers.</p>
+
+<div class="row">
+    @foreach (var provider in ExternalProviders)
+    {
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">@provider.Name</h5>
+                    @if (provider.IsConfigured)
+                    {
+                        <span class="badge bg-success">
+                            <i class="bi bi-check-circle me-1"></i>Configured
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">
+                            <i class="bi bi-exclamation-circle me-1"></i>Not Configured
+                        </span>
+                    }
+                </div>
+                <div class="card-body">
+                    <EditForm Model="provider" OnValidSubmit="() => SaveProviderAsync(provider)">
+                        <DataAnnotationsValidator />
+                        
+                        <div class="mb-3">
+                            <label for="@($"clientId_{provider.Name}")" class="form-label">Client ID</label>
+                            <InputText id="@($"clientId_{provider.Name}")" 
+                                      class="form-control" 
+                                      @bind-Value="provider.ClientId" 
+                                      placeholder="Enter Client ID" />
+                            <ValidationMessage For="() => provider.ClientId" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="@($"clientSecret_{provider.Name}")" class="form-label">Client Secret</label>
+
+                            @if (!provider.HasClientSecret || provider.IsEditingSecret)
+                            {
+                                <InputText id="@($"clientSecret_{provider.Name}")" 
+                                           class="form-control" 
+                                           type="password" 
+                                           @bind-Value="provider.ClientSecret" 
+                                           placeholder="Enter Client Secret" />
+                                <ValidationMessage For="() => provider.ClientSecret" />
+
+                                @if (provider.HasClientSecret)
+                                {
+                                    <div class="mt-2">
+                                        <button type="button" class="btn btn-link text-decoration-none" @onclick="() => CancelEditingSecret(provider)">Cancel</button>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="input-group">
+                                    <input type="text" class="form-control" value="••••••••" readonly aria-label="Client Secret is set" />
+                                    <button type="button" class="btn btn-outline-secondary" @onclick="() => StartEditingSecret(provider)">Change</button>
+                                </div>
+                                <div class="form-text">A client secret is currently saved. Click Change to update it.</div>
+                            }
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary" disabled="@provider.IsSaving">
+                                @if (provider.IsSaving)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                }
+                                Save Configuration
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="mt-4">
+    <div class="alert alert-info">
+        <h6><i class="bi bi-info-circle me-2"></i>Configuration Notes:</h6>
+        <ul class="mb-0">
+            <li><strong>Client ID</strong> and <strong>Client Secret</strong> are obtained from the respective OAuth provider's developer console.</li>
+            <li>Ensure your redirect URIs are configured correctly in each provider's settings.</li>
+            <li>Common redirect URI format: <code>https://yourdomain.com/signin-{provider}</code></li>
+            <li>Changes take effect immediately but may require users to log out and back in.</li>
+        </ul>
+    </div>
+</div>
+
+@* Phase 2: Ready for Multi-User Mode Button *@
+@if (AppConfig.SingleUserMode && HasConfiguredProvider())
+{
+    <div class="mt-4">
+        <div class="alert alert-success">
+            <h6><i class="bi bi-check-circle me-2"></i>Ready for Multi-User Mode</h6>
+            <p class="mb-2">You have configured at least one external authentication provider. You can now safely switch to multi-user mode.</p>
+            <p class="mb-3"><strong>Next steps:</strong></p>
+            <ol class="mb-3">
+                <li>Click "Switch to Multi-User Mode" below</li>
+                <li>You'll be redirected to the login page</li>
+                <li>Log in using one of the configured external providers</li>
+                <li>You'll automatically receive admin rights as the first user</li>
+            </ol>
+            <button type="button" class="btn btn-success btn-lg" @onclick="ConvertToMultiUserMode">
+                <i class="bi bi-shield-check me-2"></i>Switch to Multi-User Mode
+            </button>
+        </div>
+    </div>
+}
+else if (AppConfig.SingleUserMode)
+{
+    <div class="mt-4">
+        <div class="alert alert-info">
+            <h6><i class="bi bi-info-circle me-2"></i>Configure External Authentication</h6>
+            <p class="mb-0">Configure at least one external authentication provider above to enable multi-user mode.</p>
+        </div>
+    </div>
+}
+
+@code {
+    private List<ExternalProviderViewModel> ExternalProviders { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProvidersAsync();
+    }
+
+    private async Task LoadProvidersAsync()
+    {
+
+        ExternalProviders = new List<ExternalProviderViewModel>();
+
+        foreach (var provider in Service_ExternalAuthProviders.ExternalProviders)
+        {
+            var providerModel = new ExternalProviderViewModel
+            {
+                Name = provider.Key,
+            };
+
+            // Load existing configuration
+            try
+            {
+                var config = await ConfigService.GetConfigurationById<Dictionary<string, string>>($"Authentication:{provider.Key}");
+                if (config != null)
+                {
+                    providerModel.ClientId = config.GetValueOrDefault("ClientID", string.Empty);
+
+                    // DO NOT load the secret into memory to avoid exposing it in the UI.
+                    var secretFromStore = config.GetValueOrDefault("ClientSecret", string.Empty);
+                    providerModel.HasClientSecret = !string.IsNullOrEmpty(secretFromStore);
+                    providerModel.ClientSecret = null; // keep secret out of memory/UI unless user chooses to change it
+
+                    providerModel.Enabled = !string.IsNullOrEmpty(providerModel.ClientId) && providerModel.HasClientSecret && bool.TryParse(config.GetValueOrDefault("Enabled", "false"), out var isEnabled) && isEnabled;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex, "Failed to load configuration for provider {Provider}", provider.Key);
+            }
+
+            ExternalProviders.Add(providerModel);
+        }
+    }
+
+    private async Task SaveProviderAsync(ExternalProviderViewModel provider)
+    {
+        try
+        {
+            // perform conditional validation: if no secret exists in store and user hasn't provided one, stop
+            if (string.IsNullOrWhiteSpace(provider.ClientId))
+            {
+                ToastService.Add($"Client ID is required for {provider.Name}", MessageSeverity.Danger);
+                return;
+            }
+
+            if (!provider.HasClientSecret && string.IsNullOrWhiteSpace(provider.ClientSecret))
+            {
+                ToastService.Add($"Client Secret is required for {provider.Name}", MessageSeverity.Danger);
+                return;
+            }
+
+            provider.IsSaving = true;
+            StateHasChanged();
+
+            // Determine which secret to save:
+            // - If the user entered a new secret (ClientSecret not empty), use that
+            // - Else if the store already had a secret and user did not choose to edit it, retrieve it and preserve it
+            // - Otherwise save empty
+            string clientSecretToSave;
+            if (!string.IsNullOrWhiteSpace(provider.ClientSecret))
+            {
+                clientSecretToSave = provider.ClientSecret;
+            }
+            else if (provider.HasClientSecret && !provider.IsEditingSecret)
+            {
+                // fetch existing config to preserve existing secret value
+                var existing = await ConfigService.GetConfigurationById<Dictionary<string, string>>($"Authentication:{provider.Name}");
+                clientSecretToSave = existing?.GetValueOrDefault("ClientSecret", string.Empty) ?? string.Empty;
+            }
+            else
+            {
+                clientSecretToSave = string.Empty;
+            }
+
+            var config = new Dictionary<string, string>
+            {
+                ["ClientID"] = provider.ClientId ?? string.Empty,
+                ["ClientSecret"] = clientSecretToSave ?? string.Empty,
+                ["Enabled"] = provider.Enabled.ToString()
+            };
+
+            await ConfigService.SetConfigurationById($"Authentication:{provider.Name}", config);
+
+            // After successful save, do not keep the secret in memory. Mark that a secret exists if the saved value is non-empty.
+            provider.IsEditingSecret = false;
+            provider.HasClientSecret = !string.IsNullOrWhiteSpace(clientSecretToSave);
+            provider.ClientSecret = null;
+
+            ToastService.Add($"Saved {provider.Name} configuration successfully", MessageSeverity.Success);
+            Logger.LogInformation("Saved external auth configuration for {Provider}", provider.Name);
+        }
+        catch (Exception ex)
+        {
+            ToastService.Add($"Failed to save {provider.Name} configuration: {ex.Message}", MessageSeverity.Danger);
+            Logger.LogError(ex, "Failed to save external auth configuration for {Provider}", provider.Name);
+        }
+        finally
+        {
+            provider.IsSaving = false;
+            StateHasChanged();
+        }
+    }
+
+    private void StartEditingSecret(ExternalProviderViewModel provider)
+    {
+        provider.IsEditingSecret = true;
+        provider.ClientSecret = string.Empty; // allow entering a new secret
+    }
+
+    private void CancelEditingSecret(ExternalProviderViewModel provider)
+    {
+        provider.IsEditingSecret = false;
+        provider.ClientSecret = null; // clear any entered value
+    }
+
+    private bool HasConfiguredProvider()
+    {
+        return ExternalProviders.Any(p => p.IsConfigured);
+    }
+
+    private async Task ConvertToMultiUserMode()
+    {
+        var configuredProviders = ExternalProviders.Where(p => p.IsConfigured).Select(p => p.Name).ToList();
+        var providerList = string.Join(", ", configuredProviders);
+        
+        var confirmed = await Js.InvokeAsync<bool>("confirm", 
+            $"Are you sure you want to switch to multi-user mode?\n\n" +
+            $"Configured providers: {providerList}\n\n" +
+            $"This action cannot be reversed. You will need to log in using one of these external providers to regain admin access.\n\n" +
+            $"Continue?");
+        
+        if (confirmed)
+        {
+            try
+            {
+                // Phase 3: Switch to multi-user mode
+                AppConfig.SingleUserMode = false;
+                await AppConfig.SaveConfiguration(ConfigureTagzAppFactory.Current);
+                
+                ToastService.Add("Successfully switched to multi-user mode. Redirecting to login...", MessageSeverity.Success);
+                
+                // Give the user a moment to see the success message
+                await Task.Delay(2000);
+                
+                // Redirect to login page
+                NavigationManager.NavigateTo("/Account/Login", forceLoad: true);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to switch to multi-user mode");
+                ToastService.Add($"Failed to switch to multi-user mode: {ex.Message}", MessageSeverity.Danger);
+            }
+        }
+    }
+
+    public class ExternalProviderViewModel : System.ComponentModel.DataAnnotations.IValidatableObject
+    {
+        public string Name { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Client ID is required")]
+        public string? ClientId { get; set; }
+
+        // Do not annotate ClientSecret as [Required] because it may already exist in secure storage.
+        public string? ClientSecret { get; set; }
+
+        public bool Enabled { get; set; }
+
+        public bool IsSaving { get; set; }
+
+        // Indicates whether a secret exists in the backing store. We don't load the secret into memory.
+        public bool HasClientSecret { get; set; }
+
+        // True when the user has chosen to change the secret in the UI
+        public bool IsEditingSecret { get; set; }
+
+        public bool IsConfigured => !string.IsNullOrWhiteSpace(ClientId) && (HasClientSecret || !string.IsNullOrWhiteSpace(ClientSecret));
+
+        // Custom validation to require ClientSecret only if no secret exists in store and user isn't editing
+        public IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> Validate(System.ComponentModel.DataAnnotations.ValidationContext validationContext)
+        {
+            if (string.IsNullOrWhiteSpace(ClientId))
+            {
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Client ID is required", new[] { nameof(ClientId) });
+            }
+
+            if (!HasClientSecret && string.IsNullOrWhiteSpace(ClientSecret))
+            {
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Client Secret is required", new[] { nameof(ClientSecret) });
+            }
+        }
+    }
+}

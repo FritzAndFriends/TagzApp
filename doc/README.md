@@ -3,12 +3,13 @@
 This is documentation for writing new features and for using the TagzApp software.
 
 ## Table of Contents
-1. [Adding new social media providers](#media-providers)
-2. [Provider Configuration Pattern](#provider-configuration)
-3. [Icons](#icons)
-4. [Testing](#testing)
-5. [Custom Test Execution Ordering](#ordering)
-6. [Docker](#docker)
+1. [Integrate with your app](QueueIntegration.md)
+2. [Adding new social media providers](#media-providers)
+3. [Provider Configuration Pattern](#provider-configuration)
+4. [Icons](#icons)
+5. [Testing](#testing)
+6. [Custom Test Execution Ordering](#ordering)
+7. [Docker](#docker)
 
 <div id='media-providers'/>
 

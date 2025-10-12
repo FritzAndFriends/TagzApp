@@ -12,7 +12,6 @@ public class StartYouTubeChat : IConfigureProvider
 		var config = await ConfigureTagzAppFactory.Current.GetConfigurationById<YouTubeChatConfiguration>(YouTubeChatProvider.ProviderId);
 		//return services;
 
-
 		services.AddSingleton(config);
 		services.AddTransient<ISocialMediaProvider, YouTubeChatProvider>();
 		return services;

@@ -14,6 +14,20 @@ To get started, follow these steps:
 1. Push your changes to your forked repository on GitHub (ex: csharpfritz/TagzApp).
 1. Open a pull request to the main repository.
 
+## Running a local environment for development 
+
+The application has been updated to work with .NET Aspire and will start with a Postgres container and support for Mastodon.  With the .NET CLI installed, you can start the application using:
+
+```bash
+dotnet run --project src/AppHost
+```
+
+If you have the Aspire CLI installed, you can run a local instance with:
+
+```bash
+aspire run
+```
+
 ## Code Style
 
 We follow the [Microsoft C# Coding Conventions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions) for our C# code. Please make sure your code adheres to this style guide before submitting a pull request.  Pull requests will not be accepted without a passing build with our GitHub actions.

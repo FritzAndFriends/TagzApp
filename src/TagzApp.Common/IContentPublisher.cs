@@ -1,4 +1,4 @@
-﻿using TagzApp.Common.Models;
+using TagzApp.Common.Models;
 
 namespace TagzApp.Common;
 

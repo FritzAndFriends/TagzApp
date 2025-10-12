@@ -1,0 +1,129 @@
+@page "/admin/wordfilter"
+@using System.ComponentModel.DataAnnotations
+@using System.Text.Json
+@using Microsoft.AspNetCore.Components.Forms
+@using TagzApp.Common.Models
+@using TagzApp.Security
+@attribute [Authorize(Roles = RolesAndPolicies.Role.Admin)]
+@layout AdminLayout
+@inject ToastService ToastService
+@inject IConfigureTagzApp Config
+@rendermode InteractiveServer
+
+<PageTitle>System Administration: Word Filter</PageTitle>
+
+<div class="container">
+	<div class="row">
+		<div class="col-12">
+			<h2><i class="bi bi-filter-circle me-2"></i>Word Filter Configuration</h2>
+			<p class="text-muted">Configure automatic word and phrase filtering for incoming social media content.</p>
+		</div>
+	</div>
+	
+	<div class="card">
+		<div class="card-header">
+			<h5 class="card-title mb-0">Word Filter Settings</h5>
+		</div>
+		<div class="card-body">
+			@if (!string.IsNullOrEmpty(StatusMessage))
+			{
+				<div class="alert alert-info">@StatusMessage</div>
+			}
+
+			<EditForm Model="Model" OnValidSubmit="SaveConfig">
+				<DataAnnotationsValidator />
+				<ValidationSummary />
+
+				<div class="mb-3">
+					<div class="form-check">
+						<InputCheckbox class="form-check-input" @bind-Value="Model.Enabled" id="enabled" />
+						<label class="form-check-label" for="enabled">
+							Enable Word Filtering
+						</label>
+					</div>
+					<div class="form-text">When enabled, messages containing blocked words or phrases will be automatically rejected.</div>
+				</div>
+
+				<div class="mb-3">
+					<label for="blockedWords" class="form-label">Blocked Words and Phrases</label>
+					<InputTextArea class="form-control" @bind-Value="BlockedWordsText" id="blockedWords" rows="10" 
+						placeholder="Enter one word or phrase per line&#10;Examples:&#10;spam&#10;inappropriate content&#10;badword" />
+					<div class="form-text">Enter one word or phrase per line. Matching is case-insensitive and uses word boundaries.</div>
+				</div>
+
+				<div class="d-flex gap-2">
+					<button type="submit" class="btn btn-primary">
+						<i class="bi bi-check-circle me-1"></i>Save Configuration
+					</button>
+					<button type="button" class="btn btn-secondary" @onclick="LoadConfig">
+						<i class="bi bi-arrow-clockwise me-1"></i>Reload
+					</button>
+				</div>
+			</EditForm>
+		</div>
+	</div>
+</div>
+
+@code {
+	private ViewModel Model { get; set; } = new();
+	private string BlockedWordsText { get; set; } = string.Empty;
+	private string StatusMessage { get; set; } = string.Empty;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadConfig();
+	}
+
+	private async Task LoadConfig()
+	{
+		try
+		{
+			var config = await WordFilterConfiguration.LoadFromConfiguration(Config);
+			
+			Model = new ViewModel
+			{
+				Enabled = config.Enabled
+			};
+
+			BlockedWordsText = string.Join(Environment.NewLine, config.BlockedWords ?? Array.Empty<string>());
+			StatusMessage = string.Empty;
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			StatusMessage = $"Error loading configuration: {ex.Message}";
+		}
+	}
+
+	private async Task SaveConfig()
+	{
+		try
+		{
+			var config = new WordFilterConfiguration
+			{
+				Enabled = Model.Enabled,
+				BlockedWords = BlockedWordsText
+					.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+					.Select(w => w.Trim())
+					.Where(w => !string.IsNullOrEmpty(w))
+					.ToArray()
+			};
+
+			await config.SaveConfiguration(Config);
+			
+			ToastService.Add("Word Filter configuration saved successfully!", MessageSeverity.Success);
+			StatusMessage = string.Empty;
+		}
+		catch (Exception ex)
+		{
+			ToastService.Add($"Error saving configuration: {ex.Message}", MessageSeverity.Danger);
+			StatusMessage = $"Error saving configuration: {ex.Message}";
+		}
+	}
+
+	public class ViewModel
+	{
+		[Display(Name = "Enable Word Filtering")]
+		public bool Enabled { get; set; }
+	}
+}
