@@ -39,12 +39,12 @@ internal class KickProfileRepository
 		{
 			// Kick.com API endpoint for user information
 			var response = await _HttpClient.GetAsync($"https://kick.com/api/v1/users/{userName}");
-			
+
 			if (response.IsSuccessStatusCode)
 			{
 				var content = await response.Content.ReadAsStringAsync();
 				using var doc = JsonDocument.Parse(content);
-				
+
 				if (doc.RootElement.TryGetProperty("profile_pic", out var profilePicElement))
 				{
 					var profilePicUrl = profilePicElement.GetString();

@@ -27,7 +27,7 @@ public class KickConfiguration : BaseProviderConfiguration<KickConfiguration>
 
 	[JsonIgnore]
 	public override string Description => "Read all messages from a specified Kick channel";
-	
+
 	public override bool Enabled { get; set; }
 
 	[JsonIgnore]

@@ -8,7 +8,7 @@ namespace TagzApp.Providers.Kick;
 public class ChatClient : IChatClient
 {
 	public const string LOGGER_CATEGORY = "Providers.Kick";
-	
+
 	private ClientWebSocket? _WebSocket;
 	private CancellationTokenSource _Shutdown = new();
 	private Task? _ReceiveMessagesTask;
@@ -38,9 +38,9 @@ public class ChatClient : IChatClient
 
 			// Kick.com WebSocket endpoint for chat
 			var uri = new Uri($"wss://ws-us2.pusher.com/app/32cbd69e4b950bf97679?protocol=7&client=js&version=7.6.0&flash=false");
-			
+
 			await _WebSocket.ConnectAsync(uri, _Shutdown.Token);
-			
+
 			_Logger.LogInformation("Connected to Kick chat WebSocket");
 
 			// Subscribe to the channel
@@ -69,11 +69,11 @@ public class ChatClient : IChatClient
 
 		var messageJson = JsonSerializer.Serialize(subscribeMessage);
 		var messageBytes = Encoding.UTF8.GetBytes(messageJson);
-		
+
 		await _WebSocket.SendAsync(
-			new ArraySegment<byte>(messageBytes), 
-			WebSocketMessageType.Text, 
-			true, 
+			new ArraySegment<byte>(messageBytes),
+			WebSocketMessageType.Text,
+			true,
 			_Shutdown.Token);
 
 		_Logger.LogInformation("Subscribed to Kick chat channel: {ChannelName}", ChannelName);
@@ -82,13 +82,13 @@ public class ChatClient : IChatClient
 	private async Task ReceiveMessages()
 	{
 		var buffer = new byte[4096];
-		
+
 		while (_WebSocket?.State == WebSocketState.Open && !_Shutdown.Token.IsCancellationRequested)
 		{
 			try
 			{
 				var result = await _WebSocket.ReceiveAsync(new ArraySegment<byte>(buffer), _Shutdown.Token);
-				
+
 				if (result.MessageType == WebSocketMessageType.Text)
 				{
 					var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
@@ -111,8 +111,8 @@ public class ChatClient : IChatClient
 			var root = jsonDoc.RootElement;
 
 			// Check if this is a chat message event
-			if (root.TryGetProperty("event", out var eventElement) && 
-			    eventElement.GetString() == "App\\Events\\ChatMessageEvent")
+			if (root.TryGetProperty("event", out var eventElement) &&
+					eventElement.GetString() == "App\\Events\\ChatMessageEvent")
 			{
 				if (root.TryGetProperty("data", out var dataElement))
 				{
@@ -155,7 +155,7 @@ public class ChatClient : IChatClient
 		if (ChannelName != channelName)
 		{
 			ChannelName = channelName;
-			
+
 			// Reconnect to the new channel
 			if (IsRunning)
 			{

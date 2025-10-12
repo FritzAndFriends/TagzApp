@@ -32,6 +32,7 @@
     <ProjectReference Include="..\TagzApp.Providers.AzureQueue\TagzApp.Providers.AzureQueue.csproj" />
     <ProjectReference Include="..\TagzApp.Providers.Blazot\TagzApp.Providers.Blazot.csproj" />
     <ProjectReference Include="..\TagzApp.Providers.Bluesky\TagzApp.Providers.Bluesky.csproj" />
+    <ProjectReference Include="..\TagzApp.Providers.Kick\TagzApp.Providers.Kick.csproj" />
     <ProjectReference Include="..\TagzApp.Providers.Mastodon\TagzApp.Providers.Mastodon.csproj" />
     <ProjectReference Include="..\TagzApp.Providers.TwitchChat\TagzApp.Providers.TwitchChat.csproj" />
     <ProjectReference Include="..\TagzApp.Providers.Twitter\TagzApp.Providers.Twitter.csproj" />

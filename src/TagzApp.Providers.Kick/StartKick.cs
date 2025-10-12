@@ -42,7 +42,7 @@ public class KickConfigurationSetup : IConfigureOptions<KickConfiguration>
 			.CreateFromConfigurationAsync<KickConfiguration>(ConfigureTagzAppFactory.Current)
 			.GetAwaiter()
 			.GetResult();
-		
+
 		options.UpdateFrom(config);
 	}
 }

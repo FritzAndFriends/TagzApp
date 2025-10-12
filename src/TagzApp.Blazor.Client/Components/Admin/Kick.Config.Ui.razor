@@ -1,0 +1,94 @@
+@using System.ComponentModel.DataAnnotations
+@inject ToastService ToastService
+@inject IConfigureTagzApp Config
+
+<UiProviderConfig ProviderName="Kick" Health="@Health" ProviderIconCssClass="bi-chat-dots">
+
+	<EditForm Model="Model" OnValidSubmit="SaveConfig">
+		<AntiforgeryToken />
+		<ValidationSummary />
+
+		<div class="alert-info" style="padding: 4px; margin-bottom: 10px;">
+			<p>Configure the Kick chat provider to aggregate messages from Kick streams.</p>
+			<p>Enter your Kick channel name to start receiving chat messages. The API key is optional and can be used for authenticated requests if needed.</p>
+		</div>
+
+		<dl>
+			<dt><label for="ChannelName">Channel Name:</label></dt>
+			<dd>
+				<InputText id="ChannelName" name="ChannelName" @bind-Value="Model.ChannelName" placeholder="Your Kick channel name" />
+				<ValidationMessage For="() => Model.ChannelName" class="text-danger" />
+			</dd>
+			<dt><label for="ApiKey">API Key (Optional):</label></dt>
+			<dd>
+				<InputText id="ApiKey" type="password" name="ApiKey" @bind-Value="Model.ApiKey" placeholder="Optional API key" />
+				<ValidationMessage For="() => Model.ApiKey" class="text-danger" />
+			</dd>
+			<dt><label for="Enabled">Enabled:</label></dt>
+			<dd>
+				<InputCheckbox id="Enabled" name="Enabled" @bind-Value="Model.Enabled" />
+			</dd>
+		</dl>
+
+		<button type="submit" class="btn btn-primary">Save</button>
+
+	</EditForm>
+
+</UiProviderConfig>
+
+@code {
+
+	[Parameter, EditorRequired]
+	public ISocialMediaProvider Provider { get; set; } = null!;
+
+	public (SocialMediaStatus Status, string Message) Health { get; set; } = (SocialMediaStatus.Unknown, string.Empty);
+
+	public ViewModel Model { get; set; } = new();
+
+	protected override async Task OnParametersSetAsync()
+	{
+
+		var providerConfiguration = await Provider.GetConfiguration(Config);
+
+		Model = new ViewModel
+		{
+			ChannelName = providerConfiguration.GetConfigurationByKey("ChannelName"),
+			ApiKey = providerConfiguration.GetConfigurationByKey("ApiKey"),
+			Enabled = string.IsNullOrEmpty(providerConfiguration.GetConfigurationByKey("Enabled")) ? false : bool.Parse(providerConfiguration.GetConfigurationByKey("Enabled"))
+		};
+
+		Health = await Provider.GetHealth();
+
+		await base.OnParametersSetAsync();
+
+	}
+
+	private async Task SaveConfig()
+	{
+
+		var providerConfiguration = await Provider.GetConfiguration(Config);
+
+		providerConfiguration.SetConfigurationByKey("ChannelName", Model.ChannelName);
+		providerConfiguration.SetConfigurationByKey("ApiKey", Model.ApiKey);
+		providerConfiguration.SetConfigurationByKey("Enabled", Model.Enabled.ToString());
+
+		await Provider.SaveConfiguration(Config, providerConfiguration);
+		ToastService.Add($"Saved {providerConfiguration.Name} Configuration", MessageSeverity.Success);
+
+		// get the new health status
+		Health = await Provider.GetHealth();
+	}
+
+	public class ViewModel
+	{
+		// add properties for each of the fields you want to edit
+
+		[Required(ErrorMessage = "Channel name is required.")]
+		public string ChannelName { get; set; } = string.Empty;
+
+		public string ApiKey { get; set; } = string.Empty;
+
+		public bool Enabled { get; set; }
+	}
+
+}
