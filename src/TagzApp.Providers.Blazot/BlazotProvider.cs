@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using TagzApp.Common.Telemetry;
 using TagzApp.Providers.Blazot.Constants;
 using TagzApp.Providers.Blazot.Interfaces;
 using TagzApp.Providers.Blazot.Models;
@@ -15,6 +16,7 @@ public sealed class BlazotProvider : ISocialMediaProvider
 	private readonly IContentConverter _ContentConverter;
 	private readonly ITransmissionsService _TransmissionsService;
 	private readonly IAuthService _AuthService;
+	private readonly ProviderInstrumentation? _Instrumentation;
 	public TimeSpan NewContentRetrievalFrequency => TimeSpan.FromSeconds((double)_WindowSeconds / _WindowRequests);
 	public string Id => BlazotConstants.ProviderId;
 	public string DisplayName => BlazotConstants.DisplayName;
@@ -27,13 +29,15 @@ public sealed class BlazotProvider : ISocialMediaProvider
 	public bool Enabled { get; }
 
 	public BlazotProvider(ILogger<BlazotProvider> logger, BlazotConfiguration settings,
-		IContentConverter contentConverter, ITransmissionsService transmissionsService, IAuthService authService)
+		IContentConverter contentConverter, ITransmissionsService transmissionsService, IAuthService authService,
+		ProviderInstrumentation? instrumentation = null)
 	{
 		_ContentConverter = contentConverter ?? throw new ArgumentNullException(nameof(contentConverter));
 		_TransmissionsService = transmissionsService ?? throw new ArgumentNullException(nameof(transmissionsService));
 		_AuthService = authService ?? throw new ArgumentNullException(nameof(authService));
 		_Logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		_Settings = settings;
+		_Instrumentation = instrumentation;
 		_WindowSeconds = settings?.WindowSeconds ?? throw new ArgumentNullException(nameof(settings));
 		_WindowRequests = settings.WindowRequests;
 
@@ -49,7 +53,11 @@ public sealed class BlazotProvider : ISocialMediaProvider
 	{
 		var transmissions = new List<Transmission>();
 
-		if (!_Settings.Enabled) return Enumerable.Empty<Content>();
+		if (!_Settings.Enabled)
+		{
+			_Logger.LogDebug("Blazot: Provider is disabled");
+			return Enumerable.Empty<Content>();
+		}
 
 		try
 		{
@@ -59,7 +67,7 @@ public sealed class BlazotProvider : ISocialMediaProvider
 			// A Blazot hashtags request can currently accept up to 10 hashtags with "?t=sometag&t=anothertag".
 			if (_TransmissionsService.HasMadeTooManyRequests)
 			{
-				_Logger.LogInformation("Exited Blazot request due to current rate limit exceeded state.");
+				_Logger.LogInformation("Blazot: Exited request due to current rate limit exceeded state");
 				return Enumerable.Empty<Content>();
 			}
 
@@ -70,13 +78,17 @@ public sealed class BlazotProvider : ISocialMediaProvider
 
 				var (isSuccessStatusCode, _) = await _AuthService.GetAccessTokenAsync();
 				if (isSuccessStatusCode is null or false)
+				{
+					_Logger.LogWarning("Blazot: Failed to obtain access token");
 					return Enumerable.Empty<Content>();
+				}
 			}
 
 			transmissions = await _TransmissionsService.GetHashtagTransmissionsAsync(tag, dateTimeOffset);
 
 			_Status = SocialMediaStatus.Healthy;
 			_StatusMessage = "OK";
+			_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Healthy);
 
 			if (transmissions == null)
 				return Enumerable.Empty<Content>();
@@ -84,18 +96,43 @@ public sealed class BlazotProvider : ISocialMediaProvider
 		}
 		catch (Exception ex)
 		{
-			_Logger.LogError(ex, "Error fetching Blazot Hashtag Transmissions: {message}", ex.Message);
+			_Logger.LogError(ex, "Blazot: Error fetching Hashtag Transmissions: {message}", ex.Message);
 
 			_Status = SocialMediaStatus.Unhealthy;
 			_StatusMessage = $"Error fetching Blazot Hashtag Transmissions: {ex.Message}";
+			_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Unhealthy);
 
 		}
 
-		return _ContentConverter.ConvertToContent(transmissions, tag);
+		var content = _ContentConverter.ConvertToContent(transmissions, tag);
+
+		if (_Instrumentation is not null && content.Any())
+		{
+			_Logger.LogInformation("Blazot: Retrieved {Count} new transmissions", content.Count());
+			foreach (var msg in content)
+			{
+				if (!string.IsNullOrEmpty(msg.Author?.UserName))
+				{
+					_Instrumentation.AddMessage(Id.ToLowerInvariant(), msg.Author.UserName);
+				}
+			}
+		}
+
+		return content;
 	}
 
 	public Task StartAsync()
 	{
+		if (Enabled)
+		{
+			_Logger.LogInformation("Blazot: Provider started");
+			_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Healthy);
+		}
+		else
+		{
+			_Logger.LogInformation("Blazot: Provider is disabled");
+			_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Disabled);
+		}
 		return Task.CompletedTask;
 	}
 
@@ -103,6 +140,8 @@ public sealed class BlazotProvider : ISocialMediaProvider
 
 	public Task StopAsync()
 	{
+		_Logger.LogInformation("Blazot: Provider stopped");
+		_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Disabled);
 		return Task.CompletedTask;
 	}
 

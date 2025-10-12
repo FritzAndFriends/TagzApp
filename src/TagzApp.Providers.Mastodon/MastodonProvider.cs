@@ -68,9 +68,10 @@ public class MastodonProvider : ISocialMediaProvider, IHasNewestId
 		catch (Exception ex)
 		{
 
-			_Logger.LogError(ex, "Error getting content from Mastodon");
+			_Logger.LogError(ex, "Mastodon: Error getting content");
 			_Status = SocialMediaStatus.Unhealthy;
 			_StatusMessage = $"Error getting content from Mastodon: {ex.Message}";
+			_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Unhealthy);
 
 			return Enumerable.Empty<Content>();
 
@@ -87,6 +88,7 @@ public class MastodonProvider : ISocialMediaProvider, IHasNewestId
 
 		if (_Instrumentation is not null)
 		{
+			_Logger.LogInformation("Mastodon: Retrieved {Count} new messages", messages.Length);
 			foreach (var username in messages?.Select(x => x.account?.username)!)
 			{
 				if (!string.IsNullOrEmpty(username))
@@ -137,11 +139,23 @@ public class MastodonProvider : ISocialMediaProvider, IHasNewestId
 
 	public Task StartAsync()
 	{
+		if (Enabled)
+		{
+			_Logger.LogInformation("Mastodon: Provider started");
+			_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Healthy);
+		}
+		else
+		{
+			_Logger.LogInformation("Mastodon: Provider is disabled");
+			_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Disabled);
+		}
 		return Task.CompletedTask;
 	}
 
 	public Task StopAsync()
 	{
+		_Logger.LogInformation("Mastodon: Provider stopped");
+		_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Disabled);
 		return Task.CompletedTask;
 	}
 

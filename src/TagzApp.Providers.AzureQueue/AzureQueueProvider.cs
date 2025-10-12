@@ -1,5 +1,7 @@
 ﻿using Azure.Storage.Queues;
+using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using TagzApp.Common.Telemetry;
 
 namespace TagzApp.Providers.AzureQueue;
 
@@ -8,6 +10,8 @@ public class AzureQueueProvider : ISocialMediaProvider
 	private const string QueueName = "tagzapp-content";
 	private AzureQueueConfiguration _Configuration;
 	private QueueClient _Client;
+	private readonly ILogger<AzureQueueProvider>? _Logger;
+	private readonly ProviderInstrumentation? _Instrumentation;
 	private SocialMediaStatus _Status = SocialMediaStatus.Unhealthy;
 	private string _StatusMessage = "Not started";
 	private bool _DisposedValue;
@@ -20,9 +24,12 @@ public class AzureQueueProvider : ISocialMediaProvider
 
 	public bool Enabled { get; private set; }
 
-	public AzureQueueProvider(AzureQueueConfiguration configuration)
+	public AzureQueueProvider(AzureQueueConfiguration configuration, ILogger<AzureQueueProvider>? logger = null,
+		ProviderInstrumentation? instrumentation = null)
 	{
 		_Configuration = configuration;
+		_Logger = logger;
+		_Instrumentation = instrumentation;
 		Enabled = configuration.Enabled;
 	}
 
@@ -49,6 +56,18 @@ public class AzureQueueProvider : ISocialMediaProvider
 
 		}
 
+		if (_Instrumentation is not null && outList.Any())
+		{
+			_Logger?.LogInformation("AzureQueue: Retrieved {Count} new messages", outList.Count);
+			foreach (var content in outList)
+			{
+				if (!string.IsNullOrEmpty(content.Author?.UserName))
+				{
+					_Instrumentation.AddMessage(Id.ToLowerInvariant(), content.Author.UserName);
+				}
+			}
+		}
+
 		return outList;
 
 
@@ -67,22 +86,26 @@ public class AzureQueueProvider : ISocialMediaProvider
 		try
 		{
 			await _Client.CreateIfNotExistsAsync();
+			_Status = SocialMediaStatus.Healthy;
+			_StatusMessage = "Connected";
+			_Logger?.LogInformation("AzureQueue: Successfully connected to queue");
+			_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Healthy);
 		}
 		catch (Exception ex)
 		{
 			_Status = SocialMediaStatus.Unhealthy;
 			_StatusMessage = $"Unable to start a connection to the Azure Queue: {ex.Message}";
+			_Logger?.LogError(ex, "AzureQueue: Failed to connect to queue");
+			_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Unhealthy);
 			return;
 		}
-
-		_Status = SocialMediaStatus.Healthy;
-		_StatusMessage = "Connected";
 
 	}
 
 	public Task StopAsync()
 	{
-		// do nothing
+		_Logger?.LogInformation("AzureQueue: Provider stopped");
+		_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Disabled);
 		return Task.CompletedTask;
 	}
 
