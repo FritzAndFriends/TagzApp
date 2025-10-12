@@ -53,7 +53,8 @@ public static class Extensions
 				{
 					metrics.AddAspNetCoreInstrumentation()
 									.AddHttpClientInstrumentation()
-									.AddRuntimeInstrumentation();
+									.AddRuntimeInstrumentation()
+									.AddMeter("tagzapp-provider-metrics");
 				})
 				.WithTracing(tracing =>
 				{
