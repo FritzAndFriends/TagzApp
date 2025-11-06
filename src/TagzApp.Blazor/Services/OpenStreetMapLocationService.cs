@@ -363,3 +363,13 @@ public class NominatimLocation
 	public string? display_name { get; set; }
 	public string[]? boundingbox { get; set; }
 }
+
+
+public class NullIconProvider : IMapIconProvider
+{
+
+	public string? GetIconUrl(string userType, string service)
+	{
+		return string.Empty;
+	}
+}
