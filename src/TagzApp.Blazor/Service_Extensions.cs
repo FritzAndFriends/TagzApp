@@ -19,7 +19,7 @@ public static class Service_Extensions
 		builder.Services.AddSingleton<INotifyNewMessages, SignalRNotifier>();
 		builder.Services.AddScoped<ToastService>();
 
-		builder.Services.AddScoped<OpenStreetMapLocationService>();
+		builder.Services.AddSingleton<OpenStreetMapLocationService>();
 		builder.AddFritzCharlieComponents();
 		builder.Services.AddTransient<IMapIconProvider, NullIconProvider>();
 

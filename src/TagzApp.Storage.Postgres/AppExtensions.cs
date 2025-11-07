@@ -19,7 +19,8 @@ public static class AppExtensions
 	{
 
 		builder.AddNpgsqlDbContext<TagzAppContext>(connectionSettings.ContentConnectionString);
-		builder.Services.AddScoped<IViewerLocationService, PostgresViewerLocationService>();
+		builder.Services.AddSingleton<IViewerLocationService, PostgresViewerLocationService>();
+		builder.Services.AddSingleton<ILocationRepository, PostgresViewerLocationService>();
 
 
 		//services.AddScoped<IProviderConfigurationRepository, PostgresProviderConfigurationRepository>();

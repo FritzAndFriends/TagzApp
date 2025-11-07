@@ -12,7 +12,7 @@ public class OpenStreetMapLocationService
 	private readonly CancellationTokenSource _cancellationTokenSource;
 
 	private readonly IViewerLocationService _db;
-	private readonly IModerationRepository _locationDb;
+	private readonly ILocationRepository _locationDb;
 	private readonly ILogger<OpenStreetMapLocationService> _logger;
 	private readonly System.Net.Http.IHttpClientFactory _httpClientFactory;
 	private static readonly TimeSpan RateLimitDelay = TimeSpan.FromSeconds(1);
@@ -23,7 +23,7 @@ public class OpenStreetMapLocationService
 			ILogger<OpenStreetMapLocationService> logger,
 			System.Net.Http.IHttpClientFactory httpClientFactory,
 			IViewerLocationService db,
-			IModerationRepository locationDb)
+			ILocationRepository locationDb)
 	{
 		_logger = logger;
 		_httpClientFactory = httpClientFactory;
