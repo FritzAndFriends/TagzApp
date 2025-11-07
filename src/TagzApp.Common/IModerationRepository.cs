@@ -71,4 +71,5 @@ public interface IModerationRepository
 	/// <returns>Collection of tuples of Content and optional ModerationAction</returns>
 	Task<IEnumerable<(Content Content, ModerationAction? Action)>> GetRecentContentByAuthor(string provider, string authorUserName, int limit = 10);
 
+
 }
