@@ -68,7 +68,7 @@ public class PostgresViewerLocationService(IServiceScopeFactory serviceScopeFact
 		}
 
 		return (loc.Name, loc.Latitude, loc.Longitude);
-			
+
 	}
 
 	public async Task<IReadOnlyList<ViewerLocationEvent>> GetLocationsForStreamAsync(string streamId)

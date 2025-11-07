@@ -7,7 +7,7 @@ namespace TagzApp.Blazor.Services;
 public class OpenStreetMapLocationService
 {
 
-	
+
 	private readonly Task _processingTask;
 	private readonly CancellationTokenSource _cancellationTokenSource;
 
@@ -72,7 +72,7 @@ public class OpenStreetMapLocationService
 			// Always add to queue first
 			var request = new GeocodeRequest(location);
 			_LocationQueue.Enqueue(request);
-			
+
 			var currentQueueSize = _LocationQueue.Count;
 			_logger.LogDebug($"Queued geocoding request for location: {location} (queue size: {currentQueueSize})");
 
@@ -80,10 +80,10 @@ public class OpenStreetMapLocationService
 			if (currentQueueSize > 20) // Configurable threshold
 			{
 				_logger.LogWarning($"Geocoding queue is very long ({currentQueueSize}) - returning delayed result immediately for {location}");
-				return new GeographicPoint 
-				{ 
-					Name = location, 
-					IsDelayed = true 
+				return new GeographicPoint
+				{
+					Name = location,
+					IsDelayed = true
 				};
 			}
 
@@ -114,10 +114,10 @@ public class OpenStreetMapLocationService
 			activity?.AddException(ex);
 			_logger.LogWarning(ex, $"Timeout geocoding location: {location} - returning delayed result");
 			// Return delayed result instead of throwing
-			return new GeographicPoint 
-			{ 
-				Name = location, 
-				IsDelayed = true 
+			return new GeographicPoint
+			{
+				Name = location,
+				IsDelayed = true
 			};
 		}
 		catch (OperationCanceledException ex)
@@ -125,10 +125,10 @@ public class OpenStreetMapLocationService
 			activity?.AddException(ex);
 			_logger.LogWarning(ex, $"Geocoding request cancelled for location: {location} - returning delayed result");
 			// Return delayed result instead of throwing
-			return new GeographicPoint 
-			{ 
-				Name = location, 
-				IsDelayed = true 
+			return new GeographicPoint
+			{
+				Name = location,
+				IsDelayed = true
 			};
 		}
 		catch (HttpRequestException ex)

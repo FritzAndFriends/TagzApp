@@ -67,7 +67,7 @@ public partial class TagzAppContext : DbContext
 			.IsRequired();
 
 		modelBuilder.Entity<PgViewerLocation>()
-			.HasKey(PgViewerLocation => new { PgViewerLocation.StreamId, PgViewerLocation.HashedUserId});
+			.HasKey(PgViewerLocation => new { PgViewerLocation.StreamId, PgViewerLocation.HashedUserId });
 
 		// Seed initial location data
 		modelBuilder.Entity<PgGeolocation>()

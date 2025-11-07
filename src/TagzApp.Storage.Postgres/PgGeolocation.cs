@@ -6,7 +6,7 @@ public class PgGeolocation
 {
 
 	[Key]
-	public required string Name { get; set; } 
+	public required string Name { get; set; }
 
 	public required decimal Latitude { get; set; }
 
