@@ -1,0 +1,167 @@
+@inject IJSRuntime JSRuntime
+
+<div class="waterfall-size-control">
+	<div class="size-control-panel">
+		<div class="size-toggle" @onclick="TogglePanel" title="Adjust Size">
+			<i class="size-icon bi bi-sliders"></i>
+			<i class="size-icon-bg bi bi-circle-fill"></i>
+		</div>
+		
+		@if (_showPanel)
+		{
+			<div class="size-settings-panel">
+				<div class="size-setting">
+					<label for="tileWidth">
+						<i class="bi bi-grid-3x3-gap"></i> Tile Width
+						<span class="size-value">@_tileWidth px</span>
+					</label>
+					<input type="range" 
+						   id="tileWidth" 
+						   class="form-range" 
+						   min="200" 
+						   max="500" 
+						   step="25"
+						   value="@_tileWidth"
+						   @oninput="OnTileWidthChanged" />
+					<div class="size-hints">
+						<span>More columns</span>
+						<span>Fewer columns</span>
+					</div>
+				</div>
+				
+				<div class="size-setting">
+					<label for="modalScale">
+						<i class="bi bi-arrows-fullscreen"></i> Modal Size
+						<span class="size-value">@(_modalScale)%</span>
+					</label>
+					<input type="range" 
+						   id="modalScale" 
+						   class="form-range" 
+						   min="60" 
+						   max="140" 
+						   step="10"
+						   value="@_modalScale"
+						   @oninput="OnModalScaleChanged" />
+					<div class="size-hints">
+						<span>Smaller</span>
+						<span>Larger</span>
+					</div>
+				</div>
+
+				<div class="size-presets">
+					<button class="btn btn-sm btn-outline-secondary" @onclick="() => ApplyPreset(250, 100)">
+						Standard
+					</button>
+					<button class="btn btn-sm btn-outline-secondary" @onclick="() => ApplyPreset(200, 120)">
+						Large Screen
+					</button>
+					<button class="btn btn-sm btn-outline-secondary" @onclick="() => ApplyPreset(350, 80)">
+						Compact
+					</button>
+				</div>
+			</div>
+		}
+	</div>
+</div>
+
+@code {
+	private bool _showPanel = false;
+	private int _tileWidth = 275; // Default from CSS
+	private int _modalScale = 100; // Default 100%
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			// Wait for the script to load and then initialize
+			await Task.Delay(100);
+			
+			// Load saved preferences from localStorage
+			try
+			{
+				var savedTileWidthString = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "tagzapp_tileWidth");
+				var savedModalScaleString = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "tagzapp_modalScale");
+
+				if (!string.IsNullOrEmpty(savedTileWidthString) && int.TryParse(savedTileWidthString, out var tileWidth))
+				{
+					_tileWidth = tileWidth;
+					await ApplyTileWidth();
+				}
+
+				if (!string.IsNullOrEmpty(savedModalScaleString) && int.TryParse(savedModalScaleString, out var modalScale))
+				{
+					_modalScale = modalScale;
+					await ApplyModalScale();
+				}
+
+				StateHasChanged();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Failed to load saved preferences: {ex.Message}");
+			}
+		}
+
+		await base.OnAfterRenderAsync(firstRender);
+	}
+
+	private void TogglePanel()
+	{
+		_showPanel = !_showPanel;
+	}
+
+	private async Task OnTileWidthChanged(ChangeEventArgs e)
+	{
+		if (int.TryParse(e.Value?.ToString(), out var value))
+		{
+			_tileWidth = value;
+			await ApplyTileWidth();
+			await JSRuntime.InvokeVoidAsync("localStorage.setItem", "tagzapp_tileWidth", _tileWidth.ToString());
+		}
+	}
+
+	private async Task OnModalScaleChanged(ChangeEventArgs e)
+	{
+		if (int.TryParse(e.Value?.ToString(), out var value))
+		{
+			_modalScale = value;
+			await ApplyModalScale();
+			await JSRuntime.InvokeVoidAsync("localStorage.setItem", "tagzapp_modalScale", _modalScale.ToString());
+		}
+	}
+
+	private async Task ApplyPreset(int tileWidth, int modalScale)
+	{
+		_tileWidth = tileWidth;
+		_modalScale = modalScale;
+		await ApplyTileWidth();
+		await ApplyModalScale();
+		await JSRuntime.InvokeVoidAsync("localStorage.setItem", "tagzapp_tileWidth", _tileWidth.ToString());
+		await JSRuntime.InvokeVoidAsync("localStorage.setItem", "tagzapp_modalScale", _modalScale.ToString());
+		StateHasChanged();
+	}
+
+	private async Task ApplyTileWidth()
+	{
+		try
+		{
+			await JSRuntime.InvokeVoidAsync("WaterfallSizeControl.setTileWidth", _tileWidth);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Failed to apply tile width: {ex.Message}");
+		}
+	}
+
+	private async Task ApplyModalScale()
+	{
+		try
+		{
+			await JSRuntime.InvokeVoidAsync("WaterfallSizeControl.setModalScale", _modalScale);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Failed to apply modal scale: {ex.Message}");
+		}
+	}
+}

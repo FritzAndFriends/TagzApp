@@ -2,12 +2,14 @@
 
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
+@using TagzApp.Blazor.Services
 
 @inject UserManager<TagzAppUser> UserManager
 @inject SignInManager<TagzAppUser> SignInManager
 @inject IdentityUserAccessor UserAccessor
 @inject IUserStore<TagzAppUser> UserStore
 @inject IdentityRedirectManager RedirectManager
+@inject IConfigureTagzApp ConfigService
 
 <PageTitle>Manage your external logins</PageTitle>
 
@@ -86,7 +88,22 @@
     {
         user = await UserAccessor.GetRequiredUserAsync(HttpContext);
         currentLogins = await UserManager.GetLoginsAsync(user);
-        otherLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync())
+        
+        // Get all external authentication schemes
+        var allExternalSchemes = await SignInManager.GetExternalAuthenticationSchemesAsync();
+        
+        // Filter schemes to only include those that are properly configured
+        var configuredSchemes = new List<AuthenticationScheme>();
+        foreach (var scheme in allExternalSchemes)
+        {
+            if (await DynamicAuthMiddleware.CheckProviderConfiguration(ConfigService, scheme.Name))
+            {
+                configuredSchemes.Add(scheme);
+            }
+        }
+        
+        // Filter out schemes that the user already has linked
+        otherLogins = configuredSchemes
             .Where(auth => currentLogins.All(ul => auth.Name != ul.LoginProvider))
             .ToList();
 

@@ -1,14 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Fritz.Charlie.Components.Map;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using TagzApp.Communication;
-using TagzApp.Security;
 using TagzApp.Storage.Postgres;
 using TagzApp.Storage.Postgres.SafetyModeration;
-using TagzApp.Storage.Postgres.Security.Migrations;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -20,7 +18,9 @@ public static class AppExtensions
 	public static IServiceCollection AddPostgresServices(this IHostApplicationBuilder builder, IConfigureTagzApp configureTagzApp, ConnectionSettings connectionSettings)
 	{
 
-		builder.AddNpgsqlDbContext<TagzAppContext>("tagzappdb");
+		builder.AddNpgsqlDbContext<TagzAppContext>(connectionSettings.ContentConnectionString);
+		builder.Services.AddSingleton<IViewerLocationService, PostgresViewerLocationService>();
+		builder.Services.AddSingleton<ILocationRepository, PostgresViewerLocationService>();
 
 
 		//services.AddScoped<IProviderConfigurationRepository, PostgresProviderConfigurationRepository>();

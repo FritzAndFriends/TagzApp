@@ -17,7 +17,7 @@ namespace TagzApp.Storage.Postgres.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.6")
+                .HasAnnotation("ProductVersion", "9.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -71,7 +71,12 @@ namespace TagzApp.Storage.Postgres.Migrations
 
                     b.Property<string>("Author")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("AuthorUserName")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("text")
+                        .HasComputedColumnSql("lower((\"Author\" ->> 'UserName'))", true);
 
                     b.Property<string>("Emotes")
                         .HasColumnType("text");
@@ -113,7 +118,3699 @@ namespace TagzApp.Storage.Postgres.Migrations
 
                     b.HasAlternateKey("Provider", "ProviderId");
 
+                    b.HasIndex("Provider", "AuthorUserName", "Timestamp");
+
                     b.ToTable("Content");
+                });
+
+            modelBuilder.Entity("TagzApp.Storage.Postgres.PgGeolocation", b =>
+                {
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Latitude")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("Longitude")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Name");
+
+                    b.ToTable("Locations");
+
+                    b.HasData(
+                        new
+                        {
+                            Name = "Tokyo",
+                            Latitude = 35.6762m,
+                            Longitude = 139.6503m
+                        },
+                        new
+                        {
+                            Name = "Delhi",
+                            Latitude = 28.7041m,
+                            Longitude = 77.1025m
+                        },
+                        new
+                        {
+                            Name = "Shanghai",
+                            Latitude = 31.2304m,
+                            Longitude = 121.4737m
+                        },
+                        new
+                        {
+                            Name = "Dhaka",
+                            Latitude = 23.8103m,
+                            Longitude = 90.4125m
+                        },
+                        new
+                        {
+                            Name = "São Paulo",
+                            Latitude = -23.5505m,
+                            Longitude = -46.6333m
+                        },
+                        new
+                        {
+                            Name = "Cairo",
+                            Latitude = 30.0444m,
+                            Longitude = 31.2357m
+                        },
+                        new
+                        {
+                            Name = "Mexico City",
+                            Latitude = 19.4326m,
+                            Longitude = -99.1332m
+                        },
+                        new
+                        {
+                            Name = "Beijing",
+                            Latitude = 39.9042m,
+                            Longitude = 116.4074m
+                        },
+                        new
+                        {
+                            Name = "Osaka",
+                            Latitude = 34.6937m,
+                            Longitude = 135.5023m
+                        },
+                        new
+                        {
+                            Name = "Chongqing",
+                            Latitude = 29.5630m,
+                            Longitude = 106.5516m
+                        },
+                        new
+                        {
+                            Name = "Karachi",
+                            Latitude = 24.8607m,
+                            Longitude = 67.0011m
+                        },
+                        new
+                        {
+                            Name = "Istanbul",
+                            Latitude = 41.0082m,
+                            Longitude = 28.9784m
+                        },
+                        new
+                        {
+                            Name = "Kinshasa",
+                            Latitude = -4.4419m,
+                            Longitude = 15.2663m
+                        },
+                        new
+                        {
+                            Name = "Lagos",
+                            Latitude = 6.5244m,
+                            Longitude = 3.3792m
+                        },
+                        new
+                        {
+                            Name = "Buenos Aires",
+                            Latitude = -34.6037m,
+                            Longitude = -58.3816m
+                        },
+                        new
+                        {
+                            Name = "Kolkata",
+                            Latitude = 22.5726m,
+                            Longitude = 88.3639m
+                        },
+                        new
+                        {
+                            Name = "Manila",
+                            Latitude = 14.5995m,
+                            Longitude = 120.9842m
+                        },
+                        new
+                        {
+                            Name = "Tianjin",
+                            Latitude = 39.1042m,
+                            Longitude = 117.1917m
+                        },
+                        new
+                        {
+                            Name = "Guangzhou",
+                            Latitude = 23.1291m,
+                            Longitude = 113.2644m
+                        },
+                        new
+                        {
+                            Name = "Rio de Janeiro",
+                            Latitude = -22.9068m,
+                            Longitude = -43.1729m
+                        },
+                        new
+                        {
+                            Name = "Lahore",
+                            Latitude = 31.5497m,
+                            Longitude = 74.3436m
+                        },
+                        new
+                        {
+                            Name = "Bangalore",
+                            Latitude = 12.9716m,
+                            Longitude = 77.5946m
+                        },
+                        new
+                        {
+                            Name = "Shenzhen",
+                            Latitude = 22.5431m,
+                            Longitude = 114.0579m
+                        },
+                        new
+                        {
+                            Name = "Moscow",
+                            Latitude = 55.7558m,
+                            Longitude = 37.6176m
+                        },
+                        new
+                        {
+                            Name = "Chennai",
+                            Latitude = 13.0827m,
+                            Longitude = 80.2707m
+                        },
+                        new
+                        {
+                            Name = "Bogotá",
+                            Latitude = 4.7110m,
+                            Longitude = -74.0721m
+                        },
+                        new
+                        {
+                            Name = "Paris",
+                            Latitude = 48.8566m,
+                            Longitude = 2.3522m
+                        },
+                        new
+                        {
+                            Name = "Jakarta",
+                            Latitude = -6.2088m,
+                            Longitude = 106.8456m
+                        },
+                        new
+                        {
+                            Name = "Lima",
+                            Latitude = -12.0464m,
+                            Longitude = -77.0428m
+                        },
+                        new
+                        {
+                            Name = "Bangkok",
+                            Latitude = 13.7563m,
+                            Longitude = 100.5018m
+                        },
+                        new
+                        {
+                            Name = "Seoul",
+                            Latitude = 37.5665m,
+                            Longitude = 126.9780m
+                        },
+                        new
+                        {
+                            Name = "Nagoya",
+                            Latitude = 35.1815m,
+                            Longitude = 136.9066m
+                        },
+                        new
+                        {
+                            Name = "Hyderabad",
+                            Latitude = 17.3850m,
+                            Longitude = 78.4867m
+                        },
+                        new
+                        {
+                            Name = "London",
+                            Latitude = 51.5074m,
+                            Longitude = -0.1278m
+                        },
+                        new
+                        {
+                            Name = "Tehran",
+                            Latitude = 35.6892m,
+                            Longitude = 51.3890m
+                        },
+                        new
+                        {
+                            Name = "Chicago",
+                            Latitude = 41.8781m,
+                            Longitude = -87.6298m
+                        },
+                        new
+                        {
+                            Name = "Chengdu",
+                            Latitude = 30.5728m,
+                            Longitude = 104.0668m
+                        },
+                        new
+                        {
+                            Name = "Nanjing",
+                            Latitude = 32.0603m,
+                            Longitude = 118.7969m
+                        },
+                        new
+                        {
+                            Name = "Wuhan",
+                            Latitude = 30.5928m,
+                            Longitude = 114.3055m
+                        },
+                        new
+                        {
+                            Name = "Ho Chi Minh City",
+                            Latitude = 10.8231m,
+                            Longitude = 106.6297m
+                        },
+                        new
+                        {
+                            Name = "Luanda",
+                            Latitude = -8.8390m,
+                            Longitude = 13.2894m
+                        },
+                        new
+                        {
+                            Name = "Ahmedabad",
+                            Latitude = 23.0225m,
+                            Longitude = 72.5714m
+                        },
+                        new
+                        {
+                            Name = "Kuala Lumpur",
+                            Latitude = 3.1390m,
+                            Longitude = 101.6869m
+                        },
+                        new
+                        {
+                            Name = "Xi'an",
+                            Latitude = 34.3416m,
+                            Longitude = 108.9398m
+                        },
+                        new
+                        {
+                            Name = "Hong Kong",
+                            Latitude = 22.3193m,
+                            Longitude = 114.1694m
+                        },
+                        new
+                        {
+                            Name = "Dongguan",
+                            Latitude = 23.0489m,
+                            Longitude = 113.7447m
+                        },
+                        new
+                        {
+                            Name = "Hangzhou",
+                            Latitude = 30.2741m,
+                            Longitude = 120.1551m
+                        },
+                        new
+                        {
+                            Name = "Foshan",
+                            Latitude = 23.0218m,
+                            Longitude = 113.1219m
+                        },
+                        new
+                        {
+                            Name = "Shenyang",
+                            Latitude = 41.8057m,
+                            Longitude = 123.4315m
+                        },
+                        new
+                        {
+                            Name = "Los Angeles",
+                            Latitude = 34.0522m,
+                            Longitude = -118.2437m
+                        },
+                        new
+                        {
+                            Name = "San Antonio",
+                            Latitude = 29.4241m,
+                            Longitude = -98.4936m
+                        },
+                        new
+                        {
+                            Name = "San Diego",
+                            Latitude = 32.7157m,
+                            Longitude = -117.1611m
+                        },
+                        new
+                        {
+                            Name = "Fort Worth",
+                            Latitude = 32.7555m,
+                            Longitude = -97.3308m
+                        },
+                        new
+                        {
+                            Name = "San Jose",
+                            Latitude = 37.3382m,
+                            Longitude = -121.8863m
+                        },
+                        new
+                        {
+                            Name = "Austin",
+                            Latitude = 30.2672m,
+                            Longitude = -97.7431m
+                        },
+                        new
+                        {
+                            Name = "Jacksonville",
+                            Latitude = 30.3322m,
+                            Longitude = -81.6557m
+                        },
+                        new
+                        {
+                            Name = "Columbus",
+                            Latitude = 39.9612m,
+                            Longitude = -82.9988m
+                        },
+                        new
+                        {
+                            Name = "Charlotte",
+                            Latitude = 35.2271m,
+                            Longitude = -80.8431m
+                        },
+                        new
+                        {
+                            Name = "San Francisco",
+                            Latitude = 37.7749m,
+                            Longitude = -122.4194m
+                        },
+                        new
+                        {
+                            Name = "Indianapolis",
+                            Latitude = 39.7684m,
+                            Longitude = -86.1581m
+                        },
+                        new
+                        {
+                            Name = "Seattle",
+                            Latitude = 47.6062m,
+                            Longitude = -122.3321m
+                        },
+                        new
+                        {
+                            Name = "Denver",
+                            Latitude = 39.7392m,
+                            Longitude = -104.9903m
+                        },
+                        new
+                        {
+                            Name = "Boston",
+                            Latitude = 42.3601m,
+                            Longitude = -71.0589m
+                        },
+                        new
+                        {
+                            Name = "El Paso",
+                            Latitude = 31.7619m,
+                            Longitude = -106.4850m
+                        },
+                        new
+                        {
+                            Name = "Detroit",
+                            Latitude = 42.3314m,
+                            Longitude = -83.0458m
+                        },
+                        new
+                        {
+                            Name = "Nashville",
+                            Latitude = 36.1627m,
+                            Longitude = -86.7816m
+                        },
+                        new
+                        {
+                            Name = "Portland",
+                            Latitude = 45.5152m,
+                            Longitude = -122.6784m
+                        },
+                        new
+                        {
+                            Name = "Memphis",
+                            Latitude = 35.1495m,
+                            Longitude = -90.0490m
+                        },
+                        new
+                        {
+                            Name = "Oklahoma City",
+                            Latitude = 35.4676m,
+                            Longitude = -97.5164m
+                        },
+                        new
+                        {
+                            Name = "Las Vegas",
+                            Latitude = 36.1699m,
+                            Longitude = -115.1398m
+                        },
+                        new
+                        {
+                            Name = "Louisville",
+                            Latitude = 38.2527m,
+                            Longitude = -85.7585m
+                        },
+                        new
+                        {
+                            Name = "Baltimore",
+                            Latitude = 39.2904m,
+                            Longitude = -76.6122m
+                        },
+                        new
+                        {
+                            Name = "Milwaukee",
+                            Latitude = 43.0389m,
+                            Longitude = -87.9065m
+                        },
+                        new
+                        {
+                            Name = "Albuquerque",
+                            Latitude = 35.0844m,
+                            Longitude = -106.6504m
+                        },
+                        new
+                        {
+                            Name = "Tucson",
+                            Latitude = 32.2226m,
+                            Longitude = -110.9747m
+                        },
+                        new
+                        {
+                            Name = "Fresno",
+                            Latitude = 36.7378m,
+                            Longitude = -119.7871m
+                        },
+                        new
+                        {
+                            Name = "Mesa",
+                            Latitude = 33.4152m,
+                            Longitude = -111.8315m
+                        },
+                        new
+                        {
+                            Name = "Sacramento",
+                            Latitude = 38.5816m,
+                            Longitude = -121.4944m
+                        },
+                        new
+                        {
+                            Name = "Kansas City",
+                            Latitude = 39.0997m,
+                            Longitude = -94.5786m
+                        },
+                        new
+                        {
+                            Name = "Atlanta",
+                            Latitude = 33.7490m,
+                            Longitude = -84.3880m
+                        },
+                        new
+                        {
+                            Name = "Long Beach",
+                            Latitude = 33.7701m,
+                            Longitude = -118.1937m
+                        },
+                        new
+                        {
+                            Name = "Colorado Springs",
+                            Latitude = 38.8339m,
+                            Longitude = -104.8214m
+                        },
+                        new
+                        {
+                            Name = "Raleigh",
+                            Latitude = 35.7796m,
+                            Longitude = -78.6382m
+                        },
+                        new
+                        {
+                            Name = "Omaha",
+                            Latitude = 41.2565m,
+                            Longitude = -95.9345m
+                        },
+                        new
+                        {
+                            Name = "Virginia Beach",
+                            Latitude = 36.8529m,
+                            Longitude = -75.9780m
+                        },
+                        new
+                        {
+                            Name = "Oakland",
+                            Latitude = 37.8044m,
+                            Longitude = -122.2711m
+                        },
+                        new
+                        {
+                            Name = "Minneapolis",
+                            Latitude = 44.9778m,
+                            Longitude = -93.2650m
+                        },
+                        new
+                        {
+                            Name = "Tulsa",
+                            Latitude = 36.1540m,
+                            Longitude = -95.9928m
+                        },
+                        new
+                        {
+                            Name = "Arlington",
+                            Latitude = 32.7357m,
+                            Longitude = -97.1081m
+                        },
+                        new
+                        {
+                            Name = "Tampa",
+                            Latitude = 27.9506m,
+                            Longitude = -82.4572m
+                        },
+                        new
+                        {
+                            Name = "New Orleans",
+                            Latitude = 29.9511m,
+                            Longitude = -90.0715m
+                        },
+                        new
+                        {
+                            Name = "Wichita",
+                            Latitude = 37.6872m,
+                            Longitude = -97.3301m
+                        },
+                        new
+                        {
+                            Name = "Cleveland",
+                            Latitude = 41.4993m,
+                            Longitude = -81.6944m
+                        },
+                        new
+                        {
+                            Name = "Bakersfield",
+                            Latitude = 35.3733m,
+                            Longitude = -119.0187m
+                        },
+                        new
+                        {
+                            Name = "Aurora",
+                            Latitude = 39.7294m,
+                            Longitude = -104.8319m
+                        },
+                        new
+                        {
+                            Name = "Anaheim",
+                            Latitude = 33.8366m,
+                            Longitude = -117.9143m
+                        },
+                        new
+                        {
+                            Name = "Honolulu",
+                            Latitude = 21.3099m,
+                            Longitude = -157.8581m
+                        },
+                        new
+                        {
+                            Name = "Santa Ana",
+                            Latitude = 33.7455m,
+                            Longitude = -117.8677m
+                        },
+                        new
+                        {
+                            Name = "Corpus Christi",
+                            Latitude = 27.8006m,
+                            Longitude = -97.3964m
+                        },
+                        new
+                        {
+                            Name = "Riverside",
+                            Latitude = 33.9533m,
+                            Longitude = -117.3962m
+                        },
+                        new
+                        {
+                            Name = "Lexington",
+                            Latitude = 38.0406m,
+                            Longitude = -84.5037m
+                        },
+                        new
+                        {
+                            Name = "Henderson",
+                            Latitude = 36.0395m,
+                            Longitude = -114.9817m
+                        },
+                        new
+                        {
+                            Name = "Stockton",
+                            Latitude = 37.9577m,
+                            Longitude = -121.2908m
+                        },
+                        new
+                        {
+                            Name = "Saint Paul",
+                            Latitude = 44.9537m,
+                            Longitude = -93.0900m
+                        },
+                        new
+                        {
+                            Name = "St. Louis",
+                            Latitude = 38.6270m,
+                            Longitude = -90.1994m
+                        },
+                        new
+                        {
+                            Name = "Cincinnati",
+                            Latitude = 39.1031m,
+                            Longitude = -84.5120m
+                        },
+                        new
+                        {
+                            Name = "Pittsburgh",
+                            Latitude = 40.4406m,
+                            Longitude = -79.9959m
+                        },
+                        new
+                        {
+                            Name = "Greensboro",
+                            Latitude = 36.0726m,
+                            Longitude = -79.7920m
+                        },
+                        new
+                        {
+                            Name = "Lincoln",
+                            Latitude = 40.8136m,
+                            Longitude = -96.7026m
+                        },
+                        new
+                        {
+                            Name = "Plano",
+                            Latitude = 33.0198m,
+                            Longitude = -96.6989m
+                        },
+                        new
+                        {
+                            Name = "Anchorage",
+                            Latitude = 61.2181m,
+                            Longitude = -149.9003m
+                        },
+                        new
+                        {
+                            Name = "Orlando",
+                            Latitude = 28.5383m,
+                            Longitude = -81.3792m
+                        },
+                        new
+                        {
+                            Name = "Irvine",
+                            Latitude = 33.6846m,
+                            Longitude = -117.8265m
+                        },
+                        new
+                        {
+                            Name = "Newark",
+                            Latitude = 40.7357m,
+                            Longitude = -74.1724m
+                        },
+                        new
+                        {
+                            Name = "Durham",
+                            Latitude = 35.9940m,
+                            Longitude = -78.8986m
+                        },
+                        new
+                        {
+                            Name = "Chula Vista",
+                            Latitude = 32.6401m,
+                            Longitude = -117.0842m
+                        },
+                        new
+                        {
+                            Name = "Toledo",
+                            Latitude = 41.6528m,
+                            Longitude = -83.5379m
+                        },
+                        new
+                        {
+                            Name = "Fort Wayne",
+                            Latitude = 41.0793m,
+                            Longitude = -85.1394m
+                        },
+                        new
+                        {
+                            Name = "St. Petersburg",
+                            Latitude = 27.7676m,
+                            Longitude = -82.6403m
+                        },
+                        new
+                        {
+                            Name = "Laredo",
+                            Latitude = 27.5306m,
+                            Longitude = -99.4803m
+                        },
+                        new
+                        {
+                            Name = "Jersey City",
+                            Latitude = 40.7178m,
+                            Longitude = -74.0431m
+                        },
+                        new
+                        {
+                            Name = "Chandler",
+                            Latitude = 33.3062m,
+                            Longitude = -111.8413m
+                        },
+                        new
+                        {
+                            Name = "Madison",
+                            Latitude = 43.0731m,
+                            Longitude = -89.4012m
+                        },
+                        new
+                        {
+                            Name = "Lubbock",
+                            Latitude = 33.5779m,
+                            Longitude = -101.8552m
+                        },
+                        new
+                        {
+                            Name = "Norfolk",
+                            Latitude = 36.8468m,
+                            Longitude = -76.2852m
+                        },
+                        new
+                        {
+                            Name = "Baton Rouge",
+                            Latitude = 30.4515m,
+                            Longitude = -91.1871m
+                        },
+                        new
+                        {
+                            Name = "Burnaby",
+                            Latitude = 49.2488m,
+                            Longitude = -122.9805m
+                        },
+                        new
+                        {
+                            Name = "Hialeah",
+                            Latitude = 25.8576m,
+                            Longitude = -80.2781m
+                        },
+                        new
+                        {
+                            Name = "Garland",
+                            Latitude = 32.9126m,
+                            Longitude = -96.6389m
+                        },
+                        new
+                        {
+                            Name = "Scottsdale",
+                            Latitude = 33.4942m,
+                            Longitude = -111.9261m
+                        },
+                        new
+                        {
+                            Name = "Irving",
+                            Latitude = 32.8140m,
+                            Longitude = -96.9489m
+                        },
+                        new
+                        {
+                            Name = "Chesapeake",
+                            Latitude = 36.7682m,
+                            Longitude = -76.2875m
+                        },
+                        new
+                        {
+                            Name = "North Las Vegas",
+                            Latitude = 36.1989m,
+                            Longitude = -115.1175m
+                        },
+                        new
+                        {
+                            Name = "Fremont",
+                            Latitude = 37.5485m,
+                            Longitude = -121.9886m
+                        },
+                        new
+                        {
+                            Name = "Gilbert",
+                            Latitude = 33.3528m,
+                            Longitude = -111.7890m
+                        },
+                        new
+                        {
+                            Name = "San Bernardino",
+                            Latitude = 34.1083m,
+                            Longitude = -117.2898m
+                        },
+                        new
+                        {
+                            Name = "Boise",
+                            Latitude = 43.6150m,
+                            Longitude = -116.2023m
+                        },
+                        new
+                        {
+                            Name = "Birmingham AL",
+                            Latitude = 33.5207m,
+                            Longitude = -86.8025m
+                        },
+                        new
+                        {
+                            Name = "Spokane",
+                            Latitude = 47.6587m,
+                            Longitude = -117.4260m
+                        },
+                        new
+                        {
+                            Name = "Rochester",
+                            Latitude = 43.1566m,
+                            Longitude = -77.6088m
+                        },
+                        new
+                        {
+                            Name = "Des Moines",
+                            Latitude = 41.5868m,
+                            Longitude = -93.6250m
+                        },
+                        new
+                        {
+                            Name = "Modesto",
+                            Latitude = 37.6391m,
+                            Longitude = -120.9969m
+                        },
+                        new
+                        {
+                            Name = "Fayetteville",
+                            Latitude = 35.0527m,
+                            Longitude = -78.8784m
+                        },
+                        new
+                        {
+                            Name = "Tacoma",
+                            Latitude = 47.2529m,
+                            Longitude = -122.4443m
+                        },
+                        new
+                        {
+                            Name = "Oxnard",
+                            Latitude = 34.1975m,
+                            Longitude = -119.1771m
+                        },
+                        new
+                        {
+                            Name = "Fontana",
+                            Latitude = 34.0922m,
+                            Longitude = -117.4350m
+                        },
+                        new
+                        {
+                            Name = "Columbus GA",
+                            Latitude = 32.4609m,
+                            Longitude = -84.9877m
+                        },
+                        new
+                        {
+                            Name = "Montgomery",
+                            Latitude = 32.3617m,
+                            Longitude = -86.2792m
+                        },
+                        new
+                        {
+                            Name = "Moreno Valley",
+                            Latitude = 33.9425m,
+                            Longitude = -117.2297m
+                        },
+                        new
+                        {
+                            Name = "Shreveport",
+                            Latitude = 32.5252m,
+                            Longitude = -93.7502m
+                        },
+                        new
+                        {
+                            Name = "Aurora IL",
+                            Latitude = 41.7606m,
+                            Longitude = -88.3201m
+                        },
+                        new
+                        {
+                            Name = "Yonkers",
+                            Latitude = 40.9312m,
+                            Longitude = -73.8988m
+                        },
+                        new
+                        {
+                            Name = "Huntington Beach",
+                            Latitude = 33.6603m,
+                            Longitude = -117.9992m
+                        },
+                        new
+                        {
+                            Name = "Little Rock",
+                            Latitude = 34.7465m,
+                            Longitude = -92.2896m
+                        },
+                        new
+                        {
+                            Name = "Augusta",
+                            Latitude = 33.4735m,
+                            Longitude = -82.0105m
+                        },
+                        new
+                        {
+                            Name = "Amarillo",
+                            Latitude = 35.2220m,
+                            Longitude = -101.8313m
+                        },
+                        new
+                        {
+                            Name = "Glendale",
+                            Latitude = 33.5387m,
+                            Longitude = -112.1860m
+                        },
+                        new
+                        {
+                            Name = "Mobile",
+                            Latitude = 30.6954m,
+                            Longitude = -88.0399m
+                        },
+                        new
+                        {
+                            Name = "Grand Rapids",
+                            Latitude = 42.9634m,
+                            Longitude = -85.6681m
+                        },
+                        new
+                        {
+                            Name = "Salt Lake City",
+                            Latitude = 40.7608m,
+                            Longitude = -111.8910m
+                        },
+                        new
+                        {
+                            Name = "Tallahassee",
+                            Latitude = 30.4518m,
+                            Longitude = -84.2807m
+                        },
+                        new
+                        {
+                            Name = "Huntsville",
+                            Latitude = 34.7304m,
+                            Longitude = -86.5861m
+                        },
+                        new
+                        {
+                            Name = "Toronto",
+                            Latitude = 43.6532m,
+                            Longitude = -79.3832m
+                        },
+                        new
+                        {
+                            Name = "Montreal",
+                            Latitude = 45.5017m,
+                            Longitude = -73.5673m
+                        },
+                        new
+                        {
+                            Name = "Vancouver",
+                            Latitude = 49.2827m,
+                            Longitude = -123.1207m
+                        },
+                        new
+                        {
+                            Name = "Calgary",
+                            Latitude = 51.0447m,
+                            Longitude = -114.0719m
+                        },
+                        new
+                        {
+                            Name = "Edmonton",
+                            Latitude = 53.5461m,
+                            Longitude = -113.4938m
+                        },
+                        new
+                        {
+                            Name = "Ottawa",
+                            Latitude = 45.4215m,
+                            Longitude = -75.6972m
+                        },
+                        new
+                        {
+                            Name = "Mississauga",
+                            Latitude = 43.5890m,
+                            Longitude = -79.6441m
+                        },
+                        new
+                        {
+                            Name = "Winnipeg",
+                            Latitude = 49.8951m,
+                            Longitude = -97.1384m
+                        },
+                        new
+                        {
+                            Name = "Quebec City",
+                            Latitude = 46.8139m,
+                            Longitude = -71.2080m
+                        },
+                        new
+                        {
+                            Name = "Hamilton",
+                            Latitude = 43.2557m,
+                            Longitude = -79.8711m
+                        },
+                        new
+                        {
+                            Name = "Brampton",
+                            Latitude = 43.7315m,
+                            Longitude = -79.7624m
+                        },
+                        new
+                        {
+                            Name = "Surrey",
+                            Latitude = 49.1913m,
+                            Longitude = -122.8490m
+                        },
+                        new
+                        {
+                            Name = "Laval",
+                            Latitude = 45.6066m,
+                            Longitude = -73.7124m
+                        },
+                        new
+                        {
+                            Name = "Halifax",
+                            Latitude = 44.6488m,
+                            Longitude = -63.5752m
+                        },
+                        new
+                        {
+                            Name = "London ON",
+                            Latitude = 42.9849m,
+                            Longitude = -81.2453m
+                        },
+                        new
+                        {
+                            Name = "Markham",
+                            Latitude = 43.8561m,
+                            Longitude = -79.3370m
+                        },
+                        new
+                        {
+                            Name = "Vaughan",
+                            Latitude = 43.8361m,
+                            Longitude = -79.4985m
+                        },
+                        new
+                        {
+                            Name = "Gatineau",
+                            Latitude = 45.4765m,
+                            Longitude = -75.7013m
+                        },
+                        new
+                        {
+                            Name = "Saskatoon",
+                            Latitude = 52.1579m,
+                            Longitude = -106.6702m
+                        },
+                        new
+                        {
+                            Name = "Longueuil",
+                            Latitude = 45.5312m,
+                            Longitude = -73.5185m
+                        },
+                        new
+                        {
+                            Name = "Kitchener",
+                            Latitude = 43.4516m,
+                            Longitude = -80.4925m
+                        },
+                        new
+                        {
+                            Name = "Windsor",
+                            Latitude = 42.3149m,
+                            Longitude = -83.0364m
+                        },
+                        new
+                        {
+                            Name = "Regina",
+                            Latitude = 50.4452m,
+                            Longitude = -104.6189m
+                        },
+                        new
+                        {
+                            Name = "Richmond",
+                            Latitude = 49.1666m,
+                            Longitude = -123.1336m
+                        },
+                        new
+                        {
+                            Name = "Richmond Hill",
+                            Latitude = 43.8828m,
+                            Longitude = -79.4403m
+                        },
+                        new
+                        {
+                            Name = "Oakville",
+                            Latitude = 43.4675m,
+                            Longitude = -79.6877m
+                        },
+                        new
+                        {
+                            Name = "Burlington",
+                            Latitude = 43.3255m,
+                            Longitude = -79.7990m
+                        },
+                        new
+                        {
+                            Name = "Oshawa",
+                            Latitude = 43.8971m,
+                            Longitude = -78.8658m
+                        },
+                        new
+                        {
+                            Name = "Sherbrooke",
+                            Latitude = 45.4042m,
+                            Longitude = -71.8929m
+                        },
+                        new
+                        {
+                            Name = "Saguenay",
+                            Latitude = 48.3844m,
+                            Longitude = -71.0559m
+                        },
+                        new
+                        {
+                            Name = "Lévis",
+                            Latitude = 46.8000m,
+                            Longitude = -71.1772m
+                        },
+                        new
+                        {
+                            Name = "Kelowna",
+                            Latitude = 49.8880m,
+                            Longitude = -119.4960m
+                        },
+                        new
+                        {
+                            Name = "Barrie",
+                            Latitude = 44.3894m,
+                            Longitude = -79.6903m
+                        },
+                        new
+                        {
+                            Name = "Abbotsford",
+                            Latitude = 49.0580m,
+                            Longitude = -122.2915m
+                        },
+                        new
+                        {
+                            Name = "Coquitlam",
+                            Latitude = 49.3273m,
+                            Longitude = -122.7816m
+                        },
+                        new
+                        {
+                            Name = "Trois-Rivières",
+                            Latitude = 46.3432m,
+                            Longitude = -72.5477m
+                        },
+                        new
+                        {
+                            Name = "St. Catharines",
+                            Latitude = 43.1594m,
+                            Longitude = -79.2469m
+                        },
+                        new
+                        {
+                            Name = "Guelph",
+                            Latitude = 43.5448m,
+                            Longitude = -80.2482m
+                        },
+                        new
+                        {
+                            Name = "Cambridge",
+                            Latitude = 43.3616m,
+                            Longitude = -80.3144m
+                        },
+                        new
+                        {
+                            Name = "Whitby",
+                            Latitude = 43.8975m,
+                            Longitude = -78.9429m
+                        },
+                        new
+                        {
+                            Name = "Ajax",
+                            Latitude = 43.8509m,
+                            Longitude = -79.0204m
+                        },
+                        new
+                        {
+                            Name = "Langley",
+                            Latitude = 49.1042m,
+                            Longitude = -122.6604m
+                        },
+                        new
+                        {
+                            Name = "Saanich",
+                            Latitude = 48.4833m,
+                            Longitude = -123.3667m
+                        },
+                        new
+                        {
+                            Name = "Terrebonne",
+                            Latitude = 45.7057m,
+                            Longitude = -73.6471m
+                        },
+                        new
+                        {
+                            Name = "Milton",
+                            Latitude = 43.5183m,
+                            Longitude = -79.8774m
+                        },
+                        new
+                        {
+                            Name = "St. John's",
+                            Latitude = 47.5615m,
+                            Longitude = -52.7126m
+                        },
+                        new
+                        {
+                            Name = "Moncton",
+                            Latitude = 46.0878m,
+                            Longitude = -64.7782m
+                        },
+                        new
+                        {
+                            Name = "Thunder Bay",
+                            Latitude = 48.3809m,
+                            Longitude = -89.2477m
+                        },
+                        new
+                        {
+                            Name = "Dieppe",
+                            Latitude = 46.0769m,
+                            Longitude = -64.6837m
+                        },
+                        new
+                        {
+                            Name = "Waterloo",
+                            Latitude = 43.4643m,
+                            Longitude = -80.5204m
+                        },
+                        new
+                        {
+                            Name = "Delta",
+                            Latitude = 49.0847m,
+                            Longitude = -123.0585m
+                        },
+                        new
+                        {
+                            Name = "Chatham-Kent",
+                            Latitude = 42.4045m,
+                            Longitude = -82.1915m
+                        },
+                        new
+                        {
+                            Name = "Guadalajara",
+                            Latitude = 20.6597m,
+                            Longitude = -103.3496m
+                        },
+                        new
+                        {
+                            Name = "Monterrey",
+                            Latitude = 25.6866m,
+                            Longitude = -100.3161m
+                        },
+                        new
+                        {
+                            Name = "Puebla",
+                            Latitude = 19.0414m,
+                            Longitude = -98.2063m
+                        },
+                        new
+                        {
+                            Name = "Tijuana",
+                            Latitude = 32.5149m,
+                            Longitude = -117.0382m
+                        },
+                        new
+                        {
+                            Name = "León",
+                            Latitude = 21.1619m,
+                            Longitude = -101.6921m
+                        },
+                        new
+                        {
+                            Name = "Juárez",
+                            Latitude = 31.6904m,
+                            Longitude = -106.4245m
+                        },
+                        new
+                        {
+                            Name = "Torreón",
+                            Latitude = 25.5428m,
+                            Longitude = -103.4068m
+                        },
+                        new
+                        {
+                            Name = "Querétaro",
+                            Latitude = 20.5888m,
+                            Longitude = -100.3899m
+                        },
+                        new
+                        {
+                            Name = "San Luis Potosí",
+                            Latitude = 22.1565m,
+                            Longitude = -100.9855m
+                        },
+                        new
+                        {
+                            Name = "Mérida",
+                            Latitude = 20.9674m,
+                            Longitude = -89.5926m
+                        },
+                        new
+                        {
+                            Name = "Mexicali",
+                            Latitude = 32.6245m,
+                            Longitude = -115.4523m
+                        },
+                        new
+                        {
+                            Name = "Aguascalientes",
+                            Latitude = 21.8853m,
+                            Longitude = -102.2916m
+                        },
+                        new
+                        {
+                            Name = "Hermosillo",
+                            Latitude = 29.0729m,
+                            Longitude = -110.9559m
+                        },
+                        new
+                        {
+                            Name = "Saltillo",
+                            Latitude = 25.4260m,
+                            Longitude = -101.0053m
+                        },
+                        new
+                        {
+                            Name = "Cancún",
+                            Latitude = 21.1619m,
+                            Longitude = -86.8515m
+                        },
+                        new
+                        {
+                            Name = "Culiacán",
+                            Latitude = 24.7999m,
+                            Longitude = -107.3943m
+                        },
+                        new
+                        {
+                            Name = "Chimalhuacán",
+                            Latitude = 19.4202m,
+                            Longitude = -98.9540m
+                        },
+                        new
+                        {
+                            Name = "Naucalpan",
+                            Latitude = 19.4775m,
+                            Longitude = -99.2386m
+                        },
+                        new
+                        {
+                            Name = "Tlalnepantla",
+                            Latitude = 19.5398m,
+                            Longitude = -99.1944m
+                        },
+                        new
+                        {
+                            Name = "Morelia",
+                            Latitude = 19.7069m,
+                            Longitude = -101.1956m
+                        },
+                        new
+                        {
+                            Name = "Chihuahua",
+                            Latitude = 28.6353m,
+                            Longitude = -106.0889m
+                        },
+                        new
+                        {
+                            Name = "Veracruz",
+                            Latitude = 19.1738m,
+                            Longitude = -96.1342m
+                        },
+                        new
+                        {
+                            Name = "Xalapa",
+                            Latitude = 19.5309m,
+                            Longitude = -96.9155m
+                        },
+                        new
+                        {
+                            Name = "Tampico",
+                            Latitude = 22.2317m,
+                            Longitude = -97.8674m
+                        },
+                        new
+                        {
+                            Name = "Tuxtla Gutiérrez",
+                            Latitude = 16.7516m,
+                            Longitude = -93.1161m
+                        },
+                        new
+                        {
+                            Name = "Reynosa",
+                            Latitude = 26.0756m,
+                            Longitude = -98.2789m
+                        },
+                        new
+                        {
+                            Name = "Tlaquepaque",
+                            Latitude = 20.6401m,
+                            Longitude = -103.2893m
+                        },
+                        new
+                        {
+                            Name = "Durango",
+                            Latitude = 24.0277m,
+                            Longitude = -104.6532m
+                        },
+                        new
+                        {
+                            Name = "Toluca",
+                            Latitude = 19.2926m,
+                            Longitude = -99.6568m
+                        },
+                        new
+                        {
+                            Name = "Mazatlán",
+                            Latitude = 23.2494m,
+                            Longitude = -106.4103m
+                        },
+                        new
+                        {
+                            Name = "Acapulco",
+                            Latitude = 16.8531m,
+                            Longitude = -99.8237m
+                        },
+                        new
+                        {
+                            Name = "Cuernavaca",
+                            Latitude = 18.9219m,
+                            Longitude = -99.2419m
+                        },
+                        new
+                        {
+                            Name = "Oaxaca",
+                            Latitude = 17.0732m,
+                            Longitude = -96.7266m
+                        },
+                        new
+                        {
+                            Name = "Ensenada",
+                            Latitude = 31.8665m,
+                            Longitude = -116.5956m
+                        },
+                        new
+                        {
+                            Name = "Matamoros",
+                            Latitude = 25.8698m,
+                            Longitude = -97.504m
+                        },
+                        new
+                        {
+                            Name = "Villahermosa",
+                            Latitude = 17.9892m,
+                            Longitude = -92.9475m
+                        },
+                        new
+                        {
+                            Name = "Pachuca",
+                            Latitude = 20.1011m,
+                            Longitude = -98.7591m
+                        },
+                        new
+                        {
+                            Name = "Irapuato",
+                            Latitude = 20.6767m,
+                            Longitude = -101.3542m
+                        },
+                        new
+                        {
+                            Name = "Nuevo Laredo",
+                            Latitude = 27.4758m,
+                            Longitude = -99.5065m
+                        },
+                        new
+                        {
+                            Name = "Berlin",
+                            Latitude = 52.5200m,
+                            Longitude = 13.4050m
+                        },
+                        new
+                        {
+                            Name = "Rome",
+                            Latitude = 41.9028m,
+                            Longitude = 12.4964m
+                        },
+                        new
+                        {
+                            Name = "Bucharest",
+                            Latitude = 44.4268m,
+                            Longitude = 26.1025m
+                        },
+                        new
+                        {
+                            Name = "Vienna",
+                            Latitude = 48.2082m,
+                            Longitude = 16.3738m
+                        },
+                        new
+                        {
+                            Name = "Hamburg",
+                            Latitude = 53.5511m,
+                            Longitude = 9.9937m
+                        },
+                        new
+                        {
+                            Name = "Warsaw",
+                            Latitude = 52.2297m,
+                            Longitude = 21.0122m
+                        },
+                        new
+                        {
+                            Name = "Budapest",
+                            Latitude = 47.4979m,
+                            Longitude = 19.0402m
+                        },
+                        new
+                        {
+                            Name = "Munich",
+                            Latitude = 48.1351m,
+                            Longitude = 11.5820m
+                        },
+                        new
+                        {
+                            Name = "Milan",
+                            Latitude = 45.4642m,
+                            Longitude = 9.1900m
+                        },
+                        new
+                        {
+                            Name = "Prague",
+                            Latitude = 50.0755m,
+                            Longitude = 14.4378m
+                        },
+                        new
+                        {
+                            Name = "Sofia",
+                            Latitude = 42.6977m,
+                            Longitude = 23.3219m
+                        },
+                        new
+                        {
+                            Name = "Birmingham",
+                            Latitude = 52.4862m,
+                            Longitude = -1.8904m
+                        },
+                        new
+                        {
+                            Name = "Cologne",
+                            Latitude = 50.9375m,
+                            Longitude = 6.9603m
+                        },
+                        new
+                        {
+                            Name = "Naples",
+                            Latitude = 40.8518m,
+                            Longitude = 14.2681m
+                        },
+                        new
+                        {
+                            Name = "Turin",
+                            Latitude = 45.0703m,
+                            Longitude = 7.6869m
+                        },
+                        new
+                        {
+                            Name = "Stockholm",
+                            Latitude = 59.3293m,
+                            Longitude = 18.0686m
+                        },
+                        new
+                        {
+                            Name = "Amsterdam",
+                            Latitude = 52.3676m,
+                            Longitude = 4.9041m
+                        },
+                        new
+                        {
+                            Name = "Zagreb",
+                            Latitude = 45.8150m,
+                            Longitude = 15.9819m
+                        },
+                        new
+                        {
+                            Name = "Marseille",
+                            Latitude = 43.2965m,
+                            Longitude = 5.3698m
+                        },
+                        new
+                        {
+                            Name = "Kraków",
+                            Latitude = 50.0647m,
+                            Longitude = 19.9450m
+                        },
+                        new
+                        {
+                            Name = "Frankfurt",
+                            Latitude = 50.1109m,
+                            Longitude = 8.6821m
+                        },
+                        new
+                        {
+                            Name = "Palermo",
+                            Latitude = 38.1157m,
+                            Longitude = 13.3613m
+                        },
+                        new
+                        {
+                            Name = "Łódź",
+                            Latitude = 51.7592m,
+                            Longitude = 19.4560m
+                        },
+                        new
+                        {
+                            Name = "Seville",
+                            Latitude = 37.3891m,
+                            Longitude = -5.9845m
+                        },
+                        new
+                        {
+                            Name = "Athens",
+                            Latitude = 37.9838m,
+                            Longitude = 23.7275m
+                        },
+                        new
+                        {
+                            Name = "Rotterdam",
+                            Latitude = 51.9244m,
+                            Longitude = 4.4777m
+                        },
+                        new
+                        {
+                            Name = "Zaragoza",
+                            Latitude = 41.6488m,
+                            Longitude = -0.8891m
+                        },
+                        new
+                        {
+                            Name = "Stuttgart",
+                            Latitude = 48.7758m,
+                            Longitude = 9.1829m
+                        },
+                        new
+                        {
+                            Name = "Düsseldorf",
+                            Latitude = 51.2277m,
+                            Longitude = 6.7735m
+                        },
+                        new
+                        {
+                            Name = "Genoa",
+                            Latitude = 44.4056m,
+                            Longitude = 8.9463m
+                        },
+                        new
+                        {
+                            Name = "The Hague",
+                            Latitude = 52.0705m,
+                            Longitude = 4.3007m
+                        },
+                        new
+                        {
+                            Name = "Dortmund",
+                            Latitude = 51.5136m,
+                            Longitude = 7.4653m
+                        },
+                        new
+                        {
+                            Name = "Essen",
+                            Latitude = 51.4556m,
+                            Longitude = 7.0116m
+                        },
+                        new
+                        {
+                            Name = "Málaga",
+                            Latitude = 36.7213m,
+                            Longitude = -4.4214m
+                        },
+                        new
+                        {
+                            Name = "Bremen",
+                            Latitude = 53.0793m,
+                            Longitude = 8.8017m
+                        },
+                        new
+                        {
+                            Name = "Leipzig",
+                            Latitude = 51.3397m,
+                            Longitude = 12.3731m
+                        },
+                        new
+                        {
+                            Name = "Dresden",
+                            Latitude = 51.0504m,
+                            Longitude = 13.7373m
+                        },
+                        new
+                        {
+                            Name = "Hannover",
+                            Latitude = 52.3759m,
+                            Longitude = 9.7320m
+                        },
+                        new
+                        {
+                            Name = "Gothenburg",
+                            Latitude = 57.7089m,
+                            Longitude = 11.9746m
+                        },
+                        new
+                        {
+                            Name = "Oslo",
+                            Latitude = 59.9139m,
+                            Longitude = 10.7522m
+                        },
+                        new
+                        {
+                            Name = "Helsinki",
+                            Latitude = 60.1699m,
+                            Longitude = 24.9384m
+                        },
+                        new
+                        {
+                            Name = "Copenhagen",
+                            Latitude = 55.6761m,
+                            Longitude = 12.5683m
+                        },
+                        new
+                        {
+                            Name = "Brussels",
+                            Latitude = 50.8503m,
+                            Longitude = 4.3517m
+                        },
+                        new
+                        {
+                            Name = "Antwerp",
+                            Latitude = 51.2194m,
+                            Longitude = 4.4025m
+                        },
+                        new
+                        {
+                            Name = "Florence",
+                            Latitude = 43.7696m,
+                            Longitude = 11.2558m
+                        },
+                        new
+                        {
+                            Name = "Wrocław",
+                            Latitude = 51.1079m,
+                            Longitude = 17.0385m
+                        },
+                        new
+                        {
+                            Name = "Poznań",
+                            Latitude = 52.4064m,
+                            Longitude = 16.9252m
+                        },
+                        new
+                        {
+                            Name = "Gdańsk",
+                            Latitude = 54.3520m,
+                            Longitude = 18.6466m
+                        },
+                        new
+                        {
+                            Name = "Nuremberg",
+                            Latitude = 49.4521m,
+                            Longitude = 11.0767m
+                        },
+                        new
+                        {
+                            Name = "Lyon",
+                            Latitude = 45.7640m,
+                            Longitude = 4.8357m
+                        },
+                        new
+                        {
+                            Name = "Toulouse",
+                            Latitude = 43.6047m,
+                            Longitude = 1.4442m
+                        },
+                        new
+                        {
+                            Name = "Nice",
+                            Latitude = 43.7102m,
+                            Longitude = 7.2620m
+                        },
+                        new
+                        {
+                            Name = "Nantes",
+                            Latitude = 47.2184m,
+                            Longitude = -1.5536m
+                        },
+                        new
+                        {
+                            Name = "Strasbourg",
+                            Latitude = 48.5734m,
+                            Longitude = 7.7521m
+                        },
+                        new
+                        {
+                            Name = "Montpellier",
+                            Latitude = 43.6110m,
+                            Longitude = 3.8767m
+                        },
+                        new
+                        {
+                            Name = "Bordeaux",
+                            Latitude = 44.8378m,
+                            Longitude = -0.5792m
+                        },
+                        new
+                        {
+                            Name = "Lille",
+                            Latitude = 50.6292m,
+                            Longitude = 3.0573m
+                        },
+                        new
+                        {
+                            Name = "Rennes",
+                            Latitude = 48.1173m,
+                            Longitude = -1.6778m
+                        },
+                        new
+                        {
+                            Name = "Reims",
+                            Latitude = 49.2583m,
+                            Longitude = 4.0317m
+                        },
+                        new
+                        {
+                            Name = "Liverpool",
+                            Latitude = 53.4084m,
+                            Longitude = -2.9916m
+                        },
+                        new
+                        {
+                            Name = "Glasgow",
+                            Latitude = 55.8642m,
+                            Longitude = -4.2518m
+                        },
+                        new
+                        {
+                            Name = "Edinburgh",
+                            Latitude = 55.9533m,
+                            Longitude = -3.1883m
+                        },
+                        new
+                        {
+                            Name = "Manchester",
+                            Latitude = 53.4808m,
+                            Longitude = -2.2426m
+                        },
+                        new
+                        {
+                            Name = "Leeds",
+                            Latitude = 53.8008m,
+                            Longitude = -1.5491m
+                        },
+                        new
+                        {
+                            Name = "Sheffield",
+                            Latitude = 53.3811m,
+                            Longitude = -1.4701m
+                        },
+                        new
+                        {
+                            Name = "Bradford",
+                            Latitude = 53.7960m,
+                            Longitude = -1.7594m
+                        },
+                        new
+                        {
+                            Name = "Newcastle",
+                            Latitude = 54.9783m,
+                            Longitude = -1.6178m
+                        },
+                        new
+                        {
+                            Name = "Belfast",
+                            Latitude = 54.5973m,
+                            Longitude = -5.9301m
+                        },
+                        new
+                        {
+                            Name = "Cardiff",
+                            Latitude = 51.4816m,
+                            Longitude = -3.1791m
+                        },
+                        new
+                        {
+                            Name = "Leicester",
+                            Latitude = 52.6369m,
+                            Longitude = -1.1398m
+                        },
+                        new
+                        {
+                            Name = "Coventry",
+                            Latitude = 52.4068m,
+                            Longitude = -1.5197m
+                        },
+                        new
+                        {
+                            Name = "Sunderland",
+                            Latitude = 54.9069m,
+                            Longitude = -1.3838m
+                        },
+                        new
+                        {
+                            Name = "Bristol",
+                            Latitude = 51.4545m,
+                            Longitude = -2.5879m
+                        },
+                        new
+                        {
+                            Name = "Nottingham",
+                            Latitude = 52.9548m,
+                            Longitude = -1.1581m
+                        },
+                        new
+                        {
+                            Name = "Plymouth",
+                            Latitude = 50.3755m,
+                            Longitude = -4.1427m
+                        },
+                        new
+                        {
+                            Name = "Stoke-on-Trent",
+                            Latitude = 53.0027m,
+                            Longitude = -2.1794m
+                        },
+                        new
+                        {
+                            Name = "Wolverhampton",
+                            Latitude = 52.5862m,
+                            Longitude = -2.1282m
+                        },
+                        new
+                        {
+                            Name = "Derby",
+                            Latitude = 52.9225m,
+                            Longitude = -1.4746m
+                        },
+                        new
+                        {
+                            Name = "Swansea",
+                            Latitude = 51.6214m,
+                            Longitude = -3.9436m
+                        },
+                        new
+                        {
+                            Name = "Southampton",
+                            Latitude = 50.9097m,
+                            Longitude = -1.4044m
+                        },
+                        new
+                        {
+                            Name = "Salford",
+                            Latitude = 53.4875m,
+                            Longitude = -2.2901m
+                        },
+                        new
+                        {
+                            Name = "Aberdeen",
+                            Latitude = 57.1497m,
+                            Longitude = -2.0943m
+                        },
+                        new
+                        {
+                            Name = "Westminster",
+                            Latitude = 51.4994m,
+                            Longitude = -0.1269m
+                        },
+                        new
+                        {
+                            Name = "Portsmouth",
+                            Latitude = 50.8198m,
+                            Longitude = -1.0880m
+                        },
+                        new
+                        {
+                            Name = "York",
+                            Latitude = 53.9600m,
+                            Longitude = -1.0873m
+                        },
+                        new
+                        {
+                            Name = "Peterborough",
+                            Latitude = 52.5695m,
+                            Longitude = -0.2405m
+                        },
+                        new
+                        {
+                            Name = "Norwich",
+                            Latitude = 52.6309m,
+                            Longitude = 1.2974m
+                        },
+                        new
+                        {
+                            Name = "Dundee",
+                            Latitude = 56.4620m,
+                            Longitude = -2.9707m
+                        },
+                        new
+                        {
+                            Name = "Valencia",
+                            Latitude = 39.4699m,
+                            Longitude = -0.3763m
+                        },
+                        new
+                        {
+                            Name = "Bilbao",
+                            Latitude = 43.2627m,
+                            Longitude = -2.9253m
+                        },
+                        new
+                        {
+                            Name = "Murcia",
+                            Latitude = 37.9922m,
+                            Longitude = -1.1307m
+                        },
+                        new
+                        {
+                            Name = "Palma",
+                            Latitude = 39.5696m,
+                            Longitude = 2.6502m
+                        },
+                        new
+                        {
+                            Name = "Las Palmas",
+                            Latitude = 28.1248m,
+                            Longitude = -15.4300m
+                        },
+                        new
+                        {
+                            Name = "Córdoba",
+                            Latitude = 37.8882m,
+                            Longitude = -4.7794m
+                        },
+                        new
+                        {
+                            Name = "Valladolid",
+                            Latitude = 41.6518m,
+                            Longitude = -4.7245m
+                        },
+                        new
+                        {
+                            Name = "Vigo",
+                            Latitude = 42.2406m,
+                            Longitude = -8.7207m
+                        },
+                        new
+                        {
+                            Name = "Gijón",
+                            Latitude = 43.5322m,
+                            Longitude = -5.6611m
+                        },
+                        new
+                        {
+                            Name = "L'Hospitalet",
+                            Latitude = 41.3598m,
+                            Longitude = 2.1074m
+                        },
+                        new
+                        {
+                            Name = "A Coruña",
+                            Latitude = 43.3623m,
+                            Longitude = -8.4115m
+                        },
+                        new
+                        {
+                            Name = "Vitoria-Gasteiz",
+                            Latitude = 42.8467m,
+                            Longitude = -2.6716m
+                        },
+                        new
+                        {
+                            Name = "Granada",
+                            Latitude = 37.1773m,
+                            Longitude = -3.5986m
+                        },
+                        new
+                        {
+                            Name = "Elche",
+                            Latitude = 38.2622m,
+                            Longitude = -0.7079m
+                        },
+                        new
+                        {
+                            Name = "Oviedo",
+                            Latitude = 43.3614m,
+                            Longitude = -5.8593m
+                        },
+                        new
+                        {
+                            Name = "Badalona",
+                            Latitude = 41.4502m,
+                            Longitude = 2.2445m
+                        },
+                        new
+                        {
+                            Name = "Cartagena",
+                            Latitude = 37.6063m,
+                            Longitude = -0.9836m
+                        },
+                        new
+                        {
+                            Name = "Terrassa",
+                            Latitude = 41.5648m,
+                            Longitude = 2.0101m
+                        },
+                        new
+                        {
+                            Name = "Jerez de la Frontera",
+                            Latitude = 36.6868m,
+                            Longitude = -6.1362m
+                        },
+                        new
+                        {
+                            Name = "Riyadh",
+                            Latitude = 24.7136m,
+                            Longitude = 46.6753m
+                        },
+                        new
+                        {
+                            Name = "Baghdad",
+                            Latitude = 33.3152m,
+                            Longitude = 44.3661m
+                        },
+                        new
+                        {
+                            Name = "Santiago",
+                            Latitude = -33.4489m,
+                            Longitude = -70.6693m
+                        },
+                        new
+                        {
+                            Name = "Surat",
+                            Latitude = 21.1702m,
+                            Longitude = 72.8311m
+                        },
+                        new
+                        {
+                            Name = "Madrid",
+                            Latitude = 40.4168m,
+                            Longitude = -3.7038m
+                        },
+                        new
+                        {
+                            Name = "Suzhou",
+                            Latitude = 31.2989m,
+                            Longitude = 120.5853m
+                        },
+                        new
+                        {
+                            Name = "Pune",
+                            Latitude = 18.5204m,
+                            Longitude = 73.8567m
+                        },
+                        new
+                        {
+                            Name = "Harbin",
+                            Latitude = 45.8038m,
+                            Longitude = 126.5349m
+                        },
+                        new
+                        {
+                            Name = "Houston",
+                            Latitude = 29.7604m,
+                            Longitude = -95.3698m
+                        },
+                        new
+                        {
+                            Name = "Dallas",
+                            Latitude = 32.7767m,
+                            Longitude = -96.7970m
+                        },
+                        new
+                        {
+                            Name = "Dar es Salaam",
+                            Latitude = -6.7924m,
+                            Longitude = 39.2083m
+                        },
+                        new
+                        {
+                            Name = "Miami",
+                            Latitude = 25.7617m,
+                            Longitude = -80.1918m
+                        },
+                        new
+                        {
+                            Name = "Belo Horizonte",
+                            Latitude = -19.9167m,
+                            Longitude = -43.9345m
+                        },
+                        new
+                        {
+                            Name = "Singapore",
+                            Latitude = 1.3521m,
+                            Longitude = 103.8198m
+                        },
+                        new
+                        {
+                            Name = "Philadelphia",
+                            Latitude = 39.9526m,
+                            Longitude = -75.1652m
+                        },
+                        new
+                        {
+                            Name = "Washington",
+                            Latitude = 38.9072m,
+                            Longitude = -77.0369m
+                        },
+                        new
+                        {
+                            Name = "Khartoum",
+                            Latitude = 15.5007m,
+                            Longitude = 32.5599m
+                        },
+                        new
+                        {
+                            Name = "Johannesburg",
+                            Latitude = -26.2041m,
+                            Longitude = 28.0473m
+                        },
+                        new
+                        {
+                            Name = "Saint Petersburg",
+                            Latitude = 59.9311m,
+                            Longitude = 30.3609m
+                        },
+                        new
+                        {
+                            Name = "Qingdao",
+                            Latitude = 36.0986m,
+                            Longitude = 120.3719m
+                        },
+                        new
+                        {
+                            Name = "Dalian",
+                            Latitude = 38.9140m,
+                            Longitude = 121.6147m
+                        },
+                        new
+                        {
+                            Name = "Yangon",
+                            Latitude = 16.8661m,
+                            Longitude = 96.1951m
+                        },
+                        new
+                        {
+                            Name = "Alexandria",
+                            Latitude = 31.2001m,
+                            Longitude = 29.9187m
+                        },
+                        new
+                        {
+                            Name = "Jinan",
+                            Latitude = 36.6512m,
+                            Longitude = 117.1201m
+                        },
+                        new
+                        {
+                            Name = "Ankara",
+                            Latitude = 39.9334m,
+                            Longitude = 32.8597m
+                        },
+                        new
+                        {
+                            Name = "Giza",
+                            Latitude = 30.0131m,
+                            Longitude = 31.2089m
+                        },
+                        new
+                        {
+                            Name = "Zhengzhou",
+                            Latitude = 34.7466m,
+                            Longitude = 113.6254m
+                        },
+                        new
+                        {
+                            Name = "Hefei",
+                            Latitude = 31.8639m,
+                            Longitude = 117.2808m
+                        },
+                        new
+                        {
+                            Name = "Hanoi",
+                            Latitude = 21.0285m,
+                            Longitude = 105.8542m
+                        },
+                        new
+                        {
+                            Name = "Sydney",
+                            Latitude = -33.8688m,
+                            Longitude = 151.2093m
+                        },
+                        new
+                        {
+                            Name = "Melbourne",
+                            Latitude = -37.8136m,
+                            Longitude = 144.9631m
+                        },
+                        new
+                        {
+                            Name = "Brasília",
+                            Latitude = -15.8267m,
+                            Longitude = -47.9218m
+                        },
+                        new
+                        {
+                            Name = "New York",
+                            Latitude = 40.7128m,
+                            Longitude = -74.0060m
+                        },
+                        new
+                        {
+                            Name = "Medellín",
+                            Latitude = 6.2442m,
+                            Longitude = -75.5812m
+                        },
+                        new
+                        {
+                            Name = "Phoenix",
+                            Latitude = 33.4484m,
+                            Longitude = -112.0740m
+                        },
+                        new
+                        {
+                            Name = "Changsha",
+                            Latitude = 28.2282m,
+                            Longitude = 112.9388m
+                        },
+                        new
+                        {
+                            Name = "Kunming",
+                            Latitude = 25.0389m,
+                            Longitude = 102.7183m
+                        },
+                        new
+                        {
+                            Name = "Lanzhou",
+                            Latitude = 36.0611m,
+                            Longitude = 103.8343m
+                        },
+                        new
+                        {
+                            Name = "Changchun",
+                            Latitude = 43.8171m,
+                            Longitude = 125.3235m
+                        },
+                        new
+                        {
+                            Name = "Shijiazhuang",
+                            Latitude = 38.0428m,
+                            Longitude = 114.5149m
+                        },
+                        new
+                        {
+                            Name = "Taiyuan",
+                            Latitude = 37.8706m,
+                            Longitude = 112.5489m
+                        },
+                        new
+                        {
+                            Name = "Mumbai",
+                            Latitude = 19.0760m,
+                            Longitude = 72.8777m
+                        },
+                        new
+                        {
+                            Name = "Jaipur",
+                            Latitude = 26.9124m,
+                            Longitude = 75.7873m
+                        },
+                        new
+                        {
+                            Name = "Lucknow",
+                            Latitude = 26.8467m,
+                            Longitude = 80.9462m
+                        },
+                        new
+                        {
+                            Name = "Kanpur",
+                            Latitude = 26.4499m,
+                            Longitude = 80.3319m
+                        },
+                        new
+                        {
+                            Name = "Nagpur",
+                            Latitude = 21.1458m,
+                            Longitude = 79.0882m
+                        },
+                        new
+                        {
+                            Name = "Indore",
+                            Latitude = 22.7196m,
+                            Longitude = 75.8577m
+                        },
+                        new
+                        {
+                            Name = "Thane",
+                            Latitude = 19.2183m,
+                            Longitude = 72.9781m
+                        },
+                        new
+                        {
+                            Name = "Bhopal",
+                            Latitude = 23.2599m,
+                            Longitude = 77.4126m
+                        },
+                        new
+                        {
+                            Name = "Visakhapatnam",
+                            Latitude = 17.6868m,
+                            Longitude = 83.2185m
+                        },
+                        new
+                        {
+                            Name = "Pimpri-Chinchwad",
+                            Latitude = 18.6298m,
+                            Longitude = 73.7997m
+                        },
+                        new
+                        {
+                            Name = "Patna",
+                            Latitude = 25.5941m,
+                            Longitude = 85.1376m
+                        },
+                        new
+                        {
+                            Name = "Vadodara",
+                            Latitude = 22.3072m,
+                            Longitude = 73.1812m
+                        },
+                        new
+                        {
+                            Name = "Ghaziabad",
+                            Latitude = 28.6692m,
+                            Longitude = 77.4538m
+                        },
+                        new
+                        {
+                            Name = "Ludhiana",
+                            Latitude = 30.9010m,
+                            Longitude = 75.8573m
+                        },
+                        new
+                        {
+                            Name = "Agra",
+                            Latitude = 27.1767m,
+                            Longitude = 78.0081m
+                        },
+                        new
+                        {
+                            Name = "Nashik",
+                            Latitude = 19.9975m,
+                            Longitude = 73.7898m
+                        },
+                        new
+                        {
+                            Name = "Faridabad",
+                            Latitude = 28.4089m,
+                            Longitude = 77.3178m
+                        },
+                        new
+                        {
+                            Name = "Meerut",
+                            Latitude = 28.9845m,
+                            Longitude = 77.7064m
+                        },
+                        new
+                        {
+                            Name = "Rajkot",
+                            Latitude = 22.3039m,
+                            Longitude = 70.8022m
+                        },
+                        new
+                        {
+                            Name = "Kalyan-Dombivali",
+                            Latitude = 19.2403m,
+                            Longitude = 73.1305m
+                        },
+                        new
+                        {
+                            Name = "Vasai-Virar",
+                            Latitude = 19.4412m,
+                            Longitude = 72.7973m
+                        },
+                        new
+                        {
+                            Name = "Varanasi",
+                            Latitude = 25.3176m,
+                            Longitude = 82.9739m
+                        },
+                        new
+                        {
+                            Name = "Srinagar",
+                            Latitude = 34.0837m,
+                            Longitude = 74.7973m
+                        },
+                        new
+                        {
+                            Name = "Aurangabad",
+                            Latitude = 19.8762m,
+                            Longitude = 75.3433m
+                        },
+                        new
+                        {
+                            Name = "Dhanbad",
+                            Latitude = 23.7957m,
+                            Longitude = 86.4304m
+                        },
+                        new
+                        {
+                            Name = "Amritsar",
+                            Latitude = 31.6340m,
+                            Longitude = 74.8723m
+                        },
+                        new
+                        {
+                            Name = "Navi Mumbai",
+                            Latitude = 19.0330m,
+                            Longitude = 73.0297m
+                        },
+                        new
+                        {
+                            Name = "Allahabad",
+                            Latitude = 25.4358m,
+                            Longitude = 81.8463m
+                        },
+                        new
+                        {
+                            Name = "Ranchi",
+                            Latitude = 23.3441m,
+                            Longitude = 85.3096m
+                        },
+                        new
+                        {
+                            Name = "Howrah",
+                            Latitude = 22.5958m,
+                            Longitude = 88.2636m
+                        },
+                        new
+                        {
+                            Name = "Coimbatore",
+                            Latitude = 11.0168m,
+                            Longitude = 76.9558m
+                        },
+                        new
+                        {
+                            Name = "Jabalpur",
+                            Latitude = 23.1815m,
+                            Longitude = 79.9864m
+                        },
+                        new
+                        {
+                            Name = "Gwalior",
+                            Latitude = 26.2183m,
+                            Longitude = 78.1828m
+                        },
+                        new
+                        {
+                            Name = "Vijayawada",
+                            Latitude = 16.5062m,
+                            Longitude = 80.6480m
+                        },
+                        new
+                        {
+                            Name = "Jodhpur",
+                            Latitude = 26.2389m,
+                            Longitude = 73.0243m
+                        },
+                        new
+                        {
+                            Name = "Madurai",
+                            Latitude = 9.9252m,
+                            Longitude = 78.1198m
+                        },
+                        new
+                        {
+                            Name = "Raipur",
+                            Latitude = 21.2514m,
+                            Longitude = 81.6296m
+                        },
+                        new
+                        {
+                            Name = "Kota",
+                            Latitude = 25.2138m,
+                            Longitude = 75.8648m
+                        },
+                        new
+                        {
+                            Name = "Chandigarh",
+                            Latitude = 30.7333m,
+                            Longitude = 76.7794m
+                        },
+                        new
+                        {
+                            Name = "Guwahati",
+                            Latitude = 26.1445m,
+                            Longitude = 91.7362m
+                        },
+                        new
+                        {
+                            Name = "Solapur",
+                            Latitude = 17.6599m,
+                            Longitude = 75.9064m
+                        },
+                        new
+                        {
+                            Name = "Hubballi-Dharwad",
+                            Latitude = 15.3647m,
+                            Longitude = 75.1240m
+                        },
+                        new
+                        {
+                            Name = "Bareilly",
+                            Latitude = 28.3670m,
+                            Longitude = 79.4304m
+                        },
+                        new
+                        {
+                            Name = "Moradabad",
+                            Latitude = 28.8386m,
+                            Longitude = 78.7733m
+                        },
+                        new
+                        {
+                            Name = "Mysore",
+                            Latitude = 12.2958m,
+                            Longitude = 76.6394m
+                        },
+                        new
+                        {
+                            Name = "Gurgaon",
+                            Latitude = 28.4595m,
+                            Longitude = 77.0266m
+                        },
+                        new
+                        {
+                            Name = "Aligarh",
+                            Latitude = 27.8974m,
+                            Longitude = 78.0880m
+                        },
+                        new
+                        {
+                            Name = "Jalandhar",
+                            Latitude = 31.3260m,
+                            Longitude = 75.5762m
+                        },
+                        new
+                        {
+                            Name = "Tiruchirappalli",
+                            Latitude = 10.7905m,
+                            Longitude = 78.7047m
+                        },
+                        new
+                        {
+                            Name = "Bhubaneswar",
+                            Latitude = 20.2961m,
+                            Longitude = 85.8245m
+                        },
+                        new
+                        {
+                            Name = "Salem",
+                            Latitude = 11.6643m,
+                            Longitude = 78.1460m
+                        },
+                        new
+                        {
+                            Name = "Warangal",
+                            Latitude = 17.9689m,
+                            Longitude = 79.5941m
+                        },
+                        new
+                        {
+                            Name = "Mira-Bhayandar",
+                            Latitude = 19.2953m,
+                            Longitude = 72.8540m
+                        },
+                        new
+                        {
+                            Name = "Thiruvananthapuram",
+                            Latitude = 8.5241m,
+                            Longitude = 76.9366m
+                        },
+                        new
+                        {
+                            Name = "Bhiwandi",
+                            Latitude = 19.3002m,
+                            Longitude = 73.0621m
+                        },
+                        new
+                        {
+                            Name = "Saharanpur",
+                            Latitude = 29.9680m,
+                            Longitude = 77.5552m
+                        },
+                        new
+                        {
+                            Name = "Guntur",
+                            Latitude = 16.3067m,
+                            Longitude = 80.4365m
+                        },
+                        new
+                        {
+                            Name = "Amravati",
+                            Latitude = 20.9374m,
+                            Longitude = 77.7796m
+                        },
+                        new
+                        {
+                            Name = "Bikaner",
+                            Latitude = 28.0229m,
+                            Longitude = 73.3119m
+                        },
+                        new
+                        {
+                            Name = "Noida",
+                            Latitude = 28.5355m,
+                            Longitude = 77.3910m
+                        },
+                        new
+                        {
+                            Name = "Jamshedpur",
+                            Latitude = 22.8046m,
+                            Longitude = 86.2029m
+                        },
+                        new
+                        {
+                            Name = "Bhilai Nagar",
+                            Latitude = 21.1938m,
+                            Longitude = 81.3509m
+                        },
+                        new
+                        {
+                            Name = "Cuttack",
+                            Latitude = 20.4625m,
+                            Longitude = 85.8830m
+                        },
+                        new
+                        {
+                            Name = "Firozabad",
+                            Latitude = 27.1592m,
+                            Longitude = 78.3957m
+                        },
+                        new
+                        {
+                            Name = "Kochi",
+                            Latitude = 9.9312m,
+                            Longitude = 76.2673m
+                        },
+                        new
+                        {
+                            Name = "Bhavnagar",
+                            Latitude = 21.7645m,
+                            Longitude = 72.1519m
+                        },
+                        new
+                        {
+                            Name = "Dehradun",
+                            Latitude = 30.3165m,
+                            Longitude = 78.0322m
+                        },
+                        new
+                        {
+                            Name = "Durgapur",
+                            Latitude = 23.4820m,
+                            Longitude = 87.3119m
+                        },
+                        new
+                        {
+                            Name = "Asansol",
+                            Latitude = 23.6739m,
+                            Longitude = 86.9524m
+                        },
+                        new
+                        {
+                            Name = "Nanded",
+                            Latitude = 19.1383m,
+                            Longitude = 77.3210m
+                        },
+                        new
+                        {
+                            Name = "Kolhapur",
+                            Latitude = 16.7050m,
+                            Longitude = 74.2433m
+                        },
+                        new
+                        {
+                            Name = "Ajmer",
+                            Latitude = 26.4499m,
+                            Longitude = 74.6399m
+                        },
+                        new
+                        {
+                            Name = "Akola",
+                            Latitude = 20.7002m,
+                            Longitude = 77.0082m
+                        },
+                        new
+                        {
+                            Name = "Gulbarga",
+                            Latitude = 17.3297m,
+                            Longitude = 76.8343m
+                        },
+                        new
+                        {
+                            Name = "Jamnagar",
+                            Latitude = 22.4707m,
+                            Longitude = 70.0577m
+                        },
+                        new
+                        {
+                            Name = "Ujjain",
+                            Latitude = 23.1765m,
+                            Longitude = 75.7885m
+                        },
+                        new
+                        {
+                            Name = "Loni",
+                            Latitude = 28.7333m,
+                            Longitude = 77.2833m
+                        },
+                        new
+                        {
+                            Name = "Siliguri",
+                            Latitude = 26.7271m,
+                            Longitude = 88.3953m
+                        },
+                        new
+                        {
+                            Name = "Jhansi",
+                            Latitude = 25.4484m,
+                            Longitude = 78.5685m
+                        },
+                        new
+                        {
+                            Name = "Ulhasnagar",
+                            Latitude = 19.2215m,
+                            Longitude = 73.1645m
+                        },
+                        new
+                        {
+                            Name = "Jammu",
+                            Latitude = 32.7266m,
+                            Longitude = 74.8570m
+                        },
+                        new
+                        {
+                            Name = "Sangli-Miraj & Kupwad",
+                            Latitude = 16.8524m,
+                            Longitude = 74.5815m
+                        },
+                        new
+                        {
+                            Name = "Mangalore",
+                            Latitude = 12.9141m,
+                            Longitude = 74.8560m
+                        },
+                        new
+                        {
+                            Name = "Erode",
+                            Latitude = 11.3410m,
+                            Longitude = 77.7172m
+                        },
+                        new
+                        {
+                            Name = "Belgaum",
+                            Latitude = 15.8497m,
+                            Longitude = 74.4977m
+                        },
+                        new
+                        {
+                            Name = "Ambattur",
+                            Latitude = 13.1143m,
+                            Longitude = 80.1548m
+                        },
+                        new
+                        {
+                            Name = "Tirunelveli",
+                            Latitude = 8.7139m,
+                            Longitude = 77.7567m
+                        },
+                        new
+                        {
+                            Name = "Malegaon",
+                            Latitude = 20.5579m,
+                            Longitude = 74.5287m
+                        },
+                        new
+                        {
+                            Name = "Gaya",
+                            Latitude = 24.7914m,
+                            Longitude = 85.0002m
+                        },
+                        new
+                        {
+                            Name = "Jalgaon",
+                            Latitude = 21.0077m,
+                            Longitude = 75.5626m
+                        },
+                        new
+                        {
+                            Name = "Udaipur",
+                            Latitude = 24.5854m,
+                            Longitude = 73.7125m
+                        },
+                        new
+                        {
+                            Name = "Maheshtala",
+                            Latitude = 22.4991m,
+                            Longitude = 88.2481m
+                        },
+                        new
+                        {
+                            Name = "Tirupur",
+                            Latitude = 11.1085m,
+                            Longitude = 77.3411m
+                        },
+                        new
+                        {
+                            Name = "Davanagere",
+                            Latitude = 14.4644m,
+                            Longitude = 75.9077m
+                        },
+                        new
+                        {
+                            Name = "Kozhikode",
+                            Latitude = 11.2588m,
+                            Longitude = 75.7804m
+                        },
+                        new
+                        {
+                            Name = "Akron",
+                            Latitude = 41.0814m,
+                            Longitude = -81.5190m
+                        },
+                        new
+                        {
+                            Name = "Kurnool",
+                            Latitude = 15.8281m,
+                            Longitude = 78.0373m
+                        },
+                        new
+                        {
+                            Name = "Rajpur Sonarpur",
+                            Latitude = 22.4615m,
+                            Longitude = 88.4058m
+                        },
+                        new
+                        {
+                            Name = "Rajahmundry",
+                            Latitude = 17.0005m,
+                            Longitude = 81.8040m
+                        },
+                        new
+                        {
+                            Name = "Bokaro",
+                            Latitude = 23.6693m,
+                            Longitude = 86.1511m
+                        },
+                        new
+                        {
+                            Name = "South Dumdum",
+                            Latitude = 22.6138m,
+                            Longitude = 88.3931m
+                        },
+                        new
+                        {
+                            Name = "Bellary",
+                            Latitude = 15.1394m,
+                            Longitude = 76.9214m
+                        },
+                        new
+                        {
+                            Name = "Patiala",
+                            Latitude = 30.3398m,
+                            Longitude = 76.3869m
+                        },
+                        new
+                        {
+                            Name = "Gopalpur",
+                            Latitude = 22.4741m,
+                            Longitude = 88.3328m
+                        },
+                        new
+                        {
+                            Name = "Agartala",
+                            Latitude = 23.8315m,
+                            Longitude = 91.2868m
+                        },
+                        new
+                        {
+                            Name = "Bhagalpur",
+                            Latitude = 25.2425m,
+                            Longitude = 86.9842m
+                        },
+                        new
+                        {
+                            Name = "Muzaffarnagar",
+                            Latitude = 29.4727m,
+                            Longitude = 77.7085m
+                        },
+                        new
+                        {
+                            Name = "Bhatpara",
+                            Latitude = 22.8736m,
+                            Longitude = 88.4009m
+                        },
+                        new
+                        {
+                            Name = "Panihati",
+                            Latitude = 22.6943m,
+                            Longitude = 88.3712m
+                        },
+                        new
+                        {
+                            Name = "Latur",
+                            Latitude = 18.4088m,
+                            Longitude = 76.5604m
+                        },
+                        new
+                        {
+                            Name = "Dhule",
+                            Latitude = 20.9042m,
+                            Longitude = 74.7749m
+                        },
+                        new
+                        {
+                            Name = "Rohtak",
+                            Latitude = 28.8955m,
+                            Longitude = 76.6066m
+                        },
+                        new
+                        {
+                            Name = "Korba",
+                            Latitude = 22.3595m,
+                            Longitude = 82.7501m
+                        },
+                        new
+                        {
+                            Name = "Bhilwara",
+                            Latitude = 25.3407m,
+                            Longitude = 74.6269m
+                        },
+                        new
+                        {
+                            Name = "Berhampur",
+                            Latitude = 19.3149m,
+                            Longitude = 84.7941m
+                        },
+                        new
+                        {
+                            Name = "Muzaffarpur",
+                            Latitude = 26.1197m,
+                            Longitude = 85.3910m
+                        },
+                        new
+                        {
+                            Name = "Ahmednagar",
+                            Latitude = 19.0948m,
+                            Longitude = 74.7480m
+                        },
+                        new
+                        {
+                            Name = "Mathura",
+                            Latitude = 27.4924m,
+                            Longitude = 77.6737m
+                        },
+                        new
+                        {
+                            Name = "Kollam",
+                            Latitude = 8.8932m,
+                            Longitude = 76.6141m
+                        },
+                        new
+                        {
+                            Name = "Avadi",
+                            Latitude = 13.1147m,
+                            Longitude = 80.0982m
+                        },
+                        new
+                        {
+                            Name = "Kadapa",
+                            Latitude = 14.4673m,
+                            Longitude = 78.8242m
+                        },
+                        new
+                        {
+                            Name = "Kamarhati",
+                            Latitude = 22.6708m,
+                            Longitude = 88.3742m
+                        },
+                        new
+                        {
+                            Name = "Sambalpur",
+                            Latitude = 21.4669m,
+                            Longitude = 83.9812m
+                        },
+                        new
+                        {
+                            Name = "Bilaspur",
+                            Latitude = 22.0797m,
+                            Longitude = 82.1409m
+                        },
+                        new
+                        {
+                            Name = "Shahjahanpur",
+                            Latitude = 27.8831m,
+                            Longitude = 79.9090m
+                        },
+                        new
+                        {
+                            Name = "Satara",
+                            Latitude = 17.6805m,
+                            Longitude = 74.0183m
+                        },
+                        new
+                        {
+                            Name = "Bijapur",
+                            Latitude = 16.8302m,
+                            Longitude = 75.7100m
+                        },
+                        new
+                        {
+                            Name = "Rampur",
+                            Latitude = 28.8152m,
+                            Longitude = 79.0177m
+                        },
+                        new
+                        {
+                            Name = "Shivamogga",
+                            Latitude = 13.9299m,
+                            Longitude = 75.5681m
+                        },
+                        new
+                        {
+                            Name = "Chandrapur",
+                            Latitude = 19.9615m,
+                            Longitude = 79.2961m
+                        },
+                        new
+                        {
+                            Name = "Junagadh",
+                            Latitude = 21.5222m,
+                            Longitude = 70.4579m
+                        },
+                        new
+                        {
+                            Name = "Thrissur",
+                            Latitude = 10.5276m,
+                            Longitude = 76.2144m
+                        },
+                        new
+                        {
+                            Name = "Alwar",
+                            Latitude = 27.5530m,
+                            Longitude = 76.6346m
+                        },
+                        new
+                        {
+                            Name = "Bardhaman",
+                            Latitude = 23.2324m,
+                            Longitude = 87.8615m
+                        },
+                        new
+                        {
+                            Name = "Kulti",
+                            Latitude = 23.7307m,
+                            Longitude = 86.8451m
+                        },
+                        new
+                        {
+                            Name = "Kakinada",
+                            Latitude = 16.9891m,
+                            Longitude = 82.2475m
+                        },
+                        new
+                        {
+                            Name = "Nizamabad",
+                            Latitude = 18.6725m,
+                            Longitude = 78.0941m
+                        },
+                        new
+                        {
+                            Name = "Parbhani",
+                            Latitude = 19.2608m,
+                            Longitude = 76.7754m
+                        },
+                        new
+                        {
+                            Name = "Tumkur",
+                            Latitude = 13.3379m,
+                            Longitude = 77.1025m
+                        },
+                        new
+                        {
+                            Name = "Khammam",
+                            Latitude = 17.2473m,
+                            Longitude = 80.1514m
+                        },
+                        new
+                        {
+                            Name = "Ozhukarai",
+                            Latitude = 11.9416m,
+                            Longitude = 79.7734m
+                        },
+                        new
+                        {
+                            Name = "Bihar Sharif",
+                            Latitude = 25.2013m,
+                            Longitude = 85.5226m
+                        },
+                        new
+                        {
+                            Name = "Panipat",
+                            Latitude = 29.3909m,
+                            Longitude = 76.9635m
+                        },
+                        new
+                        {
+                            Name = "Darbhanga",
+                            Latitude = 26.1542m,
+                            Longitude = 85.8918m
+                        },
+                        new
+                        {
+                            Name = "Bally",
+                            Latitude = 22.6503m,
+                            Longitude = 88.3409m
+                        },
+                        new
+                        {
+                            Name = "Aizawl",
+                            Latitude = 23.7271m,
+                            Longitude = 92.7176m
+                        },
+                        new
+                        {
+                            Name = "Dewas",
+                            Latitude = 22.9676m,
+                            Longitude = 76.0534m
+                        },
+                        new
+                        {
+                            Name = "Ichalkaranji",
+                            Latitude = 16.6891m,
+                            Longitude = 74.4606m
+                        },
+                        new
+                        {
+                            Name = "Karnal",
+                            Latitude = 29.6857m,
+                            Longitude = 76.9905m
+                        },
+                        new
+                        {
+                            Name = "Bathinda",
+                            Latitude = 30.2110m,
+                            Longitude = 74.9455m
+                        },
+                        new
+                        {
+                            Name = "Jalna",
+                            Latitude = 19.8347m,
+                            Longitude = 75.8861m
+                        },
+                        new
+                        {
+                            Name = "Kirari Suleman Nagar",
+                            Latitude = 28.7233m,
+                            Longitude = 77.0400m
+                        },
+                        new
+                        {
+                            Name = "Barabanki",
+                            Latitude = 26.9238m,
+                            Longitude = 81.2041m
+                        },
+                        new
+                        {
+                            Name = "Purnia",
+                            Latitude = 25.7771m,
+                            Longitude = 87.4753m
+                        },
+                        new
+                        {
+                            Name = "Mau",
+                            Latitude = 25.9420m,
+                            Longitude = 83.5611m
+                        },
+                        new
+                        {
+                            Name = "Sonipat",
+                            Latitude = 28.9931m,
+                            Longitude = 77.0151m
+                        },
+                        new
+                        {
+                            Name = "Farrukhabad",
+                            Latitude = 27.3974m,
+                            Longitude = 79.5809m
+                        },
+                        new
+                        {
+                            Name = "Sagar",
+                            Latitude = 23.8388m,
+                            Longitude = 78.7378m
+                        },
+                        new
+                        {
+                            Name = "Rourkela",
+                            Latitude = 22.2604m,
+                            Longitude = 84.8536m
+                        },
+                        new
+                        {
+                            Name = "Durg",
+                            Latitude = 21.1900m,
+                            Longitude = 81.2849m
+                        },
+                        new
+                        {
+                            Name = "Imphal",
+                            Latitude = 24.8170m,
+                            Longitude = 93.9368m
+                        },
+                        new
+                        {
+                            Name = "Ratlam",
+                            Latitude = 23.3315m,
+                            Longitude = 75.0367m
+                        },
+                        new
+                        {
+                            Name = "Hapur",
+                            Latitude = 28.7298m,
+                            Longitude = 77.7761m
+                        },
+                        new
+                        {
+                            Name = "Arrah",
+                            Latitude = 25.5581m,
+                            Longitude = 84.6628m
+                        },
+                        new
+                        {
+                            Name = "Karimnagar",
+                            Latitude = 18.4386m,
+                            Longitude = 79.1288m
+                        },
+                        new
+                        {
+                            Name = "Anantapur",
+                            Latitude = 14.6819m,
+                            Longitude = 77.6006m
+                        },
+                        new
+                        {
+                            Name = "Etawah",
+                            Latitude = 26.7753m,
+                            Longitude = 79.0154m
+                        },
+                        new
+                        {
+                            Name = "Ambernath",
+                            Latitude = 19.1861m,
+                            Longitude = 73.1997m
+                        },
+                        new
+                        {
+                            Name = "North Dumdum",
+                            Latitude = 22.6464m,
+                            Longitude = 88.4096m
+                        },
+                        new
+                        {
+                            Name = "Bharatpur",
+                            Latitude = 27.2152m,
+                            Longitude = 77.4909m
+                        },
+                        new
+                        {
+                            Name = "Begusarai",
+                            Latitude = 25.4182m,
+                            Longitude = 86.1272m
+                        },
+                        new
+                        {
+                            Name = "New Delhi",
+                            Latitude = 28.6139m,
+                            Longitude = 77.2090m
+                        },
+                        new
+                        {
+                            Name = "Gandhidham",
+                            Latitude = 23.0800m,
+                            Longitude = 70.1300m
+                        },
+                        new
+                        {
+                            Name = "Baranagar",
+                            Latitude = 22.6417m,
+                            Longitude = 88.3736m
+                        },
+                        new
+                        {
+                            Name = "Tiruvottiyur",
+                            Latitude = 13.1594m,
+                            Longitude = 80.3008m
+                        },
+                        new
+                        {
+                            Name = "Pondicherry",
+                            Latitude = 11.9416m,
+                            Longitude = 79.8083m
+                        },
+                        new
+                        {
+                            Name = "Sikar",
+                            Latitude = 27.6094m,
+                            Longitude = 75.1399m
+                        },
+                        new
+                        {
+                            Name = "Thoothukudi",
+                            Latitude = 8.7642m,
+                            Longitude = 78.1348m
+                        },
+                        new
+                        {
+                            Name = "Rewa",
+                            Latitude = 24.5364m,
+                            Longitude = 81.2961m
+                        },
+                        new
+                        {
+                            Name = "Mirzapur",
+                            Latitude = 25.1463m,
+                            Longitude = 82.5693m
+                        },
+                        new
+                        {
+                            Name = "Raichur",
+                            Latitude = 16.2120m,
+                            Longitude = 77.3439m
+                        },
+                        new
+                        {
+                            Name = "Pali",
+                            Latitude = 25.7711m,
+                            Longitude = 73.3234m
+                        },
+                        new
+                        {
+                            Name = "Ramagundam",
+                            Latitude = 18.4455m,
+                            Longitude = 79.2948m
+                        },
+                        new
+                        {
+                            Name = "Silchar",
+                            Latitude = 24.8333m,
+                            Longitude = 92.7789m
+                        },
+                        new
+                        {
+                            Name = "Amroha",
+                            Latitude = 28.9034m,
+                            Longitude = 78.4670m
+                        },
+                        new
+                        {
+                            Name = "Puruliya",
+                            Latitude = 23.3424m,
+                            Longitude = 86.3616m
+                        },
+                        new
+                        {
+                            Name = "Bahadurgarh",
+                            Latitude = 28.6928m,
+                            Longitude = 76.9378m
+                        },
+                        new
+                        {
+                            Name = "Krishnanagar",
+                            Latitude = 23.4058m,
+                            Longitude = 88.4818m
+                        },
+                        new
+                        {
+                            Name = "Bhagha Purana",
+                            Latitude = 30.6715m,
+                            Longitude = 75.4726m
+                        },
+                        new
+                        {
+                            Name = "Muktsar",
+                            Latitude = 30.4762m,
+                            Longitude = 74.5154m
+                        },
+                        new
+                        {
+                            Name = "Adoni",
+                            Latitude = 15.6281m,
+                            Longitude = 77.2750m
+                        },
+                        new
+                        {
+                            Name = "Tenali",
+                            Latitude = 16.2428m,
+                            Longitude = 80.6455m
+                        },
+                        new
+                        {
+                            Name = "Proddatur",
+                            Latitude = 14.7504m,
+                            Longitude = 78.5482m
+                        },
+                        new
+                        {
+                            Name = "Naihati",
+                            Latitude = 22.8964m,
+                            Longitude = 88.4197m
+                        },
+                        new
+                        {
+                            Name = "Yamunanagar",
+                            Latitude = 30.1290m,
+                            Longitude = 77.2674m
+                        },
+                        new
+                        {
+                            Name = "English Bazar",
+                            Latitude = 25.0119m,
+                            Longitude = 88.1495m
+                        },
+                        new
+                        {
+                            Name = "Eluru",
+                            Latitude = 16.7107m,
+                            Longitude = 81.1040m
+                        },
+                        new
+                        {
+                            Name = "Thanesar",
+                            Latitude = 29.9735m,
+                            Longitude = 76.8315m
+                        },
+                        new
+                        {
+                            Name = "Mamit",
+                            Latitude = 23.9306m,
+                            Longitude = 92.4781m
+                        },
+                        new
+                        {
+                            Name = "Mandsaur",
+                            Latitude = 24.0770m,
+                            Longitude = 75.0700m
+                        },
+                        new
+                        {
+                            Name = "Dibrugarh",
+                            Latitude = 27.4728m,
+                            Longitude = 94.9120m
+                        },
+                        new
+                        {
+                            Name = "Katihar",
+                            Latitude = 25.5394m,
+                            Longitude = 87.5831m
+                        },
+                        new
+                        {
+                            Name = "Hospet",
+                            Latitude = 15.2687m,
+                            Longitude = 76.3892m
+                        },
+                        new
+                        {
+                            Name = "Mahbubnagar",
+                            Latitude = 16.7430m,
+                            Longitude = 77.9982m
+                        },
+                        new
+                        {
+                            Name = "Jehanabad",
+                            Latitude = 25.2118m,
+                            Longitude = 84.9883m
+                        },
+                        new
+                        {
+                            Name = "Buxar",
+                            Latitude = 25.5648m,
+                            Longitude = 83.9784m
+                        },
+                        new
+                        {
+                            Name = "Mandurah",
+                            Latitude = -32.5269m,
+                            Longitude = 115.7721m
+                        },
+                        new
+                        {
+                            Name = "Kozhencherry",
+                            Latitude = 9.2981m,
+                            Longitude = 76.7761m
+                        },
+                        new
+                        {
+                            Name = "Los Santos",
+                            Latitude = 34.0522m,
+                            Longitude = -118.2437m
+                        },
+                        new
+                        {
+                            Name = "Vice City",
+                            Latitude = 25.7617m,
+                            Longitude = -80.1918m
+                        },
+                        new
+                        {
+                            Name = "Las Venturas",
+                            Latitude = 36.1699m,
+                            Longitude = -115.1398m
+                        });
                 });
 
             modelBuilder.Entity("TagzApp.Storage.Postgres.PgModerationAction", b =>
@@ -159,6 +3856,32 @@ namespace TagzApp.Storage.Postgres.Migrations
                         .IsUnique();
 
                     b.ToTable("ModerationActions");
+                });
+
+            modelBuilder.Entity("TagzApp.Storage.Postgres.PgViewerLocation", b =>
+                {
+                    b.Property<string>("StreamId")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("HashedUserId")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<decimal>("Latitude")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("Longitude")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("StreamId", "HashedUserId");
+
+                    b.ToTable("ViewerLocations");
                 });
 
             modelBuilder.Entity("TagzApp.Storage.Postgres.Tag", b =>

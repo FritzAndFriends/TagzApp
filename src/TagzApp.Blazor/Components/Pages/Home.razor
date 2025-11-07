@@ -1,17 +1,426 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using TagzApp.Security
 @inject ApplicationConfiguration AppConfig
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="container-fluid">
+	<div class="row mb-4">
+		<div class="col-12 text-center">
+			<h1 class="display-4 text-primary">Welcome to @AppConfig.SiteName</h1>
+			<p class="lead">Your social media hashtag aggregation platform</p>
+		</div>
+	</div>
 
-Welcome to your new app.
+	<div class="row g-4">
+		<!-- General User Cards -->
+		<div class="col-lg-4 col-md-6">
+			<div class="card h-100 border-info">
+				<div class="card-header bg-info text-white">
+					<h5 class="card-title mb-0">
+						<i class="bi bi-water me-2"></i>
+						Waterfall Display
+					</h5>
+				</div>
+				<div class="card-body">
+					<p class="card-text">
+						View live social media content in a beautiful waterfall layout. Perfect for events,
+						conferences, and real-time audience engagement.
+					</p>
+					<ul class="list-unstyled">
+						<li><i class="bi bi-check-circle text-success me-2"></i>Live content streaming</li>
+						<li><i class="bi bi-check-circle text-success me-2"></i>Responsive design</li>
+						<li><i class="bi bi-check-circle text-success me-2"></i>Keyboard navigation</li>
+					</ul>
+				</div>
+				<div class="card-footer">
+					<a href="/Waterfall" class="btn btn-info">
+						<i class="bi bi-water me-1"></i>View Waterfall
+					</a>
+				</div>
+			</div>
+		</div>
 
+		<div class="col-lg-4 col-md-6">
+			<div class="card h-100 border-primary">
+				<div class="card-header bg-primary text-white">
+					<h5 class="card-title mb-0">
+						<i class="bi bi-geo-alt me-2"></i>
+						Geographic Map
+					</h5>
+				</div>
+				<div class="card-body">
+					<p class="card-text">
+						View real-time geographic distribution of your audience and content interactions.
+						Perfect for understanding your global reach and engagement patterns.
+					</p>
+					<ul class="list-unstyled">
+						<li><i class="bi bi-check-circle text-success me-2"></i>Real-time location tracking</li>
+						<li><i class="bi bi-check-circle text-success me-2"></i>Interactive world map</li>
+						<li><i class="bi bi-check-circle text-success me-2"></i>Audience distribution insights</li>
+						<li><i class="bi bi-check-circle text-success me-2"></i>Geographic content analytics</li>
+					</ul>
+				</div>
+				<div class="card-footer">
+					<a href="/Map" class="btn btn-primary">
+						<i class="bi bi-geo-alt me-1"></i>View Map
+					</a>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-lg-4 col-md-6">
+			<div class="card h-100 border-success">
+				<div class="card-header bg-success text-white">
+					<h5 class="card-title mb-0">
+						<i class="bi bi-display me-2"></i>
+						Overlay Display
+					</h5>
+				</div>
+				<div class="card-body">
+					<p class="card-text">
+						Professional overlay displays perfect for live streaming, video production,
+						and broadcast integration with OBS and other capture tools.
+					</p>
+					<ul class="list-unstyled">
+						<li><i class="bi bi-check-circle text-success me-2"></i>Landscape & portrait layouts</li>
+						<li><i class="bi bi-check-circle text-success me-2"></i>OBS integration ready</li>
+						<li><i class="bi bi-check-circle text-success me-2"></i>Transparent backgrounds</li>
+					</ul>
+				</div>
+				<div class="card-footer">
+					<div class="btn-group" role="group">
+						<a href="/overlay" class="btn btn-success btn-sm">
+							<i class="bi bi-aspect-ratio me-1"></i>Landscape
+						</a>
+						<a href="/PortraitOverlay" class="btn btn-outline-success btn-sm">
+							<i class="bi bi-phone me-1"></i>Portrait
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Moderator Cards (only visible to users with Moderator or Admin roles) -->
+		<AuthorizeView Roles="@($"{RolesAndPolicies.Role.Moderator},{RolesAndPolicies.Role.Admin}")">
+			<Authorized>
+				<div class="col-lg-4 col-md-6">
+					<div class="card h-100 border-warning">
+						<div class="card-header bg-warning text-dark">
+							<h5 class="card-title mb-0">
+								<i class="bi bi-shield-check me-2"></i>
+								Content Moderation
+							</h5>
+						</div>
+						<div class="card-body">
+							<p class="card-text">
+								Review, approve, or reject social media content before it appears publicly.
+								Features AI-assisted moderation with Azure Content Safety integration.
+							</p>
+							<ul class="list-unstyled">
+								<li><i class="bi bi-check-circle text-success me-2"></i>Real-time content review</li>
+								<li><i class="bi bi-check-circle text-success me-2"></i>AI-powered safety screening</li>
+								<li><i class="bi bi-check-circle text-success me-2"></i>Keyboard shortcuts (Y/N)</li>
+								<li><i class="bi bi-check-circle text-success me-2"></i>Bulk moderation tools</li>
+							</ul>
+						</div>
+						<div class="card-footer">
+							<a href="/Moderation" class="btn btn-warning">
+								<i class="bi bi-shield-check me-1"></i>Start Moderating
+							</a>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-lg-4 col-md-6">
+					<div class="card h-100 border-secondary">
+						<div class="card-header bg-secondary text-white">
+							<h5 class="card-title mb-0">
+								<i class="bi bi-person-x me-2"></i>
+								User Management
+							</h5>
+						</div>
+						<div class="card-body">
+							<p class="card-text">
+								Block problematic users and manage user restrictions across all social media platforms.
+								Control content visibility and user capabilities.
+							</p>
+							<ul class="list-unstyled">
+								<li><i class="bi bi-check-circle text-success me-2"></i>Cross-platform user blocking</li>
+								<li><i class="bi bi-check-circle text-success me-2"></i>Granular capability controls</li>
+								<li><i class="bi bi-check-circle text-success me-2"></i>Temporary & permanent blocks</li>
+								<li><i class="bi bi-check-circle text-success me-2"></i>Block expiration management</li>
+							</ul>
+						</div>
+						<div class="card-footer">
+							<small class="text-muted">
+								<i class="bi bi-info-circle me-1"></i>
+								Access via moderation interface message details
+							</small>
+						</div>
+					</div>
+				</div>
+			</Authorized>
+		</AuthorizeView>
+
+		<!-- Administrator Cards (only visible to users with Admin role) -->
+		<AuthorizeView Roles="@RolesAndPolicies.Role.Admin">
+			<Authorized>
+				<div class="col-lg-4 col-md-6">
+					<div class="card h-100 border-danger">
+						<div class="card-header bg-danger text-white">
+							<h5 class="card-title mb-0">
+								<i class="bi bi-gear-fill me-2"></i>
+								System Administration
+							</h5>
+						</div>
+						<div class="card-body">
+							<p class="card-text">
+								Configure system settings, manage social media providers, and control
+								application behavior. Full administrative control over TagzApp.
+							</p>
+							<ul class="list-unstyled">
+								<li><i class="bi bi-check-circle text-success me-2"></i>Provider configuration</li>
+								<li><i class="bi bi-check-circle text-success me-2"></i>Site customization</li>
+								<li><i class="bi bi-check-circle text-success me-2"></i>Authentication setup</li>
+								<li><i class="bi bi-check-circle text-success me-2"></i>System monitoring</li>
+							</ul>
+						</div>
+						<div class="card-footer">
+							<a href="/Admin" class="btn btn-danger">
+								<i class="bi bi-gear-fill me-1"></i>System Admin
+							</a>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-lg-4 col-md-6">
+					<div class="card h-100 border-primary">
+						<div class="card-header bg-primary text-white">
+							<h5 class="card-title mb-0">
+								<i class="bi bi-people-fill me-2"></i>
+								User Role Management
+							</h5>
+						</div>
+						<div class="card-body">
+							<p class="card-text">
+								Assign and manage user roles including moderator and administrator permissions.
+								Control access to different areas of the application.
+							</p>
+							<ul class="list-unstyled">
+								<li><i class="bi bi-check-circle text-success me-2"></i>Role assignment</li>
+								<li><i class="bi bi-check-circle text-success me-2"></i>Permission management</li>
+								<li><i class="bi bi-check-circle text-success me-2"></i>User account overview</li>
+								<li><i class="bi bi-check-circle text-success me-2"></i>Multi-user mode control</li>
+							</ul>
+						</div>
+						<div class="card-footer">
+							<a href="/Admin/Users" class="btn btn-primary">
+								<i class="bi bi-people-fill me-1"></i>Manage Users
+							</a>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-lg-4 col-md-6">
+					<div class="card h-100 border-info">
+						<div class="card-header bg-info text-white">
+							<h5 class="card-title mb-0">
+								<i class="bi bi-cloud-arrow-up me-2"></i>
+								Provider Configuration
+							</h5>
+						</div>
+						<div class="card-body">
+							<p class="card-text">
+								Configure and manage social media providers including API keys, rate limits,
+								and provider-specific settings for optimal performance.
+							</p>
+							<ul class="list-unstyled">
+								<li><i class="bi bi-check-circle text-success me-2"></i>7+ social platforms</li>
+								<li><i class="bi bi-check-circle text-success me-2"></i>API key management</li>
+								<li><i class="bi bi-check-circle text-success me-2"></i>Rate limit configuration</li>
+								<li><i class="bi bi-check-circle text-success me-2"></i>Provider health monitoring</li>
+							</ul>
+						</div>
+						<div class="card-footer">
+							<a href="/Admin/Providers" class="btn btn-info">
+								<i class="bi bi-cloud-arrow-up me-1"></i>Configure Providers
+							</a>
+						</div>
+					</div>
+				</div>
+			</Authorized>
+		</AuthorizeView>
+
+		<!-- Authentication Required Cards (only visible to unauthenticated users in multi-user mode) -->
+		@if (!AppConfig.SingleUserMode)
+		{
+			<AuthorizeView>
+				<NotAuthorized>
+					<div class="col-12">
+						<div class="alert alert-info" role="alert">
+							<h4 class="alert-heading">
+								<i class="bi bi-info-circle me-2"></i>
+								Authentication Required
+							</h4>
+							<p>
+								To access moderation features and administrative tools, please log in with one of the
+								supported external authentication providers.
+							</p>
+							<hr>
+							<div class="d-flex gap-2">
+								<a href="/Account/Login" class="btn btn-primary">
+									<i class="bi bi-box-arrow-in-right me-1"></i>
+									Login
+								</a>
+								<a href="/Account/Register" class="btn btn-outline-primary">
+									<i class="bi bi-person-plus me-1"></i>
+									Register
+								</a>
+							</div>
+						</div>
+					</div>
+				</NotAuthorized>
+			</AuthorizeView>
+		}
+
+		<!-- Single User Mode Notice -->
+		@if (AppConfig.SingleUserMode)
+		{
+			<div class="col-12">
+				<div class="alert alert-success" role="alert">
+					<h4 class="alert-heading">
+						<i class="bi bi-person-check me-2"></i>
+						Single User Mode Active
+					</h4>
+					<p>
+						This TagzApp instance is running in single-user mode. All features are available without authentication.
+						To enable multi-user authentication and role-based access control, configure external authentication
+						providers in the admin panel.
+					</p>
+				</div>
+			</div>
+		}
+	</div>
+
+	<!-- Quick Start Guide -->
+	<div class="row mt-5">
+		<div class="col-12">
+			<div class="card">
+				<div class="card-header">
+					<h5 class="card-title mb-0">
+						<i class="bi bi-lightning-charge me-2"></i>
+						Quick Start Guide
+					</h5>
+				</div>
+				<div class="card-body">
+					<div class="row">
+						<div class="col-md-6">
+							<h6><i class="bi bi-1-circle-fill text-primary me-2"></i>Configure Providers</h6>
+							<p class="small text-muted">
+								Start by configuring social media providers in the admin panel. Add API keys and
+								configure settings for the platforms you want to monitor.
+							</p>
+						</div>
+						<div class="col-md-6">
+							<h6><i class="bi bi-2-circle-fill text-primary me-2"></i>View the Waterfall</h6>
+							<p class="small text-muted">
+								Navigate to the waterfall display to see live social media content flowing in real-time
+								from all configured social media platforms.
+							</p>
+						</div>
+						<div class="col-md-6">
+							<h6><i class="bi bi-3-circle-fill text-primary me-2"></i>Moderate Content (If Enabled)</h6>
+							<p class="small text-muted">
+								If moderation is enabled and you have moderator privileges, review and approve content
+								before it appears publicly on the waterfall display.
+							</p>
+						</div>
+						<div class="col-md-6">
+							<h6><i class="bi bi-4-circle-fill text-primary me-2"></i>Use Overlays for Streaming</h6>
+							<p class="small text-muted">
+								For live events and streaming, use the overlay displays with OBS or other video capture
+								software to show selected content on your broadcast.
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Social Media Providers Status -->
+	<div class="row mt-4">
+		<div class="col-12">
+			<div class="card">
+				<div class="card-header">
+					<h5 class="card-title mb-0">
+						<i class="bi bi-broadcast me-2"></i>
+						Supported Social Media Platforms
+					</h5>
+				</div>
+				<div class="card-body">
+					<div class="row text-center home-platform-icons">
+						<div class="col-6 col-md-3 col-lg-2 mb-3">
+							<div class="card bg-light">
+								<div class="card-body py-2">
+									<i class="bi bi-twitter text-primary h4 mb-1"></i>
+									<div class="small">Twitter/X</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-6 col-md-3 col-lg-2 mb-3">
+							<div class="card bg-light">
+								<div class="card-body py-2">
+									<i class="bi bi-mastodon text-primary h4 mb-1"></i>
+									<div class="small">Mastodon</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-6 col-md-3 col-lg-2 mb-3">
+							<div class="card bg-light">
+								<div class="card-body py-2">
+									<div class="icon-bluesky"></div>
+									<div class="small">Bluesky</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-6 col-md-3 col-lg-2 mb-3">
+							<div class="card bg-light">
+								<div class="card-body py-2">
+									<i class="bi bi-youtube text-primary h4 mb-1"></i>
+									<div class="small">YouTube</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-6 col-md-3 col-lg-2 mb-3">
+							<div class="card bg-light">
+								<div class="card-body py-2">
+									<i class="bi bi-twitch text-primary h4 mb-1"></i>
+									<div class="small">Twitch Chat</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-6 col-md-3 col-lg-2 mb-3">
+							<div class="card bg-light">
+								<div class="card-body py-2">
+									<i class="bi bi-globe text-primary h4 mb-1"></i>
+									<div class="small">Blazot</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 
 @code {
-
 	[CascadingParameter]
 	private HttpContext HttpContext { get; set; } = default!;
-
-
 }

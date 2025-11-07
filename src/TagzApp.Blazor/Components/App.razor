@@ -10,17 +10,72 @@
 	<link rel="stylesheet" href="TagzApp.Blazor.styles.css" />
 	<link rel="stylesheet" href="/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
 	<link rel="stylesheet" href="/_content/TagzApp.Providers.Blazot/css/blazot.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+          crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+  
 	<HeadOutlet /> 
 </head>
 
 <body>
 	<Routes />
 	<script src="_framework/blazor.web.js"></script>
+	<script>
+		// Enhanced Blazor reconnection UI override
+		window.addEventListener('DOMContentLoaded', function () {
+			// For Blazor Server
+			if (window.Blazor && window.Blazor.defaultReconnectionHandler) {
+				window.Blazor.defaultReconnectionHandler._reconnectDisplay = {
+					show: () => { /* Custom UI handles this */ },
+					hide: () => { /* Custom UI handles this */ },
+					failed: () => { /* Custom UI handles this */ },
+					rejected: () => { /* Custom UI handles this */ }
+				};
+			}
+			
+			// For newer versions of Blazor
+			if (window.Blazor && window.Blazor.reconnect) {
+				window.Blazor.reconnect = {
+					show: () => { /* Custom UI handles this */ },
+					hide: () => { /* Custom UI handles this */ },
+					failed: () => { /* Custom UI handles this */ },
+					rejected: () => { /* Custom UI handles this */ }
+				};
+			}
+
+			// Store SignalR connections for custom reconnection handling
+			window.tagzAppSignalR = window.tagzAppSignalR || [];
+		});
+
+		// Hide all default Blazor error UI elements
+		document.addEventListener('DOMContentLoaded', function() {
+			const style = document.createElement('style');
+			style.textContent = `
+				#blazor-error-ui,
+				.blazor-error-boundary,
+				#components-reconnect-modal,
+				.components-reconnect-show,
+				.components-reconnect-hide,
+				.components-reconnect-failed,
+				.components-reconnect-rejected {
+					display: none !important;
+				}
+			`;
+			document.head.appendChild(style);
+		});
+	</script>
 	<script src="/lib/jquery/dist/jquery.min.js"></script>
 	<script src="/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 	<script src="/lib/microsoft-signalr/signalr.min.js"></script>
 	<script src="/js/masonry.js"></script>
 	<script src="/js/waterfall.js"></script>
+	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+	        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+	        crossorigin=""></script>
+	<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
 
 </body>
 

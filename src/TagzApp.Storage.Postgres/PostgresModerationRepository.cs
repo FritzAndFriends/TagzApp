@@ -8,7 +8,7 @@ internal class PostgresModerationRepository : IModerationRepository
 	private readonly TagzAppContext _Context;
 	private readonly INotifyNewMessages _Notifier;
 	private readonly IMemoryCache _Cache;
-	private const string KEY_BLOCKEDUSERS_CACHE = "blockedUsers";
+	private const string _KEY_BLOCKEDUSERS_CACHE = "blockedUsers";
 
 
 	public PostgresModerationRepository(TagzAppContext context, INotifyNewMessages notifier, IMemoryCache cache)
@@ -209,10 +209,10 @@ internal class PostgresModerationRepository : IModerationRepository
 
 	internal void UpdateBlockedUsersCache(IEnumerable<BlockedUser> blockedUsers)
 	{
-		_Cache.Set(KEY_BLOCKEDUSERS_CACHE, blockedUsers.Select(u => (u.Provider, u.UserName, u.Capabilities)).ToList());
+		_Cache.Set(_KEY_BLOCKEDUSERS_CACHE, blockedUsers.Select(u => (u.Provider, u.UserName, u.Capabilities)).ToList());
 	}
 
-	public async Task<(Content Content, ModerationAction Action)> GetContentWithModeration(string provider, string providerId)
+	public async Task<(Content Content, ModerationAction? Action)> GetContentWithModeration(string provider, string providerId)
 	{
 
 		// Get the content item requested and include the moderation action
@@ -227,4 +227,26 @@ internal class PostgresModerationRepository : IModerationRepository
 		return ((Content)item, action);
 
 	}
+
+	public async Task<IEnumerable<(Content Content, ModerationAction? Action)>> GetRecentContentByAuthor(string provider, string authorUserName, int limit = 10)
+	{
+
+		var normalized = authorUserName.Trim().ToLowerInvariant();
+		// Support queries with or without leading @; stored form includes @ from providers, so handle both
+		var core = normalized.TrimStart('@');
+		var variants = new[] { core, "@" + core };
+
+		var rows = await _Context.Content.AsNoTracking()
+			.Include(c => c.ModerationAction)
+			.Where(c => c.Provider == provider && variants.Contains(c.AuthorUserName))
+			.OrderByDescending(c => c.Timestamp)
+			.Take(limit)
+			.ToListAsync();
+
+		return rows
+			.Select(r => ((Content)r, r.ModerationAction is null ? null : (ModerationAction)r.ModerationAction))
+			.ToArray();
+
+	}
+
 }

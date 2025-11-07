@@ -2,7 +2,7 @@
 
 namespace TagzApp.Storage.Postgres;
 
-public class TagzAppContext : DbContext
+public partial class TagzAppContext : DbContext
 {
 
 	public TagzAppContext(DbContextOptions options) : base(options)
@@ -25,6 +25,10 @@ public class TagzAppContext : DbContext
 
 	public DbSet<Tag> TagsWatched { get; set; }
 
+	public DbSet<PgGeolocation> Locations { get; set; }
+
+	public DbSet<PgViewerLocation> ViewerLocations { get; set; }
+
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 
@@ -40,12 +44,34 @@ public class TagzAppContext : DbContext
 				t => new DateTimeOffset(t, TimeSpan.Zero)
 			);
 
+		// Store Author as jsonb so we can index/query efficiently
+		modelBuilder.Entity<PgContent>()
+			.Property(c => c.Author)
+			.HasColumnType("jsonb");
+
+		// Computed column for AuthorUserName (lower-cased username extracted from JSON Author)
+		// Author column is already jsonb, so no cast required. Keep expression aligned with current snapshot to avoid needless migrations.
+		modelBuilder.Entity<PgContent>()
+			.Property(c => c.AuthorUserName)
+			.HasComputedColumnSql("lower((\"Author\" ->> 'UserName'))", stored: true);
+
+		// Index to accelerate lookups by provider + author username + recency
+		modelBuilder.Entity<PgContent>()
+			.HasIndex(c => new { c.Provider, c.AuthorUserName, c.Timestamp });
+
 
 		modelBuilder.Entity<PgModerationAction>().HasAlternateKey(c => new { c.Provider, c.ProviderId });
 
 		modelBuilder.Entity<Tag>().Property(t => t.Text)
 			.HasMaxLength(50)
 			.IsRequired();
+
+		modelBuilder.Entity<PgViewerLocation>()
+			.HasKey(PgViewerLocation => new { PgViewerLocation.StreamId, PgViewerLocation.HashedUserId });
+
+		// Seed initial location data
+		modelBuilder.Entity<PgGeolocation>()
+			.HasData(GetCommonLocations());
 
 		base.OnModelCreating(modelBuilder);
 
