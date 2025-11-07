@@ -10,7 +10,7 @@
 <PageTitle>TagzApp - Map Display</PageTitle>
 
 <div class="overlay-container">
-    <ChatterMapDirect Height="900" Width="100%" 
+    <ChatterMapDirect @ref="_ChatterMap" Height="900" Width="100%" 
                        ShowTourControls="false"
                       OnMapInitialized="OnMapInitialized" 
 					  					EnablePinAnnouncements="false"
@@ -94,9 +94,13 @@
 
     async Task LoadPersistedLocations()
     {
+
+				Console.WriteLine("OnMapInitialized: Loading persisted viewer locations...");
+
         if (_ChatterMap == null)
             return;
 
+				Console.WriteLine("Loading persisted viewer locations for map...");
         var viewerLocations = await ViewerLocationService.GetLocationsForStreamAsync("all");
         if (viewerLocations != null)
         {
