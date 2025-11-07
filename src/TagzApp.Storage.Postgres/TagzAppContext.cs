@@ -2,7 +2,7 @@
 
 namespace TagzApp.Storage.Postgres;
 
-public class TagzAppContext : DbContext
+public partial class TagzAppContext : DbContext
 {
 
 	public TagzAppContext(DbContextOptions options) : base(options)
@@ -24,6 +24,10 @@ public class TagzAppContext : DbContext
 	//public DbSet<Settings> Settings => Set<Settings>();
 
 	public DbSet<Tag> TagsWatched { get; set; }
+
+	public DbSet<PgGeolocation> Locations { get; set; }
+
+	public DbSet<PgViewerLocation> ViewerLocations { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
@@ -61,6 +65,13 @@ public class TagzAppContext : DbContext
 		modelBuilder.Entity<Tag>().Property(t => t.Text)
 			.HasMaxLength(50)
 			.IsRequired();
+
+		modelBuilder.Entity<PgViewerLocation>()
+			.HasKey(PgViewerLocation => new { PgViewerLocation.StreamId, PgViewerLocation.HashedUserId });
+
+		// Seed initial location data
+		modelBuilder.Entity<PgGeolocation>()
+			.HasData(GetCommonLocations());
 
 		base.OnModelCreating(modelBuilder);
 
