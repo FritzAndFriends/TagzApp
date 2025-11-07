@@ -29,6 +29,10 @@
 							<NavLink class="nav-link" href="/Waterfall">Waterfall</NavLink>
 						</li>
 
+						<li class="nav-item">
+							<NavLink class="nav-link" href="/Map">Map</NavLink>
+						</li>
+
 						@if (AppConfiguration.ModerationEnabled)
 						{
 							<AuthorizeView Policy="@RolesAndPolicies.Policy.Moderator">

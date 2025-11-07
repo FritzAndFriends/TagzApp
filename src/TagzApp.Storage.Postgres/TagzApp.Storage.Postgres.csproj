@@ -22,6 +22,9 @@
     <Using Include="TagzApp.Common.Models" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Fritz.Charlie.Components"  />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
     <ProjectReference Include="..\TagzApp.Common.Client\TagzApp.Common.Client.csproj" />
     <ProjectReference Include="..\TagzApp.Communication\TagzApp.Communication.csproj" />
