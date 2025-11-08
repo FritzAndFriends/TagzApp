@@ -383,6 +383,9 @@ body {
 #taggedContent article:hover,
 #taggedContent article.keyboard-cursor {
 	overflow: visible;
+	border-color: var(--bs-primary);
+	border-width: 2px;
+	box-shadow: 0px 4px 12px rgba(13, 110, 253, 0.2);
 }
 
 #taggedContent .ProfilePicture,
@@ -812,57 +815,76 @@ MOVED TO THE  HeadContent in Overlay.razor
 #moderationAction {
 	position: absolute;
 	top: 0;
-	right: -80px;
-	width: 80px;
+	right: -60px;
+	width: 50px;
 	height: 100%;
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-start;
 	align-items: center;
-	background-color: rgba(255, 255, 255, 0.95);
-	border-left: 2px solid #e2e8ed;
-	border-radius: 0 20px 20px 0;
-	box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+	background-color: rgba(255, 255, 255, 0.98);
+	border: 2px solid #e2e8ed;
+	border-radius: 12px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 	z-index: 10;
-	transition: right 0.3s ease-in-out;
-	padding: 10px 0;
-	gap: 10px;
+	transition: right 0.3s ease-in-out, left 0.3s ease-in-out, opacity 0.2s ease-in-out;
+	padding: 8px 0;
+	gap: 8px;
+	opacity: 0;
+	pointer-events: none;
 }
 
 article:hover #moderationAction,
 article.keyboard-cursor #moderationAction {
-	right: 0;
+	right: -56px;
+	opacity: 1;
+	pointer-events: all;
+}
+
+/* For rightmost column cards, position panel on the left */
+article.rightmost-column #moderationAction {
+	right: auto;
+	left: -60px;
+}
+
+article.rightmost-column:hover #moderationAction,
+article.rightmost-column.keyboard-cursor #moderationAction {
+	left: -56px;
+	right: auto;
+	opacity: 1;
+	pointer-events: all;
 }
 
 #moderationAction i {
 	width: 100%;
 	text-align: center;
-	font-size: 2.5em;
+	font-size: 1.6em;
 	color: #333;
-	padding: 10px 0;
+	padding: 6px 0;
 	transition: all 0.2s ease;
 	cursor: pointer;
-	border-radius: 8px;
+	border-radius: 6px;
 }
 
 #moderationAction i.approve:hover {
 	color: var(--bs-success);
-	background-color: rgba(var(--bs-success-rgb), 0.1);
+	background-color: rgba(var(--bs-success-rgb), 0.15);
 }
 
-#moderationAction i.reject:hover {
+#moderationAction i.reject:hover,
+#moderationAction i.bi-eye:hover {
 	color: var(--bs-danger);
-	background-color: rgba(var(--bs-danger-rgb), 0.1);
+	background-color: rgba(var(--bs-danger-rgb), 0.15);
 }
 
 #moderationAction i.more {
-	font-size: 2em;
+	font-size: 1.4em;
 	margin-top: auto;
 }
 
 #moderationAction i.more:hover {
 	color: var(--bs-primary);
-	background-color: rgba(var(--bs-primary-rgb), 0.1);
+	background-color: rgba(var(--bs-primary-rgb), 0.15);
 }
 
 #moderationAction i:focus-visible {
