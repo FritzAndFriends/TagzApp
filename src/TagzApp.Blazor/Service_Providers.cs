@@ -17,6 +17,7 @@ public static class Service_Providers
 		new StartAzureQueue(),
 		new StartBlazot(),
 		new StartBluesky(),
+		new StartDiscord(),
 		new StartMastodon(),
 		new StartTwitchChat(),
 		new StartTwitter(),

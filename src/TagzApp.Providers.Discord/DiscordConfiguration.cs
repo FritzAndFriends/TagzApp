@@ -45,9 +45,10 @@ public class DiscordConfiguration : BaseProviderConfiguration<DiscordConfigurati
 	[Display(Name = "Minimum Message Length", Description = "Hide messages shorter than this")]
 	public int MinMessageLength { get; set; } = 1;
 
-	[JsonPropertyOrder(9)]
-	[Display(Name = "Blocked Users", Description = "Comma-separated list of user IDs to block")]
-	public string BlockedUsers { get; set; } = string.Empty;
+	// NOTE: We have blocked users at the application level in TagzApp
+	// [JsonPropertyOrder(9)]
+	// [Display(Name = "Blocked Users", Description = "Comma-separated list of user IDs to block")]
+	// public string BlockedUsers { get; set; } = string.Empty;
 
 	[JsonPropertyOrder(10)]
 	[Display(Name = "Max Queue Size", Description = "Maximum messages to keep in memory")]
