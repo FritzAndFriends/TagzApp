@@ -814,7 +814,7 @@ MOVED TO THE  HeadContent in Overlay.razor
 
 #moderationAction {
 	position: absolute;
-	bottom: -54px;
+	bottom: -35px;
 	left: 0;
 	right: 0;
 	width: auto;
@@ -838,7 +838,7 @@ MOVED TO THE  HeadContent in Overlay.razor
 article:hover #moderationAction,
 article.keyboard-cursor #moderationAction,
 #moderationAction:hover {
-	bottom: -54px;
+	bottom: -20px;
 	opacity: 1;
 	pointer-events: all;
 }
