@@ -387,74 +387,7 @@
 		SetTitle: function (newTitle) {
 			document.title = newTitle;
 		},
-
-		// Detect and mark rightmost column cards for moderation panel positioning
-		UpdateRightmostCards: function () {
-			const taggedContent = document.getElementById('taggedContent');
-			if (!taggedContent) return;
-
-			const articles = Array.from(taggedContent.querySelectorAll('article'));
-			if (articles.length === 0) return;
-
-			// Remove existing rightmost class from all articles
-			articles.forEach(article => article.classList.remove('rightmost-column'));
-
-			// Group articles by their vertical position (top coordinate)
-			const rows = {};
-			articles.forEach(article => {
-				const rect = article.getBoundingClientRect();
-				const top = Math.round(rect.top);
-				if (!rows[top]) rows[top] = [];
-				rows[top].push({ article, rect });
-			});
-
-			// For each row, mark the rightmost article
-			Object.values(rows).forEach(row => {
-				if (row.length > 0) {
-					// Find the article with the maximum right coordinate
-					const rightmost = row.reduce((max, current) => 
-						current.rect.right > max.rect.right ? current : max
-					);
-					rightmost.article.classList.add('rightmost-column');
-				}
-			});
-		},
 	};
 
 	window.WaterfallUi = waterfallUi;
-
-	// Update rightmost cards on load and resize
-	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', () => {
-			setTimeout(() => waterfallUi.UpdateRightmostCards(), 100);
-		});
-	} else {
-		setTimeout(() => waterfallUi.UpdateRightmostCards(), 100);
-	}
-
-	let resizeTimeout;
-	window.addEventListener('resize', () => {
-		clearTimeout(resizeTimeout);
-		resizeTimeout = setTimeout(() => waterfallUi.UpdateRightmostCards(), 250);
-	});
-
-	// Also update when new content is added (use MutationObserver)
-	const observer = new MutationObserver(() => {
-		clearTimeout(resizeTimeout);
-		resizeTimeout = setTimeout(() => waterfallUi.UpdateRightmostCards(), 100);
-	});
-
-	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', () => {
-			const taggedContent = document.getElementById('taggedContent');
-			if (taggedContent) {
-				observer.observe(taggedContent, { childList: true, subtree: false });
-			}
-		});
-	} else {
-		const taggedContent = document.getElementById('taggedContent');
-		if (taggedContent) {
-			observer.observe(taggedContent, { childList: true, subtree: false });
-		}
-	}
 })();
