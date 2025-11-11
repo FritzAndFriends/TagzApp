@@ -86,15 +86,17 @@ public static class Service_ExternalAuthProviders
 					context.Options.ClientId = innerClientID;
 					context.Options.ClientSecret = innerClientSecret;
 
-					// Build redirect URI properly respecting forwarded headers and ALWAYS enforce HTTPS
+					// Build redirect URI properly respecting forwarded headers and HTTPS
 					var request = context.HttpContext.Request;
 					var scheme = request.Headers.ContainsKey("X-Forwarded-Proto") ? 
 						request.Headers["X-Forwarded-Proto"].ToString() : 
 						request.Scheme;
 					
-					// CRITICAL: Always enforce HTTPS for external OAuth providers for security
-					// OAuth providers require HTTPS redirect URIs in production environments
-					scheme = "https";
+					// Ensure HTTPS for external OAuth providers
+					if (scheme.Equals("http", StringComparison.OrdinalIgnoreCase))
+					{
+						scheme = "https";
+					}
 
 					var host = request.Headers.ContainsKey("X-Forwarded-Host") ? 
 						request.Headers["X-Forwarded-Host"].ToString() : 
