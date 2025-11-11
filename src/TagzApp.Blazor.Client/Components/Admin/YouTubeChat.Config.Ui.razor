@@ -29,10 +29,30 @@
 					<option value="">Select a broadcast</option>
 					@foreach (var broadcast in Broadcasts)
 					{
-						<option value="@broadcast.LiveChatId">@broadcast.Title</option>
+						<option value="@broadcast.LiveChatId">
+							@broadcast.Title
+							@if (broadcast.BroadcastTime.HasValue)
+							{
+								<text> - @broadcast.BroadcastTime.Value.ToString("MMM dd, yyyy HH:mm")</text>
+							}
+						</option>
 					}
 				</InputSelect>
 				<ValidationMessage For="@(() => Model.LiveChatId)" />
+				@if (!string.IsNullOrEmpty(Model.LiveChatId) && Broadcasts.Any())
+				{
+					var selectedBroadcast = Broadcasts.FirstOrDefault(b => b.LiveChatId == Model.LiveChatId);
+					if (selectedBroadcast != null)
+					{
+						<small class="text-muted">
+							<i class="bi bi-info-circle"></i> Selected: @selectedBroadcast.Title
+							@if (selectedBroadcast.BroadcastTime.HasValue)
+							{
+								<text> (Scheduled: @selectedBroadcast.BroadcastTime.Value.ToString("MMM dd, yyyy HH:mm UTC"))</text>
+							}
+						</small>
+					}
+				}
 			</dd>
 			<dt><label for="Enabled">Enabled:</label></dt>
 			<dd>
@@ -72,24 +92,37 @@
 
 		Health = await Provider.GetHealth();
 
+		// Auto-load broadcasts if we have saved API key and Channel ID
+		if (!string.IsNullOrEmpty(Model.YouTubeApiKey) && !string.IsNullOrEmpty(Model.ChannelId))
+		{
+			await LoadBroadcasts();
+		}
+
 		await base.OnParametersSetAsync();
 
 	}
 
 	private async Task GetBroadcasts()
 	{
+		await LoadBroadcasts(showToastMessages: true);
+	}
+
+	private async Task LoadBroadcasts(bool showToastMessages = false)
+	{
 		try
 		{
 			// Validate that API Key and Channel ID are provided
 			if (string.IsNullOrEmpty(Model.YouTubeApiKey))
 			{
-				ToastService.Add("YouTube API Key is required to search for broadcasts.", MessageSeverity.Warning);
+				if (showToastMessages)
+					ToastService.Add("YouTube API Key is required to search for broadcasts.", MessageSeverity.Warning);
 				return;
 			}
 			
 			if (string.IsNullOrEmpty(Model.ChannelId))
 			{
-				ToastService.Add("Channel ID is required to search for broadcasts.", MessageSeverity.Warning);
+				if (showToastMessages)
+					ToastService.Add("Channel ID is required to search for broadcasts.", MessageSeverity.Warning);
 				return;
 			}
 
@@ -98,19 +131,23 @@
 			if (broadcastMethod != null)
 			{
 				Broadcasts = broadcastMethod.Invoke(Provider, [Model.YouTubeApiKey, Model.ChannelId]) as IEnumerable<YouTubeBroadcast> ?? [];
-				ToastService.Add($"Found {Broadcasts.Count()} broadcast(s).", MessageSeverity.Success);
+				if (showToastMessages)
+					ToastService.Add($"Found {Broadcasts.Count()} broadcast(s).", MessageSeverity.Success);
 			}
 			else
 			{
 				// Fallback to the parameterless method if the overloaded method is not found
 				var fallbackMethod = Provider.GetType().GetMethod("GetBroadcastsForUser", Type.EmptyTypes);
 				Broadcasts = fallbackMethod?.Invoke(Provider, []) as IEnumerable<YouTubeBroadcast> ?? [];
-				ToastService.Add("Broadcasts loaded using saved configuration.", MessageSeverity.Info);
+				if (showToastMessages)
+					ToastService.Add("Broadcasts loaded using saved configuration.", MessageSeverity.Info);
 			}
 		}
 		catch (Exception ex)
 		{
-			ToastService.Add($"Error loading broadcasts: {ex.Message}", MessageSeverity.Danger);
+			if (showToastMessages)
+				ToastService.Add($"Error loading broadcasts: {ex.Message}", MessageSeverity.Danger);
+			// Silently fail when auto-loading to avoid showing errors on page load
 		}
 	}
 
