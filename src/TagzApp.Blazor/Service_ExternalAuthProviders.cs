@@ -73,103 +73,103 @@ public static class Service_ExternalAuthProviders
 					// Configure OAuth events for proper handling of authentication flow
 					options.Events.OnRedirectToAuthorizationEndpoint = async context =>
 							{
-							string actualClientId = clientID;
-							string actualClientSecret = clientSecret;
+								string actualClientId = clientID;
+								string actualClientSecret = clientSecret;
 
 								// If we have dummy values, try to get fresh configuration from database
-							if (clientID == CLIENTID_DUMMY || clientSecret == CLIENTSECRET_DUMMY)
-							{
-								var configService = context.HttpContext.RequestServices.GetRequiredService<IConfigureTagzApp>();
-								var keys = await configService.GetConfigurationById<Dictionary<string, string>>($"Authentication:{name}");
-
-								if (keys == null || !keys.ContainsKey("ClientID") || !keys.ContainsKey("ClientSecret"))
+								if (clientID == CLIENTID_DUMMY || clientSecret == CLIENTSECRET_DUMMY)
 								{
-										// No configuration - redirect to error page
-									context.Response.Redirect($"/Account/ProviderNotConfigured?provider={name}");
-									return;
-								}
+									var configService = context.HttpContext.RequestServices.GetRequiredService<IConfigureTagzApp>();
+									var keys = await configService.GetConfigurationById<Dictionary<string, string>>($"Authentication:{name}");
 
-								actualClientId = keys["ClientID"];
-								actualClientSecret = keys["ClientSecret"];
-
-								if (actualClientId == CLIENTID_DUMMY || actualClientSecret == CLIENTSECRET_DUMMY)
-								{
+									if (keys == null || !keys.ContainsKey("ClientID") || !keys.ContainsKey("ClientSecret"))
+									{
 										// No configuration - redirect to error page
-									context.Response.Redirect($"/Account/ProviderNotConfigured?provider={name}");
-									return;
-								}
+										context.Response.Redirect($"/Account/ProviderNotConfigured?provider={name}");
+										return;
+									}
+
+									actualClientId = keys["ClientID"];
+									actualClientSecret = keys["ClientSecret"];
+
+									if (actualClientId == CLIENTID_DUMMY || actualClientSecret == CLIENTSECRET_DUMMY)
+									{
+										// No configuration - redirect to error page
+										context.Response.Redirect($"/Account/ProviderNotConfigured?provider={name}");
+										return;
+									}
 
 									// Update the options with fresh configuration
-								context.Options.ClientId = actualClientId;
-								context.Options.ClientSecret = actualClientSecret;
-							}
+									context.Options.ClientId = actualClientId;
+									context.Options.ClientSecret = actualClientSecret;
+								}
 
 								// Build redirect URI properly respecting forwarded headers and HTTPS
-							var request = context.HttpContext.Request;
-							var scheme = request.Headers.ContainsKey("X-Forwarded-Proto") ?
-											request.Headers["X-Forwarded-Proto"].ToString() :
-											request.Scheme;
+								var request = context.HttpContext.Request;
+								var scheme = request.Headers.ContainsKey("X-Forwarded-Proto") ?
+												request.Headers["X-Forwarded-Proto"].ToString() :
+												request.Scheme;
 
 								// Ensure HTTPS for external OAuth providers
-							if (scheme.Equals("http", StringComparison.OrdinalIgnoreCase))
-							{
-								scheme = "https";
-							}
+								if (scheme.Equals("http", StringComparison.OrdinalIgnoreCase))
+								{
+									scheme = "https";
+								}
 
-							var host = request.Headers.ContainsKey("X-Forwarded-Host") ?
-											request.Headers["X-Forwarded-Host"].ToString() :
-											request.Host.ToString();
+								var host = request.Headers.ContainsKey("X-Forwarded-Host") ?
+												request.Headers["X-Forwarded-Host"].ToString() :
+												request.Host.ToString();
 
 								// Update the redirect URI to ensure HTTPS
-							var redirectUri = context.Options.CallbackPath.HasValue
-								? $"{scheme}://{host}{context.Options.CallbackPath}"
-								: EnsureHttpsRedirectUri(context.RedirectUri);
+								var redirectUri = context.Options.CallbackPath.HasValue
+									? $"{scheme}://{host}{context.Options.CallbackPath}"
+									: EnsureHttpsRedirectUri(context.RedirectUri);
 
 								// Properly generate the state parameter using the StateDataFormat
-							var state = context.Options.StateDataFormat.Protect(context.Properties);
-							var scope = string.Join(" ", context.Options.Scope);
+								var state = context.Options.StateDataFormat.Protect(context.Properties);
+								var scope = string.Join(" ", context.Options.Scope);
 
-							var authUrl = $"{context.Options.AuthorizationEndpoint}" +
-								$"?client_id={Uri.EscapeDataString(actualClientId)}" +
-								$"&redirect_uri={Uri.EscapeDataString(redirectUri)}" +
-								$"&response_type=code" +
-								$"&scope={Uri.EscapeDataString(scope)}" +
-								$"&state={Uri.EscapeDataString(state)}";
+								var authUrl = $"{context.Options.AuthorizationEndpoint}" +
+									$"?client_id={Uri.EscapeDataString(actualClientId)}" +
+									$"&redirect_uri={Uri.EscapeDataString(redirectUri)}" +
+									$"&response_type=code" +
+									$"&scope={Uri.EscapeDataString(scope)}" +
+									$"&state={Uri.EscapeDataString(state)}";
 
 								// Continue with the recalculated OAuth flow
-							context.Response.Redirect(authUrl);
+								context.Response.Redirect(authUrl);
 
-						};
+							};
 
 					// Add callback handling for when OAuth provider redirects back
 					options.Events.OnCreatingTicket = async context =>
 							{
 								// Ensure we have fresh configuration for the callback as well
-							if (clientID == CLIENTID_DUMMY || clientSecret == CLIENTSECRET_DUMMY)
-							{
-								var configService = context.HttpContext.RequestServices.GetRequiredService<IConfigureTagzApp>();
-								var keys = await configService.GetConfigurationById<Dictionary<string, string>>($"Authentication:{name}");
-
-								if (keys != null && keys.ContainsKey("ClientID") && keys.ContainsKey("ClientSecret"))
+								if (clientID == CLIENTID_DUMMY || clientSecret == CLIENTSECRET_DUMMY)
 								{
-									context.Options.ClientId = keys["ClientID"];
-									context.Options.ClientSecret = keys["ClientSecret"];
+									var configService = context.HttpContext.RequestServices.GetRequiredService<IConfigureTagzApp>();
+									var keys = await configService.GetConfigurationById<Dictionary<string, string>>($"Authentication:{name}");
+
+									if (keys != null && keys.ContainsKey("ClientID") && keys.ContainsKey("ClientSecret"))
+									{
+										context.Options.ClientId = keys["ClientID"];
+										context.Options.ClientSecret = keys["ClientSecret"];
+									}
 								}
-							}
-						};
+							};
 
 					// Handle authentication failures
 					options.Events.OnRemoteFailure = context =>
 							{
 								// Log the error for debugging
-							var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-							logger.LogError("OAuth authentication failed for provider {Provider}: {Error}", name, context.Failure?.Message);
+								var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+								logger.LogError("OAuth authentication failed for provider {Provider}: {Error}", name, context.Failure?.Message);
 
 								// Redirect to a user-friendly error page
-							context.Response.Redirect($"/Account/ExternalLoginFailure?provider={name}&error={Uri.EscapeDataString(context.Failure?.Message ?? "Unknown error")}");
-							context.HandleResponse();
-							return Task.CompletedTask;
-						};
+								context.Response.Redirect($"/Account/ExternalLoginFailure?provider={name}&error={Uri.EscapeDataString(context.Failure?.Message ?? "Unknown error")}");
+								context.HandleResponse();
+								return Task.CompletedTask;
+							};
 
 				});
 
@@ -208,20 +208,20 @@ public static class Service_ExternalAuthProviders
 				options.Scope.Add(YouTubeChatConfiguration.Scope_YouTube);
 				options.Events.OnTicketReceived = ctx =>
 							{
-						var tokens = ctx.Properties.GetTokens().ToList();
-						tokens.Add(new AuthenticationToken
-						{
-							Name = "Ticket Created",
-							Value = DateTime.UtcNow.ToString()
-						});
-						tokens.Add(new AuthenticationToken
-						{
-							Name = "Email",
-							Value = ctx.Principal.Claims.First(c => c.Type == ClaimTypes.Email).Value
-						});
-						ctx.Properties.StoreTokens(tokens);
-						return Task.CompletedTask;
-					};
+								var tokens = ctx.Properties.GetTokens().ToList();
+								tokens.Add(new AuthenticationToken
+								{
+									Name = "Ticket Created",
+									Value = DateTime.UtcNow.ToString()
+								});
+								tokens.Add(new AuthenticationToken
+								{
+									Name = "Email",
+									Value = ctx.Principal.Claims.First(c => c.Type == ClaimTypes.Email).Value
+								});
+								ctx.Properties.StoreTokens(tokens);
+								return Task.CompletedTask;
+							};
 			});
 		}
 	}
