@@ -165,12 +165,25 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 
 	public IEnumerable<YouTubeBroadcast> GetBroadcastsForUser()
 	{
+		return GetBroadcastsForUser(_ChatConfig.YouTubeApiKey, _ChatConfig.ChannelId);
+	}
 
-		var service = GetGoogleService().GetAwaiter().GetResult();
+	public IEnumerable<YouTubeBroadcast> GetBroadcastsForUser(string youTubeApiKey, string channelId)
+	{
+		if (string.IsNullOrEmpty(youTubeApiKey) || string.IsNullOrEmpty(channelId))
+		{
+			return Enumerable.Empty<YouTubeBroadcast>();
+		}
+
+		var service = new YouTubeService(new BaseClientService.Initializer
+		{
+			ApiKey = youTubeApiKey,
+			ApplicationName = "TagzApp"
+		});
 
 		var listRequest = service.Search.List("snippet");
 		//listRequest.Q = searchString;
-		listRequest.ChannelId = _ChatConfig.ChannelId;
+		listRequest.ChannelId = channelId;
 		listRequest.EventType = SearchResource.ListRequest.EventTypeEnum.Upcoming;
 		listRequest.Type = "video";
 		listRequest.MaxResults = 500;
@@ -197,7 +210,7 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 
 		listRequest = service.Search.List("snippet");
 		//listRequest.Q = searchString;
-		listRequest.ChannelId = _ChatConfig.ChannelId;
+		listRequest.ChannelId = channelId;
 		listRequest.EventType = SearchResource.ListRequest.EventTypeEnum.Live;
 		listRequest.Type = "video";
 		listRequest.MaxResults = 5;
