@@ -109,7 +109,7 @@ public class Program
 			// configuration.
 			options.KnownNetworks.Clear();
 			options.KnownProxies.Clear();
-			
+
 			// Ensure that we trust X-Forwarded-Proto headers for HTTPS detection
 			// This is critical for proper OAuth redirect URI generation in containers/proxies
 			options.ForwardedProtoHeaderName = "X-Forwarded-Proto";
@@ -168,8 +168,8 @@ public class Program
 		app.Use(async (context, next) =>
 		{
 			// For OAuth callback paths, ensure the request is treated as HTTPS
-			if (context.Request.Path.StartsWithSegments("/signin-") || 
-			    context.Request.Path.StartsWithSegments("/Account"))
+			if (context.Request.Path.StartsWithSegments("/signin-") ||
+					context.Request.Path.StartsWithSegments("/Account"))
 			{
 				// Override the scheme to HTTPS for OAuth processing
 				// This ensures that redirect URIs are always generated with HTTPS
@@ -178,7 +178,7 @@ public class Program
 					context.Request.Scheme = "https";
 				}
 			}
-			
+
 			await next();
 		});
 
