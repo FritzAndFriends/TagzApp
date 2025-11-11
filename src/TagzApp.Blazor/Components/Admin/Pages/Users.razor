@@ -94,9 +94,13 @@ else
         await ManageRolesDialog.Open();
     }
 
-    private void CloseManageRoles()
+    private async Task CloseManageRoles()
     {
         SelectedUser = new UserViewModel(null!);
+        
+        // Refresh the user list to show updated roles
+        await OnParametersSetAsync();
+        StateHasChanged();
     }
 
     public class UserViewModel : TagzAppUser
