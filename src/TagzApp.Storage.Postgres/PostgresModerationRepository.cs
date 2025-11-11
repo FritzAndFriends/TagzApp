@@ -62,15 +62,23 @@ internal class PostgresModerationRepository : IModerationRepository
 
 	public async Task Moderate(string userId, string provider, string providerId, ModerationState state)
 	{
+		Console.WriteLine($"PostgresModerationRepository.Moderate called - UserId: {userId}, Provider: {provider}, ProviderId: {providerId}, State: {state}");
 
 		var content = await _Context.Content.AsNoTracking()
 			.Where(c => c.Provider == provider && c.ProviderId == providerId)
 			.FirstOrDefaultAsync();
-		if (content is null) throw new ArgumentOutOfRangeException("Unable to find content with ProviderId specified");
+		if (content is null) 
+		{
+			Console.WriteLine($"Content not found for Provider: {provider}, ProviderId: {providerId}");
+			throw new ArgumentOutOfRangeException("Unable to find content with ProviderId specified");
+		}
+
+		Console.WriteLine($"Found content with Id: {content.Id}");
 
 		var existingModAction = await _Context.ModerationActions.FirstOrDefaultAsync(m => m.Provider == provider && m.ProviderId == providerId);
 		if (existingModAction is not null)
 		{
+			Console.WriteLine($"Removing existing moderation action with Id: {existingModAction.Id}");
 			_Context.ModerationActions.Remove(existingModAction);
 			content.ModerationAction = null;
 			await _Context.SaveChangesAsync();
@@ -85,9 +93,14 @@ internal class PostgresModerationRepository : IModerationRepository
 			Timestamp = DateTimeOffset.UtcNow,
 			ContentId = content.Id
 		};
+		
+		Console.WriteLine($"Creating new moderation action: Moderator={moderationAction.Moderator}, State={moderationAction.State}");
 		_Context.ModerationActions.Add(moderationAction);
 		content.ModerationAction = moderationAction;
+		
+		Console.WriteLine("Saving changes to database...");
 		await _Context.SaveChangesAsync();
+		Console.WriteLine($"Successfully saved moderation action with Id: {moderationAction.Id}");
 
 		Action<string, Content, ModerationAction> notify = state switch
 		{
