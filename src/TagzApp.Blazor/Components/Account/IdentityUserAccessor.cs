@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 
 namespace TagzApp.Blazor.Components.Account;
+
 internal sealed class IdentityUserAccessor(UserManager<TagzAppUser> userManager, IdentityRedirectManager redirectManager)
 {
 

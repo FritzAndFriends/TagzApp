@@ -1,4 +1,5 @@
 ﻿namespace TagzApp.Providers.Blazot.Models;
+
 public class Media
 {
 	public string? VideoUrl { get; set; }

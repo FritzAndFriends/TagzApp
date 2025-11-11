@@ -4,6 +4,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 
 namespace TagzApp.Providers.TwitchChat;
+
 internal class TwitchProfileRepository
 {
 
