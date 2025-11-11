@@ -12,6 +12,28 @@ public static class Service_ExternalAuthProviders
 	public const string CLIENTSECRET_DUMMY = "<DUMMY CLIENT SECRET>";
 
 	/// <summary>
+	/// Ensures that the redirect URI uses HTTPS scheme for OAuth security compliance
+	/// </summary>
+	/// <param name="redirectUri">The original redirect URI</param>
+	/// <returns>The redirect URI with HTTPS scheme enforced</returns>
+	private static string EnsureHttpsRedirectUri(string redirectUri)
+	{
+		if (string.IsNullOrEmpty(redirectUri))
+			return redirectUri;
+
+		if (Uri.TryCreate(redirectUri, UriKind.Absolute, out var uri))
+		{
+			if (uri.Scheme.Equals("http", StringComparison.OrdinalIgnoreCase))
+			{
+				var httpsUri = new UriBuilder(uri) { Scheme = "https" };
+				return httpsUri.ToString();
+			}
+		}
+		
+		return redirectUri;
+	}
+
+	/// <summary>
 	/// Dictionary of external authentication providers with their configuration actions
 	/// </summary>
 	public static readonly Dictionary<string, Action<AuthenticationBuilder, Action<OAuthOptions>>> ExternalProviders = new()
@@ -82,7 +104,7 @@ public static class Service_ExternalAuthProviders
 
 					var redirectUri = context.Options.CallbackPath.HasValue
 						? $"{scheme}://{host}{context.Options.CallbackPath}"
-						: context.RedirectUri;
+						: EnsureHttpsRedirectUri(context.RedirectUri);
 
 					// Properly generate the state parameter using the StateDataFormat
 					var state = context.Options.StateDataFormat.Protect(context.Properties);
