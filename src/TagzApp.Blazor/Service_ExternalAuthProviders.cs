@@ -62,29 +62,34 @@ public static class Service_ExternalAuthProviders
 
 				options.ClientId = clientID;
 				options.ClientSecret = clientSecret;
-				if (clientID != CLIENTID_DUMMY && clientSecret != CLIENTSECRET_DUMMY) return;
 
-
-				// Override the OAuth events to read configuration at runtime
+				// ALWAYS override the OAuth events to ensure HTTPS redirect URIs
+				// This applies to both configured and unconfigured providers
 				options.Events.OnRedirectToAuthorizationEndpoint = async context =>
 				{
-					// Get fresh configuration from your config service/database
-					var configService = context.HttpContext.RequestServices.GetRequiredService<IConfigureTagzApp>();
-					var keys = await configService.GetConfigurationById<Dictionary<string, string>>($"Authentication:{name}");
-					var innerClientID = keys["ClientID"];
-					var innerClientSecret = keys["ClientSecret"];
+					string actualClientId = clientID;
+					string actualClientSecret = clientSecret;
 
-					if (innerClientID == CLIENTID_DUMMY || innerClientSecret == CLIENTSECRET_DUMMY)
+					// If we have dummy values, try to get fresh configuration from database
+					if (clientID == CLIENTID_DUMMY || clientSecret == CLIENTSECRET_DUMMY)
 					{
-						// No configuration - redirect to error page
-						context.Response.Redirect($"/Account/ProviderNotConfigured?provider={name}");
-						context.Response.StatusCode = 403; // Forbidden
-						return;
-					}
+						var configService = context.HttpContext.RequestServices.GetRequiredService<IConfigureTagzApp>();
+						var keys = await configService.GetConfigurationById<Dictionary<string, string>>($"Authentication:{name}");
+						actualClientId = keys["ClientID"];
+						actualClientSecret = keys["ClientSecret"];
 
-					// Update the options with fresh configuration
-					context.Options.ClientId = innerClientID;
-					context.Options.ClientSecret = innerClientSecret;
+						if (actualClientId == CLIENTID_DUMMY || actualClientSecret == CLIENTSECRET_DUMMY)
+						{
+							// No configuration - redirect to error page
+							context.Response.Redirect($"/Account/ProviderNotConfigured?provider={name}");
+							context.Response.StatusCode = 403; // Forbidden
+							return;
+						}
+
+						// Update the options with fresh configuration
+						context.Options.ClientId = actualClientId;
+						context.Options.ClientSecret = actualClientSecret;
+					}
 
 					// Build redirect URI properly respecting forwarded headers and ALWAYS enforce HTTPS
 					var request = context.HttpContext.Request;
@@ -109,7 +114,7 @@ public static class Service_ExternalAuthProviders
 					var scope = string.Join(" ", context.Options.Scope);
 
 					var authUrl = $"{context.Options.AuthorizationEndpoint}" +
-						$"?client_id={Uri.EscapeDataString(innerClientID)}" +
+						$"?client_id={Uri.EscapeDataString(actualClientId)}" +
 						$"&redirect_uri={Uri.EscapeDataString(redirectUri)}" +
 						$"&response_type=code" +
 						$"&scope={Uri.EscapeDataString(scope)}" +
