@@ -80,9 +80,33 @@
 	{
 		try
 		{
-			var broadcastMethod = Provider.GetType().GetMethod("GetBroadcastsForUser");
-			Broadcasts = broadcastMethod.Invoke(Provider, []) as IEnumerable<YouTubeBroadcast> ?? [];
-			ToastService.Add("Broadcasts loaded successfully.", MessageSeverity.Success);
+			// Validate that API Key and Channel ID are provided
+			if (string.IsNullOrEmpty(Model.YouTubeApiKey))
+			{
+				ToastService.Add("YouTube API Key is required to search for broadcasts.", MessageSeverity.Warning);
+				return;
+			}
+			
+			if (string.IsNullOrEmpty(Model.ChannelId))
+			{
+				ToastService.Add("Channel ID is required to search for broadcasts.", MessageSeverity.Warning);
+				return;
+			}
+
+			// Use reflection to call the overloaded method with the current form values
+			var broadcastMethod = Provider.GetType().GetMethod("GetBroadcastsForUser", new[] { typeof(string), typeof(string) });
+			if (broadcastMethod != null)
+			{
+				Broadcasts = broadcastMethod.Invoke(Provider, [Model.YouTubeApiKey, Model.ChannelId]) as IEnumerable<YouTubeBroadcast> ?? [];
+				ToastService.Add($"Found {Broadcasts.Count()} broadcast(s).", MessageSeverity.Success);
+			}
+			else
+			{
+				// Fallback to the parameterless method if the overloaded method is not found
+				var fallbackMethod = Provider.GetType().GetMethod("GetBroadcastsForUser", Type.EmptyTypes);
+				Broadcasts = fallbackMethod?.Invoke(Provider, []) as IEnumerable<YouTubeBroadcast> ?? [];
+				ToastService.Add("Broadcasts loaded using saved configuration.", MessageSeverity.Info);
+			}
 		}
 		catch (Exception ex)
 		{
