@@ -137,7 +137,9 @@ public class Program
 			app.UseResponseCompression();
 		}
 
-
+		// CRITICAL: Use forwarded headers middleware for container/proxy deployments
+		// This must be called early in the pipeline to properly detect HTTPS from proxy headers
+		app.UseForwardedHeaders();
 
 		app.UseHttpsRedirection();
 
