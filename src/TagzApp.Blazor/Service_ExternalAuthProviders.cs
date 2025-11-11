@@ -60,25 +60,35 @@ public static class Service_ExternalAuthProviders
 						return;
 					}
 
-
 					// Update the options with fresh configuration
 					context.Options.ClientId = innerClientID;
 					context.Options.ClientSecret = innerClientSecret;
 
-					// Continue with normal OAuth flow
-					//context.Response.Redirect(context.RedirectUri);
+					// Build redirect URI properly respecting forwarded headers and HTTPS
+					var request = context.HttpContext.Request;
+					var scheme = request.Headers.ContainsKey("X-Forwarded-Proto") ? 
+						request.Headers["X-Forwarded-Proto"].ToString() : 
+						request.Scheme;
+					
+					// Ensure HTTPS for external OAuth providers
+					if (scheme.Equals("http", StringComparison.OrdinalIgnoreCase))
+					{
+						scheme = "https";
+					}
 
-					// Manually build the authorization URL with the updated ClientId
-					var authorizationEndpoint = context.Options.AuthorizationEndpoint;
+					var host = request.Headers.ContainsKey("X-Forwarded-Host") ? 
+						request.Headers["X-Forwarded-Host"].ToString() : 
+						request.Host.ToString();
+
 					var redirectUri = context.Options.CallbackPath.HasValue
-						? $"{context.Request.Scheme}://{context.Request.Host}{context.Options.CallbackPath}"
+						? $"{scheme}://{host}{context.Options.CallbackPath}"
 						: context.RedirectUri;
 
 					// Properly generate the state parameter using the StateDataFormat
 					var state = context.Options.StateDataFormat.Protect(context.Properties);
 					var scope = string.Join(" ", context.Options.Scope);
 
-					var authUrl = $"{authorizationEndpoint}" +
+					var authUrl = $"{context.Options.AuthorizationEndpoint}" +
 						$"?client_id={Uri.EscapeDataString(innerClientID)}" +
 						$"&redirect_uri={Uri.EscapeDataString(redirectUri)}" +
 						$"&response_type=code" +
