@@ -1,0 +1,26 @@
+@page "/Account/ProviderNotConfigured"
+
+<PageTitle>Provider Not Configured</PageTitle>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="alert alert-warning">
+                <h4><i class="bi bi-exclamation-triangle-fill me-2"></i>Provider Not Configured</h4>
+                <p>The <strong>@Provider</strong> authentication provider has not been configured yet.</p>
+                
+                <div class="mt-3">
+                    <p>Please contact your administrator to configure the authentication provider.</p>
+                    <a href="/Account/Login" class="btn btn-primary">
+                        <i class="bi bi-arrow-left me-1"></i>Back to Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private string Provider { get; set; } = "Unknown";
+}

@@ -67,7 +67,7 @@ internal class PostgresModerationRepository : IModerationRepository
 		var content = await _Context.Content.AsNoTracking()
 			.Where(c => c.Provider == provider && c.ProviderId == providerId)
 			.FirstOrDefaultAsync();
-		if (content is null) 
+		if (content is null)
 		{
 			Console.WriteLine($"Content not found for Provider: {provider}, ProviderId: {providerId}");
 			throw new ArgumentOutOfRangeException("Unable to find content with ProviderId specified");
@@ -93,11 +93,11 @@ internal class PostgresModerationRepository : IModerationRepository
 			Timestamp = DateTimeOffset.UtcNow,
 			ContentId = content.Id
 		};
-		
+
 		Console.WriteLine($"Creating new moderation action: Moderator={moderationAction.Moderator}, State={moderationAction.State}");
 		_Context.ModerationActions.Add(moderationAction);
 		content.ModerationAction = moderationAction;
-		
+
 		Console.WriteLine("Saving changes to database...");
 		await _Context.SaveChangesAsync();
 		Console.WriteLine($"Successfully saved moderation action with Id: {moderationAction.Id}");
