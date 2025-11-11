@@ -85,7 +85,7 @@ public class ModerationHub : Hub<IModerationClient>
 
 		var thisUser = await _UserManager.GetUserAsync(Context.User);
 		Console.WriteLine($"SetStatus called - Provider: {provider}, ProviderId: {providerId}, State: {newState}, User: {thisUser?.NormalizedUserName ?? thisUser?.Email ?? "NULL"}");
-
+		
 		try
 		{
 			await _Repository.Moderate(thisUser?.NormalizedUserName ?? thisUser?.Email ?? "UNKNOWN", provider, providerId, newState);
