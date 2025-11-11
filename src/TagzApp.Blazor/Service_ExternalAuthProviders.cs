@@ -12,6 +12,28 @@ public static class Service_ExternalAuthProviders
 	public const string CLIENTSECRET_DUMMY = "<DUMMY CLIENT SECRET>";
 
 	/// <summary>
+	/// Ensures that the redirect URI uses HTTPS scheme for OAuth security compliance
+	/// </summary>
+	/// <param name="redirectUri">The original redirect URI</param>
+	/// <returns>The redirect URI with HTTPS scheme enforced</returns>
+	private static string EnsureHttpsRedirectUri(string redirectUri)
+	{
+		if (string.IsNullOrEmpty(redirectUri))
+			return redirectUri;
+
+		if (Uri.TryCreate(redirectUri, UriKind.Absolute, out var uri))
+		{
+			if (uri.Scheme.Equals("http", StringComparison.OrdinalIgnoreCase))
+			{
+				var httpsUri = new UriBuilder(uri) { Scheme = "https" };
+				return httpsUri.ToString();
+			}
+		}
+		
+		return redirectUri;
+	}
+
+	/// <summary>
 	/// Dictionary of external authentication providers with their configuration actions
 	/// </summary>
 	public static readonly Dictionary<string, Action<AuthenticationBuilder, Action<OAuthOptions>>> ExternalProviders = new()
@@ -64,17 +86,15 @@ public static class Service_ExternalAuthProviders
 					context.Options.ClientId = innerClientID;
 					context.Options.ClientSecret = innerClientSecret;
 
-					// Build redirect URI properly respecting forwarded headers and HTTPS
+					// Build redirect URI properly respecting forwarded headers and ALWAYS enforce HTTPS
 					var request = context.HttpContext.Request;
 					var scheme = request.Headers.ContainsKey("X-Forwarded-Proto") ? 
 						request.Headers["X-Forwarded-Proto"].ToString() : 
 						request.Scheme;
 					
-					// Ensure HTTPS for external OAuth providers
-					if (scheme.Equals("http", StringComparison.OrdinalIgnoreCase))
-					{
-						scheme = "https";
-					}
+					// CRITICAL: Always enforce HTTPS for external OAuth providers for security
+					// OAuth providers require HTTPS redirect URIs in production environments
+					scheme = "https";
 
 					var host = request.Headers.ContainsKey("X-Forwarded-Host") ? 
 						request.Headers["X-Forwarded-Host"].ToString() : 
@@ -82,7 +102,7 @@ public static class Service_ExternalAuthProviders
 
 					var redirectUri = context.Options.CallbackPath.HasValue
 						? $"{scheme}://{host}{context.Options.CallbackPath}"
-						: context.RedirectUri;
+						: EnsureHttpsRedirectUri(context.RedirectUri);
 
 					// Properly generate the state parameter using the StateDataFormat
 					var state = context.Options.StateDataFormat.Protect(context.Properties);
