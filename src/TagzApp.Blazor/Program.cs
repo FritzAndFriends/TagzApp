@@ -182,6 +182,19 @@ public class Program
 			await next();
 		});
 
+		// Add sample map data
+		if (app.Environment.IsDevelopment())
+		{
+			using (var scope = app.Services.CreateScope()) {
+				var services = scope.ServiceProvider;
+
+				var ctx = services.GetRequiredService<TagzApp.Storage.Postgres.TagzAppContext>();
+				ctx.SeedViewerLocations(true);
+			}
+
+		}
+
+
 		app.UseAuthentication();
 		app.UseAuthorization();
 
