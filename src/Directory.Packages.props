@@ -29,7 +29,7 @@
     <PackageVersion Include="Drastic.Utilities" Version="1.0.10" />
     <PackageVersion Include="Ensure.That" Version="11.0.0-p3" />
     <PackageVersion Include="FishyFlip" Version="2.1.1" />
-		<PackageVersion Include="Fritz.Charlie.Components" Version="1.1.1"  />
+		<PackageVersion Include="Fritz.Charlie.Components" Version="1.1.2"  />
     <PackageVersion Include="Google.Apis" Version="1.70.0" />
     <PackageVersion Include="Google.Apis.YouTube.v3" Version="1.70.0.3847" />
     <PackageVersion Include="gravatar" Version="1.1.0" />
