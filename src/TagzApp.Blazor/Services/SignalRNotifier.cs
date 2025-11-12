@@ -4,6 +4,7 @@ using Fritz.Charlie.Components.Services;
 using Microsoft.AspNetCore.SignalR;
 using TagzApp.Blazor.Hubs;
 using TagzApp.ViewModels.Data;
+using TagzApp.Common;
 
 namespace TagzApp.Blazor.Services;
 
@@ -41,7 +42,7 @@ public class SignalRNotifier : INotifyNewMessages
 
 	private async Task<string?> ExtractLocationFromContentAsync(Content content)
 	{
-		if (!content.Provider.Equals("twitch", StringComparison.InvariantCultureIgnoreCase) &&
+		if (!content.Provider.Equals("TWITCH", StringComparison.InvariantCultureIgnoreCase) &&
 				!content.Provider.Equals("YOUTUBE-CHAT", StringComparison.InvariantCultureIgnoreCase))
 		{
 			// only running on the live video streams
@@ -49,14 +50,15 @@ public class SignalRNotifier : INotifyNewMessages
 		}
 
 		var userId = $"{content.Provider}-{content.Author.UserName}";
+		var hashedUserId = UserIdHasher.CreateHashedUserId(userId);
 
 		// Ensure cache is loaded from database on first use
 		await EnsureCacheLoaded();
 
-		// Check in-memory cache first (fast path)
-		if (_usersWithLocations.Contains(userId))
+		// Check in-memory cache first (fast path) - use hashed ID for consistency with database
+		if (_usersWithLocations.Contains(hashedUserId))
 		{
-			_locationLogger.LogDebug($"User {userId} has already submitted a location (from cache), skipping");
+			_locationLogger.LogDebug($"User {userId} (hashed: {hashedUserId}) has already submitted a location (from cache), skipping");
 			return string.Empty;
 		}
 
@@ -66,8 +68,8 @@ public class SignalRNotifier : INotifyNewMessages
 		// If we found a location, mark this user as having submitted one
 		if (!string.IsNullOrEmpty(locationText))
 		{
-			_usersWithLocations.Add(userId);
-			_locationLogger.LogInformation($"First location submission from user {userId}: {locationText}");
+			_usersWithLocations.Add(hashedUserId);
+			_locationLogger.LogInformation($"First location submission from user {userId} (hashed: {hashedUserId}): {locationText}");
 		}
 
 		return locationText;
@@ -122,13 +124,15 @@ public class SignalRNotifier : INotifyNewMessages
 				var geoPoint = await _GeolocationService.GetPointFromLocation(locationText);
 				if (geoPoint.IsValid)
 				{
+					var userName = string.IsNullOrEmpty(content.Author.UserName) ? content.Author.DisplayName.Replace(" ", "_") : content.Author.UserName;
+					var userId = $"{content.Provider}-{userName}";
 					var locationEvent = new ViewerLocationEvent(
 							geoPoint.Latitude,
 							geoPoint.Longitude,
 							locationText)
 					{
 						StreamId = "all",
-						UserId = $"{content.Provider}-{content.Author.UserName}"
+						UserId = userId
 					};
 
 					// Store in database
