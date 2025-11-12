@@ -689,4 +689,142 @@ public partial class TagzAppContext
 			new() { Name = "Las Venturas", Latitude = 36.1699m, Longitude = -115.1398m }, // Gaming reference (Las Vegas)
 		};
 	}
+
+	/// <summary>
+	/// Seeds the ViewerLocations table with sample data
+	/// </summary>
+	/// <param name="includeDevelopmentData">Whether to include development seed data. Should only be true in development environment.</param>
+	/// <returns>True if seeding was performed, false if data already exists</returns>
+	public async Task<bool> SeedViewerLocationsAsync(bool includeDevelopmentData = false)
+	{
+		// Check if data already exists
+		if (await ViewerLocations.AnyAsync())
+		{
+			return false;
+		}
+
+		// Only load sample data in development environment
+		if (!includeDevelopmentData)
+		{
+			return false;
+		}
+
+		var viewerLocations = GetSampleViewerLocations();
+
+		await ViewerLocations.AddRangeAsync(viewerLocations);
+		await SaveChangesAsync();
+
+		return true;
+	}
+
+	/// <summary>
+	/// Seeds the ViewerLocations table with sample data (synchronous version)
+	/// </summary>
+	/// <param name="includeDevelopmentData">Whether to include development seed data. Should only be true in development environment.</param>
+	/// <returns>True if seeding was performed, false if data already exists</returns>
+	public bool SeedViewerLocations(bool includeDevelopmentData = false)
+	{
+		// Check if data already exists
+		if (ViewerLocations.Any())
+		{
+			return false;
+		}
+
+		// Only load sample data in development environment
+		if (!includeDevelopmentData)
+		{
+			return false;
+		}
+
+		var viewerLocations = GetSampleViewerLocations();
+
+		ViewerLocations.AddRange(viewerLocations);
+		SaveChanges();
+
+		return true;
+	}
+
+	/// <summary>
+	/// Gets ViewerLocation sample data for development environment seeding only.
+	/// This data should NOT be used in production environments.
+	/// </summary>
+	/// <returns>Collection of PgViewerLocation entities for development seeding</returns>
+	public static IEnumerable<PgViewerLocation> GetSampleViewerLocations()
+	{
+		return new List<PgViewerLocation>
+		{
+			// DEVELOPMENT-ONLY DATA: Sample data from sample-map-data.csv
+			// This data should only be seeded in development environments
+			
+			new() { StreamId = "all", HashedUserId = "-cPd23OTJrja16X8Bl3D34BCjBXwJuGN", Description = "guatemala", Latitude = 15.5855545m, Longitude = -90.3457590m },
+			new() { StreamId = "all", HashedUserId = "0bDS3zSQmiP3e0c43xRxmirt34uK8_gO", Description = "nigeria", Latitude = 9.6000359m, Longitude = 7.9999721m },
+			new() { StreamId = "all", HashedUserId = "2MOwIE3v98AmvgEbB8muew2B0YvtlJXp", Description = "trichy", Latitude = 10.8071144m, Longitude = 78.6880939m },
+			new() { StreamId = "all", HashedUserId = "3kEdg8VUO7zRob7ik5H5mkAspmpU5obf", Description = "pune", Latitude = 18.5204m, Longitude = 73.8567m },
+			new() { StreamId = "all", HashedUserId = "3NK6QmVqN-OVCEvC-Zqk1K0wtj3pOFl6", Description = "prague", Latitude = 50.0755m, Longitude = 14.4378m },
+			new() { StreamId = "all", HashedUserId = "4wkvoN0Cv2mUjWfdMBYtRTpFeTUU5xlg", Description = "india", Latitude = 22.3511148m, Longitude = 78.6677428m },
+			new() { StreamId = "all", HashedUserId = "5AZo2BicXG6APyTnBBAu_60G15io9UB9", Description = "romania", Latitude = 45.9852129m, Longitude = 24.6859225m },
+			new() { StreamId = "all", HashedUserId = "6_97zB9PzYfIfb5li1V6f2C3R192JUZa", Description = "new jersey usa", Latitude = 40.0757384m, Longitude = -74.4041622m },
+			new() { StreamId = "all", HashedUserId = "7ryCxSEY3AoudWRcaIscHa9wpt4IxSEA", Description = "portugal", Latitude = 39.6621648m, Longitude = -8.1353519m },
+			new() { StreamId = "all", HashedUserId = "8dAFSgyQi0Qj3-_XnnNYxFVVPwCXFJKI", Description = "bangladesh", Latitude = 24.4769288m, Longitude = 90.2934413m },
+			new() { StreamId = "all", HashedUserId = "8MmLZtvJ8PERvjMcvqp-IvgJghr8EhOy", Description = "abuja, nigeria", Latitude = 9.0643305m, Longitude = 7.4892974m },
+			new() { StreamId = "all", HashedUserId = "9u_7SKL3GSk6BH5fVu7vXozHaCdkQPtX", Description = "belgium", Latitude = 50.6402809m, Longitude = 4.6667145m },
+			new() { StreamId = "all", HashedUserId = "agWda0219YtdDYVVE5fzzaAjxrX9ldwH", Description = "idia", Latitude = 19.0616226m, Longitude = -98.3024796m },
+			new() { StreamId = "all", HashedUserId = "b-2atn1oCucT3rzaR0BU1-oUmEEO8d9O", Description = "brazil", Latitude = -10.3333333m, Longitude = -53.2000000m },
+			new() { StreamId = "all", HashedUserId = "bjR0F29xw4RAgqUswbigsZvMktVtsS-v", Description = "india", Latitude = 22.3511148m, Longitude = 78.6677428m },
+			new() { StreamId = "all", HashedUserId = "c4vC96zSePlXia7GVXidDWzS01UO5Ewc", Description = "melbourne", Latitude = -37.8136m, Longitude = 144.9631m },
+			new() { StreamId = "all", HashedUserId = "CGJm0sBKYm2giqKm3OB4fM_lzSigcok_", Description = "bharat", Latitude = 22.3511148m, Longitude = 78.6677428m },
+			new() { StreamId = "all", HashedUserId = "D7YtBQUYevjEht-PGYdZrNrC4h7RK5g-", Description = "ecuador", Latitude = -1.3397668m, Longitude = -79.3666965m },
+			new() { StreamId = "all", HashedUserId = "DXwXf43Ll9FAeMKfjWBEDm2KML-MFJZV", Description = "lima, peru", Latitude = -12.0459808m, Longitude = -77.0305912m },
+			new() { StreamId = "all", HashedUserId = "EtcBXQY2vooJsnGqPnelp4KFoGyYa7dW", Description = "mexico", Latitude = 23.6585116m, Longitude = -102.0077097m },
+			new() { StreamId = "all", HashedUserId = "FdQzoamPs4XOeVURka5ra40lFC9rbgAP", Description = "israel", Latitude = 30.8124247m, Longitude = 34.8594762m },
+			new() { StreamId = "all", HashedUserId = "fQK93ABCX2zEa2x9uAyH8V-F322wh7uI", Description = "india", Latitude = 22.3511148m, Longitude = 78.6677428m },
+			new() { StreamId = "all", HashedUserId = "Fy8uGrpk8O1NYSHWdMDtPoqbakGgWHHI", Description = "cape town, south africa", Latitude = -33.9288301m, Longitude = 18.4172197m },
+			new() { StreamId = "all", HashedUserId = "gju4p7nNeo2U8z1p3_KP-DM3p1w4FVyt", Description = "switzerland", Latitude = 46.7985624m, Longitude = 8.2319736m },
+			new() { StreamId = "all", HashedUserId = "HIyhx5FG7qOg69PxNU1BelF-S_hd464e", Description = "sri lanka", Latitude = 7.5554942m, Longitude = 80.7137847m },
+			new() { StreamId = "all", HashedUserId = "HmLB4toWOGUoauD8CO9nZnKM0sgoEPi_", Description = "guarulhos, s", Latitude = -23.4675941m, Longitude = -46.5277704m },
+			new() { StreamId = "all", HashedUserId = "ipmCpgEDxqzEqKJdRMOKMSxot-ZZX8Jj", Description = "bulgaria", Latitude = 42.6073975m, Longitude = 25.4856617m },
+			new() { StreamId = "all", HashedUserId = "JiZJ5gfDNuY4QyqwFb4F_-V3QdKN2FB3", Description = "birmingham uk", Latitude = 52.4796992m, Longitude = -1.9026911m },
+			new() { StreamId = "all", HashedUserId = "n0tmVhW4llyZyoZZNbt4Y1PNRHwHPFmo", Description = "romania", Latitude = 45.9852129m, Longitude = 24.6859225m },
+			new() { StreamId = "all", HashedUserId = "NINvrLhERtcnr4RhU_7szNQexOPMpCBr", Description = "east anglia", Latitude = 52.4617238m, Longitude = 0.6975642m },
+			new() { StreamId = "all", HashedUserId = "nRTD613-eLUHTN7s5V7J7S7-w8ABdFOw", Description = "argentina", Latitude = -34.9964963m, Longitude = -64.9672817m },
+			new() { StreamId = "all", HashedUserId = "O-crX4Rl4ofZt2PsE5Vzo5uWxTwnIteM", Description = "yemen", Latitude = 16.3471243m, Longitude = 47.8915271m },
+			new() { StreamId = "all", HashedUserId = "oASE6-axHoNkl5S9BonaHT0vlKfg20EW", Description = "atlanta", Latitude = 33.749m, Longitude = -84.388m },
+			new() { StreamId = "all", HashedUserId = "PYdW0pTIq3HfaxtSqT-VX_L5mLl8wTVE", Description = "canada, quebec", Latitude = 52.4760892m, Longitude = -71.8258668m },
+			new() { StreamId = "all", HashedUserId = "Q599bCkxUlGamMe8pOmzcUPB2crnjIvu", Description = "nepal", Latitude = 28.3780464m, Longitude = 83.9999901m },
+			new() { StreamId = "all", HashedUserId = "ql_erfcwNOjvnhNfVatr49HYEDVG2zZp", Description = "italy", Latitude = 42.6384261m, Longitude = 12.6742970m },
+			new() { StreamId = "all", HashedUserId = "rFU8Rw2G-g-9-Gj4s-lvbNunp-EKVeY8", Description = "hamburg germany", Latitude = 53.5503410m, Longitude = 10.0006540m },
+			new() { StreamId = "all", HashedUserId = "RtsV7Ov5o4ilgnntfYLPZq5ZZKO5d_LQ", Description = "prague", Latitude = 50.0755m, Longitude = 14.4378m },
+			new() { StreamId = "all", HashedUserId = "S1_Sx5PFktJ5erlgwPgHlKtq0XVB2RBT", Description = "québec", Latitude = 52.4760892m, Longitude = -71.8258668m },
+			new() { StreamId = "all", HashedUserId = "UnTfcUvEKTAm-RwiuxFXfjTtah8pzui9", Description = "san antonio texas", Latitude = 18.1741670m, Longitude = -96.1297220m },
+			new() { StreamId = "all", HashedUserId = "vFRu-rMgRkYDKQVfvPdo4-bLMx-2iEfy", Description = "ecuador", Latitude = -1.3397668m, Longitude = -79.3666965m },
+			new() { StreamId = "all", HashedUserId = "vQH0uu6tEv92f0wW4HQNdBMq3fRS-MzO", Description = "romania", Latitude = 45.9852129m, Longitude = 24.6859225m },
+			new() { StreamId = "all", HashedUserId = "Wo8j2xvx-L-mTjTfHrLg2wHtEf0-oF0c", Description = "nigeria", Latitude = 9.6000359m, Longitude = 7.9999721m },
+			new() { StreamId = "all", HashedUserId = "Yp1-mtuxlSgDk717sWbRERCvxtDsxlYG", Description = "kazakhstan", Latitude = 48.1012954m, Longitude = 66.7780818m },
+			new() { StreamId = "all", HashedUserId = "YvO-6MoTPJMRoIRKPmqRAdVqOn20t5V_", Description = "medellín, colombia", Latitude = 6.2697325m, Longitude = -75.6025597m },
+			new() { StreamId = "all", HashedUserId = "YwIOXQaoiaqpe-P8ENVcS_-Ovl4Yb2Kn", Description = "rotterdam", Latitude = 51.9244m, Longitude = 4.4777m },
+			new() { StreamId = "all", HashedUserId = "z_NIFUzhzOv2mpzgLlFsYFW-19RWABkQ", Description = "ch too", Latitude = -24.7222438m, Longitude = -53.7402476m },
+			new() { StreamId = "all", HashedUserId = "zb5_9oT6XtJqz6_sEUtzUplGwGvcYSrR", Description = "germany", Latitude = 51.1638175m, Longitude = 10.4478313m },
+			new() { StreamId = "all", HashedUserId = "Zd38ebt2yO7vtDg6yVE8J6fyZc4mp5wn", Description = "india", Latitude = 22.3511148m, Longitude = 78.6677428m },
+			new() { StreamId = "all", HashedUserId = "ZSmEtTh1tzmsjVs27oqCbGYJI194M7Hv", Description = "san diego, ca usa", Latitude = 32.7174202m, Longitude = -117.1627720m },
+			new() { StreamId = "all", HashedUserId = "12zqiBYuAomP_GbqMgq82-k09RsGnyL8", Description = "oostvoorne", Latitude = 51.9142710m, Longitude = 4.1038932m },
+			new() { StreamId = "all", HashedUserId = "2QapRPXbaFdTaYAp0hSaOphP00qOg6lD", Description = "costa rica", Latitude = 10.2735633m, Longitude = -84.0739102m },
+			new() { StreamId = "all", HashedUserId = "2qZAC-N-9bfAAONBTuDXMF-09hr8i0Xo", Description = "portugal", Latitude = 39.6621648m, Longitude = -8.1353519m },
+			new() { StreamId = "all", HashedUserId = "5EHhC58bmssVUuwRh_sFy6yvIXFzU_iV", Description = "russia", Latitude = 64.6863136m, Longitude = 97.7453061m },
+			new() { StreamId = "all", HashedUserId = "5g-3bwf5k8MsxPX1UEOYJt9MmLlwgrsM", Description = "stockport, uk", Latitude = 53.4079010m, Longitude = -2.1602430m },
+			new() { StreamId = "all", HashedUserId = "5yNSphqzM8zheYiP48QUBlJuKMi4b4EO", Description = "germany", Latitude = 51.1638175m, Longitude = 10.4478313m },
+			new() { StreamId = "all", HashedUserId = "6TLYREJvUd0tVxIahTBHtU1ig_FfTwcr", Description = "utah", Latitude = 39.4225192m, Longitude = -111.7143580m },
+			new() { StreamId = "all", HashedUserId = "6WHXvFotFYj2_kTm5tHGsBiBu6bdHeXY", Description = "tehran, iran", Latitude = 35.6892523m, Longitude = 51.3896004m },
+			new() { StreamId = "all", HashedUserId = "7NdseYVZcKftfGufZnVkPw5J_znUyU5J", Description = "arkansas", Latitude = 35.2048883m, Longitude = -92.4479108m },
+			new() { StreamId = "all", HashedUserId = "9-N0NJT7GlfU24ORJ6tVamNWZu8GCrNF", Description = "cambodia", Latitude = 12.5433216m, Longitude = 104.8144914m },
+			new() { StreamId = "all", HashedUserId = "9R7LhnuEHxC8HRceMHlRQzjyA_DSUtri", Description = "israel", Latitude = 30.8124247m, Longitude = 34.8594762m },
+			new() { StreamId = "all", HashedUserId = "apBoVAOCwl1kTOpKHo4LyWJhdzKg31E_", Description = "jupiter", Latitude = 26.9342246m, Longitude = -80.0942087m },
+			new() { StreamId = "all", HashedUserId = "b04HVjlNoX97dUARA31x46Wrf-JaMtUc", Description = "türkiye", Latitude = 39.2940760m, Longitude = 35.2316631m },
+			new() { StreamId = "all", HashedUserId = "BgYNUXNbdhpDUx3w8glc72Th4rfUu-jU", Description = "kanyakumari", Latitude = 8.0792520m, Longitude = 77.5499338m },
+			new() { StreamId = "all", HashedUserId = "BL7Or-FHKq66eAlJJ2oJYxBq0xAv1BY1", Description = "india", Latitude = 22.3511148m, Longitude = 78.6677428m },
+			new() { StreamId = "all", HashedUserId = "BNBU-ybQVM9is270m69P4Ozw4fy_k2xp", Description = "brazil", Latitude = -10.3333333m, Longitude = -53.2000000m },
+			new() { StreamId = "all", HashedUserId = "BSNEonuojUIU9YxUe4Ycfwo7MM3krSsV", Description = "south dakota, usa", Latitude = 44.6471761m, Longitude = -100.3487610m },
+			new() { StreamId = "all", HashedUserId = "CdS2jllGYT1masMCd84uwlSZxEyYz4Lk", Description = "gujarat india", Latitude = 22.3850051m, Longitude = 71.7452610m },
+			new() { StreamId = "all", HashedUserId = "f_sUM1K7Hop3dLUI6amrLaaS9ZXz2wDG", Description = "austria", Latitude = 47.5939700m, Longitude = 14.1245600m },
+		};
+	}
 }
