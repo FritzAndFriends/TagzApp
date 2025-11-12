@@ -61,8 +61,8 @@
     {
         if (_ChatterMap != null)
         {
-            await LoadPersistedLocations();
-            
+           
+
             // Store handlers for proper disposal
             _locationPlottedHandler = async (sender, locationEvent) =>
             {
@@ -72,7 +72,7 @@
                     await InvokeAsync(StateHasChanged);
                 }
             };
-            
+
             _locationRemovedHandler = async (sender, locationId) =>
             {
                 if (_ChatterMap != null)
@@ -85,6 +85,16 @@
             ViewerLocationService.LocationPlotted += _locationPlottedHandler;
             ViewerLocationService.LocationRemoved += _locationRemovedHandler;
         }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadPersistedLocations();
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     private async Task OnMapError(string errorMessage)
