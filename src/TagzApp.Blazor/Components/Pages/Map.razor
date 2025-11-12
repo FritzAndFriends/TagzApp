@@ -56,12 +56,14 @@
     private ChatterMapDirect? _ChatterMap;
     private EventHandler<ViewerLocationEvent>? _locationPlottedHandler;
     private EventHandler<Guid>? _locationRemovedHandler;
+		private bool _InitialLocationsLoaded = false;
 
     private async Task OnMapInitialized()
     {
         if (_ChatterMap != null)
         {
            
+						await LoadPersistedLocations();
 
             // Store handlers for proper disposal
             _locationPlottedHandler = async (sender, locationEvent) =>
@@ -87,15 +89,6 @@
         }
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await LoadPersistedLocations();
-        }
-
-        await base.OnAfterRenderAsync(firstRender);
-    }
 
     private async Task OnMapError(string errorMessage)
     {
@@ -107,7 +100,7 @@
 
 				Console.WriteLine("OnMapInitialized: Loading persisted viewer locations...");
 
-        if (_ChatterMap == null)
+        if (_ChatterMap == null || _InitialLocationsLoaded)
             return;
 
 				Console.WriteLine("Loading persisted viewer locations for map...");
@@ -124,6 +117,9 @@
             
             await _ChatterMap.LoadMarkersAsync(deduplicatedLocations);
         }
+
+				_InitialLocationsLoaded = true;
+
     }
 
     public async ValueTask DisposeAsync()
