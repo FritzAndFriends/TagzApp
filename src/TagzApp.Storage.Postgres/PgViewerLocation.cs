@@ -1,5 +1,6 @@
 ﻿using Fritz.Charlie.Common;
 using System.ComponentModel.DataAnnotations;
+using TagzApp.Common;
 
 namespace TagzApp.Storage.Postgres;
 
@@ -33,7 +34,7 @@ public class PgViewerLocation
 		return new PgViewerLocation
 		{
 			StreamId = value.StreamId,
-			HashedUserId = value.UserId,
+			HashedUserId = UserIdHasher.CreateHashedUserId(value.UserId),
 			Description = value.LocationDescription,
 			Latitude = value.Latitude,
 			Longitude = value.Longitude

@@ -73,6 +73,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.ServiceDefaults", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.MigrationService", "TagzApp.DatabaseMigration\TagzApp.MigrationService.csproj", "{F1F4F081-22D3-4F8A-AD34-8BD270848F8E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.LocationMigration", "TagzApp.LocationMigration\TagzApp.LocationMigration.csproj", "{B8E1F2C3-4D5A-6E7F-8G9H-0I1J2K3L4M5N}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagzApp.Common.Client", "TagzApp.Common.Client\TagzApp.Common.Client.csproj", "{D5123984-3306-48A5-860D-E1EE5DC79AA3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Configuration.AzureKeyVault", "TagzApp.Configuration.AzureKeyVault\TagzApp.Configuration.AzureKeyVault.csproj", "{A7B2F4C8-9E3D-4F1A-8B5C-1D6E8F2A9C4B}"
