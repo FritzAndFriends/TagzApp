@@ -104,7 +104,15 @@
         var viewerLocations = await ViewerLocationService.GetLocationsForStreamAsync("all");
         if (viewerLocations != null)
         {
-            await _ChatterMap.LoadMarkersAsync(viewerLocations);
+            // Deduplicate locations by UserId to ensure each user appears only once on the map
+            var deduplicatedLocations = viewerLocations
+                .GroupBy(location => location.UserId)
+                .Select(group => group.First()) // Take the first location for each user
+                .ToList();
+            
+            Console.WriteLine($"Loaded {viewerLocations.Count} total locations, displaying {deduplicatedLocations.Count} unique users");
+            
+            await _ChatterMap.LoadMarkersAsync(deduplicatedLocations);
         }
     }
 
