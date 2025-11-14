@@ -1,4 +1,5 @@
 ﻿namespace TagzApp.AppHost;
+
 public static class DatabaseConfig
 {
 

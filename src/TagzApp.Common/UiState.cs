@@ -1,4 +1,5 @@
 ﻿namespace TagzApp.Common;
+
 public class UiState
 {
 

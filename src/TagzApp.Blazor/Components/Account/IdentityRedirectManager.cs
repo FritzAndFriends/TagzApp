@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using System.Diagnostics.CodeAnalysis;
 
 namespace TagzApp.Blazor.Components.Account;
+
 internal sealed class IdentityRedirectManager(NavigationManager navigationManager)
 {
 	public const string StatusCookieName = "Identity.StatusMessage";

@@ -1,4 +1,5 @@
 ﻿namespace TagzApp.Providers.Blazot.Models;
+
 internal class Token
 {
 	public string? TokenType { get; set; }

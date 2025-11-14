@@ -134,7 +134,7 @@ jobs:
         working-directory: ./src
 
       - name: Clean publish output
-        run: rm -rf ./src/TagzApp.Blazor/bin/Release/net9.0/publish
+        run: rm -rf ./src/TagzApp.Blazor/bin/Release/net10.0/publish
 
       - name: Publish Clean Application
         run: dotnet publish TagzApp.Blazor --configuration Release --no-restore --no-build --output ./publish
