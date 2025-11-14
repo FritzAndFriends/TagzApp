@@ -15,6 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Moq" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.analyzers">
       <PrivateAssets>all</PrivateAssets>
@@ -36,6 +37,7 @@
     <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" />
     <ProjectReference Include="..\TagzApp.Configuration.AzureKeyVault\TagzApp.Configuration.AzureKeyVault.csproj" />
     <ProjectReference Include="..\TagzApp.Providers.Blazot\TagzApp.Providers.Blazot.csproj" />
+    <ProjectReference Include="..\TagzApp.Providers.Kick\TagzApp.Providers.Kick.csproj" />
     <ProjectReference Include="..\TagzApp.Providers.Mastodon\TagzApp.Providers.Mastodon.csproj" />
     <ProjectReference Include="..\TagzApp.Providers.TwitchChat\TagzApp.Providers.TwitchChat.csproj" />
     <ProjectReference Include="..\TagzApp.Providers.YouTubeChat\TagzApp.Providers.YouTubeChat.csproj" />
