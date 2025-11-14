@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Web;
 
+using TagzApp.Common.Telemetry;
 using TagzApp.Providers.Twitter.Configuration;
 using TagzApp.Providers.Twitter.Models;
 
@@ -16,6 +17,7 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 	private readonly HttpClient _HttpClient;
 	private readonly TwitterConfiguration _Configuration;
 	private readonly ILogger<TwitterProvider> _Logger;
+	private readonly ProviderInstrumentation? _Instrumentation;
 	private const string _SearchFields = "created_at,author_id,entities";
 	private const int _SearchMaxResults = 100;
 	private const string _SearchExpansions = "author_id,attachments.media_keys";
@@ -35,11 +37,12 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 	public bool Enabled { get; }
 
 	public TwitterProvider(IHttpClientFactory httpClientFactory, ILogger<TwitterProvider> logger,
-		TwitterConfiguration configuration)
+		TwitterConfiguration configuration, ProviderInstrumentation? instrumentation = null)
 	{
 		_HttpClient = httpClientFactory.CreateClient(nameof(TwitterProvider));
 		_Configuration = configuration;
 		_Logger = logger;
+		_Instrumentation = instrumentation;
 		Enabled = configuration.Enabled;
 
 		if (!string.IsNullOrWhiteSpace(configuration.Description))
@@ -80,6 +83,7 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 
 				_Status = SocialMediaStatus.Degraded;
 				_StatusMessage = "Twitter provider is not activated - returning sample tweets";
+				_Logger.LogWarning("Twitter: Provider is disabled, returning sample tweets");
 
 				var assembly = Assembly.GetExecutingAssembly();
 				var resourceName = "TagzApp.Providers.Twitter.Models.SampleTweets.json.gz";
@@ -104,11 +108,24 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 			_Status = SocialMediaStatus.Unhealthy;
 			_StatusMessage = $"Error retrieving tweets: {ex.Message}";
 
-			_Logger.LogError(ex, $"Error retrieving tweets");
+			_Logger.LogError(ex, "Twitter: Error retrieving tweets");
+			_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Unhealthy);
 
 		}
 
 		var outTweets = ConvertToContent(recentTweets, tag);
+
+		if (_Instrumentation is not null && outTweets.Any())
+		{
+			_Logger.LogInformation("Twitter: Retrieved {Count} new tweets", outTweets.Count());
+			foreach (var tweet in outTweets)
+			{
+				if (!string.IsNullOrEmpty(tweet.Author?.UserName))
+				{
+					_Instrumentation.AddMessage(Id.ToLowerInvariant(), tweet.Author.UserName);
+				}
+			}
+		}
 
 		return outTweets;
 
@@ -234,6 +251,16 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 
 	public Task StartAsync()
 	{
+		if (Enabled)
+		{
+			_Logger.LogInformation("Twitter: Provider started");
+			_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Healthy);
+		}
+		else
+		{
+			_Logger.LogInformation("Twitter: Provider is disabled");
+			_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Disabled);
+		}
 		return Task.CompletedTask;
 	}
 
@@ -246,6 +273,8 @@ public class TwitterProvider : ISocialMediaProvider, IHasNewestId
 
 	public Task StopAsync()
 	{
+		_Logger.LogInformation("Twitter: Provider stopped");
+		_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Disabled);
 		return Task.CompletedTask;
 	}
 

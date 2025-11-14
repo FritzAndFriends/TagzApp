@@ -133,14 +133,17 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 		}
 		catch (Exception ex)
 		{
-			_Logger.LogError(ex, "Failed to initialize TwitchChat client");
+			_Logger.LogError(ex, "TwitchChat: Failed to initialize client");
 			_Status = SocialMediaStatus.Unhealthy;
 			_StatusMessage = $"Failed to initialize TwitchChat client: '{ex.Message}'";
+			_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Unhealthy);
 			return Task.CompletedTask;
 		}
 
 		_Status = SocialMediaStatus.Healthy;
 		_StatusMessage = "OK";
+		_Logger.LogInformation("TwitchChat: Successfully connected");
+		_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Healthy);
 
 		return Task.CompletedTask;
 
@@ -160,6 +163,8 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 			// mark status as unhealthy and return empty list
 			_Status = SocialMediaStatus.Unhealthy;
 			_StatusMessage = "TwitchChat client is not running";
+			_Logger.LogWarning("TwitchChat: Client is not running");
+			_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Unhealthy);
 
 			return Task.FromResult(Enumerable.Empty<Content>());
 
@@ -171,6 +176,8 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 			// mark status as unhealthy and return empty list
 			_Status = SocialMediaStatus.Unhealthy;
 			_StatusMessage = "TwitchChat client is not logged in - check credentials";
+			_Logger.LogWarning("TwitchChat: Client is not connected - check credentials");
+			_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Unhealthy);
 
 			return Task.FromResult(Enumerable.Empty<Content>());
 
@@ -195,6 +202,7 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 
 		if (_Instrumentation is not null)
 		{
+			_Logger.LogInformation("TwitchChat: Retrieved {Count} new messages", messages.Count);
 			foreach (var username in messages?.Select(x => x.Author?.UserName)!)
 			{
 				if (!string.IsNullOrEmpty(username))
@@ -266,6 +274,8 @@ public class TwitchChatProvider : ISocialMediaProvider, IDisposable
 		_Client?.Stop();
 		_Status = SocialMediaStatus.Disabled;
 		_StatusMessage = "TwitchChat client is stopped";
+		_Logger.LogInformation("TwitchChat: Provider stopped");
+		_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Disabled);
 
 		return Task.CompletedTask;
 	}

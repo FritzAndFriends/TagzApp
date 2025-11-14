@@ -277,6 +277,7 @@ When adding a new social media provider:
 3. **Configuration UI**: Create Blazor component in `TagzApp.Blazor.Client/Components/Admin/[Platform].Config.Ui.razor`
 4. **Reference Documentation**: See `doc/Provider-Configuration-Pattern.md` for complete pattern
 5. **Add Tests**: Include unit tests in `TagzApp.UnitTest` project
+6. **Implement Telemetry**: Add comprehensive logging and metrics (see Telemetry Requirements below)
 
 ### Provider Configuration Pattern
 All providers follow a consistent pattern:
@@ -285,6 +286,69 @@ All providers follow a consistent pattern:
 - Health check endpoint for monitoring provider status
 - Enable/disable toggle for each provider
 - Graceful error handling with detailed logging
+
+### Telemetry Requirements
+**All new providers MUST implement comprehensive telemetry for observability:**
+
+#### Required Logging
+Inject `ILogger<T>` and add structured logging for:
+- **Connection lifecycle**: Log when starting, stopping, or changing configuration
+- **Message discovery**: Log count of new messages retrieved
+- **Error conditions**: Log detailed error messages with context
+- **Log prefix**: All logs must start with provider name (e.g., "Twitter:", "Bluesky:")
+
+Example logging:
+```csharp
+_Logger.LogInformation("Twitter: Provider started");
+_Logger.LogInformation("Twitter: Retrieved {Count} new tweets", tweets.Count);
+_Logger.LogError(ex, "Twitter: Error retrieving tweets");
+_Logger.LogWarning("Twitter: Client is not connected - check credentials");
+```
+
+#### Required Metrics
+Inject `ProviderInstrumentation?` (optional dependency) and report:
+- **Messages received**: Call `_Instrumentation?.AddMessage(providerId, username)` for each message
+- **Connection status changes**: Call `_Instrumentation?.RecordConnectionStatusChange(Id, status)` when status changes
+
+Example metrics:
+```csharp
+public TwitterProvider(IHttpClientFactory httpClientFactory, ILogger<TwitterProvider> logger,
+    TwitterConfiguration configuration, ProviderInstrumentation? instrumentation = null)
+{
+    _Instrumentation = instrumentation;
+    // ...
+}
+
+// In GetContentForHashtag
+if (_Instrumentation is not null && messages.Any())
+{
+    _Logger.LogInformation("Twitter: Retrieved {Count} new tweets", messages.Count);
+    foreach (var tweet in messages)
+    {
+        if (!string.IsNullOrEmpty(tweet.Author?.UserName))
+        {
+            _Instrumentation.AddMessage(Id.ToLowerInvariant(), tweet.Author.UserName);
+        }
+    }
+}
+
+// In StartAsync
+_Logger.LogInformation("Twitter: Provider started");
+_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Healthy);
+
+// In StopAsync
+_Logger.LogInformation("Twitter: Provider stopped");
+_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Disabled);
+```
+
+#### Available Metrics
+The `ProviderInstrumentation` class provides:
+- `MessagesReceivedCounter`: Tracks messages with provider and author tags
+- `ConnectionStatusChangesCounter`: Tracks status transitions with provider and status tags
+- `ConnectionStatusGauge`: Observable gauge showing current health (0=Disabled, 1=Unhealthy, 2=Degraded, 3=Healthy)
+
+#### OpenTelemetry Integration
+Metrics are automatically collected via OpenTelemetry. The meter name is `tagzapp-provider-metrics` and is configured in `TagzApp.ServiceDefaults/Extensions.cs`.
 
 ### Supported Providers (7 platforms)
 - **Blazot**: Developer-focused social platform
