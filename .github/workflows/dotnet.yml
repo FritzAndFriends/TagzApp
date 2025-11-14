@@ -29,6 +29,9 @@ jobs:
         with:
           global-json-file: ./global.json
 
+      - name: Verify .NET Version
+        run: dotnet --version
+
       - name: Cache NuGet Packages
         id: nuget-packages
         uses: actions/cache@v3
@@ -38,12 +41,14 @@ jobs:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-${{ env.cache-name }}
 
-      # - name: Workload install
-      #   run: dotnet workload restore
+      - name: Workload install
+        run: dotnet workload restore
     
       - name: Restore dependencies
         run: dotnet restore
-      - name: Build
+      - name: Build WASM Client
+        run: dotnet build TagzApp.Blazor.Client --no-restore
+      - name: Build Server
         run: dotnet build TagzApp.Blazor --no-restore
       - name: Unit Test
         run: dotnet test --verbosity normal
@@ -93,6 +98,11 @@ jobs:
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: ./global.json
+
+      - name: Verify .NET Version
+        run: dotnet --version
 
       - name: Version stamping
         id: nbgv_version
@@ -115,10 +125,35 @@ jobs:
       - name: Restore
         run: dotnet restore
     
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
-        working-directory: ./src/TagzApp.Blazor
+      - name: Build WASM Client
+        run: dotnet build TagzApp.Blazor.Client --configuration Release --no-restore
+        working-directory: ./src
+
+      - name: Build Server
+        run: dotnet build TagzApp.Blazor --configuration Release --no-restore
+        working-directory: ./src
+
+      - name: Clean publish output
+        run: rm -rf ./src/TagzApp.Blazor/bin/Release/net9.0/publish
+
+      - name: Publish Clean Application
+        run: dotnet publish TagzApp.Blazor --configuration Release --no-restore --no-build --output ./publish
+        working-directory: ./src
+        
+      - name: Verify WASM artifacts
+        run: |
+          echo "Verifying WASM artifacts in publish output..."
+          ls -la ./publish/wwwroot/_framework/
+          echo "Checking for key WASM files..."
+          [ -f "./publish/wwwroot/_framework/dotnet.js" ] && echo "✓ dotnet.js found" || echo "✗ dotnet.js missing"
+          [ -f "./publish/wwwroot/_framework/blazor.web.js" ] && echo "✓ blazor.web.js found" || echo "✗ blazor.web.js missing"
+          echo "Verifying .NET runtime files..."
+          find ./publish/wwwroot/_framework/ -name "dotnet.runtime*.js" | head -1 && echo "✓ dotnet.runtime.js found" || echo "✗ dotnet.runtime.js missing"
+          find ./publish/wwwroot/_framework/ -name "dotnet.native*.js" | head -1 && echo "✓ dotnet.native.js found" || echo "✗ dotnet.native.js missing"
+          echo "WASM file count:"
+          find ./publish/wwwroot/_framework/ -name "*.wasm" | wc -l
+        working-directory: ./src
   
-      - name: Publish
+      - name: Build Container
         run: dotnet publish --os linux --arch x64 -t:PublishContainer /p:ContainerImageTags='"${{ steps.nbgv_version.outputs.Version }};latest"' /p:ContainerRegistry=ghcr.io
         working-directory: ./src/TagzApp.Blazor

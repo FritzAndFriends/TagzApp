@@ -111,67 +111,106 @@
 	[CascadingParameter]
 	private HttpContext HttpContext { get; set; } = default!;
 
-	protected override Task OnParametersSetAsync()
+	protected override async Task OnParametersSetAsync()
 	{
 		// TODO: This does not appear to be set at all times?
 		if (HttpContext is null) 
-			return base.OnInitializedAsync();
+		{
+			await base.OnInitializedAsync();
+			return;
+		}
 		
 		var user = HttpContext.User;
 		if (!user.IsInRole("Admin"))
 		{
 			NavigationManager.NavigateTo("/");
+			return;
 		}
 
-		return base.OnInitializedAsync();
+		// Initialize background image fields from config
+		_BackgroundImage = Config.BackgroundImage ?? string.Empty;
+		_BackgroundImageMimeType = Config.BackgroundImageMimeType ?? string.Empty;
+
+		await base.OnParametersSetAsync();
 	}
 
 	async Task SaveChanges()
 	{
-		Config.BackgroundImage = _BackgroundImage;
-		Config.BackgroundImageMimeType = _BackgroundImageMimeType;
+		try
+		{
+			Config.BackgroundImage = _BackgroundImage;
+			Config.BackgroundImageMimeType = _BackgroundImageMimeType;
 
-		Console.WriteLine($"Caption: {Config.Caption}");
-		await Config.SaveConfiguration(ConfigureTagzAppFactory.Current);
-		ToastService.Add("Changes Saved", MessageSeverity.Success);
+			Console.WriteLine($"Caption: {Config.Caption}");
+			await Config.SaveConfiguration(ConfigureTagzAppFactory.Current);
+			ToastService.Add("Changes Saved", MessageSeverity.Success);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Error saving changes: {ex.Message}");
+			ToastService.Add($"Error saving configuration: {ex.Message}", MessageSeverity.Danger);
+		}
 	}
 
 	async Task LoadBackgroundImage(InputFileChangeEventArgs args)
 	{
-		if (!args.File.ContentType.StartsWith("image/"))
+		try
 		{
-			Console.WriteLine("Invalid file type");
-			return;
-		}
+			if (!args.File.ContentType.StartsWith("image/"))
+			{
+				ToastService.Add("Invalid file type. Please select an image file.", MessageSeverity.Danger);
+				return;
+			}
 
-		_BackgroundImageMimeType = args.File.ContentType;
+			// Set a reasonable file size limit (5MB)
+			const int maxFileSize = 5 * 1024 * 1024;
+			if (args.File.Size > maxFileSize)
+			{
+				ToastService.Add("File too large. Please select an image smaller than 5MB.", MessageSeverity.Danger);
+				return;
+			}
 
-		var stream = args.File.OpenReadStream();
+			_BackgroundImageMimeType = args.File.ContentType;
 
-		byte[] bytes;
-		using (var memoryStream = new MemoryStream())
-		{
+			using var stream = args.File.OpenReadStream(maxFileSize);
+			using var memoryStream = new MemoryStream();
 			await stream.CopyToAsync(memoryStream);
-			bytes = memoryStream.ToArray();
-		}
+			var bytes = memoryStream.ToArray();
 
-		_BackgroundImage = Convert.ToBase64String(bytes);
+			_BackgroundImage = Convert.ToBase64String(bytes);
+			ToastService.Add("Background image uploaded successfully!", MessageSeverity.Success);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Error uploading background image: {ex.Message}");
+			ToastService.Add($"Error uploading image: {ex.Message}", MessageSeverity.Danger);
+			_BackgroundImage = string.Empty;
+			_BackgroundImageMimeType = string.Empty;
+		}
 	}
 
 	async Task CancelChanges()
 	{
-		Config = await ModalConfiguration.LoadFromConfiguration(ConfigureTagzAppFactory.Current);
-		_BackgroundImage = Config.BackgroundImage;
-		_BackgroundImageMimeType = Config.BackgroundImageMimeType;
-		ToastService.Add("Cancelled Changes", MessageSeverity.Info);
+		try
+		{
+			Config = await ModalConfiguration.LoadFromConfiguration(ConfigureTagzAppFactory.Current);
+			_BackgroundImage = Config.BackgroundImage ?? string.Empty;
+			_BackgroundImageMimeType = Config.BackgroundImageMimeType ?? string.Empty;
+			ToastService.Add("Changes Cancelled", MessageSeverity.Info);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Error cancelling changes: {ex.Message}");
+			ToastService.Add($"Error loading configuration: {ex.Message}", MessageSeverity.Danger);
+		}
 	}
 
 	async Task RemoveBackgroundImage()
 	{
 		Console.WriteLine("Removing background image");
 
-		_BackgroundImage = null;
-		_BackgroundImageMimeType = null;
+		_BackgroundImage = string.Empty;
+		_BackgroundImageMimeType = string.Empty;
 	}
 
 }

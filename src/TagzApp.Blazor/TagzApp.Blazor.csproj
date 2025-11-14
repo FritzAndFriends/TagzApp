@@ -51,6 +51,7 @@
     <PackageReference Include="gravatar" />
     <PackageReference Include="AspNet.Security.OAuth.GitHub" />
     <PackageReference Include="AspNet.Security.OAuth.LinkedIn" />
+		<PackageReference Include="Fritz.Charlie.Components" />
     <PackageReference Include="Humanizer" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" />

@@ -73,23 +73,33 @@
 	{
 		if (firstRender)
 		{
+			// Wait for the script to load and then initialize
+			await Task.Delay(100);
+			
 			// Load saved preferences from localStorage
-			var savedTileWidth = await JSRuntime.InvokeAsync<int?>("localStorage.getItem", "tagzapp_tileWidth");
-			var savedModalScale = await JSRuntime.InvokeAsync<int?>("localStorage.getItem", "tagzapp_modalScale");
-
-			if (savedTileWidth.HasValue)
+			try
 			{
-				_tileWidth = savedTileWidth.Value;
-				await ApplyTileWidth();
-			}
+				var savedTileWidthString = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "tagzapp_tileWidth");
+				var savedModalScaleString = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "tagzapp_modalScale");
 
-			if (savedModalScale.HasValue)
+				if (!string.IsNullOrEmpty(savedTileWidthString) && int.TryParse(savedTileWidthString, out var tileWidth))
+				{
+					_tileWidth = tileWidth;
+					await ApplyTileWidth();
+				}
+
+				if (!string.IsNullOrEmpty(savedModalScaleString) && int.TryParse(savedModalScaleString, out var modalScale))
+				{
+					_modalScale = modalScale;
+					await ApplyModalScale();
+				}
+
+				StateHasChanged();
+			}
+			catch (Exception ex)
 			{
-				_modalScale = savedModalScale.Value;
-				await ApplyModalScale();
+				Console.WriteLine($"Failed to load saved preferences: {ex.Message}");
 			}
-
-			StateHasChanged();
 		}
 
 		await base.OnAfterRenderAsync(firstRender);
@@ -106,7 +116,7 @@
 		{
 			_tileWidth = value;
 			await ApplyTileWidth();
-			await JSRuntime.InvokeVoidAsync("localStorage.setItem", "tagzapp_tileWidth", _tileWidth);
+			await JSRuntime.InvokeVoidAsync("localStorage.setItem", "tagzapp_tileWidth", _tileWidth.ToString());
 		}
 	}
 
@@ -116,7 +126,7 @@
 		{
 			_modalScale = value;
 			await ApplyModalScale();
-			await JSRuntime.InvokeVoidAsync("localStorage.setItem", "tagzapp_modalScale", _modalScale);
+			await JSRuntime.InvokeVoidAsync("localStorage.setItem", "tagzapp_modalScale", _modalScale.ToString());
 		}
 	}
 
@@ -126,18 +136,32 @@
 		_modalScale = modalScale;
 		await ApplyTileWidth();
 		await ApplyModalScale();
-		await JSRuntime.InvokeVoidAsync("localStorage.setItem", "tagzapp_tileWidth", _tileWidth);
-		await JSRuntime.InvokeVoidAsync("localStorage.setItem", "tagzapp_modalScale", _modalScale);
+		await JSRuntime.InvokeVoidAsync("localStorage.setItem", "tagzapp_tileWidth", _tileWidth.ToString());
+		await JSRuntime.InvokeVoidAsync("localStorage.setItem", "tagzapp_modalScale", _modalScale.ToString());
 		StateHasChanged();
 	}
 
 	private async Task ApplyTileWidth()
 	{
-		await JSRuntime.InvokeVoidAsync("WaterfallSizeControl.setTileWidth", _tileWidth);
+		try
+		{
+			await JSRuntime.InvokeVoidAsync("WaterfallSizeControl.setTileWidth", _tileWidth);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Failed to apply tile width: {ex.Message}");
+		}
 	}
 
 	private async Task ApplyModalScale()
 	{
-		await JSRuntime.InvokeVoidAsync("WaterfallSizeControl.setModalScale", _modalScale);
+		try
+		{
+			await JSRuntime.InvokeVoidAsync("WaterfallSizeControl.setModalScale", _modalScale);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Failed to apply modal scale: {ex.Message}");
+		}
 	}
 }
