@@ -1,11 +1,12 @@
 using AzureKeyVaultEmulator.Aspire.Hosting;
 using TagzApp.AppHost;
+using TagzApp.Common;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
 var keyVaultEnabled = false;
 
-var keyVault = builder.AddAzureKeyVault("vault")
+var keyVault = builder.AddAzureKeyVault(Services.KEYVAULT)
 		.RunAsEmulator(new KeyVaultEmulatorOptions { Persist = true }, configSectionName: "AzureKeyVault");
 
 builder.AddDatabase(
@@ -13,7 +14,7 @@ builder.AddDatabase(
 	out var securityDb,
 	out var migration);
 
-var twitchCache = builder.AddRedis("twitchCache")
+var twitchCache = builder.AddRedis(Services.TWITCH_CACHE)
 		.WithRedisInsight();
 
 // TwitchRelay is running on Azure, not locally
