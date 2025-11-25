@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Debug;
 using System.Collections.Concurrent;
+using TagzApp.Common.Telemetry;
 
 namespace TagzApp.Providers.Bluesky;
 
@@ -36,16 +37,19 @@ public class BlueskyProvider : ISocialMediaProvider
 	private string? _TheTag;
 
 	private readonly ILogger<BlueskyProvider> _Logger;
+	private readonly ProviderInstrumentation? _Instrumentation;
 
-	public BlueskyProvider(BlueskyConfiguration configuration, ILogger<BlueskyProvider> logger)
+	public BlueskyProvider(BlueskyConfiguration configuration, ILogger<BlueskyProvider> logger, ProviderInstrumentation? instrumentation = null)
 	{
 		Enabled = configuration.Enabled;
 		_Config = configuration;
 		_Logger = logger;
+		_Instrumentation = instrumentation;
 
 		if (!Enabled)
 		{
 			_status = (SocialMediaStatus.Disabled, "Bluesky is not enabled");
+			_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Disabled);
 		}
 
 	}
@@ -76,6 +80,18 @@ public class BlueskyProvider : ISocialMediaProvider
 			_ = _messageQueue.TryDequeue(out _);
 		}
 
+		if (_Instrumentation is not null && outMessages.Any())
+		{
+			_Logger.LogInformation("Bluesky: Retrieved {Count} new messages", outMessages.Length);
+			foreach (var msg in outMessages)
+			{
+				if (!string.IsNullOrEmpty(msg.Author?.UserName))
+				{
+					_Instrumentation.AddMessage(Id.ToLowerInvariant(), msg.Author.UserName);
+				}
+			}
+		}
+
 		return Task.FromResult(outMessages.AsEnumerable());
 	}
 
@@ -93,12 +109,15 @@ public class BlueskyProvider : ISocialMediaProvider
 			Enabled = providerConfiguration.Enabled;
 			_Config = (BlueskyConfiguration)providerConfiguration;
 			_status = (SocialMediaStatus.Disabled, "Bluesky is disabled");
+			_Logger.LogInformation("Bluesky: Configuration changed - disabling provider");
+			_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Disabled);
 			await StopAsync();
 		}
 		else if (_Config.Enabled != providerConfiguration.Enabled && !_Config.Enabled)
 		{
 			Enabled = providerConfiguration.Enabled;
 			_Config = (BlueskyConfiguration)providerConfiguration;
+			_Logger.LogInformation("Bluesky: Configuration changed - enabling provider");
 			await StartAsync();
 		}
 
@@ -111,11 +130,14 @@ public class BlueskyProvider : ISocialMediaProvider
 
 		if (!Enabled)
 		{
-			_Logger.LogInformation("Bluesky is not starting and is marking as disabled");
+			_Logger.LogInformation("Bluesky: Not starting - provider is disabled");
 			_status.status = SocialMediaStatus.Disabled;
 			_status.message = "Bluesky is disabled";
+			_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Disabled);
 			return;
 		}
+
+		_Logger.LogInformation("Bluesky: Starting connection to AT Protocol");
 
 		var debugLog = new DebugLoggerProvider();
 
@@ -137,7 +159,8 @@ public class BlueskyProvider : ISocialMediaProvider
 		_status.status = SocialMediaStatus.Healthy;
 		_status.message = "Connected to Bluesky";
 
-		_Logger.LogInformation("Bluesky started successfully");
+		_Logger.LogInformation("Bluesky: Successfully connected to AT Protocol");
+		_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Healthy);
 
 	}
 
@@ -212,10 +235,15 @@ public class BlueskyProvider : ISocialMediaProvider
 	{
 		if (_AtWebSocketProtocol is null) return;
 
+		_Logger.LogInformation("Bluesky: Stopping connection to AT Protocol");
+
 		await _AtWebSocketProtocol.StopSubscriptionAsync();
 
 		_status.status = SocialMediaStatus.Disabled;
 		_status.message = "Disconnected from Bluesky";
+
+		_Logger.LogInformation("Bluesky: Disconnected from AT Protocol");
+		_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Disabled);
 
 	}
 

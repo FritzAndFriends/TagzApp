@@ -2,12 +2,16 @@ using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using TagzApp.Common.Telemetry;
 
 namespace TagzApp.Providers.YouTubeChat;
 
 public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 {
 	private readonly YouTubeChatConfiguration _ChatConfig;
+	private readonly ILogger<YouTubeChatProvider>? _Logger;
+	private readonly ProviderInstrumentation? _Instrumentation;
 	public const string ProviderName = "YouTubeChat";
 
 	public const string ProviderId = "YOUTUBE-CHAT";
@@ -33,9 +37,12 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 	private SocialMediaStatus _Status = SocialMediaStatus.Unhealthy;
 	private string _StatusMessage = "Not started";
 
-	public YouTubeChatProvider(YouTubeChatConfiguration config, IConfiguration configuration, HttpClient httpClient)
+	public YouTubeChatProvider(YouTubeChatConfiguration config, IConfiguration configuration, HttpClient httpClient,
+		ILogger<YouTubeChatProvider>? logger = null, ProviderInstrumentation? instrumentation = null)
 	{
 		_ChatConfig = config;
+		_Logger = logger;
+		_Instrumentation = instrumentation;
 		Enabled = true; // config.Enabled;
 		_HttpClient = httpClient;
 
@@ -44,7 +51,12 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 	public async Task<IEnumerable<Content>> GetContentForHashtag(Hashtag tag, DateTimeOffset since)
 	{
 
-		if (string.IsNullOrEmpty(_ChatConfig.LiveChatId) || (!string.IsNullOrEmpty(_GoogleException) && _GoogleException.StartsWith(_ChatConfig.LiveChatId))) return Enumerable.Empty<Content>();
+		if (string.IsNullOrEmpty(_ChatConfig.LiveChatId) || (!string.IsNullOrEmpty(_GoogleException) && _GoogleException.StartsWith(_ChatConfig.LiveChatId)))
+		{
+			_Logger?.LogDebug("YouTubeChat: No active live chat or chat is in error state");
+			return Enumerable.Empty<Content>();
+		}
+
 		var liveChatListRequest = new LiveChatMessagesResource.ListRequest(_Service, _ChatConfig.LiveChatId, new(new[] { "id", "snippet", "authorDetails" }));
 		liveChatListRequest.MaxResults = 2000;
 		liveChatListRequest.ProfileImageSize = 36;
@@ -66,16 +78,20 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 			{
 				_GoogleException = $"{_ChatConfig.LiveChatId}:{ex.Message}";
 				_ChatConfig.LiveChatId = string.Empty;
+				_Logger?.LogWarning("YouTubeChat: Live chat is no longer active");
 			}
 
 			_Status = SocialMediaStatus.Unhealthy;
 			_StatusMessage = $"Exception while fetching YouTubeChat: {ex.Message}";
+			_Logger?.LogError(ex, "YouTubeChat: Error fetching chat messages");
+			_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Unhealthy);
 
 			return Enumerable.Empty<Content>();
 		}
 
 		_Status = SocialMediaStatus.Healthy;
 		_StatusMessage = $"OK -- adding ({contents.Items.Count}) messages for chatid '{_ChatConfig.LiveChatId}' at {DateTimeOffset.UtcNow}";
+		_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Healthy);
 
 		try
 		{
@@ -95,6 +111,19 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 				Type = ContentType.Message,
 				HashtagSought = tag?.Text ?? ""
 			}).ToArray();
+
+			if (_Instrumentation is not null && outItems.Any())
+			{
+				_Logger?.LogInformation("YouTubeChat: Retrieved {Count} new messages", outItems.Length);
+				foreach (var msg in outItems)
+				{
+					if (!string.IsNullOrEmpty(msg.Author?.UserName))
+					{
+						_Instrumentation.AddMessage(Id.ToLowerInvariant(), msg.Author.UserName);
+					}
+				}
+			}
+
 			return outItems;
 
 		}
@@ -143,8 +172,13 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		{
 			_Status = SocialMediaStatus.Disabled;
 			_StatusMessage = "YouTubeChat client is disabled";
+			_Logger?.LogInformation("YouTubeChat: Provider is disabled");
+			_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Disabled);
 			return;
 		}
+
+		_Logger?.LogInformation("YouTubeChat: Provider started");
+		_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Healthy);
 
 	}
 
@@ -316,6 +350,8 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 
 	public Task StopAsync()
 	{
+		_Logger?.LogInformation("YouTubeChat: Provider stopped");
+		_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Disabled);
 		return Task.CompletedTask;
 	}
 

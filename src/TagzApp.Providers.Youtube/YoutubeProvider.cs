@@ -1,5 +1,7 @@
 ﻿using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
+using Microsoft.Extensions.Logging;
+using TagzApp.Common.Telemetry;
 using TagzApp.Providers.Youtube.Configuration;
 
 namespace TagzApp.Providers.Youtube;
@@ -7,6 +9,8 @@ namespace TagzApp.Providers.Youtube;
 internal class YoutubeProvider : ISocialMediaProvider
 {
 	private readonly YoutubeConfiguration _Configuration;
+	private readonly ILogger<YoutubeProvider>? _Logger;
+	private readonly ProviderInstrumentation? _Instrumentation;
 
 	public string Id => "YOUTUBE";
 	public string DisplayName => "Youtube";
@@ -19,9 +23,11 @@ internal class YoutubeProvider : ISocialMediaProvider
 
 	public bool Enabled { get; }
 
-	public YoutubeProvider(YoutubeConfiguration options)
+	public YoutubeProvider(YoutubeConfiguration options, ILogger<YoutubeProvider>? logger = null, ProviderInstrumentation? instrumentation = null)
 	{
 		_Configuration = options;
+		_Logger = logger;
+		_Instrumentation = instrumentation;
 		Enabled = options.Enabled;
 	}
 
@@ -43,13 +49,14 @@ internal class YoutubeProvider : ISocialMediaProvider
 
 		_Status = SocialMediaStatus.Healthy;
 		_StatusMessage = "OK";
+		_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Healthy);
 
 		if (searchListResponse.Items == null || (!searchListResponse.Items?.Any() ?? true))
 		{
 			return Enumerable.Empty<Content>();
 		}
 
-		return searchListResponse.Items!.Select(m => new Content
+		var content = searchListResponse.Items!.Select(m => new Content
 		{
 			Provider = Id,
 			ProviderId = m.Id.VideoId, // TODO: Validate this is what we want here
@@ -66,10 +73,34 @@ internal class YoutubeProvider : ISocialMediaProvider
 			},
 			Text = m.Snippet.Title
 		});
+
+		if (_Instrumentation is not null && content.Any())
+		{
+			_Logger?.LogInformation("YouTube: Retrieved {Count} new videos", content.Count());
+			foreach (var video in content)
+			{
+				if (!string.IsNullOrEmpty(video.Author?.UserName))
+				{
+					_Instrumentation.AddMessage(Id.ToLowerInvariant(), video.Author.UserName);
+				}
+			}
+		}
+
+		return content;
 	}
 
 	public Task StartAsync()
 	{
+		if (Enabled)
+		{
+			_Logger?.LogInformation("YouTube: Provider started");
+			_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Healthy);
+		}
+		else
+		{
+			_Logger?.LogInformation("YouTube: Provider is disabled");
+			_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Disabled);
+		}
 		return Task.CompletedTask;
 	}
 
@@ -77,6 +108,8 @@ internal class YoutubeProvider : ISocialMediaProvider
 
 	public Task StopAsync()
 	{
+		_Logger?.LogInformation("YouTube: Provider stopped");
+		_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Disabled);
 		return Task.CompletedTask;
 	}
 

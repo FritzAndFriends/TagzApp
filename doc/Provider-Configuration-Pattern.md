@@ -206,3 +206,130 @@ The `ToStaticMonitor()` extension method automatically handles the conversion to
 - [ ] Update `GetConfiguration` and `SaveConfiguration` methods
 - [ ] Test reactive configuration updates
 - [ ] Verify unit tests still work with testing constructor
+- [ ] **Implement comprehensive telemetry** (see Telemetry Requirements below)
+
+## Telemetry Requirements
+
+**All providers MUST implement comprehensive telemetry for observability and debugging.**
+
+### Required Dependencies
+
+1. Inject `ILogger<T>` for structured logging
+2. Inject `ProviderInstrumentation?` (optional dependency) for metrics
+
+```csharp
+public class YourProvider : ISocialMediaProvider
+{
+    private readonly ILogger<YourProvider> _Logger;
+    private readonly ProviderInstrumentation? _Instrumentation;
+
+    public YourProvider(IOptionsMonitor<YourProviderConfiguration> configMonitor,
+        ILogger<YourProvider> logger,
+        ProviderInstrumentation? instrumentation = null)
+    {
+        _Logger = logger;
+        _Instrumentation = instrumentation;
+        // ...
+    }
+}
+```
+
+### Required Logging
+
+Add structured logging for:
+
+1. **Connection Lifecycle Events**
+```csharp
+// In StartAsync
+_Logger.LogInformation("YourProvider: Provider started");
+_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Healthy);
+
+// In StopAsync
+_Logger.LogInformation("YourProvider: Provider stopped");
+_Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Disabled);
+
+// On configuration changes
+_Logger.LogInformation("YourProvider: Configuration changed - enabling provider");
+```
+
+2. **Message Discovery**
+```csharp
+// In GetContentForHashtag
+if (_Instrumentation is not null && messages.Any())
+{
+    _Logger.LogInformation("YourProvider: Retrieved {Count} new messages", messages.Count);
+    foreach (var msg in messages)
+    {
+        if (!string.IsNullOrEmpty(msg.Author?.UserName))
+        {
+            _Instrumentation.AddMessage(Id.ToLowerInvariant(), msg.Author.UserName);
+        }
+    }
+}
+```
+
+3. **Error Conditions**
+```csharp
+catch (Exception ex)
+{
+    _Logger.LogError(ex, "YourProvider: Error fetching content");
+    _Status = SocialMediaStatus.Unhealthy;
+    _StatusMessage = $"Error: {ex.Message}";
+    _Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Unhealthy);
+}
+```
+
+4. **Warning States**
+```csharp
+if (!_Client.IsConnected)
+{
+    _Logger.LogWarning("YourProvider: Client is not connected - check credentials");
+    _Instrumentation?.RecordConnectionStatusChange(Id, SocialMediaStatus.Unhealthy);
+}
+```
+
+### Logging Conventions
+
+- **Always prefix** logs with the provider name followed by a colon (e.g., "Twitter:", "Bluesky:")
+- Use **structured logging** with named parameters: `{Count}`, `{Username}`, etc.
+- Use appropriate **log levels**:
+  - `LogInformation`: Normal operations, message counts, lifecycle events
+  - `LogWarning`: Degraded states, connection issues
+  - `LogError`: Exceptions, critical failures
+  - `LogDebug`: Detailed diagnostic information
+
+### Available Metrics
+
+The `ProviderInstrumentation` class provides:
+
+1. **MessagesReceivedCounter** (`messages-received`)
+   - Tracks individual messages with provider and author tags
+   - Call: `_Instrumentation.AddMessage(providerId, username)`
+
+2. **ConnectionStatusChangesCounter** (`connection-status-changes`)
+   - Tracks status transitions with provider and status tags
+   - Call: `_Instrumentation.RecordConnectionStatusChange(providerId, status)`
+
+3. **ConnectionStatusGauge** (`connection-status`)
+   - Observable gauge showing current provider health
+   - Values: 0=Disabled, 1=Unhealthy, 2=Degraded, 3=Healthy
+   - Updated automatically by `RecordConnectionStatusChange`
+
+### OpenTelemetry Integration
+
+Metrics are automatically collected via the `tagzapp-provider-metrics` meter configured in `TagzApp.ServiceDefaults/Extensions.cs`. No additional setup required in the provider.
+
+### Example Implementation
+
+See existing providers for reference implementations:
+- **TwitchChat**: Most comprehensive with activity tracing
+- **Twitter**: Clean logging and metrics pattern
+- **Bluesky**: Connection lifecycle tracking
+- **Mastodon**: Error handling with telemetry
+
+### Benefits
+
+- **Real-time monitoring**: Track provider health and message throughput
+- **Faster debugging**: Detailed logs help identify issues quickly
+- **Performance insights**: Metrics enable tracking of message volumes
+- **Consistent observability**: All providers follow the same pattern
