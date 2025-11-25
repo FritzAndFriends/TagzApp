@@ -1,0 +1,139 @@
+@page "/Map"
+@using FishyFlip.Models
+@using Fritz.Charlie.Components
+@using Fritz.Charlie.Components.Map
+@using Fritz.Charlie.Common
+@rendermode InteractiveServer
+@implements IAsyncDisposable
+@inject IViewerLocationService ViewerLocationService
+
+<PageTitle>TagzApp - Map Display</PageTitle>
+
+<div class="overlay-container">
+    <ChatterMapDirect @ref="_ChatterMap" Height="900" Width="100%" 
+                       ShowTourControls="false"
+                      OnMapInitialized="OnMapInitialized" 
+					  					EnablePinAnnouncements="false"
+                      OnError="OnMapError" />
+    
+</div>
+
+<style>
+
+		.container {
+			max-width: 100000px!important;
+		}
+
+    .overlay-container {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+    
+    .error-overlay {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: rgba(220, 53, 69, 0.9);
+        color: white;
+        padding: 10px;
+        border-radius: 4px;
+        font-size: 14px;
+        z-index: 1000;
+    }
+    
+    body {
+        margin: 0;
+        padding: 0;
+    }
+</style>
+
+
+@code {
+    private ChatterMapDirect? _ChatterMap;
+    private EventHandler<ViewerLocationEvent>? _locationPlottedHandler;
+    private EventHandler<Guid>? _locationRemovedHandler;
+		private bool _InitialLocationsLoaded = false;
+
+    private async Task OnMapInitialized()
+    {
+        if (_ChatterMap != null)
+        {
+           
+						await LoadPersistedLocations();
+
+            // Store handlers for proper disposal
+            _locationPlottedHandler = async (sender, locationEvent) =>
+            {
+                if (_ChatterMap != null)
+                {
+                    await _ChatterMap.AddMarkerAsync(locationEvent);
+                    await InvokeAsync(StateHasChanged);
+                }
+            };
+
+            _locationRemovedHandler = async (sender, locationId) =>
+            {
+                if (_ChatterMap != null)
+                {
+                    await _ChatterMap.RemoveMarkerAsync(locationId);
+                    await InvokeAsync(StateHasChanged);
+                }
+            };
+
+            ViewerLocationService.LocationPlotted += _locationPlottedHandler;
+            ViewerLocationService.LocationRemoved += _locationRemovedHandler;
+        }
+    }
+
+
+    private async Task OnMapError(string errorMessage)
+    {
+        Console.WriteLine($"Map error: {errorMessage}");
+    }
+
+    async Task LoadPersistedLocations()
+    {
+
+				Console.WriteLine("OnMapInitialized: Loading persisted viewer locations...");
+
+        if (_ChatterMap == null || _InitialLocationsLoaded)
+            return;
+
+				Console.WriteLine("Loading persisted viewer locations for map...");
+        var viewerLocations = await ViewerLocationService.GetLocationsForStreamAsync("all");
+        if (viewerLocations != null)
+        {
+            // Deduplicate locations by UserId to ensure each user appears only once on the map
+            var deduplicatedLocations = viewerLocations
+                .GroupBy(location => location.UserId)
+                .Select(group => group.First()) // Take the first location for each user
+                .ToList();
+            
+            Console.WriteLine($"Loaded {viewerLocations.Count} total locations, displaying {deduplicatedLocations.Count} unique users");
+            
+            await _ChatterMap.LoadMarkersAsync(deduplicatedLocations);
+        }
+
+				_InitialLocationsLoaded = true;
+
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        // Properly unsubscribe
+        if (_locationPlottedHandler != null)
+            ViewerLocationService.LocationPlotted -= _locationPlottedHandler;
+        
+        if (_locationRemovedHandler != null)
+            ViewerLocationService.LocationRemoved -= _locationRemovedHandler;
+
+        if (_ChatterMap != null)
+        {
+            await _ChatterMap.DisposeAsync();
+        }
+    }
+}

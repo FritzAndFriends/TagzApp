@@ -12,7 +12,7 @@
 
 			<div class="modal-content" @onclick:stopPropagation="true">
 				<div class="modal-header">
-					<h3>Manage Roles for the user @CurrentUser.DisplayName</h3>
+					<h3>Manage Roles for the user @(CurrentUser?.DisplayName ?? "Unknown")</h3>
 					<button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" @onclick="Close">
 					</button>
 				</div>
@@ -50,7 +50,7 @@
 @code {
 
 	[Parameter]
-	public TagzAppUser CurrentUser { get; set; }
+	public TagzAppUser? CurrentUser { get; set; }
 
 	[Parameter]
 	public EventCallback OnComplete { get; set; }
@@ -68,10 +68,15 @@
 	protected override async Task OnParametersSetAsync()
 	{
 
-		if (CurrentUser.DisplayName is not null)
+		if (CurrentUser?.DisplayName is not null)
 		{
-			UserRoles = (await UserManager.GetRolesAsync(CurrentUser)).ToList();
-			SelectedRoles = UserRoles.ToArray();
+			// Get a fresh instance from the database to avoid EF tracking conflicts
+			var userFromDb = await UserManager.FindByIdAsync(CurrentUser.Id);
+			if (userFromDb != null)
+			{
+				UserRoles = (await UserManager.GetRolesAsync(userFromDb)).ToList();
+				SelectedRoles = UserRoles.ToArray();
+			}
 		}
 
 		await base.OnParametersSetAsync();
@@ -80,18 +85,38 @@
 
 	async Task SaveRoles()
 	{
+		if (CurrentUser == null) return;
 
-		var result = await UserManager.RemoveFromRolesAsync(CurrentUser, UserRoles); // remove existing roles
-
-		if (!result.Succeeded)
+		try
 		{
-			//MessageProcessingHandler = "Failed to remove existing role(s)";
-			return;
+			// Get a fresh instance of the user from the database to avoid EF tracking conflicts
+			var userFromDb = await UserManager.FindByIdAsync(CurrentUser.Id);
+			if (userFromDb == null) return;
+
+			var result = await UserManager.RemoveFromRolesAsync(userFromDb, UserRoles); // remove existing roles
+
+			if (!result.Succeeded)
+			{
+				//MessageProcessingHandler = "Failed to remove existing role(s)";
+				return;
+			}
+
+			result = await UserManager.AddToRolesAsync(userFromDb, SelectedRoles); // assign new roles
+
+			if (result.Succeeded)
+			{
+				// Close the modal and notify parent component that roles have been updated
+				Close();
+				await OnComplete.InvokeAsync();
+			}
 		}
-
-		result = await UserManager.AddToRolesAsync(CurrentUser, SelectedRoles); // assign new roles
-
-		return;
+		catch (Exception ex)
+		{
+			// Log the error - in a real application you'd want proper logging
+			Console.WriteLine($"Error saving roles: {ex.Message}");
+			// For now, just close the modal - you could add user feedback here
+			Close();
+		}
 
 	}
 

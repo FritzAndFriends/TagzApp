@@ -79,11 +79,23 @@ public class ModerationHub : Hub<IModerationClient>
 
 		if (!ModerationEnabled || Context.User is null)
 		{
+			Console.WriteLine($"SetStatus blocked - ModerationEnabled: {ModerationEnabled}, User is null: {Context.User is null}");
 			return;
 		}
 
 		var thisUser = await _UserManager.GetUserAsync(Context.User);
-		await _Repository.Moderate(thisUser?.NormalizedUserName ?? thisUser.Email, provider, providerId, newState);
+		Console.WriteLine($"SetStatus called - Provider: {provider}, ProviderId: {providerId}, State: {newState}, User: {thisUser?.NormalizedUserName ?? thisUser?.Email ?? "NULL"}");
+
+		try
+		{
+			await _Repository.Moderate(thisUser?.NormalizedUserName ?? thisUser?.Email ?? "UNKNOWN", provider, providerId, newState);
+			Console.WriteLine($"SetStatus completed successfully for {provider}:{providerId}");
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"SetStatus failed: {ex.Message}");
+			throw;
+		}
 
 	}
 

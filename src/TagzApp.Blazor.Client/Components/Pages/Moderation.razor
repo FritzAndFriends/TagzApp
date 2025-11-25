@@ -103,7 +103,7 @@
 
 
 			<CascadingValue Value="this">
-				@foreach (var content in _Content.Values.Reverse())
+				@foreach (var content in GetContentInChronologicalOrder())
 				{
 					<ModerationMessage @key="content" Content="content" />
 				}
@@ -135,9 +135,14 @@
 
 	public PauseButton ThePauseButton { get; set; } = new();
 
-	private SortedList<DateTimeOffset, TagzApp.ViewModels.Data.ModerationContentModel> _Content = new();
+	private Dictionary<string, TagzApp.ViewModels.Data.ModerationContentModel> _Content = new();
 
 	private HashSet<dynamic> _PauseQueue = new();
+
+	private static string GetContentKey(ModerationContentModel content) => $"{content.Provider}:{content.ProviderId}";
+
+	private IEnumerable<ModerationContentModel> GetContentInChronologicalOrder() => 
+		_Content.Values.OrderByDescending(c => c.Timestamp);
 
 	private HashSet<NewModerator> _Moderators = new();
 
@@ -432,7 +437,8 @@ private static readonly TimeSpan _ConnectionTimeout = TimeSpan.FromSeconds(3); /
 				return;
 			}
 
-			_Content.Add(content.Timestamp, ModerationContentModel.ToModerationContentModel(content));
+			var moderationContent = ModerationContentModel.ToModerationContentModel(content);
+			_Content[GetContentKey(moderationContent)] = moderationContent;
 			await InvokeAsync(StateHasChanged);
 		});
 
@@ -457,17 +463,16 @@ private static readonly TimeSpan _ConnectionTimeout = TimeSpan.FromSeconds(3); /
 				return;
 			}
 
-			var existing = _Content.FirstOrDefault(p => p.Value.ProviderId == content.ProviderId);
-			if (existing.Value is not null && existing.Value.State == ModerationState.Rejected) return;
-
-			if (existing.Value is not null)
+			var contentKey = GetContentKey(content);
+			if (_Content.TryGetValue(contentKey, out var existing))
 			{
-				existing.Value.State = ModerationState.Rejected;
-				existing.Value.ModerationTimestamp = content.ModerationTimestamp;
+				if (existing.State == ModerationState.Rejected) return;
+				existing.State = ModerationState.Rejected;
+				existing.ModerationTimestamp = content.ModerationTimestamp;
 			}
 			else
 			{
-				_Content.Add(content.Timestamp, content);
+				_Content[contentKey] = content;
 			}
 
 			await InvokeAsync(StateHasChanged);
@@ -516,17 +521,16 @@ private static readonly TimeSpan _ConnectionTimeout = TimeSpan.FromSeconds(3); /
 			return;
 		}
 
-		var existing = _Content.FirstOrDefault(p => p.Value.ProviderId == content.ProviderId);
-		if (existing.Value is not null && existing.Value.State == ModerationState.Approved) return;
-
-		if (existing.Value is not null)
+		var contentKey = GetContentKey(content);
+		if (_Content.TryGetValue(contentKey, out var existing))
 		{
-			existing.Value.State = ModerationState.Approved;
-			existing.Value.ModerationTimestamp = content.ModerationTimestamp;
+			if (existing.State == ModerationState.Approved) return;
+			existing.State = ModerationState.Approved;
+			existing.ModerationTimestamp = content.ModerationTimestamp;
 		}
 		else
 		{
-			_Content.Add(content.Timestamp, content);
+			_Content[contentKey] = content;
 		}
 		await InvokeAsync(StateHasChanged);
 
@@ -540,18 +544,10 @@ private static readonly TimeSpan _ConnectionTimeout = TimeSpan.FromSeconds(3); /
 		var currentContent = (await _Connection.InvokeAsync<IEnumerable<ModerationContentModel>>("GetFilteredContentByTag", _Tag, _FilteredProviders.ToArray(), approvalStatus))
 			.ToArray();
 
-		foreach (var content in currentContent.OrderByDescending(c => c.Timestamp).ToArray())
+		foreach (var content in currentContent)
 		{
-			try
-			{
-				_Content.Add(content.Timestamp, content);
-			}
-			catch (ArgumentException)
-			{
-				_Content.Add(content.Timestamp.AddMicroseconds(1), content);
-
-			}
-			
+			var contentKey = GetContentKey(content);
+			_Content[contentKey] = content;
 		}
 
 		_Loading = false;
@@ -580,7 +576,8 @@ private static readonly TimeSpan _ConnectionTimeout = TimeSpan.FromSeconds(3); /
 			{
 				if (item is ContentModel content)
 				{
-					_Content.Add(content.Timestamp, ModerationContentModel.ToModerationContentModel(content));
+					var moderationContent = ModerationContentModel.ToModerationContentModel(content);
+					_Content[GetContentKey(moderationContent)] = moderationContent;
 				}
 			}
 			_PauseQueue.Clear();

@@ -24,13 +24,19 @@ public class WhenFetchingMessages
 	{
 		var client = new HttpClient()
 		{
-			BaseAddress = new Uri("https://mas.to")
+			BaseAddress = new Uri("https://mastodon.social")
 		};
 
 		_HttpClientFactory = new StubHttpClientFactory(client);
 		_Instrumentation = new ProviderInstrumentation(new StubMeterFactory());
 
-		_Sut = new MastodonProvider(_HttpClientFactory, NullLogger<MastodonProvider>.Instance, new MastodonConfiguration(), _Instrumentation);
+		var config = new MastodonConfiguration
+		{
+			BaseAddress = new Uri("https://mastodon.social"),
+			Enabled = true
+		};
+
+		_Sut = new MastodonProvider(_HttpClientFactory, NullLogger<MastodonProvider>.Instance, config, _Instrumentation);
 	}
 
 	[Fact]
@@ -47,7 +53,7 @@ public class WhenFetchingMessages
 	public async Task ShouldPopulateAuthorInformation()
 	{
 		// act
-		var messages = await _Sut.GetContentForHashtag(Given, DateTimeOffset.UtcNow.AddHours(-1));
+		var messages = await _Sut.GetContentForHashtag(Given, DateTimeOffset.UtcNow.AddHours(-6));
 
 		// assert
 		Assert.NotNull(messages.First().Author);

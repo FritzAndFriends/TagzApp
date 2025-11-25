@@ -19,7 +19,7 @@ public static class KeyVaultExtensions
 	public static IServiceCollection SetKeyVaultOptions(this IServiceCollection services, IConfiguration configuration, bool isDevelopment = false)
 	{
 
-		var vaultUri = configuration.GetConnectionString("vault");
+		var vaultUri = configuration.GetConnectionString(Services.KEYVAULT);
 		if (string.IsNullOrEmpty(vaultUri))
 		{
 			// do nothing -- no vault configured

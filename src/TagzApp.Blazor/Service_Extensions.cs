@@ -1,3 +1,5 @@
+using Fritz.Charlie.Components;
+using Fritz.Charlie.Components.Map;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
@@ -16,6 +18,10 @@ public static class Service_Extensions
 		// TODO: Convert to a notification pipeline
 		builder.Services.AddSingleton<INotifyNewMessages, SignalRNotifier>();
 		builder.Services.AddScoped<ToastService>();
+
+		builder.Services.AddSingleton<OpenStreetMapLocationService>();
+		builder.AddFritzCharlieComponents();
+		builder.Services.AddTransient<IMapIconProvider, NullIconProvider>();
 
 		builder.Services.AddMemoryCache();
 

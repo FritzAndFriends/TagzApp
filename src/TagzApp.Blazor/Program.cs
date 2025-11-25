@@ -109,6 +109,10 @@ public class Program
 			// configuration.
 			options.KnownNetworks.Clear();
 			options.KnownProxies.Clear();
+
+			// Ensure that we trust X-Forwarded-Proto headers for HTTPS detection
+			// This is critical for proper OAuth redirect URI generation in containers/proxies
+			options.ForwardedProtoHeaderName = "X-Forwarded-Proto";
 		});
 
 		builder.Services.AddResponseCompression(options =>
@@ -133,7 +137,9 @@ public class Program
 			app.UseResponseCompression();
 		}
 
-
+		// CRITICAL: Use forwarded headers middleware for container/proxy deployments
+		// This must be called early in the pipeline to properly detect HTTPS from proxy headers
+		app.UseForwardedHeaders();
 
 		app.UseHttpsRedirection();
 
@@ -157,6 +163,38 @@ public class Program
 			await next();
 
 		});
+
+		// Ensure OAuth authentication callbacks always use HTTPS
+		app.Use(async (context, next) =>
+		{
+			// For OAuth callback paths, ensure the request is treated as HTTPS
+			if (context.Request.Path.StartsWithSegments("/signin-") ||
+					context.Request.Path.StartsWithSegments("/Account"))
+			{
+				// Override the scheme to HTTPS for OAuth processing
+				// This ensures that redirect URIs are always generated with HTTPS
+				if (!context.Request.IsHttps)
+				{
+					context.Request.Scheme = "https";
+				}
+			}
+
+			await next();
+		});
+
+		// Add sample map data
+		if (app.Environment.IsDevelopment())
+		{
+			using (var scope = app.Services.CreateScope())
+			{
+				var services = scope.ServiceProvider;
+
+				var ctx = services.GetRequiredService<TagzApp.Storage.Postgres.TagzAppContext>();
+				ctx.SeedViewerLocations(true);
+			}
+
+		}
+
 
 		app.UseAuthentication();
 		app.UseAuthorization();

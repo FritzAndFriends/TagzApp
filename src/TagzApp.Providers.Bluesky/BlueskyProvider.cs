@@ -1,6 +1,6 @@
-﻿
-using Drastic.Tools;
+﻿using Drastic.Tools;
 using FishyFlip;
+using FishyFlip.Lexicon.App.Bsky.Feed;
 using FishyFlip.Models;
 using FishyFlip.Tools;
 using Microsoft.Extensions.Configuration;
@@ -164,11 +164,11 @@ public class BlueskyProvider : ISocialMediaProvider
 				return;
 
 
-			var actor = await _AtProtocol.Repo.GetActorAsync(message.Commit.Repo!);
-			if (!actor.IsT1)
+			var profileResult = await _AtProtocol.Actor.GetProfileAsync(message.Commit.Repo!);
+			if (profileResult.IsT0)
 			{
 
-				var actorRecord = actor.HandleResult();
+				var profile = profileResult.AsT0;
 
 				// The Actor Did.
 				var did = message.Commit.Repo;
@@ -176,20 +176,24 @@ public class BlueskyProvider : ISocialMediaProvider
 				// In this case, it's a create record for the post.
 				// The path contains the post action and path, we need the path, so we split to get it.
 				var postUrl = $"https://bsky.app/profile/{did}/post/{message.Commit.Ops![0]!.Path!.Split("/").Last()}";
-				var repo = (await _AtProtocol.Repo.DescribeRepoAsync(did)).HandleResult();
+				
+				// Construct profile image URL if avatar exists
+				var profileImageUri = !string.IsNullOrEmpty(profile.Avatar)
+					? new Uri(profile.Avatar)
+					: new Uri("https://bsky.app/img/default-avatar.png");
 
 				_messageQueue.Enqueue(
 					new Content
 					{
 						Author = new Creator
 						{
-							DisplayName = actor.AsT0?.Value!.DisplayName!,
-							UserName = $"@{repo.Handle}",
-							ProfileImageUri = new Uri($"https://{_AtProtocol.Options.Url.Host}{Constants.Urls.ATProtoSync.GetBlob}?did={actorRecord.Uri.Did!}&cid={actorRecord.Value.Avatar.Ref.Link}"),
+							DisplayName = profile.DisplayName ?? profile.Handle?.ToString() ?? did?.ToString() ?? "Unknown",
+							UserName = $"@{profile.Handle?.ToString() ?? did?.ToString()}",
+							ProfileImageUri = profileImageUri,
 							ProfileUri = new Uri($"https://bsky.app/profile/{did}") // Syntax is like: https://bsky.app/profile/csharpfritz.com
 						},
 						Provider = Id,
-						ProviderId = message.Commit?.Commit ?? "",
+						ProviderId = message.Commit?.Commit?.ToString() ?? "",
 						SourceUri = new Uri(postUrl),
 						Timestamp = new DateTimeOffset(post.CreatedAt!.Value).ToUniversalTime(),
 						HashtagSought = _TheTag,

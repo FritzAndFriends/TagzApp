@@ -1,11 +1,12 @@
 using AzureKeyVaultEmulator.Aspire.Hosting;
 using TagzApp.AppHost;
+using TagzApp.Common;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
 var keyVaultEnabled = false;
 
-var keyVault = builder.AddAzureKeyVault("vault")
+var keyVault = builder.AddAzureKeyVault(Services.KEYVAULT)
 		.RunAsEmulator(new KeyVaultEmulatorOptions { Persist = true }, configSectionName: "AzureKeyVault");
 
 builder.AddDatabase(
@@ -13,13 +14,15 @@ builder.AddDatabase(
 	out var securityDb,
 	out var migration);
 
-var twitchCache = builder.AddRedis("twitchCache")
+var twitchCache = builder.AddRedis(Services.TWITCH_CACHE)
 		.WithRedisInsight();
-var twitchRelay = builder.AddExecutable("twitchrelay",
-		"func", @"..\TagzApp.TwitchRelay", "start", "--verbose", "--port", "7082")
-	.WithHttpEndpoint(7082, 7082, "http", "foo", false)
-	.WithEnvironment("cache", twitchCache.Resource.ConnectionStringExpression)
-	.WithEnvironment("TwitchRedirectUri", "http://localhost:7082/api/twitchcallback");
+
+// TwitchRelay is running on Azure, not locally
+// var twitchRelay = builder.AddExecutable("twitchrelay",
+//		"func", @"..\TagzApp.TwitchRelay", "start", "--verbose", "--port", "7082")
+//	.WithHttpEndpoint(7082, 7082, "http", "foo", false)
+//	.WithEnvironment("cache", twitchCache.Resource.ConnectionStringExpression)
+//	.WithEnvironment("TwitchRedirectUri", "http://localhost:7082/api/twitchcallback");
 
 #region Website
 
@@ -35,7 +38,8 @@ if (keyVaultEnabled)
 		.WithReference(keyVault);
 }
 
-//.WithEnvironment("TwitchRelayUri", "http://localhost:7082");
+// Use the production TwitchRelay on Azure (configured in appsettings.json)
+// .WithEnvironment("TwitchRelayUri", "http://localhost:7082");
 
 #endregion
 
