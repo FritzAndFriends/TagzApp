@@ -2,6 +2,8 @@ using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using TagzApp.Common.Telemetry;
 
 namespace TagzApp.Providers.YouTubeChat;
 
@@ -23,6 +25,8 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 	public bool Enabled { get; }
 
 	private readonly HttpClient _HttpClient;
+	private readonly ILogger<YouTubeChatProvider> _Logger;
+	private readonly ProviderInstrumentation? _Instrumentation;
 	private string _GoogleException = string.Empty;
 
 	private CancellationTokenSource _TokenSource = new();
@@ -33,11 +37,19 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 	private SocialMediaStatus _Status = SocialMediaStatus.Unhealthy;
 	private string _StatusMessage = "Not started";
 
-	public YouTubeChatProvider(YouTubeChatConfiguration config, IConfiguration configuration, HttpClient httpClient)
+	// YouTube API quota tracking
+	private long _QuotaUsed = 0;
+	private const int QUOTA_LIVECHAT_LIST = 5;
+	private const int QUOTA_SEARCH_LIST = 100;
+	private const int QUOTA_VIDEO_LIST = 1;
+
+	public YouTubeChatProvider(YouTubeChatConfiguration config, IConfiguration configuration, HttpClient httpClient, ILogger<YouTubeChatProvider> logger, ProviderInstrumentation? instrumentation = null)
 	{
 		_ChatConfig = config;
 		Enabled = true; // config.Enabled;
 		_HttpClient = httpClient;
+		_Logger = logger;
+		_Instrumentation = instrumentation;
 
 	}
 
@@ -58,10 +70,21 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 			_NextPageToken = contents.NextPageToken;
 			NewContentRetrievalFrequency = contents.PollingIntervalMillis.HasValue ? TimeSpan.FromMilliseconds(contents.PollingIntervalMillis.Value * 10) : TimeSpan.FromSeconds(6);
 
+			// Track quota usage for LiveChatMessages.list API call
+			_QuotaUsed += QUOTA_LIVECHAT_LIST;
+			_Logger.LogInformation("YouTube API call: LiveChatMessages.list - Quota cost: {QuotaCost}, Total quota used: {QuotaUsed}, Messages retrieved: {MessageCount}",
+				QUOTA_LIVECHAT_LIST, _QuotaUsed, contents.Items.Count);
+
+			// Emit telemetry for API usage
+			_Instrumentation?.MessagesReceivedCounter.Add(QUOTA_LIVECHAT_LIST,
+				new KeyValuePair<string, object?>("provider", Id),
+				new KeyValuePair<string, object?>("api_call", "LiveChatMessages.list"),
+				new KeyValuePair<string, object?>("quota_used", _QuotaUsed));
+
 		}
 		catch (Exception ex)
 		{
-			Console.WriteLine($"Exception while fetching YouTubeChat: {ex.Message}");
+			_Logger.LogError(ex, "Exception while fetching YouTubeChat: {Message}", ex.Message);
 			if (ex.Message.Contains("live chat is no longer live"))
 			{
 				_GoogleException = $"{_ChatConfig.LiveChatId}:{ex.Message}";
@@ -95,13 +118,26 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 				Type = ContentType.Message,
 				HashtagSought = tag?.Text ?? ""
 			}).ToArray();
+
+			// Track message authors in instrumentation
+			if (_Instrumentation is not null)
+			{
+				foreach (var item in contents.Items)
+				{
+					if (!string.IsNullOrEmpty(item.AuthorDetails.DisplayName))
+					{
+						_Instrumentation.AddMessage("youtubechat", item.AuthorDetails.DisplayName);
+					}
+				}
+			}
+
 			return outItems;
 
 		}
 		catch (Exception ex)
 		{
 
-			Console.WriteLine($"Exception while parsing YouTubeChat: {ex.Message}");
+			_Logger.LogError(ex, "Exception while parsing YouTubeChat: {Message}", ex.Message);
 
 			_Status = SocialMediaStatus.Unhealthy;
 			_StatusMessage = $"Exception while parsing YouTubeChat: {ex.Message}";
@@ -158,6 +194,16 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		channelRequest.ChannelId = _ChatConfig.ChannelId;
 		var channels = channelRequest.Execute();
 
+		// Track quota usage for Search.list API call
+		_QuotaUsed += QUOTA_SEARCH_LIST;
+		_Logger.LogInformation("YouTube API call: Search.list (channel) - Quota cost: {QuotaCost}, Total quota used: {QuotaUsed}",
+			QUOTA_SEARCH_LIST, _QuotaUsed);
+
+		_Instrumentation?.MessagesReceivedCounter.Add(QUOTA_SEARCH_LIST,
+			new KeyValuePair<string, object?>("provider", Id),
+			new KeyValuePair<string, object?>("api_call", "Search.list"),
+			new KeyValuePair<string, object?>("quota_used", _QuotaUsed));
+
 		// Not sure if this is needed, can't replicate "fisrt" error. (https://github.com/FritzAndFriends/TagzApp/issues/241)
 		return channels.Items?.First().Snippet.Title ?? "Unknown Channel Title";
 
@@ -192,11 +238,21 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		try
 		{
 			broadcasts = listRequest.Execute();
+
+			// Track quota usage for Search.list API call
+			_QuotaUsed += QUOTA_SEARCH_LIST;
+			_Logger.LogInformation("YouTube API call: Search.list (Upcoming) - Quota cost: {QuotaCost}, Total quota used: {QuotaUsed}, Results: {ResultCount}",
+				QUOTA_SEARCH_LIST, _QuotaUsed, broadcasts.Items?.Count ?? 0);
+
+			_Instrumentation?.MessagesReceivedCounter.Add(QUOTA_SEARCH_LIST,
+				new KeyValuePair<string, object?>("provider", Id),
+				new KeyValuePair<string, object?>("api_call", "Search.list"),
+				new KeyValuePair<string, object?>("quota_used", _QuotaUsed));
 		}
 		catch (Google.GoogleApiException ex)
 		{
 			// GoogleApiException: The service youtube has thrown an exception. HttpStatusCode is Forbidden. The user is not enabled for live streaming.
-			Console.WriteLine($"Exception while fetching YouTube broadcasts: {ex.Message}");
+			_Logger.LogError(ex, "Exception while fetching YouTube broadcasts: {Message}", ex.Message);
 
 			_Status = SocialMediaStatus.Unhealthy;
 			_StatusMessage = $"Exception while fetching YouTube broadcasts: {ex.Message}";
@@ -218,11 +274,21 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		try
 		{
 			broadcasts = listRequest.Execute();
+
+			// Track quota usage for Search.list API call
+			_QuotaUsed += QUOTA_SEARCH_LIST;
+			_Logger.LogInformation("YouTube API call: Search.list (Live) - Quota cost: {QuotaCost}, Total quota used: {QuotaUsed}, Results: {ResultCount}",
+				QUOTA_SEARCH_LIST, _QuotaUsed, broadcasts.Items?.Count ?? 0);
+
+			_Instrumentation?.MessagesReceivedCounter.Add(QUOTA_SEARCH_LIST,
+				new KeyValuePair<string, object?>("provider", Id),
+				new KeyValuePair<string, object?>("api_call", "Search.list"),
+				new KeyValuePair<string, object?>("quota_used", _QuotaUsed));
 		}
 		catch (Google.GoogleApiException ex)
 		{
 			// GoogleApiException: The service youtube has thrown an exception. HttpStatusCode is Forbidden. The user is not enabled for live streaming.
-			Console.WriteLine($"Exception while fetching YouTube broadcasts: {ex.Message}");
+			_Logger.LogError(ex, "Exception while fetching YouTube broadcasts: {Message}", ex.Message);
 
 			_Status = SocialMediaStatus.Unhealthy;
 			_StatusMessage = $"Exception while fetching YouTube broadcasts: {ex.Message}";
@@ -236,7 +302,7 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 
 	}
 
-	private static SearchListResponse ConvertToYouTubeBroadcasts(YouTubeService service, SearchResource.ListRequest listRequest, SearchListResponse broadcasts, List<YouTubeBroadcast> outBroadcasts)
+	private SearchListResponse ConvertToYouTubeBroadcasts(YouTubeService service, SearchResource.ListRequest listRequest, SearchListResponse broadcasts, List<YouTubeBroadcast> outBroadcasts)
 	{
 		var first = true;
 		while (first || !string.IsNullOrEmpty(broadcasts.NextPageToken))// && outBroadcasts.Count < 20)
@@ -250,6 +316,16 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 			{
 				listRequest.PageToken = broadcasts.NextPageToken;
 				broadcasts = listRequest.Execute();
+
+				// Track quota for paginated Search.list calls
+				_QuotaUsed += QUOTA_SEARCH_LIST;
+				_Logger.LogInformation("YouTube API call: Search.list (pagination) - Quota cost: {QuotaCost}, Total quota used: {QuotaUsed}",
+					QUOTA_SEARCH_LIST, _QuotaUsed);
+
+				_Instrumentation?.MessagesReceivedCounter.Add(QUOTA_SEARCH_LIST,
+					new KeyValuePair<string, object?>("provider", Id),
+					new KeyValuePair<string, object?>("api_call", "Search.list"),
+					new KeyValuePair<string, object?>("quota_used", _QuotaUsed));
 			}
 
 			foreach (var broadcast in broadcasts.Items)
@@ -258,6 +334,16 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 				var videoRequest = service.Videos.List("liveStreamingDetails");
 				videoRequest.Id = broadcast.Id.VideoId;
 				var videoResponse = videoRequest.Execute();
+
+				// Track quota for Videos.list calls
+				_QuotaUsed += QUOTA_VIDEO_LIST;
+				_Logger.LogDebug("YouTube API call: Videos.list - Quota cost: {QuotaCost}, Total quota used: {QuotaUsed}, VideoId: {VideoId}",
+					QUOTA_VIDEO_LIST, _QuotaUsed, broadcast.Id.VideoId);
+
+				_Instrumentation?.MessagesReceivedCounter.Add(QUOTA_VIDEO_LIST,
+					new KeyValuePair<string, object?>("provider", Id),
+					new KeyValuePair<string, object?>("api_call", "Videos.list"),
+					new KeyValuePair<string, object?>("quota_used", _QuotaUsed));
 
 				if (videoResponse.Items.First().LiveStreamingDetails is null) continue;
 
@@ -312,7 +398,11 @@ public class YouTubeChatProvider : ISocialMediaProvider, IDisposable
 		GC.SuppressFinalize(this);
 	}
 
-	public Task<(SocialMediaStatus Status, string Message)> GetHealth() => Task.FromResult((_Status, _StatusMessage));
+	public Task<(SocialMediaStatus Status, string Message)> GetHealth()
+	{
+		var message = $"{_StatusMessage} | API Quota Used: {_QuotaUsed} units";
+		return Task.FromResult((_Status, message));
+	}
 
 	public Task StopAsync()
 	{
