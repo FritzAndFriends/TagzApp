@@ -1,4 +1,6 @@
-﻿namespace TagzApp.AppHost;
+﻿using TagzApp.Common;
+
+namespace TagzApp.AppHost;
 public static class DatabaseConfig
 {
 
@@ -17,10 +19,9 @@ public static class DatabaseConfig
 			.WithPgAdmin()
 			.WithDataVolume("tagzapp-dev");
 
-		db = dbServer.AddDatabase("tagzappdb");
+		db = dbServer.AddDatabase(Services.Database.TAGZAPP);
 
-		securityDb = dbServer.AddDatabase("securitydb");
-
+		securityDb = dbServer.AddDatabase(Services.Database.SECURITY);
 
 		migration = builder.AddProject<Projects.TagzApp_MigrationService>("db-migrations")
 			.WaitFor(db)

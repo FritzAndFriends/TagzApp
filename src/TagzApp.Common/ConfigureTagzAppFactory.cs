@@ -35,7 +35,7 @@ public static class ConfigureTagzAppFactory
 			try
 			{
 				Current = externalConfigSource(services, configuration);
-				Current.InitializeConfiguration("postgres", "tagzappdb")
+				Current.InitializeConfiguration("postgres", Services.Database.TAGZAPP)
 					.GetAwaiter().GetResult();
 
 				if (Current is not EmptyConfigureTagzApp)
@@ -69,7 +69,7 @@ public static class ConfigureTagzAppFactory
 		if (!_EncryptionHelper.Enabled) _EncryptionHelper = null;
 
 		Current = new DbConfigureTagzApp(_EncryptionHelper);
-		var connectionString = configuration.GetConnectionString("tagzappdb");
+		var connectionString = configuration.GetConnectionString(Services.Database.TAGZAPP);
 
 		try
 		{
@@ -78,7 +78,7 @@ public static class ConfigureTagzAppFactory
 			Current.SetConfigurationById<ConnectionSettings>(ConnectionSettings.ConfigurationKey, new ConnectionSettings
 			{
 				ContentProvider = "postgres",
-				ContentConnectionString = "tagzappdb",
+				ContentConnectionString = Services.Database.TAGZAPP,
 				SecurityProvider = "postgres",
 			}).GetAwaiter().GetResult();
 			IsConfigured = true;

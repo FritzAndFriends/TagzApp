@@ -1,5 +1,6 @@
 using Aspireify.Data.MigrationService;
 using Microsoft.EntityFrameworkCore;
+using TagzApp.Common;
 using TagzApp.Security;
 using TagzApp.Storage.Postgres;
 using TagzApp.Storage.Postgres.Security.Migrations;
@@ -10,14 +11,14 @@ builder.AddServiceDefaults();
 builder.Services.AddHostedService<Worker>();
 
 builder.Services.AddDbContext<SecurityContext>(
-	options => options.UseNpgsql(builder.Configuration.GetConnectionString("securitydb"), options =>
+	options => options.UseNpgsql(builder.Configuration.GetConnectionString(Services.Database.SECURITY), options =>
 	{
 		options.MigrationsAssembly(typeof(SecurityContextModelSnapshot).Assembly.FullName);
 	})
 );
 
 builder.Services.AddDbContext<TagzAppContext>(
-	options => options.UseNpgsql(builder.Configuration.GetConnectionString("tagzappdb"))
+	options => options.UseNpgsql(builder.Configuration.GetConnectionString(Services.Database.TAGZAPP))
 );
 
 builder.Services.AddOpenTelemetry()
