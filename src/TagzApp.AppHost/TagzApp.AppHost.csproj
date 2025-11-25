@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.0.0">
+﻿<Project Sdk="Aspire.AppHost.Sdk/13.0.0">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -17,13 +17,14 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions"  />
-    <PackageReference Include="Microsoft.Extensions.Http"  />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="StackExchange.Redis" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TagzApp.Blazor\TagzApp.Blazor.csproj" />
+    <ProjectReference Include="..\TagzApp.Common\TagzApp.Common.csproj" IsAspireProjectResource="false" />
     <ProjectReference Include="..\TagzApp.DatabaseMigration\TagzApp.MigrationService.csproj" />
   </ItemGroup>
 </Project>
