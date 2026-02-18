@@ -1,0 +1,10 @@
+{
+  "casting_policy_version": "1.1",
+  "allowlist_universes": [
+    "Overwatch"
+  ],
+  "universe_capacity": {
+    "Overwatch": 20
+  },
+  "notes": "User-requested universe override — Overwatch selected by Jeff Fritz."
+}
