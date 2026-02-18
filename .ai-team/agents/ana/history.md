@@ -12,6 +12,15 @@
 - **Build:** `cd src && dotnet restore && dotnet build TagzApp.Blazor`
 
 ## Learnings
+- Test files live in subdirectories by provider: `src/TagzApp.UnitTest/LinkedIn/LinkedInProviderTests.cs`
+- Provider tests use `StubHttpMessageHandler` + `StubHttpClientFactory` for HTTP mocking (no external packages needed)
+- `LinkedInProvider` constructor takes `(IHttpClientFactory, LinkedInConfiguration)` — follows Mastodon pattern
+- `LinkedInConfiguration` implements `IProviderConfiguration` with switch-based `GetConfigurationByKey`/`SetConfigurationByKey`
+- Key domain types: `Content`, `Creator`, `Hashtag`, `SocialMediaStatus` (all in `TagzApp.Common.Models` / `TagzApp.Common`)
+- `SocialMediaStatus` enum: Disabled=-2, Unknown=-1, Unhealthy=0, Degraded=1, Healthy=2
+- Provider health tests check token expiry thresholds: >7 days=Healthy, <7 days=Degraded, expired=Unhealthy
+- Daily call budget tests: exhaust budget → `GetContentForHashtag` returns empty, `GetHealth` returns Degraded
+- Global using `Xunit` is in `_Usings.cs`; `TagzApp.Common` and `TagzApp.Common.Models` are in the csproj `<Using>` items
 
 ## Team Updates
 - 📌 **2026-02-18**: LinkedIn provider plan decided by Mercy — architecture approved for implementation. 10 work items across 4 phases (scaffolding, core provider, integration, testing/docs). Estimated 2-3 days for implementation, 1 day for tests/docs.
