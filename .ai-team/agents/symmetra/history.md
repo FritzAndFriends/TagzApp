@@ -20,6 +20,10 @@
 - The modal flip animation uses `scale: 1.4` on `.modal-front/.modal-back` — this is intentional for the card flip reveal effect.
 - `#footerFade` uses absolute positioning inside a 100vh wrapper to create a gradient fade at the bottom of the waterfall scroll area.
 - Overlay display (`Overlay.razor`) is a separate page with green-screen background for OBS capture at events.
+- Event Display page pattern: server page (`_EventDisplay.razor`) wraps client component (`EventDisplay.razor`) with InteractiveWebAssembly rendermode. SignalR connection via `/messages?t={tag}` hub, listen for `NewWaterfallMessage` and `RemoveMessage` events.
+- Event Display reuses `WaterfallMessage` component without click handlers (no `OnContentSelected` callback) for hands-free operation. Content capped at 50 messages with oldest removed when limit exceeded.
+- Auto-scroll JavaScript pattern: namespace-based module (`window.EventDisplay`), MutationObserver for detecting new content, pause/resume logic with configurable intervals. Calls `window.Masonry.setupPage` if available to maintain grid layout.
+- Bootstrap Icons: `bi-display` used for Event Display nav link. Never introduce other icon libraries — Bootstrap Icons only.
 
 ## Team Updates
 - 📌 **2026-02-18**: Waterfall CSS/HTML rendering fixes completed. Fixed 10 rendering issues: overflow bleed on hover, word-break for long URLs, constrained card images, modal text weight, footer fade CSS variable, byline overflow, video alt attribute, overlay alt stray character, modal display semicolon, card keyboard accessibility (role="button" + tabindex). All fixes improve display quality at live events and support dark-mode/keyboard navigation. Commit: 2da5f39 — decided by Symmetra
