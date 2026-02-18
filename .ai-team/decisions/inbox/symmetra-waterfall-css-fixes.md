@@ -1,4 +1,0 @@
-### 2026-02-18: Waterfall CSS/HTML rendering fixes
-**By:** Symmetra
-**What:** Fixed 10 rendering issues in the waterfall display: removed `overflow: visible` on hover (content bleed), added word-break for long URLs, constrained card images to `max-width: 100%`, changed modal body from bold to normal weight, fixed footer fade to use CSS variable for theme support, fixed byline overflow on narrow columns, fixed invalid `alt` on `<video>`, fixed stray `}` in overlay alt attribute, fixed double-semicolon in modal display style, added `role="button"` and `tabindex="0"` for keyboard accessibility on waterfall cards.
-**Why:** The waterfall is the primary user-facing view at live events. Content bleed on hover, broken word-wrap, unconstrained images, and all-bold modal text all degrade the display quality. Theme-unaware gradient and missing accessibility attributes needed correction for proper dark-mode and keyboard support.

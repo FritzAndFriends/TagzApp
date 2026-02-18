@@ -20,3 +20,6 @@
 - The modal flip animation uses `scale: 1.4` on `.modal-front/.modal-back` — this is intentional for the card flip reveal effect.
 - `#footerFade` uses absolute positioning inside a 100vh wrapper to create a gradient fade at the bottom of the waterfall scroll area.
 - Overlay display (`Overlay.razor`) is a separate page with green-screen background for OBS capture at events.
+
+## Team Updates
+- 📌 **2026-02-18**: Waterfall CSS/HTML rendering fixes completed. Fixed 10 rendering issues: overflow bleed on hover, word-break for long URLs, constrained card images, modal text weight, footer fade CSS variable, byline overflow, video alt attribute, overlay alt stray character, modal display semicolon, card keyboard accessibility (role="button" + tabindex). All fixes improve display quality at live events and support dark-mode/keyboard navigation. Commit: 2da5f39 — decided by Symmetra

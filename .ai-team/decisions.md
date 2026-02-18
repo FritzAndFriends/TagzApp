@@ -340,3 +340,44 @@ I recommend Sombra starts with Phases 1-3 immediately. The code can be built and
 The LinkedIn provider is architecturally straightforward — it's a polling HTTP provider like YouTube, not a streaming provider like Bluesky. The main engineering challenges are rate limit management and OAuth token lifecycle, both of which are well-scoped problems.
 
 **Estimated effort:** 2-3 days for a working provider (Phases 1-3), plus 1 day for tests and docs (Phase 4).
+
+---
+
+### 2026-02-18: LinkedIn provider open questions resolved
+**By:** Jeff Fritz (via Copilot)
+**What:**
+1. LinkedIn Developer App: ✅ TagzApp already has one — no need to apply for new app
+2. Polling frequency: Minimum 5 minutes (app-level tokens). Default to 5 minutes, configurable. 1 minute is not feasible due to 100-500 calls/day rate limits.
+3. Icon: Use `bi-linkedin` Bootstrap Icon — confirmed
+**Why:** Jeff answered the three open questions from Mercy's LinkedIn provider architecture plan. These decisions unblock Sombra to begin implementation.
+
+### 2026-02-18: LinkedIn provider does not use HttpClientOptions base class
+**By:** Sombra
+**What:** LinkedInConfiguration implements IProviderConfiguration directly (not via HttpClientOptions) because LinkedIn's API requires per-request Authorization and versioning headers that change at runtime (token refresh, version bumps). The HttpClient is registered plain via IHttpClientFactory and headers are set on each HttpRequestMessage.
+**Why:** The Communication library's AddHttpClient<TClient, TImplementation, TClientOptions> extension requires HttpClientOptions which pre-configures a static BaseAddress, Timeout, and DefaultHeaders. LinkedIn tokens rotate and the Authorization header must be fresh per-request. Using a plain HttpClient avoids coupling to a static config that would go stale on token refresh.
+
+### 2026-02-18: LinkedIn daily API budget tracked in-memory with UTC midnight reset
+**By:** Sombra
+**What:** Daily API call budget is tracked via an in-memory Interlocked counter that resets when UTC time crosses midnight. No database persistence.
+**Why:** Simplicity — the counter resets on app restart anyway, and LinkedIn's own rate limit window is rolling 24h. Persisting to DB would add complexity for minimal value. If the app restarts mid-day, the counter resets to 0, which is conservative (may under-count, never over-count).
+
+### 2026-02-18: LinkedIn Provider Unit Tests Written (Phase 4.1)
+**By:** Ana
+**What:** Created `src/TagzApp.UnitTest/LinkedIn/LinkedInProviderTests.cs` with 20 test cases covering configuration, content mapping, daily budget tracking, token expiry health, and provider metadata. Added project reference to `TagzApp.Providers.LinkedIn` in `TagzApp.UnitTest.csproj`.
+**Why:** Tests are written in parallel with Sombra's implementation (Phases 1-3) per the architecture plan. Tests will compile once the LinkedIn provider project exists.
+
+**Test assumptions (Sombra must match):**
+- `LinkedInProvider` constructor: `(IHttpClientFactory, LinkedInConfiguration)`
+- `LinkedInConfiguration` keys: `ClientId`, `ClientSecret`, `AccessToken`, `RefreshToken`, `TokenExpiresAt`, `PollingIntervalMinutes`, `DailyCallBudget`
+- `PollingIntervalMinutes` default: 5; `DailyCallBudget` default: 100
+- `Id` = `"LINKEDIN"`, `DisplayName` = `"LinkedIn"`
+- Health logic: token >7 days → Healthy, <7 days → Degraded, expired → Unhealthy, budget exhausted → Degraded
+- `GetContentForHashtag` returns empty when budget exhausted
+- Content mapping: `SourceUri` = `https://www.linkedin.com/feed/update/{postUrn}`, `Provider` = `"LINKEDIN"`, text from `commentary` field
+
+**Status:** Tests written, not yet compilable (awaiting Sombra's provider project).
+
+### 2026-02-18: Waterfall CSS/HTML rendering fixes
+**By:** Symmetra
+**What:** Fixed 10 rendering issues in the waterfall display: removed `overflow: visible` on hover (content bleed), added word-break for long URLs, constrained card images to `max-width: 100%`, changed modal body from bold to normal weight, fixed footer fade to use CSS variable for theme support, fixed byline overflow on narrow columns, fixed invalid `alt` on `<video>`, fixed stray `}` in overlay alt attribute, fixed double-semicolon in modal display style, added `role="button"` and `tabindex="0"` for keyboard accessibility on waterfall cards.
+**Why:** The waterfall is the primary user-facing view at live events. Content bleed on hover, broken word-wrap, unconstrained images, and all-bold modal text all degrade the display quality. Theme-unaware gradient and missing accessibility attributes needed correction for proper dark-mode and keyboard support.
