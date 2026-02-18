@@ -1,6 +1,7 @@
 ﻿using TagzApp.Providers.AzureQueue;
 using TagzApp.Providers.Blazot;
 using TagzApp.Providers.Bluesky;
+using TagzApp.Providers.LinkedIn;
 using TagzApp.Providers.Mastodon;
 using TagzApp.Providers.TwitchChat;
 using TagzApp.Providers.Twitter;
@@ -17,6 +18,7 @@ public static class Service_Providers
 		new StartAzureQueue(),
 		new StartBlazot(),
 		new StartBluesky(),
+		new StartLinkedIn(),
 		new StartMastodon(),
 		new StartTwitchChat(),
 		new StartTwitter(),
