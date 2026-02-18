@@ -18,9 +18,10 @@ TagzApp has been successfully deployed and proven in production for major .NET c
 ### Production-Proven Features
 
 #### Social Media Provider Support
-TagzApp currently supports **seven different social media providers**, offering comprehensive coverage across major platforms:
+TagzApp currently supports **eight different social media providers**, offering comprehensive coverage across major platforms:
 - **[Blazot](https://www.blazot.com/)** - Developer-focused social platform
 - **Bluesky** - Decentralized social networking
+- **LinkedIn** - Professional social networking with hashtag search via Marketing API
 - **Mastodon** - Federated social network  
 - **Twitter/X** - Major social media platform
 - **TwitchChat** - Live streaming chat integration
@@ -55,6 +56,7 @@ Multiple overlay formats are available for live streaming and broadcast integrat
 
 - **Landscape Overlay** (`/overlay`) - Optimized for widescreen displays and OBS integration
 - **Portrait Overlay** (`/PortraitOverlay`) - Designed for mobile-friendly and vertical layouts  
+- **Event Display** (`/EventDisplay`) - Full-screen, auto-scrolling kiosk view for big screens at live events — no interaction required
 - **Real-time content selection** - Content selected on the waterfall automatically appears on overlays
 - **Video capture device compatibility** - Seamless integration with streaming software
 - **Customizable styling** with CSS configuration options
@@ -63,7 +65,7 @@ Multiple overlay formats are available for live streaming and broadcast integrat
 #### Technical Architecture
 Built on modern .NET technologies for scalability and performance:
 
-- **.NET 9** with Blazor Server and WebAssembly hybrid architecture
+- **.NET 10** with Blazor Server and WebAssembly hybrid architecture
 - **SignalR** for real-time communication and live updates
 - **PostgreSQL** for robust data storage and management
 - **.NET Aspire** for cloud-native application orchestration
