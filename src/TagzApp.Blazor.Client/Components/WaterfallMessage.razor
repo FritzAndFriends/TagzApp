@@ -1,7 +1,7 @@
 ﻿@using TagzApp.ViewModels.Data
 @inject IJSRuntime JSRuntime
 
-<article @ref="thisArticle" @onclick="() => OnContentSelected.InvokeAsync(Content)">
+<article @ref="thisArticle" role="button" tabindex="0" @onclick="() => OnContentSelected.InvokeAsync(Content)">
 	<img class="ProfilePicture"
 			 src="@Content.AuthorProfileImageUri"
 			 alt="@Content.AuthorDisplayName"
@@ -37,7 +37,7 @@
 					   controls="controls" autoplay 
 					   src="@Content.PreviewCard.ImageUri" 
 					   class="card-img-top" 
-					   alt="@Content.PreviewCard.AltText"
+					   aria-label="@Content.PreviewCard.AltText"
 					   onloadedmetadata="window.Masonry?.resizeGridItem(this.closest('article'))"></video>
 			</div>
 		}
