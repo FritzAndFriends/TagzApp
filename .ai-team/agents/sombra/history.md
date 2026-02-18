@@ -24,3 +24,4 @@
 
 ## Team Updates
 - 📌 **2026-02-18**: LinkedIn provider plan decided by Mercy — architecture approved for implementation. 10 work items across 4 phases (scaffolding, core provider, integration, testing/docs). Estimated 2-3 days for implementation, 1 day for tests/docs.
+- 📌 **2026-02-18**: LinkedIn provider implementation completed (Phases 1-3). Configuration uses direct IProviderConfiguration (not HttpClientOptions) for per-request header refresh. Daily API budget tracked in-memory with UTC midnight reset. Wired into Service_Providers.cs and GenericProvider.razor. All 32 unit tests pass. Build: 0 errors. Commit: 2da5f39 — decided by Sombra
