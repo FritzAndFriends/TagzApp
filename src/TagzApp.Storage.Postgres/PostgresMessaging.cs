@@ -57,7 +57,7 @@ internal class PostgresMessaging : IDisposable
 			var provider = state as ISocialMediaProvider;
 			// TODO: Check if this can done another way.
 			if (provider == null) return;
-			var lastQueryTime = DateTimeOffset.UtcNow.AddHours(-1);
+			var lastQueryTime = DateTimeOffset.UtcNow.AddDays(-7);
 
 			await provider.StartAsync();
 
