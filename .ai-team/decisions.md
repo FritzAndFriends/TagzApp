@@ -391,3 +391,17 @@ The LinkedIn provider is architecturally straightforward — it's a polling HTTP
 **By:** Symmetra
 **What:** Replaced the editable `<input>` fields for Access Token, Refresh Token, and Token Expires At with read-only obfuscated `<span>` elements in `LinkedIn.Config.Ui.razor`. Removed these three keys from the `SaveConfig()` method so the admin form no longer overwrites provider-managed OAuth tokens. Client ID and Client Secret remain editable — those are user-entered from the LinkedIn Developer Portal.
 **Why:** Access Token, Refresh Token, and Token Expires At are managed by the LinkedIn provider's OAuth flow, not entered by the admin user. Allowing form submission to overwrite these values could corrupt a valid OAuth session. Making them display-only prevents accidental data loss while still showing the admin whether tokens are configured. This aligns with Jeff's directive that these are provider-managed, not user-created values.
+
+### 2025-07-18: LinkedIn AntiforgeryToken Fix (Attempt 6)
+**By:** Symmetra
+**What:** Added `<AntiforgeryToken />` back to LinkedIn.Config.Ui.razor, matching all other working providers. Kept the `_isInteractive` guard on the Save button as a defensive measure.
+**Why:** After 5 failed attempts, the root cause was identified: the form needs `<AntiforgeryToken />` for correctness (all other providers have it), AND the Save button must be disabled until the SignalR circuit connects (prevents native HTTP POST during prerender gap). Together these two mechanisms ensure:
+1. The antiforgery token is present if a native POST somehow occurs
+2. The user cannot submit until the circuit is active, so submissions go through SignalR (not HTTP POST), avoiding antiforgery validation entirely
+
+**Rule for future providers:** Every provider config `<EditForm>` MUST include `<AntiforgeryToken />` immediately after the opening tag. If adding a new provider, copy this pattern from Bluesky/Mastodon.
+
+### 2026-02-19: User directive — NEVER touch global.json
+**By:** Jeffrey T. Fritz (via Copilot)
+**What:** global.json must NEVER be modified by any agent. The SDK version is locked and intentional.
+**Why:** User request — captured for team memory. Repeated directive (third time).
