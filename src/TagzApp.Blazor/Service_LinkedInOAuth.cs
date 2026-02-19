@@ -14,7 +14,7 @@ public static class Service_LinkedInOAuth
 	private const string LinkedInTokenEndpoint = "https://www.linkedin.com/oauth/v2/accessToken";
 
 	// Required scopes: r_member_social reads posts (needs Community Management API product)
-	private static readonly string[] RequiredScopes = ["openid", "profile", "w_member_social", "r_member_social"];
+	private static readonly string[] RequiredScopes = ["r_member_social", "w_member_social"];
 
 	public static void MapLinkedInOAuthEndpoints(this WebApplication app)
 	{

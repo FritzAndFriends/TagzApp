@@ -249,22 +249,24 @@ public class LinkedInProvider : ISocialMediaProvider, IDisposable
 				return null;
 			}
 
-			using var request = new HttpRequestMessage(HttpMethod.Get, $"{LinkedInApiBase}/v2/userinfo");
+			using var request = new HttpRequestMessage(HttpMethod.Get, $"{LinkedInApiBase}/v2/me");
 			request.Headers.Add("Authorization", $"Bearer {_configuration.AccessToken}");
+			request.Headers.Add("LinkedIn-Version", "202401");
+			request.Headers.Add("X-Restli-Protocol-Version", "2.0.0");
 
 			var response = await _httpClient.SendAsync(request);
 			Interlocked.Increment(ref _dailyCallCount);
 
 			if (!response.IsSuccessStatusCode)
 			{
-				_logger.LogError("LinkedIn userinfo call failed: {StatusCode} {Reason}", (int)response.StatusCode, response.ReasonPhrase);
+				_logger.LogError("LinkedIn me call failed: {StatusCode} {Reason}", (int)response.StatusCode, response.ReasonPhrase);
 				return null;
 			}
 
-			var userInfo = await response.Content.ReadFromJsonAsync<JsonElement>();
-			if (userInfo.TryGetProperty("sub", out var sub))
+			var meResponse = await response.Content.ReadFromJsonAsync<JsonElement>();
+			if (meResponse.TryGetProperty("id", out var id))
 			{
-				var memberId = sub.GetString();
+				var memberId = id.GetString();
 				if (!string.IsNullOrEmpty(memberId))
 				{
 					var urn = $"urn:li:person:{memberId}";
@@ -273,7 +275,7 @@ public class LinkedInProvider : ISocialMediaProvider, IDisposable
 				}
 			}
 
-			_logger.LogError("LinkedIn userinfo response missing 'sub' field");
+			_logger.LogError("LinkedIn me response missing 'id' field");
 			return null;
 		}
 		catch (Exception ex)
