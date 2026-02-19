@@ -214,6 +214,9 @@ public class Program
 		app.MapHub<MessageHub>("/messages");
 		app.MapHub<ModerationHub>("/mod");
 
+		// Map LinkedIn OAuth endpoints for admin-initiated provider authorization
+		app.MapLinkedInOAuthEndpoints();
+
 		await app.RunAsync(_Source.Token);
 
 	}

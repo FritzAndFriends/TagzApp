@@ -1,6 +1,8 @@
 @using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components
 @inject ToastService ToastService
 @inject IConfigureTagzApp Config
+@inject NavigationManager Navigation
 
 <UiProviderConfig ProviderName="LinkedIn" Health="@Health" ProviderIconCssClass="bi-linkedin">
 
@@ -46,6 +48,9 @@
 		</dl>
 
 		<button type="submit" class="btn btn-primary">Save</button>
+		<a href="/api/linkedin/authorize" class="btn btn-success ms-2">
+			<i class="bi bi-linkedin"></i> Authorize with LinkedIn
+		</a>
 
 	</EditForm>
 
@@ -79,6 +84,35 @@
 		Health = await Provider.GetHealth();
 
 		await base.OnParametersSetAsync();
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			// Check for OAuth callback success/error
+			var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+			var query = uri.Query;
+
+			if (query.Contains("linkedin_oauth_success=true"))
+			{
+				ToastService.Add("LinkedIn authorization successful! Tokens have been saved.", MessageSeverity.Success);
+				await OnParametersSetAsync();
+				StateHasChanged();
+			}
+			else if (query.Contains("linkedin_oauth_error="))
+			{
+				var errorStart = query.IndexOf("linkedin_oauth_error=") + "linkedin_oauth_error=".Length;
+				var errorEnd = query.IndexOf('&', errorStart);
+				var error = errorEnd > 0
+					? Uri.UnescapeDataString(query.Substring(errorStart, errorEnd - errorStart))
+					: Uri.UnescapeDataString(query.Substring(errorStart));
+
+				ToastService.Add($"LinkedIn authorization failed: {error}", MessageSeverity.Danger);
+			}
+		}
+
+		await base.OnAfterRenderAsync(firstRender);
 	}
 
 	private async Task SaveConfig()
