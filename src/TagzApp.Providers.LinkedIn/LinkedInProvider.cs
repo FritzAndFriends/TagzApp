@@ -10,7 +10,7 @@ namespace TagzApp.Providers.LinkedIn;
 
 public class LinkedInProvider : ISocialMediaProvider, IDisposable
 {
-	private const string LinkedInApiVersion = "202401";
+	private const string LinkedInApiVersion = "202506";
 	private const string LinkedInApiBase = "https://api.linkedin.com";
 
 	private readonly HttpClient _httpClient;
@@ -23,6 +23,7 @@ public class LinkedInProvider : ISocialMediaProvider, IDisposable
 	private string _statusMessage = "Not started";
 	private int _dailyCallCount;
 	private DateTimeOffset _dailyResetTime = DateTimeOffset.UtcNow.Date.AddDays(1);
+	private string? _memberUrn;
 
 	public LinkedInProvider(
 		IHttpClientFactory httpClientFactory,
@@ -79,9 +80,20 @@ public class LinkedInProvider : ISocialMediaProvider, IDisposable
 			return [];
 		}
 
+		if (string.IsNullOrEmpty(_memberUrn))
+		{
+			_memberUrn = await ResolveMemberUrn();
+			if (string.IsNullOrEmpty(_memberUrn))
+			{
+				_status = SocialMediaStatus.Unhealthy;
+				_statusMessage = "Unable to resolve authenticated member URN";
+				return [];
+			}
+		}
+
 		var hashtag = Hashtag.ClearFormatting(tag.Text);
-		var encodedHashtag = HttpUtility.UrlEncode(hashtag);
-		var requestUri = $"{LinkedInApiBase}/rest/posts?q=hashtag&hashtag={encodedHashtag}";
+		var encodedAuthor = HttpUtility.UrlEncode(_memberUrn);
+		var requestUri = $"{LinkedInApiBase}/rest/posts?q=author&author={encodedAuthor}&count=50";
 
 		try
 		{
@@ -116,6 +128,9 @@ public class LinkedInProvider : ISocialMediaProvider, IDisposable
 
 				var postTimestamp = DateTimeOffset.FromUnixTimeMilliseconds(post.CreatedAt);
 				if (postTimestamp <= since) continue;
+
+				// Client-side hashtag filter: only include posts mentioning the hashtag
+				if (!ContainsHashtag(post.Commentary, hashtag)) continue;
 
 				var author = await ResolveAuthor(post.Author);
 
@@ -203,16 +218,74 @@ public class LinkedInProvider : ISocialMediaProvider, IDisposable
 		return Task.FromResult((SocialMediaStatus.Healthy, _status == SocialMediaStatus.Unhealthy && _statusMessage == "Not started" ? "OK" : _statusMessage));
 	}
 
-	public Task StartAsync()
+	public async Task StartAsync()
 	{
+		_memberUrn = await ResolveMemberUrn();
 		_status = SocialMediaStatus.Healthy;
 		_statusMessage = "OK";
-		return Task.CompletedTask;
 	}
 
 	public Task StopAsync()
 	{
 		return Task.CompletedTask;
+	}
+
+	private async Task<string?> ResolveMemberUrn()
+	{
+		if (string.IsNullOrWhiteSpace(_configuration.AccessToken))
+		{
+			return null;
+		}
+
+		try
+		{
+			ResetDailyBudgetIfNeeded();
+			if (_dailyCallCount >= _configuration.DailyCallBudget)
+			{
+				_logger.LogWarning("LinkedIn daily budget exhausted; cannot resolve member URN");
+				return null;
+			}
+
+			using var request = new HttpRequestMessage(HttpMethod.Get, $"{LinkedInApiBase}/v2/userinfo");
+			request.Headers.Add("Authorization", $"Bearer {_configuration.AccessToken}");
+
+			var response = await _httpClient.SendAsync(request);
+			Interlocked.Increment(ref _dailyCallCount);
+
+			if (!response.IsSuccessStatusCode)
+			{
+				_logger.LogError("LinkedIn userinfo call failed: {StatusCode} {Reason}", (int)response.StatusCode, response.ReasonPhrase);
+				return null;
+			}
+
+			var userInfo = await response.Content.ReadFromJsonAsync<JsonElement>();
+			if (userInfo.TryGetProperty("sub", out var sub))
+			{
+				var memberId = sub.GetString();
+				if (!string.IsNullOrEmpty(memberId))
+				{
+					var urn = $"urn:li:person:{memberId}";
+					_logger.LogInformation("Resolved LinkedIn member URN: {Urn}", urn);
+					return urn;
+				}
+			}
+
+			_logger.LogError("LinkedIn userinfo response missing 'sub' field");
+			return null;
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError(ex, "Error resolving LinkedIn member URN");
+			return null;
+		}
+	}
+
+	private static bool ContainsHashtag(string? text, string hashtag)
+	{
+		if (string.IsNullOrEmpty(text)) return false;
+		// Match #hashtag or plain hashtag text (case-insensitive)
+		return text.Contains($"#{hashtag}", StringComparison.OrdinalIgnoreCase)
+			|| text.Contains(hashtag, StringComparison.OrdinalIgnoreCase);
 	}
 
 	private async Task<LinkedInAuthor> ResolveAuthor(string? authorUrn)
