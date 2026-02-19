@@ -5,6 +5,7 @@
 <UiProviderConfig ProviderName="LinkedIn" Health="@Health" ProviderIconCssClass="bi-linkedin">
 
 	<EditForm Model="Model" OnValidSubmit="SaveConfig">
+		<AntiforgeryToken />
 		<ValidationSummary />
 		<dl>
 			<dt><label for="ClientId">Client ID:</label></dt>
