@@ -107,13 +107,16 @@ public class LinkedInProvider : ISocialMediaProvider, IDisposable
 
 			if (!response.IsSuccessStatusCode)
 			{
+				var errorBody = await response.Content.ReadAsStringAsync();
 				_status = SocialMediaStatus.Unhealthy;
 				_statusMessage = $"API returned {(int)response.StatusCode} {response.ReasonPhrase}";
-				_logger.LogError("LinkedIn API error: {StatusCode} {Reason}", (int)response.StatusCode, response.ReasonPhrase);
+				_logger.LogError("LinkedIn API error: {StatusCode} {Reason} — {Body}", (int)response.StatusCode, response.ReasonPhrase, errorBody);
 				return [];
 			}
 
 			var responseBody = await response.Content.ReadFromJsonAsync<LinkedInPostsResponse>();
+			_logger.LogInformation("LinkedIn API returned {Count} elements for author {Author}",
+				responseBody?.Elements?.Length ?? 0, _memberUrn);
 			if (responseBody?.Elements is null || responseBody.Elements.Length == 0)
 			{
 				_status = SocialMediaStatus.Healthy;
