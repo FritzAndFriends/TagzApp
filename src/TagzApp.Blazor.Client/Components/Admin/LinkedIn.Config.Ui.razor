@@ -17,17 +17,17 @@
 			<dd>
 				<input name="ClientSecret" type="password" @bind="Model.ClientSecret" placeholder="LinkedIn App Client Secret" />
 			</dd>
-			<dt><label for="AccessToken">Access Token:</label></dt>
+			<dt>Access Token:</dt>
 			<dd>
-				<input name="AccessToken" type="password" @bind="Model.AccessToken" placeholder="OAuth 2.0 Access Token" />
+				<span class="form-control-plaintext text-muted">@ObfuscateToken(Model.AccessToken)</span>
 			</dd>
-			<dt><label for="RefreshToken">Refresh Token:</label></dt>
+			<dt>Refresh Token:</dt>
 			<dd>
-				<input name="RefreshToken" type="password" @bind="Model.RefreshToken" placeholder="OAuth 2.0 Refresh Token" />
+				<span class="form-control-plaintext text-muted">@ObfuscateToken(Model.RefreshToken)</span>
 			</dd>
-			<dt><label for="TokenExpiresAt">Token Expires At:</label></dt>
+			<dt>Token Expires At:</dt>
 			<dd>
-				<InputText name="TokenExpiresAt" @bind-Value="Model.TokenExpiresAt" readonly="true" />
+				<span class="form-control-plaintext text-muted">@(string.IsNullOrEmpty(Model.TokenExpiresAt) ? "Not set" : Model.TokenExpiresAt)</span>
 			</dd>
 			<dt><label for="PollingIntervalMinutes">Polling Interval (minutes):</label></dt>
 			<dd>
@@ -87,15 +87,19 @@
 
 		providerConfiguration.SetConfigurationByKey("ClientId", Model.ClientId);
 		providerConfiguration.SetConfigurationByKey("ClientSecret", Model.ClientSecret);
-		providerConfiguration.SetConfigurationByKey("AccessToken", Model.AccessToken);
-		providerConfiguration.SetConfigurationByKey("RefreshToken", Model.RefreshToken);
-		providerConfiguration.SetConfigurationByKey("TokenExpiresAt", Model.TokenExpiresAt);
 		providerConfiguration.SetConfigurationByKey("PollingIntervalMinutes", Model.PollingIntervalMinutes.ToString());
 		providerConfiguration.SetConfigurationByKey("DailyCallBudget", Model.DailyCallBudget.ToString());
 		providerConfiguration.SetConfigurationByKey("Enabled", Model.Enabled.ToString());
 
 		await Provider.SaveConfiguration(Config, providerConfiguration);
 		ToastService.Add($"Saved {providerConfiguration.Name} Configuration", MessageSeverity.Success);
+	}
+
+	private string ObfuscateToken(string token)
+	{
+		if (string.IsNullOrEmpty(token)) return "Not set";
+		if (token.Length <= 8) return "••••••••";
+		return token[..4] + "••••••••" + token[^4..];
 	}
 
 	public class ViewModel
