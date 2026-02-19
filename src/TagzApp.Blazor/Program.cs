@@ -143,7 +143,7 @@ public class Program
 
 		app.UseHttpsRedirection();
 
-		app.UseStaticFiles();
+		app.MapStaticAssets();
 		// running in single-user mode -- the current user is an admin
 		app.Use(async (context, next) =>
 		{
