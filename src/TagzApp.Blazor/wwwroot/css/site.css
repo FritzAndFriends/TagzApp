@@ -387,6 +387,10 @@ body {
 	box-shadow: 0px 4px 12px rgba(13, 110, 253, 0.2);
 }
 
+#taggedContent article.modMessage {
+	overflow: visible;
+}
+
 #taggedContent .ProfilePicture,
 #overlayDisplay .ProfilePicture,
 #overlayDisplay.showPreview .ProfilePicture,
@@ -829,7 +833,7 @@ MOVED TO THE  HeadContent in Overlay.razor
 	left: 0;
 	right: 0;
 	width: auto;
-	height: 50px;
+	height: 56px;
 	display: flex;
 	flex-direction: row;
 	justify-content: center;
@@ -840,8 +844,8 @@ MOVED TO THE  HeadContent in Overlay.razor
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 	z-index: 10;
 	transition: bottom 0.3s ease-in-out, opacity 0.2s ease-in-out;
-	padding: 0 8px;
-	gap: 12px;
+	padding: 0 16px;
+	gap: 16px;
 	opacity: 0;
 	pointer-events: none;
 }
@@ -856,9 +860,9 @@ article.keyboard-cursor #moderationAction,
 
 #moderationAction i {
 	text-align: center;
-	font-size: 1.6em;
+	font-size: 2em;
 	color: #333;
-	padding: 8px 12px;
+	padding: 8px 16px;
 	transition: all 0.2s ease;
 	cursor: pointer;
 	border-radius: 6px;
