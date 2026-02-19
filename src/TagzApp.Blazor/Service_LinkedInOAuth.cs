@@ -18,6 +18,45 @@ public static class Service_LinkedInOAuth
 
 	public static void MapLinkedInOAuthEndpoints(this WebApplication app)
 	{
+		// Debug endpoint: shows the exact auth URL without redirecting
+		app.MapGet("/api/linkedin/debug-auth", async (HttpContext context, IConfigureTagzApp config) =>
+		{
+			if (!context.User.Identity?.IsAuthenticated ?? true)
+				return Results.Unauthorized();
+
+			var linkedInConfig = await config.GetConfigurationById<LinkedInConfiguration>(LinkedInConfiguration.AppSettingsSection);
+			if (linkedInConfig == null || string.IsNullOrEmpty(linkedInConfig.ClientId))
+				return Results.BadRequest("No LinkedIn ClientId configured");
+
+			var request = context.Request;
+			var scheme = request.Headers.ContainsKey("X-Forwarded-Proto")
+				? request.Headers["X-Forwarded-Proto"].ToString()
+				: request.Scheme;
+			if (scheme.Equals("http", StringComparison.OrdinalIgnoreCase))
+				scheme = "https";
+
+			var host = request.Headers.ContainsKey("X-Forwarded-Host")
+				? request.Headers["X-Forwarded-Host"].ToString()
+				: request.Host.ToString();
+
+			var redirectUri = $"{scheme}://{host}/api/linkedin/callback";
+			var scope = string.Join(" ", RequiredScopes);
+
+			return Results.Json(new
+			{
+				clientId = linkedInConfig.ClientId,
+				redirectUri,
+				scope,
+				detectedScheme = scheme,
+				detectedHost = host,
+				rawScheme = request.Scheme,
+				rawHost = request.Host.ToString(),
+				hasForwardedProto = request.Headers.ContainsKey("X-Forwarded-Proto"),
+				hasForwardedHost = request.Headers.ContainsKey("X-Forwarded-Host"),
+				note = "Register this EXACT redirect_uri in your LinkedIn Developer App under OAuth 2.0 settings"
+			});
+		}).RequireAuthorization();
+
 		// Admin-initiated OAuth authorization endpoint
 		app.MapGet("/api/linkedin/authorize", async (HttpContext context, IConfigureTagzApp config) =>
 		{
