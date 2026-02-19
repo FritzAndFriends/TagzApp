@@ -1,0 +1,169 @@
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components
+@inject ToastService ToastService
+@inject IConfigureTagzApp Config
+@inject NavigationManager Navigation
+
+<UiProviderConfig ProviderName="LinkedIn" Health="@Health" ProviderIconCssClass="bi-linkedin">
+
+	<EditForm Model="Model" OnValidSubmit="SaveConfig">
+		<AntiforgeryToken />
+		<ValidationSummary />
+		<dl>
+			<dt><label for="ClientId">Client ID:</label></dt>
+			<dd>
+				<InputText name="ClientId" @bind-Value="Model.ClientId" placeholder="LinkedIn App Client ID" />
+				<ValidationMessage For="() => Model.ClientId" class="text-danger" />
+			</dd>
+			<dt><label for="ClientSecret">Client Secret:</label></dt>
+			<dd>
+				<input name="ClientSecret" type="password" @bind="Model.ClientSecret" placeholder="LinkedIn App Client Secret" />
+			</dd>
+			<dt><label for="RedirectUri">OAuth Redirect URI (optional):</label></dt>
+			<dd>
+				<InputText name="RedirectUri" @bind-Value="Model.RedirectUri" placeholder="e.g. https://localhost:7106/api/linkedin/callback" />
+				<small class="text-muted">Leave blank to auto-detect. Set explicitly if OAuth fails.</small>
+			</dd>
+			<dt>Access Token:</dt>
+			<dd>
+				<span class="form-control-plaintext text-muted">@ObfuscateToken(Model.AccessToken)</span>
+			</dd>
+			<dt>Refresh Token:</dt>
+			<dd>
+				<span class="form-control-plaintext text-muted">@ObfuscateToken(Model.RefreshToken)</span>
+			</dd>
+			<dt>Token Expires At:</dt>
+			<dd>
+				<span class="form-control-plaintext text-muted">@(string.IsNullOrEmpty(Model.TokenExpiresAt) ? "Not set" : Model.TokenExpiresAt)</span>
+			</dd>
+			<dt><label for="PollingIntervalMinutes">Polling Interval (minutes):</label></dt>
+			<dd>
+				<InputNumber name="PollingIntervalMinutes" @bind-Value="Model.PollingIntervalMinutes" min="5" />
+				<ValidationMessage For="() => Model.PollingIntervalMinutes" class="text-danger" />
+			</dd>
+			<dt><label for="DailyCallBudget">Daily Call Budget:</label></dt>
+			<dd>
+				<InputNumber name="DailyCallBudget" @bind-Value="Model.DailyCallBudget" min="10" />
+				<ValidationMessage For="() => Model.DailyCallBudget" class="text-danger" />
+			</dd>
+			<dt><label for="Enabled">Enabled:</label></dt>
+			<dd>
+				<InputCheckbox name="Enabled" @bind-Value="Model.Enabled" />
+			</dd>
+		</dl>
+
+		<button type="submit" class="btn btn-primary">Save</button>
+		<a href="/api/linkedin/authorize" class="btn btn-success ms-2">
+			<i class="bi bi-linkedin"></i> Authorize with LinkedIn
+		</a>
+
+	</EditForm>
+
+</UiProviderConfig>
+
+@code {
+
+	[Parameter, EditorRequired]
+	public ISocialMediaProvider Provider { get; set; } = null!;
+
+	public (SocialMediaStatus Status, string Message) Health { get; set; } = (SocialMediaStatus.Unknown, string.Empty);
+
+	public ViewModel Model { get; set; } = new();
+
+	protected override async Task OnParametersSetAsync()
+	{
+		var providerConfiguration = await Provider.GetConfiguration(Config);
+
+		Model = new ViewModel
+			{
+				ClientId = providerConfiguration.GetConfigurationByKey("ClientId"),
+				ClientSecret = providerConfiguration.GetConfigurationByKey("ClientSecret"),
+				RedirectUri = providerConfiguration.GetConfigurationByKey("RedirectUri"),
+				AccessToken = providerConfiguration.GetConfigurationByKey("AccessToken"),
+				RefreshToken = providerConfiguration.GetConfigurationByKey("RefreshToken"),
+				TokenExpiresAt = providerConfiguration.GetConfigurationByKey("TokenExpiresAt"),
+				PollingIntervalMinutes = int.TryParse(providerConfiguration.GetConfigurationByKey("PollingIntervalMinutes"), out var interval) ? interval : 5,
+				DailyCallBudget = int.TryParse(providerConfiguration.GetConfigurationByKey("DailyCallBudget"), out var budget) ? budget : 100,
+				Enabled = !string.IsNullOrEmpty(providerConfiguration.GetConfigurationByKey("Enabled")) && bool.Parse(providerConfiguration.GetConfigurationByKey("Enabled"))
+			};
+
+		Health = await Provider.GetHealth();
+
+		await base.OnParametersSetAsync();
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			// Check for OAuth callback success/error
+			var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+			var query = uri.Query;
+
+			if (query.Contains("linkedin_oauth_success=true"))
+			{
+				ToastService.Add("LinkedIn authorization successful! Tokens have been saved.", MessageSeverity.Success);
+				await OnParametersSetAsync();
+				StateHasChanged();
+			}
+			else if (query.Contains("linkedin_oauth_error="))
+			{
+				var errorStart = query.IndexOf("linkedin_oauth_error=") + "linkedin_oauth_error=".Length;
+				var errorEnd = query.IndexOf('&', errorStart);
+				var error = errorEnd > 0
+					? Uri.UnescapeDataString(query.Substring(errorStart, errorEnd - errorStart))
+					: Uri.UnescapeDataString(query.Substring(errorStart));
+
+				ToastService.Add($"LinkedIn authorization failed: {error}", MessageSeverity.Danger);
+			}
+		}
+
+		await base.OnAfterRenderAsync(firstRender);
+	}
+
+	private async Task SaveConfig()
+	{
+		var providerConfiguration = await Provider.GetConfiguration(Config);
+
+		providerConfiguration.SetConfigurationByKey("ClientId", Model.ClientId);
+		providerConfiguration.SetConfigurationByKey("ClientSecret", Model.ClientSecret);
+		providerConfiguration.SetConfigurationByKey("RedirectUri", Model.RedirectUri);
+		providerConfiguration.SetConfigurationByKey("PollingIntervalMinutes", Model.PollingIntervalMinutes.ToString());
+		providerConfiguration.SetConfigurationByKey("DailyCallBudget", Model.DailyCallBudget.ToString());
+		providerConfiguration.SetConfigurationByKey("Enabled", Model.Enabled.ToString());
+
+		await Provider.SaveConfiguration(Config, providerConfiguration);
+		ToastService.Add($"Saved {providerConfiguration.Name} Configuration", MessageSeverity.Success);
+	}
+
+	private string ObfuscateToken(string token)
+	{
+		if (string.IsNullOrEmpty(token)) return "Not set";
+		if (token.Length <= 8) return "••••••••";
+		return token[..4] + "••••••••" + token[^4..];
+	}
+
+	public class ViewModel
+	{
+		[Required]
+		public string ClientId { get; set; } = string.Empty;
+
+		public string ClientSecret { get; set; } = string.Empty;
+
+		public string RedirectUri { get; set; } = string.Empty;
+
+		public string AccessToken { get; set; } = string.Empty;
+
+		public string RefreshToken { get; set; } = string.Empty;
+
+		public string TokenExpiresAt { get; set; } = string.Empty;
+
+		[Range(5, int.MaxValue, ErrorMessage = "Polling interval must be at least 5 minutes")]
+		public int PollingIntervalMinutes { get; set; } = 5;
+
+		[Range(10, int.MaxValue, ErrorMessage = "Daily call budget must be at least 10")]
+		public int DailyCallBudget { get; set; } = 100;
+
+		public bool Enabled { get; set; }
+	}
+}

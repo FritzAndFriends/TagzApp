@@ -6,10 +6,12 @@ This is documentation for writing new features and for using the TagzApp softwar
 1. [Integrate with your app](QueueIntegration.md)
 2. [Adding new social media providers](#media-providers)
 3. [Provider Configuration Pattern](#provider-configuration)
-4. [Icons](#icons)
-5. [Testing](#testing)
-6. [Custom Test Execution Ordering](#ordering)
-7. [Docker](#docker)
+4. [LinkedIn Provider](#linkedin-provider)
+5. [Event Display](#event-display)
+6. [Icons](#icons)
+7. [Testing](#testing)
+8. [Custom Test Execution Ordering](#ordering)
+9. [Docker](#docker)
 
 <div id='media-providers'/>
 
@@ -63,6 +65,60 @@ For detailed implementation guidance, see the [Provider Configuration Pattern Gu
 2. Use `IOptionsMonitor<T>` in your provider constructor
 3. Handle configuration changes with `HandleConfigurationChange()` method
 4. Use `StaticOptionsMonitor<T>` from `TagzApp.Common.Configuration` for testing
+
+<div id='linkedin-provider'/>
+
+## LinkedIn Provider
+
+The LinkedIn provider (`TagzApp.Providers.LinkedIn`) integrates with LinkedIn's Marketing API to aggregate hashtag content from LinkedIn posts.
+
+### Prerequisites
+- A **LinkedIn Developer App** registered at https://www.linkedin.com/developers/
+- **Marketing Developer Platform (MDP)** approval for hashtag search API access
+- OAuth 2.0 credentials: Client ID, Client Secret, Access Token, and Refresh Token
+
+### Configuration
+Configure the LinkedIn provider through the admin panel at `/Admin/GenericProvider` (select LinkedIn). Required fields:
+- **Client ID / Client Secret** — from your LinkedIn Developer App
+- **Access Token / Refresh Token** — obtained via OAuth 2.0 Authorization Code Flow
+- **Token Expires At** — ISO 8601 timestamp for token expiry monitoring
+- **Polling Interval** — minutes between API calls (minimum 5, default 5)
+- **Daily Call Budget** — maximum API calls per day (minimum 10, default 100)
+
+### Rate Limits
+LinkedIn's Marketing API has strict rate limits:
+- **Member token:** 100 requests/day
+- **App-level token:** 500 requests/day
+- The provider tracks daily usage and degrades gracefully when the budget is exhausted
+
+### API Details
+- **Endpoint:** `GET /rest/posts?q=hashtag&hashtag={encodedHashtag}`
+- **Version header:** `LinkedIn-Version: 202401`
+- **Authentication:** Bearer token via OAuth 2.0
+
+<div id='event-display'/>
+
+## Event Display
+
+The Event Display (`/EventDisplay`) is a full-screen, auto-scrolling kiosk view designed for big screens at live events like conferences and meetups.
+
+### Features
+- **Hands-free operation** — no interaction required; auto-scrolls through content
+- **Real-time updates** — new content appears via SignalR as it's approved
+- **Branding strip** — shows the tracked hashtag at the bottom of the screen
+- **Content limit** — keeps the last 50 messages to prevent memory growth
+- **Auto-scroll** — smooth continuous scroll with pause-on-new-content behavior
+
+### Usage
+1. Configure tracked hashtags in the admin panel
+2. Navigate to `/EventDisplay` on the display screen
+3. The page runs hands-free — content appears and scrolls automatically
+
+### Tips for Events
+- Use a dedicated browser in full-screen/kiosk mode (F11)
+- The branding strip shows the tracked hashtag automatically
+- Content scrolls continuously; new posts pause the scroll briefly for visibility
+- Works best on landscape displays (1080p or higher)
 
 <div id='icons'/>
 

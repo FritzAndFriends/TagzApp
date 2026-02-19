@@ -1,0 +1,158 @@
+@using Microsoft.AspNetCore.Components.Sections
+@using Microsoft.AspNetCore.SignalR.Client
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+@implements IAsyncDisposable
+
+<HeadContent>
+	<script src="/js/eventDisplay.js"></script>
+</HeadContent>
+
+@if (!_Content.Any())
+{
+
+	<div class="d-flex justify-content-center align-items-center" style="height: calc(100vh - 60px); text-align: center;">
+		<div class="spinner-border" role="status"> <span class="visually-hidden">Loading...</span> </div>
+	</div>
+
+}
+else
+{
+	<div id="eventDisplayWrapper">
+		<div id="taggedContent" class="">
+
+			@foreach (var content in _Content.Values.Reverse())
+			{
+				<WaterfallMessage Content="content" @key="content" />
+			}
+
+		</div>
+
+		<div class="event-branding-strip">
+			<span class="hashtag">#@TagTracked</span>
+			<span class="powered-by">Powered by TagzApp</span>
+		</div>
+	</div>
+}
+
+@code {
+
+	private SortedList<string, TagzApp.ViewModels.Data.ContentModel> _Content = new();
+
+	HubConnection _Connection = null!;
+
+	private bool _IsDisposing = false;
+
+	[Parameter, EditorRequired]
+	public string TagTracked { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+
+		await StartSignalRHub();
+
+		var existingContent = await _Connection.InvokeAsync<IEnumerable<ContentModel>>("GetExistingContentForTag", TagTracked);
+
+		foreach (var content in existingContent)
+		{
+			if (_Content.ContainsKey(content.Timestamp.ToString("yyyyMMddHHmmss") + content.ProviderId)) continue;
+			_Content.Add(content.Timestamp.ToString("yyyyMMddHHmmss") + content.ProviderId, content);
+		}
+
+		// Cap at 50 messages
+		while (_Content.Count > 50)
+		{
+			_Content.RemoveAt(0);
+		}
+
+		await base.OnInitializedAsync();
+
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+
+		if (firstRender)
+		{
+			await JSRuntime.InvokeVoidAsync("EventDisplay.startAutoScroll");
+		}
+
+		await JSRuntime.InvokeVoidAsync("EventDisplay.setupPage");
+
+		await base.OnAfterRenderAsync(firstRender);
+
+	}
+
+	private async Task StartSignalRHub()
+	{
+		_Connection = new HubConnectionBuilder()
+			.WithUrl(NavigationManager.ToAbsoluteUri($"/messages?t={TagTracked}"))
+			.WithAutomaticReconnect()
+			.Build();
+
+		_Connection.On<ContentModel>("NewWaterfallMessage", (content) =>
+		{
+
+			_Content.Add(content.Timestamp.ToString("yyyyMMddHHmmss") + content.ProviderId, content);
+
+			// Cap at 50 messages
+			while (_Content.Count > 50)
+			{
+				_Content.RemoveAt(0);
+			}
+
+			StateHasChanged();
+		});
+
+		_Connection.On<string, string>("RemoveMessage", (provider, providerId) =>
+		{
+
+			var thisMessage = _Content.FirstOrDefault(c => c.Value.Provider == provider && c.Value.ProviderId == providerId);
+			if (thisMessage.Value is not null)
+			{
+				_Content.Remove(thisMessage.Key);
+				StateHasChanged();
+			}
+
+		});
+
+		_Connection.Closed += async _ =>
+		{
+
+			if (_IsDisposing) return;
+
+			while (!_IsDisposing)
+			{
+
+				await Task.Delay(2000);
+				try
+				{
+
+					await StartSignalRHub();
+
+				}
+				catch (Exception ex)
+				{
+
+					Console.WriteLine($"Error while attempting to reconnect ({_Connection.State.ToString()}) to server: {ex.Message}");
+
+				}
+
+			}
+
+			return;
+
+		};
+
+		await _Connection.StartAsync();
+	}
+
+	public ValueTask DisposeAsync()
+	{
+		_IsDisposing = true;
+		if (_Connection is null) return ValueTask.CompletedTask;
+		return _Connection.DisposeAsync();
+	}
+
+}

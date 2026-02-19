@@ -1,0 +1,42 @@
+@page "/EventDisplay"
+@using Microsoft.AspNetCore.Components.Sections
+@attribute [StreamRendering]
+@inject IJSRuntime JSRuntime
+@inject IMessagingService MessagingService
+@inject ApplicationConfiguration AppConfig
+@layout Layout.WaterfallLayout
+
+<PageTitle>@AppConfig.SiteName - Event Display</PageTitle>
+
+<div style="height: 100vh; width: 100vw; margin: 0; overflow: hidden;">
+
+	<main role="main" class="pb-3" style="max-width: 100%">
+
+		@if (MessagingService.TagsTracked.Any())
+		{
+			<EventDisplay TagTracked="@MessagingService.TagsTracked.First()" />
+		}
+		else
+		{
+
+			<div class="d-flex justify-content-center align-items-center" style="height: 100vh; width: 100vw;">
+				<div class="text-center">
+					<h3 class="display-4">No Tags Tracked</h3>
+					<p class="lead">Configure a hashtag in the admin settings to enable event display.</p>
+				</div>
+			</div>
+		}
+
+	</main>
+
+</div>
+
+<HeadContent>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+</HeadContent>
+
+@code {
+
+}

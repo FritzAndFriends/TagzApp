@@ -1,6 +1,7 @@
 ﻿using TagzApp.Common;
 
 namespace TagzApp.AppHost;
+
 public static class DatabaseConfig
 {
 

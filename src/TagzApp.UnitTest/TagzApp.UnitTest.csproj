@@ -40,6 +40,7 @@
     <ProjectReference Include="..\TagzApp.Providers.TwitchChat\TagzApp.Providers.TwitchChat.csproj" />
     <ProjectReference Include="..\TagzApp.Providers.YouTubeChat\TagzApp.Providers.YouTubeChat.csproj" />
     <ProjectReference Include="..\TagzApp.Providers.Youtube\TagzApp.Providers.Youtube.csproj" />
+    <ProjectReference Include="..\TagzApp.Providers.LinkedIn\TagzApp.Providers.LinkedIn.csproj" />
     <ProjectReference Include="..\TagzApp.Storage.Postgres\TagzApp.Storage.Postgres.csproj" />
   </ItemGroup>
   <ItemGroup>
