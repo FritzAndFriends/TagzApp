@@ -9,3 +9,6 @@
 - **Session logs:** .ai-team/log/
 
 ## Learnings
+
+## Team Updates
+- 📌 **Team update (2026-02-19)**: global.json rollForward=latestMinor is Jeff's intentional setting. NEVER modify global.json under any circumstances.

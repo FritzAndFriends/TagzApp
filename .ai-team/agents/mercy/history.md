@@ -34,3 +34,6 @@
 - No third-party SDK needed — HttpClient is sufficient
 - Provider ID will be `LINKEDIN`, config key `provider-LINKEDIN`
 - Work broken into 4 phases, 10 tasks, estimated 3-4 days for Sombra
+
+## Team Updates
+- 📌 **Team update (2026-02-19)**: global.json rollForward=latestMinor is Jeff's intentional setting. NEVER modify global.json under any circumstances.

@@ -401,7 +401,8 @@ The LinkedIn provider is architecturally straightforward — it's a polling HTTP
 
 **Rule for future providers:** Every provider config `<EditForm>` MUST include `<AntiforgeryToken />` immediately after the opening tag. If adding a new provider, copy this pattern from Bluesky/Mastodon.
 
-### 2026-02-19: User directive — NEVER touch global.json
-**By:** Jeffrey T. Fritz (via Copilot)
-**What:** global.json must NEVER be modified by any agent. The SDK version is locked and intentional.
-**Why:** User request — captured for team memory. Repeated directive (third time).
+### 2026-02-19: NEVER modify global.json — SDK version is locked and intentional
+**By:** Jeffrey T. Fritz (via Copilot, with clarification session)
+**What:** global.json contains Jeff's intentional `rollForward=latestMinor` setting. No agent may modify, revert, or touch global.json under any circumstances. Previous revert (commit e62510f) was a mistake by the coordinator thinking the setting was an unauthorized edit — this broke `blazor.web.js` because the SDK couldn't roll forward to the necessary minor version.
+**Why:** User clarified this directive multiple times with increasing urgency. The global.json setting enables SDK minor version flexibility required for TypeScript/Blazor build chain compatibility. Locked configuration prevents runtime failures at live events and conferences where TagzApp is deployed.
+**Rule:** NEVER modify global.json. The setting is user-owned infrastructure policy.

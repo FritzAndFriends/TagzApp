@@ -25,3 +25,4 @@
 ## Team Updates
 - 📌 **2026-02-18**: LinkedIn provider plan decided by Mercy — architecture approved for implementation. 10 work items across 4 phases (scaffolding, core provider, integration, testing/docs). Estimated 2-3 days for implementation, 1 day for tests/docs.
 - 📌 **2026-02-18**: LinkedIn Provider Unit Tests completed. 32 test cases written covering configuration, content mapping, budget tracking, token expiry, metadata. Aligned with Sombra's implementation. All tests pass. Full test suite: 64 passed, 2 skipped, 0 failed. Commit: 2da5f39 — decided by Ana
+- 📌 **Team update (2026-02-19)**: global.json rollForward=latestMinor is Jeff's intentional setting. NEVER modify global.json under any circumstances.
