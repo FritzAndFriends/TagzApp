@@ -251,7 +251,7 @@ public class LinkedInProvider : ISocialMediaProvider, IDisposable
 
 			using var request = new HttpRequestMessage(HttpMethod.Get, $"{LinkedInApiBase}/v2/me");
 			request.Headers.Add("Authorization", $"Bearer {_configuration.AccessToken}");
-			request.Headers.Add("LinkedIn-Version", "202401");
+			request.Headers.Add("LinkedIn-Version", LinkedInApiVersion);
 			request.Headers.Add("X-Restli-Protocol-Version", "2.0.0");
 
 			var response = await _httpClient.SendAsync(request);
@@ -259,7 +259,8 @@ public class LinkedInProvider : ISocialMediaProvider, IDisposable
 
 			if (!response.IsSuccessStatusCode)
 			{
-				_logger.LogError("LinkedIn me call failed: {StatusCode} {Reason}", (int)response.StatusCode, response.ReasonPhrase);
+				var errorBody = await response.Content.ReadAsStringAsync();
+				_logger.LogError("LinkedIn /v2/me failed: {StatusCode} {Reason} — {Body}", (int)response.StatusCode, response.ReasonPhrase, errorBody);
 				return null;
 			}
 
