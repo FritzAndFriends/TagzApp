@@ -25,6 +25,11 @@
 - Auto-scroll JavaScript pattern: namespace-based module (`window.EventDisplay`), MutationObserver for detecting new content, pause/resume logic with configurable intervals. Calls `window.Masonry.setupPage` if available to maintain grid layout.
 - Bootstrap Icons: `bi-display` used for Event Display nav link. Never introduce other icon libraries — Bootstrap Icons only.
 
+## Learnings (cont.)
+- LinkedIn provider config UI: Access Token, Refresh Token, and Token Expires At are OAuth-managed by the provider backend, not user-entered. These fields should be read-only obfuscated displays, not editable inputs. The `SaveConfig()` method must not write these keys back — only user-configurable fields (ClientId, ClientSecret, PollingIntervalMinutes, DailyCallBudget, Enabled) should be saved from the admin form.
+- Bootstrap 5 `form-control-plaintext` class is useful for read-only display values inside forms — gives consistent spacing without the input box appearance.
+- Obfuscation pattern for tokens: show first 4 + "••••••••" + last 4 characters for tokens longer than 8 chars; full mask for short tokens; "Not set" for empty values.
+
 ## Team Updates
 - 📌 **2026-02-18**: Waterfall CSS/HTML rendering fixes completed. Fixed 10 rendering issues: overflow bleed on hover, word-break for long URLs, constrained card images, modal text weight, footer fade CSS variable, byline overflow, video alt attribute, overlay alt stray character, modal display semicolon, card keyboard accessibility (role="button" + tabindex). All fixes improve display quality at live events and support dark-mode/keyboard navigation. Commit: 2da5f39 — decided by Symmetra
 - 📌 **2026-02-18**: Event Display page full-screen kiosk mode created. Added `/EventDisplay` route with server wrapper, client WASM component, auto-scroll JS module with MutationObserver pause/resume, and dedicated CSS. Reuses WaterfallMessage component for hands-free operation (no click handlers). Content capped at 50 messages. Includes nav link with `bi-display` icon. Enables hands-free event viewing at conferences and meetups. Commit: bae3984 — decided by Symmetra
