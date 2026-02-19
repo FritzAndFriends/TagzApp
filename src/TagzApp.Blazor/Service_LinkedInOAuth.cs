@@ -21,6 +21,9 @@ public static class Service_LinkedInOAuth
 		// Admin-initiated OAuth authorization endpoint
 		app.MapGet("/api/linkedin/authorize", async (HttpContext context, IConfigureTagzApp config) =>
 		{
+			var logger = context.RequestServices.GetRequiredService<ILoggerFactory>()
+				.CreateLogger("TagzApp.LinkedInOAuth");
+
 			// Require authentication - only admins should initiate provider OAuth
 			if (!context.User.Identity?.IsAuthenticated ?? true)
 			{
@@ -58,6 +61,9 @@ public static class Service_LinkedInOAuth
 
 			var redirectUri = $"{scheme}://{host}/api/linkedin/callback";
 
+			logger.LogInformation("LinkedIn OAuth authorize: Scheme={Scheme}, Host={Host}, RedirectUri={RedirectUri}, ClientId={ClientIdPrefix}...",
+				scheme, host, redirectUri, linkedInConfig.ClientId[..Math.Min(4, linkedInConfig.ClientId.Length)]);
+
 			// Generate state parameter for CSRF protection
 			var state = Guid.NewGuid().ToString("N");
 			var stateData = new
@@ -82,6 +88,8 @@ public static class Service_LinkedInOAuth
 				$"&redirect_uri={Uri.EscapeDataString(redirectUri)}" +
 				$"&scope={Uri.EscapeDataString(scope)}" +
 				$"&state={Uri.EscapeDataString(state)}";
+
+			logger.LogInformation("LinkedIn OAuth authorize: Full AuthUrl={AuthUrl}", authUrl);
 
 			return Results.Redirect(authUrl);
 		}).RequireAuthorization();
