@@ -19,6 +19,11 @@
 			<dd>
 				<input name="ClientSecret" type="password" @bind="Model.ClientSecret" placeholder="LinkedIn App Client Secret" />
 			</dd>
+			<dt><label for="RedirectUri">OAuth Redirect URI (optional):</label></dt>
+			<dd>
+				<InputText name="RedirectUri" @bind-Value="Model.RedirectUri" placeholder="e.g. https://localhost:7106/api/linkedin/callback" />
+				<small class="text-muted">Leave blank to auto-detect. Set explicitly if OAuth fails.</small>
+			</dd>
 			<dt>Access Token:</dt>
 			<dd>
 				<span class="form-control-plaintext text-muted">@ObfuscateToken(Model.AccessToken)</span>
@@ -73,6 +78,7 @@
 			{
 				ClientId = providerConfiguration.GetConfigurationByKey("ClientId"),
 				ClientSecret = providerConfiguration.GetConfigurationByKey("ClientSecret"),
+				RedirectUri = providerConfiguration.GetConfigurationByKey("RedirectUri"),
 				AccessToken = providerConfiguration.GetConfigurationByKey("AccessToken"),
 				RefreshToken = providerConfiguration.GetConfigurationByKey("RefreshToken"),
 				TokenExpiresAt = providerConfiguration.GetConfigurationByKey("TokenExpiresAt"),
@@ -121,6 +127,7 @@
 
 		providerConfiguration.SetConfigurationByKey("ClientId", Model.ClientId);
 		providerConfiguration.SetConfigurationByKey("ClientSecret", Model.ClientSecret);
+		providerConfiguration.SetConfigurationByKey("RedirectUri", Model.RedirectUri);
 		providerConfiguration.SetConfigurationByKey("PollingIntervalMinutes", Model.PollingIntervalMinutes.ToString());
 		providerConfiguration.SetConfigurationByKey("DailyCallBudget", Model.DailyCallBudget.ToString());
 		providerConfiguration.SetConfigurationByKey("Enabled", Model.Enabled.ToString());
@@ -142,6 +149,8 @@
 		public string ClientId { get; set; } = string.Empty;
 
 		public string ClientSecret { get; set; } = string.Empty;
+
+		public string RedirectUri { get; set; } = string.Empty;
 
 		public string AccessToken { get; set; } = string.Empty;
 

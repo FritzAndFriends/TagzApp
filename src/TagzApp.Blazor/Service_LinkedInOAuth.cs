@@ -14,7 +14,7 @@ public static class Service_LinkedInOAuth
 	private const string LinkedInTokenEndpoint = "https://www.linkedin.com/oauth/v2/accessToken";
 
 	// Required scopes: r_member_social reads posts (needs Community Management API product)
-	private static readonly string[] RequiredScopes = ["r_member_social", "w_member_social"];
+	private static readonly string[] RequiredScopes = ["r_member_social"];
 
 	public static void MapLinkedInOAuthEndpoints(this WebApplication app)
 	{
@@ -39,13 +39,18 @@ public static class Service_LinkedInOAuth
 				? request.Headers["X-Forwarded-Host"].ToString()
 				: request.Host.ToString();
 
-			var redirectUri = $"{scheme}://{host}/api/linkedin/callback";
+			var detectedRedirectUri = $"{scheme}://{host}/api/linkedin/callback";
+			var configuredRedirectUri = linkedInConfig.RedirectUri;
+			var usingConfigured = !string.IsNullOrEmpty(configuredRedirectUri);
+			var redirectUri = usingConfigured ? configuredRedirectUri : detectedRedirectUri;
 			var scope = string.Join(" ", RequiredScopes);
 
 			return Results.Json(new
 			{
 				clientId = linkedInConfig.ClientId,
 				redirectUri,
+				configuredRedirectUri,
+				usingConfigured,
 				scope,
 				detectedScheme = scheme,
 				detectedHost = host,
@@ -98,10 +103,12 @@ public static class Service_LinkedInOAuth
 				? request.Headers["X-Forwarded-Host"].ToString()
 				: request.Host.ToString();
 
-			var redirectUri = $"{scheme}://{host}/api/linkedin/callback";
+			var redirectUri = !string.IsNullOrEmpty(linkedInConfig.RedirectUri)
+				? linkedInConfig.RedirectUri
+				: $"{scheme}://{host}/api/linkedin/callback";
 
-			logger.LogInformation("LinkedIn OAuth authorize: Scheme={Scheme}, Host={Host}, RedirectUri={RedirectUri}, ClientId={ClientIdPrefix}...",
-				scheme, host, redirectUri, linkedInConfig.ClientId[..Math.Min(4, linkedInConfig.ClientId.Length)]);
+			logger.LogInformation("LinkedIn OAuth authorize: Scheme={Scheme}, Host={Host}, RedirectUri={RedirectUri}, UsingConfigured={UsingConfigured}, ClientId={ClientIdPrefix}...",
+				scheme, host, redirectUri, !string.IsNullOrEmpty(linkedInConfig.RedirectUri), linkedInConfig.ClientId[..Math.Min(4, linkedInConfig.ClientId.Length)]);
 
 			// Generate state parameter for CSRF protection
 			var state = Guid.NewGuid().ToString("N");
@@ -192,7 +199,9 @@ public static class Service_LinkedInOAuth
 				? request.Headers["X-Forwarded-Host"].ToString()
 				: request.Host.ToString();
 
-			var redirectUri = $"{scheme}://{host}/api/linkedin/callback";
+			var redirectUri = !string.IsNullOrEmpty(linkedInConfig.RedirectUri)
+				? linkedInConfig.RedirectUri
+				: $"{scheme}://{host}/api/linkedin/callback";
 
 			try
 			{

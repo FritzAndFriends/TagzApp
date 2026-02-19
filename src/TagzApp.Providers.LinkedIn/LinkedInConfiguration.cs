@@ -16,6 +16,7 @@ public class LinkedInConfiguration : IProviderConfiguration
 
 	public string ClientId { get; set; } = string.Empty;
 	public string ClientSecret { get; set; } = string.Empty;
+	public string RedirectUri { get; set; } = string.Empty;
 	public string AccessToken { get; set; } = string.Empty;
 	public string RefreshToken { get; set; } = string.Empty;
 	public string TokenExpiresAt { get; set; } = string.Empty;
@@ -23,7 +24,7 @@ public class LinkedInConfiguration : IProviderConfiguration
 	public int DailyCallBudget { get; set; } = 100;
 
 	[JsonIgnore]
-	public string[] Keys => ["ClientId", "ClientSecret", "AccessToken", "RefreshToken", "TokenExpiresAt", "PollingIntervalMinutes", "DailyCallBudget"];
+	public string[] Keys => ["ClientId", "ClientSecret", "RedirectUri", "AccessToken", "RefreshToken", "TokenExpiresAt", "PollingIntervalMinutes", "DailyCallBudget"];
 
 	public string GetConfigurationByKey(string key)
 	{
@@ -31,6 +32,7 @@ public class LinkedInConfiguration : IProviderConfiguration
 		{
 			"ClientId" => ClientId,
 			"ClientSecret" => ClientSecret,
+			"RedirectUri" => RedirectUri,
 			"AccessToken" => AccessToken,
 			"RefreshToken" => RefreshToken,
 			"TokenExpiresAt" => TokenExpiresAt,
@@ -50,6 +52,9 @@ public class LinkedInConfiguration : IProviderConfiguration
 				break;
 			case "ClientSecret":
 				ClientSecret = value;
+				break;
+			case "RedirectUri":
+				RedirectUri = value;
 				break;
 			case "AccessToken":
 				AccessToken = value;
