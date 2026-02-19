@@ -1,6 +1,6 @@
 @page "/admin/providers"
 @attribute [Authorize(Roles = RolesAndPolicies.Role.Admin)]
-@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@rendermode InteractiveServer
 @layout Admin.Shared.AdminLayout
 @inject IMessagingService messagingService
 
