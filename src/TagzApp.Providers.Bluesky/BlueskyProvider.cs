@@ -176,7 +176,7 @@ public class BlueskyProvider : ISocialMediaProvider
 				// In this case, it's a create record for the post.
 				// The path contains the post action and path, we need the path, so we split to get it.
 				var postUrl = $"https://bsky.app/profile/{did}/post/{message.Commit.Ops![0]!.Path!.Split("/").Last()}";
-				
+
 				// Construct profile image URL if avatar exists
 				var profileImageUri = !string.IsNullOrEmpty(profile.Avatar)
 					? new Uri(profile.Avatar)

@@ -1,4 +1,5 @@
 ﻿namespace TagzApp.UnitTest.InMemoryMessaging.GivenOneSubscriber;
+
 public class WhenPublishingMessages
 {
 
