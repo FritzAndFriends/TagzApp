@@ -5,7 +5,6 @@
 <UiProviderConfig ProviderName="LinkedIn" Health="@Health" ProviderIconCssClass="bi-linkedin">
 
 	<EditForm Model="Model" OnValidSubmit="SaveConfig">
-		<AntiforgeryToken />
 		<ValidationSummary />
 		<dl>
 			<dt><label for="ClientId">Client ID:</label></dt>
@@ -45,7 +44,7 @@
 			</dd>
 		</dl>
 
-		<button type="submit" class="btn btn-primary">Save</button>
+		<button type="submit" class="btn btn-primary" disabled="@(!_isInteractive)">Save</button>
 
 	</EditForm>
 
@@ -59,6 +58,17 @@
 	public (SocialMediaStatus Status, string Message) Health { get; set; } = (SocialMediaStatus.Unknown, string.Empty);
 
 	public ViewModel Model { get; set; } = new();
+
+	private bool _isInteractive;
+
+	protected override void OnAfterRender(bool firstRender)
+	{
+		if (firstRender)
+		{
+			_isInteractive = true;
+			StateHasChanged();
+		}
+	}
 
 	protected override async Task OnParametersSetAsync()
 	{
