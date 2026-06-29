@@ -1,0 +1,206 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "csharpfritz",
+      "name": "Jeffrey T. Fritz",
+      "avatar_url": "https://github.com/csharpfritz.png",
+      "profile": "https://github.com/csharpfritz",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "degenone",
+      "name": "Tero Kilpelainen",
+      "avatar_url": "https://github.com/degenone.png",
+      "profile": "https://github.com/degenone",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Stelzi79",
+      "name": "Stelzi79",
+      "avatar_url": "https://github.com/Stelzi79.png",
+      "profile": "https://github.com/Stelzi79",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "NapalmCodes",
+      "name": "Shawn Vause",
+      "avatar_url": "https://github.com/NapalmCodes.png",
+      "profile": "https://github.com/NapalmCodes",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "CZEMacLeod",
+      "name": "Cynthia MacLeod",
+      "avatar_url": "https://github.com/CZEMacLeod.png",
+      "profile": "https://github.com/CZEMacLeod",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "ElliottBrand",
+      "name": "Steve Elliott",
+      "avatar_url": "https://github.com/ElliottBrand.png",
+      "profile": "https://github.com/ElliottBrand",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "JBraunsmaJr",
+      "name": "Badger",
+      "avatar_url": "https://github.com/JBraunsmaJr.png",
+      "profile": "https://github.com/JBraunsmaJr",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "eric-vanartsdalen",
+      "name": "Eric VanArtsdalen",
+      "avatar_url": "https://github.com/eric-vanartsdalen.png",
+      "profile": "https://github.com/eric-vanartsdalen",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "paddybhoy66",
+      "name": "Pat Woods",
+      "avatar_url": "https://github.com/paddybhoy66.png",
+      "profile": "https://github.com/paddybhoy66",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "SQL-MisterMagoo",
+      "name": "SQL-MisterMagoo",
+      "avatar_url": "https://github.com/SQL-MisterMagoo.png",
+      "profile": "https://github.com/SQL-MisterMagoo",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "mpaulosky",
+      "name": "mpaulosky",
+      "avatar_url": "https://github.com/mpaulosky.png",
+      "profile": "https://github.com/mpaulosky",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "mcNets",
+      "name": "Joan Magnet",
+      "avatar_url": "https://github.com/mcNets.png",
+      "profile": "https://github.com/mcNets",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "johanbenschop",
+      "name": "Johan Benschop",
+      "avatar_url": "https://github.com/johanbenschop.png",
+      "profile": "https://github.com/johanbenschop",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "jedelfraisse",
+      "name": "Jonathan Delfraisse",
+      "avatar_url": "https://github.com/jedelfraisse.png",
+      "profile": "https://github.com/jedelfraisse",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "justinhhorner",
+      "name": "Justin Horner",
+      "avatar_url": "https://github.com/justinhhorner.png",
+      "profile": "https://github.com/justinhhorner",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "NickSpaghetti",
+      "name": "Nick Spaghetti",
+      "avatar_url": "https://github.com/NickSpaghetti.png",
+      "profile": "https://github.com/NickSpaghetti",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "mogas",
+      "name": "Nuno Silva",
+      "avatar_url": "https://github.com/mogas.png",
+      "profile": "https://github.com/mogas",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "szalapski",
+      "name": "Patrick Szalapski",
+      "avatar_url": "https://github.com/szalapski.png",
+      "profile": "https://github.com/szalapski",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "acidrod",
+      "name": "Rodrigo Alarcon",
+      "avatar_url": "https://github.com/acidrod.png",
+      "profile": "https://github.com/acidrod",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "ryanshaut",
+      "name": "Ryan Shaut",
+      "avatar_url": "https://github.com/ryanshaut.png",
+      "profile": "https://github.com/ryanshaut",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "ThindalTV",
+      "name": "Thindal",
+      "avatar_url": "https://github.com/ThindalTV.png",
+      "profile": "https://github.com/ThindalTV",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "projectName": "TagzApp",
+  "projectOwner": "FritzAndFriends"
+}
