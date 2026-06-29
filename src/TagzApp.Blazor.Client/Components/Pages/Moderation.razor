@@ -139,7 +139,9 @@
 
 	private HashSet<dynamic> _PauseQueue = new();
 
-	private static string GetContentKey(ModerationContentModel content) => $"{content.Provider}:{content.ProviderId}";
+	private static string GetContentKey(ModerationContentModel content) => ModerationContentFilter.GetContentKey(content);
+
+	private int CurrentFilterState => (int)_FilterApprovalStatus;
 
 	private IEnumerable<ModerationContentModel> GetContentInChronologicalOrder() => 
 		_Content.Values.OrderByDescending(c => c.Timestamp);
@@ -425,7 +427,7 @@ private static readonly TimeSpan _ConnectionTimeout = TimeSpan.FromSeconds(3); /
 		{
 
 			if (!_FilteredProviders.Any(c => c.Equals(content.Provider, StringComparison.InvariantCultureIgnoreCase))) return;
-			if (_FilterApprovalStatus != FilterModerationState.All && _FilterApprovalStatus != FilterModerationState.Pending) return;
+			if (!ModerationContentFilter.ShouldDisplay(CurrentFilterState, ModerationState.Pending)) return;
 
 			if (ThePauseButton.IsPaused)
 			{
@@ -463,17 +465,7 @@ private static readonly TimeSpan _ConnectionTimeout = TimeSpan.FromSeconds(3); /
 				return;
 			}
 
-			var contentKey = GetContentKey(content);
-			if (_Content.TryGetValue(contentKey, out var existing))
-			{
-				if (existing.State == ModerationState.Rejected) return;
-				existing.State = ModerationState.Rejected;
-				existing.ModerationTimestamp = content.ModerationTimestamp;
-			}
-			else
-			{
-				_Content[contentKey] = content;
-			}
+			ModerationContentFilter.ApplyModerationUpdate(_Content, content, CurrentFilterState);
 
 			await InvokeAsync(StateHasChanged);
 
@@ -521,17 +513,7 @@ private static readonly TimeSpan _ConnectionTimeout = TimeSpan.FromSeconds(3); /
 			return;
 		}
 
-		var contentKey = GetContentKey(content);
-		if (_Content.TryGetValue(contentKey, out var existing))
-		{
-			if (existing.State == ModerationState.Approved) return;
-			existing.State = ModerationState.Approved;
-			existing.ModerationTimestamp = content.ModerationTimestamp;
-		}
-		else
-		{
-			_Content[contentKey] = content;
-		}
+		ModerationContentFilter.ApplyModerationUpdate(_Content, content, CurrentFilterState);
 		await InvokeAsync(StateHasChanged);
 
 	}
@@ -576,8 +558,13 @@ private static readonly TimeSpan _ConnectionTimeout = TimeSpan.FromSeconds(3); /
 			{
 				if (item is ContentModel content)
 				{
+					if (!ModerationContentFilter.ShouldDisplay(CurrentFilterState, ModerationState.Pending)) continue;
 					var moderationContent = ModerationContentModel.ToModerationContentModel(content);
 					_Content[GetContentKey(moderationContent)] = moderationContent;
+				}
+				else if (item is ModerationContentModel moderationContent)
+				{
+					ModerationContentFilter.ApplyModerationUpdate(_Content, moderationContent, CurrentFilterState);
 				}
 			}
 			_PauseQueue.Clear();
